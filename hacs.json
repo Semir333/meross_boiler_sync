@@ -1,5 +1,3 @@
 {
-  "name": "Meross Boiler Sync",
-  "zip_release": true,
-  "homeassistant": "2026.10.4"
+  "name": "Meross Boiler Sync"
 }

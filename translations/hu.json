@@ -33,12 +33,22 @@
           "name": "Szoba neve",
           "valves": "Radiátor szelep(ek)",
           "temperature_sensor": "Szoba hőmérséklet szenzor (opcionális)",
+          "valve_control": "Automata szelep szabályzás a hőmérő alapján (kísérleti)",
+          "valve_boost_threshold": "Szelep emelés küszöb – ennél a szobánál (üres = általános érték)",
+          "valve_boost_delay": "Szelep emelés várakozás – ennél a szobánál, perc (üres = általános érték)",
+          "valve_release_margin": "Szelep visszaengedés a cél előtt – ennél a szobánál (üres = általános érték)",
+          "valve_demand_link": "Kazán hőigény a szelep állapotához kötve",
           "humidity_sensor": "Szoba páratartalom szenzor (opcionális)"
         },
         "data_description": {
           "name": "Pl. Nappali",
           "valves": "A szoba szelepei. A szoba célhőmérséklete a szelepen beállított érték (több szelepnél a legmagasabb).",
           "temperature_sensor": "Ha megadod, a hőigényt ez alapján számolja a szelep saját mérése helyett. Ha nem elérhető, a szelepek mérésére vált vissza.",
+          "valve_control": "Ha a szoba hőmérője szerint hideg van, a szelep célhőmérsékletét ideiglenesen a szelep maximumára emeli (a szelep teljesen kinyit), majd a cél elérésekor visszaállítja az eredeti értékre. Csak megadott hőmérővel működik.",
+          "valve_boost_threshold": "Csak az automata szelep szabályzással együtt számít. Ha üresen hagyod, az Alapbeállításokban megadott érték érvényes.",
+          "valve_boost_delay": "Mennyi ideig kell fennállnia az eltérésnek az emelés előtt. 0 = azonnal. Üresen az általános érték érvényes.",
+          "valve_release_margin": "A szelep ennyivel a cél előtt kapja vissza az eredeti célhőmérsékletét. Kisebbnek kell lennie a küszöbnél. Üresen az általános érték érvényes.",
+          "valve_demand_link": "Bekapcsolva a szoba csak akkor kér hőt a kazántól, ha a szelep nyitva van (a szelep saját mérése a cél alatt van), vagy ha a plugin éppen kinyitotta. Így kis eltérésnél a kazán nem tüzel zárt szelepekbe. Szelep adat hiányában nem blokkolja a fűtést.",
           "humidity_sensor": "Magas páratartalomnál enyhén megemeli a szoba célhőmérsékletét (lásd Alapbeállítások)."
         }
       },
@@ -54,12 +64,22 @@
           "name": "Szoba neve",
           "valves": "Radiátor szelep(ek)",
           "temperature_sensor": "Szoba hőmérséklet szenzor (opcionális)",
+          "valve_control": "Automata szelep szabályzás a hőmérő alapján (kísérleti)",
+          "valve_boost_threshold": "Szelep emelés küszöb – ennél a szobánál (üres = általános érték)",
+          "valve_boost_delay": "Szelep emelés várakozás – ennél a szobánál, perc (üres = általános érték)",
+          "valve_release_margin": "Szelep visszaengedés a cél előtt – ennél a szobánál (üres = általános érték)",
+          "valve_demand_link": "Kazán hőigény a szelep állapotához kötve",
           "humidity_sensor": "Szoba páratartalom szenzor (opcionális)"
         },
         "data_description": {
           "name": "Pl. Nappali",
           "valves": "A szoba szelepei. A szoba célhőmérséklete a szelepen beállított érték (több szelepnél a legmagasabb).",
           "temperature_sensor": "Ha megadod, a hőigényt ez alapján számolja a szelep saját mérése helyett. Ha nem elérhető, a szelepek mérésére vált vissza.",
+          "valve_control": "Ha a szoba hőmérője szerint hideg van, a szelep célhőmérsékletét ideiglenesen a szelep maximumára emeli (a szelep teljesen kinyit), majd a cél elérésekor visszaállítja az eredeti értékre. Csak megadott hőmérővel működik.",
+          "valve_boost_threshold": "Csak az automata szelep szabályzással együtt számít. Ha üresen hagyod, az Alapbeállításokban megadott érték érvényes.",
+          "valve_boost_delay": "Mennyi ideig kell fennállnia az eltérésnek az emelés előtt. 0 = azonnal. Üresen az általános érték érvényes.",
+          "valve_release_margin": "A szelep ennyivel a cél előtt kapja vissza az eredeti célhőmérsékletét. Kisebbnek kell lennie a küszöbnél. Üresen az általános érték érvényes.",
+          "valve_demand_link": "Bekapcsolva a szoba csak akkor kér hőt a kazántól, ha a szelep nyitva van (a szelep saját mérése a cél alatt van), vagy ha a plugin éppen kinyitotta. Így kis eltérésnél a kazán nem tüzel zárt szelepekbe. Szelep adat hiányában nem blokkolja a fűtést.",
           "humidity_sensor": "Magas páratartalomnál enyhén megemeli a szoba célhőmérsékletét (lásd Alapbeállítások)."
         }
       },
@@ -75,13 +95,21 @@
           "hysteresis": "Hiszterézis",
           "min_switch_time": "Minimális kapcsolási idő",
           "boiler_on_temp": "Kazán célhőmérséklet fűtéskor (0 = nem módosít)",
-          "humidity_max_boost": "Páratartalom miatti max. emelés (0 = ki)"
+          "humidity_max_boost": "Páratartalom miatti max. emelés (0 = ki)",
+          "valve_boost_threshold": "Szelep emelés küszöb – alapértelmezés (ennyivel legyen hidegebb a célnál)",
+          "valve_boost_delay": "Szelep emelés várakozás – alapértelmezés",
+          "valve_release_margin": "Szelep visszaengedés a cél előtt – alapértelmezés",
+          "valve_dry_run": "Szelep szabályzás próbaüzem (csak naplóz, nem ír a szelepekbe)"
         },
         "data_description": {
           "hysteresis": "A szoba akkor kér hőt, ha ennyivel hidegebb a célnál; addig kér, amíg a célt el nem éri.",
           "min_switch_time": "A kazán be/ki kapcsolása között legalább ennyi idő telik el.",
           "boiler_on_temp": "Ezt a célhőmérsékletet kapja a kazán termosztát, amikor fűtés kell.",
-          "humidity_max_boost": "A célhőmérséklet 60% páratartalomtól fokozatosan nő, 80%-nál éri el ezt az értéket. 17 °C alatti célnál nincs emelés."
+          "humidity_max_boost": "A célhőmérséklet 60% páratartalomtól fokozatosan nő, 80%-nál éri el ezt az értéket. 17 °C alatti célnál nincs emelés.",
+          "valve_boost_threshold": "Alapértelmezés minden szobára, szobánként felülírható. Az automata szelep szabályzás csak akkor emel, ha a szoba legalább ennyivel hidegebb a célnál. Kisebb eltérésnél a szelep maga dönt, és a radiátor maradékhője általában elég. (A kazán hőigénye ettől függetlenül a hiszterézisnél indul.)",
+          "valve_boost_delay": "Alapértelmezés minden szobára. Az eltérésnek ennyi ideig folyamatosan fenn kell állnia az emelés előtt: addig megvárjuk, hogy a radiátor maradékhője felmelegíti-e a szobát. Ha az eltérés a küszöbnél 1 °C-kal is nagyobb (pl. magasabbra állítottad a célt), nincs várakozás. 0 = azonnal.",
+          "valve_release_margin": "Alapértelmezés minden szobára. A szelep ennyivel a cél elérése előtt visszakapja az eredeti célhőmérsékletét, mert a radiátor maradékhője még tovább melegíti a szobát (túllövés ellen). Kisebbnek kell lennie az emelés küszöbnél.",
+          "valve_dry_run": "Bekapcsolva a szelep szabályzás csak a naplóba írja, mit tenne ([PRÓBAÜZEM] előtaggal), de nem módosít semmit a szelepeken. Az első élő teszthez ajánlott."
         }
       },
       "summer": {
@@ -105,6 +133,8 @@
       "no_valves": "Legalább egy szelepet válassz ki.",
       "boiler_in_valves": "A kazán termosztát nem lehet szelep.",
       "valve_in_use": "Ez a szelep már egy másik szobához tartozik.",
+      "control_needs_sensor": "A szelep szabályzáshoz meg kell adni a szoba hőmérséklet szenzorát.",
+      "release_ge_threshold": "A visszaengedésnek kisebbnek kell lennie, mint az emelés küszöbnek.",
       "invalid_date": "Érvénytelen dátum, a formátum HH-NN (pl. 05-15)."
     }
   }

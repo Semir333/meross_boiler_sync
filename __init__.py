@@ -18,7 +18,7 @@ from .const import (
     DOMAIN,
     STORAGE_VERSION,
 )
-from .controller import BoilerController
+from .controller import BoilerController, async_restore_on_remove
 
 PLATFORMS = [Platform.BINARY_SENSOR]
 
@@ -67,6 +67,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    await async_restore_on_remove(hass, entry.entry_id)
     await Store(hass, STORAGE_VERSION, f"{DOMAIN}.{entry.entry_id}").async_remove()
 
 

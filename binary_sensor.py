@@ -70,7 +70,7 @@ class RoomDemandSensor(_BaseSensor):
 
     @property
     def is_on(self) -> bool:
-        return self._controller.status[self._room_id].calling
+        return self._controller.status[self._room_id].boiler_demand
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -84,6 +84,17 @@ class RoomDemandSensor(_BaseSensor):
             "effective_target": st.effective_target,
             "humidity": st.humidity,
             "humidity_boost": st.humidity_boost,
+            "room_below_target": st.calling,
+            "deviation": st.deviation,
+            "valve_demand_link": st.valve_demand_link,
+            "valve_open_estimate": st.valve_open if st.valve_demand_link else None,
+            "boost_threshold": st.boost_threshold,
+            "boost_delay_minutes": round(st.boost_delay_s / 60, 1),
+            "release_margin": st.release_margin,
+            "valve_control": st.valve_control,
+            "valve_boost_waiting": st.cold_since is not None and not st.boost_wanted,
+            "valve_boosted": st.boosted,
+            "valve_dry_run": self._controller.valve_dry_run,
         }
 
 

@@ -24,6 +24,9 @@ from homeassistant.util import dt as dt_util
 
 from .const import (
     AVG_WINDOW_SECONDS,
+    BOOST_GRACE_SECONDS,
+    BOOST_IMMEDIATE_EXTRA,
+    BOOST_TOLERANCE,
     COMFORT_MIN_TARGET,
     CONF_BOILER,
     CONF_BOILER_ON_TEMP,
@@ -35,11 +38,17 @@ from .const import (
     CONF_ROOM_ID,
     CONF_ROOM_NAME,
     CONF_ROOM_TEMP,
+    CONF_ROOM_VALVE_CONTROL,
+    CONF_ROOM_VALVE_LINK,
     CONF_ROOM_VALVES,
     CONF_ROOMS,
     CONF_SUMMER_END,
     CONF_SUMMER_START,
     CONF_SUMMER_TEMP,
+    CONF_VALVE_BOOST_DELAY,
+    CONF_VALVE_BOOST_THRESHOLD,
+    CONF_VALVE_DRY_RUN,
+    CONF_VALVE_RELEASE_MARGIN,
     DEFAULT_BOILER_ON_TEMP,
     DEFAULT_HUMIDITY_MAX_BOOST,
     DEFAULT_HYSTERESIS,
@@ -47,10 +56,17 @@ from .const import (
     DEFAULT_SUMMER_END,
     DEFAULT_SUMMER_START,
     DEFAULT_SUMMER_TEMP,
+    DEFAULT_VALVE_BOOST_DELAY,
+    DEFAULT_VALVE_BOOST_THRESHOLD,
+    DEFAULT_VALVE_DRY_RUN,
+    DEFAULT_VALVE_MAX_TEMP,
+    DEFAULT_VALVE_RELEASE_MARGIN,
     DOMAIN,
     HUMIDITY_FULL,
     HUMIDITY_START,
     MAX_EFFECTIVE_TARGET,
+    MIN_BOOST_GAIN,
+    RESTORE_RETRY_SECONDS,
     SAMPLE_INTERVAL_SECONDS,
     STORAGE_VERSION,
     SUMMER_HYSTERESIS,
@@ -60,6 +76,61 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 TICK = timedelta(seconds=60)
+
+
+async def _climate_call(
+    hass: HomeAssistant, entity_id: str, service: str, **data: Any
+) -> bool:
+    try:
+        await hass.services.async_call(
+            "climate",
+            service,
+            {"entity_id": entity_id, **data},
+            blocking=True,
+        )
+    except HomeAssistantError as err:
+        _LOGGER.warning("climate.%s hiba a(z) %s-en: %s", service, entity_id, err)
+        return False
+    return True
+
+
+async def _async_restore_valve(
+    hass: HomeAssistant, valve_id: str, state: State, rec: dict[str, Any]
+) -> bool:
+    """Visszaállítja a szelep eredeti célját (vagy az eredeti presetet, ha az változott)."""
+    preset = state.attributes.get("preset_mode")
+    presets = state.attributes.get("preset_modes") or []
+    original_preset = rec.get("preset")
+    if original_preset and preset != original_preset and original_preset in presets:
+        return await _climate_call(
+            hass, valve_id, "set_preset_mode", preset_mode=original_preset
+        )
+    return await _climate_call(
+        hass, valve_id, "set_temperature", temperature=rec["original"]
+    )
+
+
+async def async_restore_on_remove(hass: HomeAssistant, entry_id: str) -> None:
+    """Az integráció törlésekor visszaállítja az összes még emelt szelepet."""
+    store = Store(hass, STORAGE_VERSION, f"{DOMAIN}.{entry_id}")
+    data = await store.async_load()
+    boosts = data.get("boosts") if isinstance(data, dict) else None
+    for valve_id, rec in (boosts or {}).items():
+        state = hass.states.get(valve_id)
+        if state is None or state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
+            continue
+        try:
+            raw = float(state.attributes["temperature"])
+            if abs(raw - float(rec["boost"])) > BOOST_TOLERANCE:
+                continue  # időközben máshol módosították
+            await _async_restore_valve(
+                hass,
+                valve_id,
+                state,
+                {"original": float(rec["original"]), "preset": rec.get("preset")},
+            )
+        except (KeyError, TypeError, ValueError):
+            continue
 
 
 @dataclass
@@ -78,6 +149,19 @@ class RoomStatus:
     effective_target: float | None = None
     humidity: float | None = None
     humidity_boost: float = 0.0
+    valve_control: bool = False
+    boosted: bool = False
+    deviation: float | None = None  # cél - aktuális (pozitív: hideg van)
+    boost_wanted: bool = False
+    cold_since: float | None = None
+    # szobánkénti (vagy az általánosból örökölt) szelep paraméterek
+    boost_threshold: float = DEFAULT_VALVE_BOOST_THRESHOLD
+    boost_delay_s: float = DEFAULT_VALVE_BOOST_DELAY * 60
+    release_margin: float = DEFAULT_VALVE_RELEASE_MARGIN
+    # kazán hőigény a szelep állapotához kötve
+    valve_demand_link: bool = False
+    valve_open: bool = False
+    boiler_demand: bool = False
 
 
 class BoilerController:
@@ -99,6 +183,19 @@ class BoilerController:
             cfg.get(CONF_HUMIDITY_MAX_BOOST, DEFAULT_HUMIDITY_MAX_BOOST)
         )
 
+        self.valve_dry_run = bool(cfg.get(CONF_VALVE_DRY_RUN, DEFAULT_VALVE_DRY_RUN))
+        self.valve_boost_threshold = float(
+            cfg.get(CONF_VALVE_BOOST_THRESHOLD, DEFAULT_VALVE_BOOST_THRESHOLD)
+        )
+        self.valve_boost_delay = (
+            float(cfg.get(CONF_VALVE_BOOST_DELAY, DEFAULT_VALVE_BOOST_DELAY)) * 60
+        )
+        release = float(cfg.get(CONF_VALVE_RELEASE_MARGIN, DEFAULT_VALVE_RELEASE_MARGIN))
+        self._release_raw = release
+        if release >= self.valve_boost_threshold:  # különben azonnal újraindulna
+            release = round(max(self.valve_boost_threshold - 0.1, 0.0), 2)
+        self.valve_release_margin = release
+
         self.outdoor_sensor: str | None = cfg.get(CONF_OUTDOOR_SENSOR) or None
         self.summer_temp = float(cfg.get(CONF_SUMMER_TEMP, DEFAULT_SUMMER_TEMP))
         self.summer_start = parse_month_day(
@@ -117,20 +214,42 @@ class BoilerController:
         self._store = Store(hass, STORAGE_VERSION, f"{DOMAIN}.{entry.entry_id}")
 
         self.status: dict[str, RoomStatus] = {
-            room[CONF_ROOM_ID]: RoomStatus(
-                room_id=room[CONF_ROOM_ID],
-                name=room[CONF_ROOM_NAME],
-                valves=list(room[CONF_ROOM_VALVES]),
-            )
-            for room in self.rooms
+            room[CONF_ROOM_ID]: self._build_status(room) for room in self.rooms
         }
 
         self._last_switch = None
         self._prev_summer = False
+        # szelep emelések: valve_id -> {original, boost, preset, ts, restoring}
+        self._boosts: dict[str, dict[str, Any]] = {}
+        self._dry: set[str] = set()
         self._unsubs: list[Callable[[], None]] = []
         self._retry_unsub: Callable[[], None] | None = None
         self._listeners: list[Callable[[], None]] = []
         self._lock = asyncio.Lock()
+
+    def _build_status(self, room: dict[str, Any]) -> RoomStatus:
+        """Szoba státusz; a szelep paraméterek a szobából, ennek hiányában az általánosból."""
+
+        def opt(key: str, default: float) -> float:
+            value = room.get(key)
+            return default if value is None else float(value)
+
+        threshold = opt(CONF_VALVE_BOOST_THRESHOLD, self.valve_boost_threshold)
+        delay_min = opt(CONF_VALVE_BOOST_DELAY, self.valve_boost_delay / 60)
+        release = opt(CONF_VALVE_RELEASE_MARGIN, self._release_raw)
+        if release >= threshold:  # különben azonnal újraindulna
+            release = round(max(threshold - 0.1, 0.0), 2)
+        return RoomStatus(
+            room_id=room[CONF_ROOM_ID],
+            name=room[CONF_ROOM_NAME],
+            valves=list(room[CONF_ROOM_VALVES]),
+            valve_control=bool(room.get(CONF_ROOM_VALVE_CONTROL))
+            and bool(room.get(CONF_ROOM_TEMP)),
+            boost_threshold=threshold,
+            boost_delay_s=delay_min * 60,
+            release_margin=release,
+            valve_demand_link=bool(room.get(CONF_ROOM_VALVE_LINK)),
+        )
 
     # ------------------------------------------------------------------ életciklus
     async def async_load(self) -> None:
@@ -143,6 +262,23 @@ class BoilerController:
                 self._samples.append((float(item[0]), float(item[1])))
             except (TypeError, ValueError, IndexError):
                 continue
+        for valve_id, rec in (data.get("boosts") or {}).items():
+            try:
+                self._boosts[valve_id] = {
+                    "original": float(rec["original"]),
+                    "boost": float(rec["boost"]),
+                    "preset": rec.get("preset"),
+                    "ts": float(rec.get("ts", 0)),
+                    "restoring": bool(rec.get("restoring", False)),
+                }
+            except (KeyError, TypeError, ValueError):
+                continue
+        # újraindítás előtt még emelt szobák: ne engedjük el és emeljük újra feleslegesen
+        for st in self.status.values():
+            if any(
+                v in self._boosts and not self._boosts[v]["restoring"] for v in st.valves
+            ):
+                st.boost_wanted = True
 
     async def async_start(self) -> None:
         if not self.rooms:
@@ -233,7 +369,10 @@ class BoilerController:
         return md >= start or md <= end  # évhatáron átnyúló időszak
 
     def _data_to_save(self) -> dict[str, Any]:
-        return {"samples": [[ts, val] for ts, val in self._samples]}
+        return {
+            "samples": [[ts, val] for ts, val in self._samples],
+            "boosts": self._boosts,
+        }
 
     # ------------------------------------------------------------------ nyári mód
     def _update_outdoor(self) -> None:
@@ -283,6 +422,7 @@ class BoilerController:
 
         targets: list[float] = []
         valve_temps: list[float] = []
+        pairs: list[tuple[float, float]] = []
         reachable = 0
         for valve_id in room[CONF_ROOM_VALVES]:
             state = self.hass.states.get(valve_id)
@@ -291,23 +431,29 @@ class BoilerController:
             reachable += 1
             if state.state == HVACMode.OFF:
                 continue
+            raw = self._valve_target(state)
+            user_target = self._user_target(valve_id, raw) if raw is not None else None
+            if user_target is not None:
+                targets.append(user_target)
             try:
-                targets.append(float(state.attributes["temperature"]))
+                valve_current = float(state.attributes["current_temperature"])
             except (KeyError, TypeError, ValueError):
-                pass
-            try:
-                valve_temps.append(float(state.attributes["current_temperature"]))
-            except (KeyError, TypeError, ValueError):
-                pass
+                valve_current = None
+            if valve_current is not None:
+                valve_temps.append(valve_current)
+                if user_target is not None:
+                    pairs.append((valve_current, user_target))
 
         st.reachable = reachable > 0
         st.active = bool(targets)
         st.current = st.source = st.target = st.effective_target = None
+        st.deviation = None
         st.humidity = None
         st.humidity_boost = 0.0
 
         if not targets:
             st.calling = False
+            st.valve_open = False
             return st
 
         # a szoba célhőmérséklete a szelep(ek)en beállított érték (a legmagasabb)
@@ -339,6 +485,9 @@ class BoilerController:
             2,
         )
 
+        if current is not None:
+            st.deviation = round(st.effective_target - current, 2)
+
         # hőigény hiszterézissel: indul, ha a cél alatt van, megy a cél eléréséig
         if current is None:
             st.calling = False
@@ -347,6 +496,10 @@ class BoilerController:
                 st.calling = False
         elif current < st.effective_target - self.hysteresis:
             st.calling = True
+
+        st.valve_open = (
+            self._valve_open(st.valve_open, pairs) if st.valve_demand_link else False
+        )
         return st
 
     # ------------------------------------------------------------------ kiértékelés
@@ -372,11 +525,15 @@ class BoilerController:
             )
             self._prev_summer = self.summer_active
 
+        await self._async_control_valves(statuses)
+        for st in statuses:
+            st.boiler_demand = self._room_boiler_demand(st)
+
         if not statuses or not any(st.reachable for st in statuses):
             # nincs szoba, vagy egyik szelep sem elérhető: nem nyúlunk a kazánhoz
             return
 
-        demand = any(st.calling for st in statuses)
+        demand = any(st.boiler_demand for st in statuses)
 
         boiler = self.hass.states.get(self.boiler)
         if boiler is None or boiler.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
@@ -401,10 +558,211 @@ class BoilerController:
                 "BE" if demand else "KI",
                 (
                     "hőt kérő szobák: "
-                    + ", ".join(st.name for st in statuses if st.calling)
+                    + ", ".join(st.name for st in statuses if st.boiler_demand)
                     if demand
                     else "nyári mód" if self.summer_active else "nincs hőigény"
                 ),
+            )
+
+    # ------------------------------------------------------------------ szelep szabályzás
+    @staticmethod
+    def _valve_target(state: State) -> float | None:
+        try:
+            return float(state.attributes["temperature"])
+        except (KeyError, TypeError, ValueError):
+            return None
+
+    def _user_target(self, valve_id: str, raw: float) -> float:
+        """A szelep "valódi" célja: a mi emelésünk alatt az eredeti érték."""
+        rec = self._boosts.get(valve_id)
+        if rec and abs(raw - rec["boost"]) <= BOOST_TOLERANCE:
+            return rec["original"]
+        return raw
+
+    async def _async_save(self) -> None:
+        await self._store.async_save(self._data_to_save())
+
+    async def _async_drop_boost(self, valve_id: str) -> None:
+        self._boosts.pop(valve_id, None)
+        await self._async_save()
+
+    async def _async_control_valves(self, statuses: list[RoomStatus]) -> None:
+        """A szoba hőmérője alapján teljesen kinyitja / visszaállítja a szelepeket."""
+        want: dict[str, bool] = {}
+        now_ts = dt_util.utcnow().timestamp()
+        for room in self.rooms:
+            st = self.status[room[CONF_ROOM_ID]]
+            boost = self._room_wants_boost(st, now_ts)
+            for valve_id in room[CONF_ROOM_VALVES]:
+                want[valve_id] = boost
+        # kikapcsolt / törölt vezérlésű szelepek: a korábbi emelést vissza kell állítani
+        for valve_id in list(self._boosts):
+            want.setdefault(valve_id, False)
+
+        for valve_id, wanted in want.items():
+            if self.valve_dry_run:
+                if valve_id in self._boosts:
+                    await self._async_control_valve(valve_id, False)
+                self._dry_run_valve(valve_id, wanted)
+            else:
+                await self._async_control_valve(valve_id, wanted)
+
+        for st in statuses:
+            if self.valve_dry_run:
+                st.boosted = any(v in self._dry for v in st.valves)
+            else:
+                st.boosted = any(
+                    v in self._boosts and not self._boosts[v]["restoring"]
+                    for v in st.valves
+                )
+
+    def _room_wants_boost(self, st: RoomStatus, now_ts: float) -> bool:
+        """Mikor kell a szelepet ténylegesen kinyitni a szoba hőmérője alapján.
+
+        - indul: ha a szoba legalább `küszöb`-bel hidegebb a célnál ÉS ez
+          `várakozás` ideje folyamatosan fennáll (nagy eltérésnél nincs várakozás)
+        - megáll: ha a szoba a célhoz `visszaengedés`-nyire megközelített
+        Kis eltérésnél a szelep maga dönt, a radiátor maradékhője elég lehet.
+        """
+        if not (
+            st.valve_control
+            and st.source == "sensor"
+            and st.calling
+            and st.deviation is not None
+        ):
+            st.boost_wanted = False
+            st.cold_since = None
+            return False
+
+        dev = st.deviation
+        if st.boost_wanted:
+            if dev <= st.release_margin:
+                st.boost_wanted = False
+                st.cold_since = None
+            return st.boost_wanted
+
+        if dev >= st.boost_threshold:
+            if st.cold_since is None:
+                st.cold_since = now_ts
+            big = dev >= st.boost_threshold + BOOST_IMMEDIATE_EXTRA
+            if big or now_ts - st.cold_since >= st.boost_delay_s:
+                st.boost_wanted = True
+        else:
+            st.cold_since = None
+        return st.boost_wanted
+
+    def _valve_open(self, previous: bool, pairs: list[tuple[float, float]]) -> bool:
+        """Becslés: a szelep a saját szabályzása szerint nyitva van-e (hiszterézissel)."""
+        if not pairs:
+            return True  # nincs adat: nem blokkoljuk a fűtést
+        if previous:
+            return any(cur < tgt for cur, tgt in pairs)
+        return any(cur < tgt - self.hysteresis for cur, tgt in pairs)
+
+    def _room_boiler_demand(self, st: RoomStatus) -> bool:
+        """A szoba kér-e hőt a kazántól (szelep állapothoz kötés esetén csak nyitott szelepnél)."""
+        if not st.calling:
+            return False
+        if not st.valve_demand_link:
+            return True
+        forced_open = st.boost_wanted and not self.valve_dry_run
+        return forced_open or st.valve_open
+
+    def _dry_run_valve(self, valve_id: str, wanted: bool) -> None:
+        was = valve_id in self._dry
+        if wanted and not was:
+            self._dry.add(valve_id)
+            _LOGGER.info(
+                "[PRÓBAÜZEM] %s: kinyitnám (célhőmérséklet emelés), mert a szoba "
+                "hőmérője szerint hideg van",
+                valve_id,
+            )
+        elif not wanted and was:
+            self._dry.discard(valve_id)
+            _LOGGER.info(
+                "[PRÓBAÜZEM] %s: visszaállítanám az eredeti célhőmérsékletet", valve_id
+            )
+
+    async def _async_control_valve(self, valve_id: str, wanted: bool) -> None:
+        state = self.hass.states.get(valve_id)
+        if state is None or state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
+            return
+        rec = self._boosts.get(valve_id)
+        now_ts = dt_util.utcnow().timestamp()
+
+        if state.state == HVACMode.OFF:
+            if rec is not None:  # a felhasználó kikapcsolta a szelepet
+                await self._async_drop_boost(valve_id)
+            return
+
+        raw = self._valve_target(state)
+        if raw is None:
+            return
+
+        if rec is not None:
+            at_boost = abs(raw - rec["boost"]) <= BOOST_TOLERANCE
+            if rec["restoring"]:
+                if not at_boost:
+                    await self._async_drop_boost(valve_id)  # visszaállt
+                elif now_ts - rec["ts"] > RESTORE_RETRY_SECONDS:
+                    await self._async_restore(valve_id, state, rec)
+                return
+            if not at_boost:
+                if now_ts - rec["ts"] < BOOST_GRACE_SECONDS:
+                    return  # még nem érkezett meg a szelep visszajelzése
+                _LOGGER.info(
+                    "%s: a célhőmérsékletet közben máshol módosították (%s °C), "
+                    "nem állítom vissza",
+                    valve_id,
+                    raw,
+                )
+                await self._async_drop_boost(valve_id)
+                rec = None
+
+        if wanted and rec is None:
+            await self._async_start_boost(valve_id, state, raw)
+        elif not wanted and rec is not None:
+            await self._async_restore(valve_id, state, rec)
+
+    async def _async_start_boost(self, valve_id: str, state: State, raw: float) -> None:
+        try:
+            boost = float(state.attributes.get("max_temp", DEFAULT_VALVE_MAX_TEMP))
+        except (TypeError, ValueError):
+            boost = DEFAULT_VALVE_MAX_TEMP
+        if boost - raw < MIN_BOOST_GAIN:
+            return  # a szelep már eleve (majdnem) maximumon van
+        # az eredeti presetet a hívás ELŐTT jegyezzük meg (a hívás átválthatja kézire)
+        original_preset = state.attributes.get("preset_mode")
+        if not await _climate_call(
+            self.hass, valve_id, "set_temperature", temperature=boost
+        ):
+            return
+        self._boosts[valve_id] = {
+            "original": raw,
+            "boost": boost,
+            "preset": original_preset,
+            "ts": dt_util.utcnow().timestamp(),
+            "restoring": False,
+        }
+        await self._async_save()
+        _LOGGER.info(
+            "%s: célhőmérséklet %s -> %s °C (szoba hőmérője szerint hideg van)",
+            valve_id,
+            raw,
+            boost,
+        )
+
+    async def _async_restore(
+        self, valve_id: str, state: State, rec: dict[str, Any]
+    ) -> None:
+        if await _async_restore_valve(self.hass, valve_id, state, rec):
+            rec["restoring"] = True
+            rec["ts"] = dt_util.utcnow().timestamp()
+            await self._async_save()
+            _LOGGER.info(
+                "%s: eredeti célhőmérséklet visszaállítva (%s °C)",
+                valve_id,
+                rec["original"],
             )
 
     # ------------------------------------------------------------------ kazán
@@ -434,14 +792,4 @@ class BoilerController:
                 await self._call("set_temperature", temperature=target)
 
     async def _call(self, service: str, **data) -> bool:
-        try:
-            await self.hass.services.async_call(
-                "climate",
-                service,
-                {"entity_id": self.boiler, **data},
-                blocking=True,
-            )
-        except HomeAssistantError as err:
-            _LOGGER.warning("climate.%s hiba a(z) %s-en: %s", service, self.boiler, err)
-            return False
-        return True
+        return await _climate_call(self.hass, self.boiler, service, **data)

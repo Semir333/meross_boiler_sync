@@ -33,12 +33,22 @@
           "name": "Room name",
           "valves": "Radiator valve(s)",
           "temperature_sensor": "Room temperature sensor (optional)",
+          "valve_control": "Automatic valve control by thermometer (experimental)",
+          "valve_boost_threshold": "Valve boost threshold – this room (empty = global value)",
+          "valve_boost_delay": "Valve boost wait – this room, minutes (empty = global value)",
+          "valve_release_margin": "Valve release before target – this room (empty = global value)",
+          "valve_demand_link": "Tie boiler demand to valve state",
           "humidity_sensor": "Room humidity sensor (optional)"
         },
         "data_description": {
           "name": "E.g. Living room",
           "valves": "Valves of this room. The room target is the target set on the valve (highest one if several).",
           "temperature_sensor": "If set, heat demand is calculated from it instead of the valve's own reading. Falls back to the valves if unavailable.",
+          "valve_control": "When the room thermometer says it is cold, the valve target is temporarily raised to the valve maximum (valve fully opens) and restored to the original value once the target is reached. Requires a temperature sensor.",
+          "valve_boost_threshold": "Only relevant with automatic valve control. If empty, the value from Settings applies.",
+          "valve_boost_delay": "How long the deviation must persist before boosting. 0 = immediately. If empty, the global value applies.",
+          "valve_release_margin": "The valve gets its original target back this far before the target. Must be below the threshold. If empty, the global value applies.",
+          "valve_demand_link": "When on, the room only calls the boiler when its valve is open (valve's own reading is below its target) or when the plugin is forcing it open. Avoids firing the boiler into closed valves for small deviations. Does not block heating if valve data is missing.",
           "humidity_sensor": "At high humidity the room target is raised slightly (see Settings)."
         }
       },
@@ -54,12 +64,22 @@
           "name": "Room name",
           "valves": "Radiator valve(s)",
           "temperature_sensor": "Room temperature sensor (optional)",
+          "valve_control": "Automatic valve control by thermometer (experimental)",
+          "valve_boost_threshold": "Valve boost threshold – this room (empty = global value)",
+          "valve_boost_delay": "Valve boost wait – this room, minutes (empty = global value)",
+          "valve_release_margin": "Valve release before target – this room (empty = global value)",
+          "valve_demand_link": "Tie boiler demand to valve state",
           "humidity_sensor": "Room humidity sensor (optional)"
         },
         "data_description": {
           "name": "E.g. Living room",
           "valves": "Valves of this room. The room target is the target set on the valve (highest one if several).",
           "temperature_sensor": "If set, heat demand is calculated from it instead of the valve's own reading. Falls back to the valves if unavailable.",
+          "valve_control": "When the room thermometer says it is cold, the valve target is temporarily raised to the valve maximum (valve fully opens) and restored to the original value once the target is reached. Requires a temperature sensor.",
+          "valve_boost_threshold": "Only relevant with automatic valve control. If empty, the value from Settings applies.",
+          "valve_boost_delay": "How long the deviation must persist before boosting. 0 = immediately. If empty, the global value applies.",
+          "valve_release_margin": "The valve gets its original target back this far before the target. Must be below the threshold. If empty, the global value applies.",
+          "valve_demand_link": "When on, the room only calls the boiler when its valve is open (valve's own reading is below its target) or when the plugin is forcing it open. Avoids firing the boiler into closed valves for small deviations. Does not block heating if valve data is missing.",
           "humidity_sensor": "At high humidity the room target is raised slightly (see Settings)."
         }
       },
@@ -75,13 +95,21 @@
           "hysteresis": "Hysteresis",
           "min_switch_time": "Minimum switching time",
           "boiler_on_temp": "Boiler target when heating (0 = don't change)",
-          "humidity_max_boost": "Max. humidity boost (0 = off)"
+          "humidity_max_boost": "Max. humidity boost (0 = off)",
+          "valve_boost_threshold": "Valve boost threshold – default (how far below target)",
+          "valve_boost_delay": "Valve boost wait time – default",
+          "valve_release_margin": "Valve release before target – default",
+          "valve_dry_run": "Valve control dry run (log only, no writes to valves)"
         },
         "data_description": {
           "hysteresis": "A room calls for heat when this much below target, and keeps calling until the target is reached.",
           "min_switch_time": "Minimum time between boiler on/off switches.",
           "boiler_on_temp": "Target set on the boiler thermostat when heat is needed.",
-          "humidity_max_boost": "Target rises gradually from 60% humidity and reaches this value at 80%. No boost for targets below 17 °C."
+          "humidity_max_boost": "Target rises gradually from 60% humidity and reaches this value at 80%. No boost for targets below 17 °C.",
+          "valve_boost_threshold": "Default for all rooms, can be overridden per room. Automatic valve control only boosts when the room is at least this far below target. For smaller deviations the valve decides alone and the radiator's residual heat is usually enough. (Boiler demand still starts at the hysteresis.)",
+          "valve_boost_delay": "The deviation must persist this long before boosting, giving the radiator's residual heat a chance to warm the room. If the deviation exceeds the threshold by 1 °C (e.g. you raised the target) there is no wait. 0 = immediately.",
+          "valve_release_margin": "The valve gets its original target back this far before the room reaches the target, since the radiator's residual heat keeps warming the room (prevents overshoot). Must be smaller than the boost threshold.",
+          "valve_dry_run": "When on, valve control only logs what it would do ([PRÓBAÜZEM] prefix) and changes nothing on the valves. Recommended for the first live test."
         }
       },
       "summer": {
@@ -105,6 +133,8 @@
       "no_valves": "Select at least one valve.",
       "boiler_in_valves": "The boiler thermostat cannot be a valve.",
       "valve_in_use": "This valve already belongs to another room.",
+      "control_needs_sensor": "Valve control requires a room temperature sensor.",
+      "release_ge_threshold": "Release must be smaller than the boost threshold.",
       "invalid_date": "Invalid date, use MM-DD (e.g. 05-15)."
     }
   }

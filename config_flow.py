@@ -21,11 +21,17 @@ from .const import (
     CONF_ROOM_ID,
     CONF_ROOM_NAME,
     CONF_ROOM_TEMP,
+    CONF_ROOM_VALVE_CONTROL,
+    CONF_ROOM_VALVE_LINK,
     CONF_ROOM_VALVES,
     CONF_ROOMS,
     CONF_SUMMER_END,
     CONF_SUMMER_START,
     CONF_SUMMER_TEMP,
+    CONF_VALVE_BOOST_DELAY,
+    CONF_VALVE_BOOST_THRESHOLD,
+    CONF_VALVE_DRY_RUN,
+    CONF_VALVE_RELEASE_MARGIN,
     DEFAULT_BOILER_ON_TEMP,
     DEFAULT_HUMIDITY_MAX_BOOST,
     DEFAULT_HYSTERESIS,
@@ -33,6 +39,10 @@ from .const import (
     DEFAULT_SUMMER_END,
     DEFAULT_SUMMER_START,
     DEFAULT_SUMMER_TEMP,
+    DEFAULT_VALVE_BOOST_DELAY,
+    DEFAULT_VALVE_BOOST_THRESHOLD,
+    DEFAULT_VALVE_DRY_RUN,
+    DEFAULT_VALVE_RELEASE_MARGIN,
     DOMAIN,
     parse_month_day,
 )
@@ -79,6 +89,26 @@ def _room_schema(values: dict[str, Any]) -> vol.Schema:
                 CONF_ROOM_TEMP, description=_suggest(values, CONF_ROOM_TEMP)
             ): _entity("sensor", "temperature"),
             vol.Optional(
+                CONF_ROOM_VALVE_CONTROL,
+                default=bool(values.get(CONF_ROOM_VALVE_CONTROL, False)),
+            ): selector.BooleanSelector(),
+            vol.Optional(
+                CONF_VALVE_BOOST_THRESHOLD,
+                description=_suggest(values, CONF_VALVE_BOOST_THRESHOLD),
+            ): _number(0.1, 3, 0.1, "°C"),
+            vol.Optional(
+                CONF_VALVE_BOOST_DELAY,
+                description=_suggest(values, CONF_VALVE_BOOST_DELAY),
+            ): _number(0, 60, 1, "min"),
+            vol.Optional(
+                CONF_VALVE_RELEASE_MARGIN,
+                description=_suggest(values, CONF_VALVE_RELEASE_MARGIN),
+            ): _number(0, 2, 0.1, "°C"),
+            vol.Optional(
+                CONF_ROOM_VALVE_LINK,
+                default=bool(values.get(CONF_ROOM_VALVE_LINK, False)),
+            ): selector.BooleanSelector(),
+            vol.Optional(
                 CONF_ROOM_HUM, description=_suggest(values, CONF_ROOM_HUM)
             ): _entity("sensor", "humidity"),
         }
@@ -104,6 +134,26 @@ def _settings_schema(values: dict[str, Any]) -> vol.Schema:
                 CONF_HUMIDITY_MAX_BOOST,
                 default=values.get(CONF_HUMIDITY_MAX_BOOST, DEFAULT_HUMIDITY_MAX_BOOST),
             ): _number(0, 2, 0.1, "°C"),
+            vol.Required(
+                CONF_VALVE_BOOST_THRESHOLD,
+                default=values.get(
+                    CONF_VALVE_BOOST_THRESHOLD, DEFAULT_VALVE_BOOST_THRESHOLD
+                ),
+            ): _number(0.1, 3, 0.1, "°C"),
+            vol.Required(
+                CONF_VALVE_BOOST_DELAY,
+                default=values.get(CONF_VALVE_BOOST_DELAY, DEFAULT_VALVE_BOOST_DELAY),
+            ): _number(0, 60, 1, "min"),
+            vol.Required(
+                CONF_VALVE_RELEASE_MARGIN,
+                default=values.get(
+                    CONF_VALVE_RELEASE_MARGIN, DEFAULT_VALVE_RELEASE_MARGIN
+                ),
+            ): _number(0, 2, 0.1, "°C"),
+            vol.Required(
+                CONF_VALVE_DRY_RUN,
+                default=bool(values.get(CONF_VALVE_DRY_RUN, DEFAULT_VALVE_DRY_RUN)),
+            ): selector.BooleanSelector(),
         }
     )
 
@@ -128,6 +178,14 @@ def _summer_schema(values: dict[str, Any]) -> vol.Schema:
             ): selector.TextSelector(),
         }
     )
+
+
+def _validate_settings(user_input: dict[str, Any]) -> dict[str, str]:
+    if float(user_input[CONF_VALVE_RELEASE_MARGIN]) >= float(
+        user_input[CONF_VALVE_BOOST_THRESHOLD]
+    ):
+        return {CONF_VALVE_RELEASE_MARGIN: "release_ge_threshold"}
+    return {}
 
 
 def _validate_summer(user_input: dict[str, Any]) -> dict[str, str]:
@@ -155,6 +213,10 @@ class MerossBoilerSyncConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_MIN_SWITCH_TIME: DEFAULT_MIN_SWITCH_TIME,
                     CONF_BOILER_ON_TEMP: DEFAULT_BOILER_ON_TEMP,
                     CONF_HUMIDITY_MAX_BOOST: DEFAULT_HUMIDITY_MAX_BOOST,
+                    CONF_VALVE_DRY_RUN: DEFAULT_VALVE_DRY_RUN,
+                    CONF_VALVE_BOOST_THRESHOLD: DEFAULT_VALVE_BOOST_THRESHOLD,
+                    CONF_VALVE_BOOST_DELAY: DEFAULT_VALVE_BOOST_DELAY,
+                    CONF_VALVE_RELEASE_MARGIN: DEFAULT_VALVE_RELEASE_MARGIN,
                     CONF_SUMMER_TEMP: DEFAULT_SUMMER_TEMP,
                     CONF_SUMMER_START: DEFAULT_SUMMER_START,
                     CONF_SUMMER_END: DEFAULT_SUMMER_END,
@@ -212,6 +274,17 @@ class MerossBoilerSyncOptionsFlow(config_entries.OptionsFlow):
             return {CONF_ROOM_VALVES: "boiler_in_valves"}
         if any(valves & set(room[CONF_ROOM_VALVES]) for room in others):
             return {CONF_ROOM_VALVES: "valve_in_use"}
+        defaults = self._load()
+        threshold = user_input.get(CONF_VALVE_BOOST_THRESHOLD)
+        if threshold is None:
+            threshold = defaults.get(CONF_VALVE_BOOST_THRESHOLD, DEFAULT_VALVE_BOOST_THRESHOLD)
+        release = user_input.get(CONF_VALVE_RELEASE_MARGIN)
+        if release is None:
+            release = defaults.get(CONF_VALVE_RELEASE_MARGIN, DEFAULT_VALVE_RELEASE_MARGIN)
+        if float(release) >= float(threshold):
+            return {CONF_VALVE_RELEASE_MARGIN: "release_ge_threshold"}
+        if user_input.get(CONF_ROOM_VALVE_CONTROL) and not user_input.get(CONF_ROOM_TEMP):
+            return {CONF_ROOM_VALVE_CONTROL: "control_needs_sensor"}
         return {}
 
     @staticmethod
@@ -224,6 +297,17 @@ class MerossBoilerSyncOptionsFlow(config_entries.OptionsFlow):
         for key in (CONF_ROOM_TEMP, CONF_ROOM_HUM):
             if user_input.get(key):
                 room[key] = user_input[key]
+        for key in (
+            CONF_VALVE_BOOST_THRESHOLD,
+            CONF_VALVE_BOOST_DELAY,
+            CONF_VALVE_RELEASE_MARGIN,
+        ):
+            if user_input.get(key) is not None:  # a 0 is érvényes érték
+                room[key] = float(user_input[key])
+        room[CONF_ROOM_VALVE_LINK] = bool(user_input.get(CONF_ROOM_VALVE_LINK))
+        room[CONF_ROOM_VALVE_CONTROL] = bool(
+            user_input.get(CONF_ROOM_VALVE_CONTROL) and user_input.get(CONF_ROOM_TEMP)
+        )
         return room
 
     # --- főmenü
@@ -327,11 +411,16 @@ class MerossBoilerSyncOptionsFlow(config_entries.OptionsFlow):
     # --- alapbeállítások
     async def async_step_settings(self, user_input: dict[str, Any] | None = None):
         opts = self._load()
+        errors: dict[str, str] = {}
         if user_input is not None:
-            opts.update(user_input)
-            return await self.async_step_init()
+            errors = _validate_settings(user_input)
+            if not errors:
+                opts.update(user_input)
+                return await self.async_step_init()
         return self.async_show_form(
-            step_id="settings", data_schema=_settings_schema(opts)
+            step_id="settings",
+            data_schema=_settings_schema(user_input or opts),
+            errors=errors,
         )
 
     # --- nyári mód

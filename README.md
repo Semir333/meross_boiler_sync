@@ -75,3 +75,7 @@ Installation:
 4.Restart Home Assistant
 5.Go to Settings → Devices → Integration add menu, search for: Meross Boiler Sync.
 6.Choose the termostat,valves and do the settings and save.
+
+
+Thank you for @krahabb for the main controller plugin Meross_Lan.
+https://github.com/krahabb

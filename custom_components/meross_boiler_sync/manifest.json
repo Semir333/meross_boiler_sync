@@ -1,6 +1,7 @@
 {
   "domain": "meross_boiler_sync",
   "name": "Meross Boiler Sync",
+  "category": "integration",
   "codeowners": ["@Semir333"],
   "config_flow": true,
   "documentation": "https://github.com/Semir333/meross_boiler_sync",

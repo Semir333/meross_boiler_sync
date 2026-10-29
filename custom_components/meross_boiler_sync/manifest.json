@@ -4,9 +4,9 @@
   "after_dependencies": ["meross_lan"],
   "codeowners": [],
   "config_flow": true,
-  "documentation": "https://www.home-assistant.io",
+  "documentation": "https://github.com/Semir333/meross_boiler_sync",
   "integration_type": "service",
   "iot_class": "calculated",
   "requirements": [],
-  "version": "2.3.0"
+  "version": "0.0.5"
 }

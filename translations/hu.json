@@ -2,20 +2,12 @@
   "config": {
     "step": {
       "user": {
-        "title": "Meross kazán szinkron",
-        "description": "Válaszd ki a kazán termosztátot és a radiátor szelepeket. A kazán akkor kap fűtési igényt, ha legalább egy szelep hidegebb a célhőmérsékleténél.",
+        "title": "Meross Boiler Sync",
+        "description": "Válaszd ki a kazán termosztátot. A szobákat (szelep + hőmérő + páramérő) és a nyári módot a létrehozás után a **Konfigurálás** gombbal add meg.",
         "data": {
-          "boiler": "Kazán termosztát",
-          "valves": "Radiátor szelepek",
-          "hysteresis": "Hiszterézis",
-          "min_switch_time": "Minimális kapcsolási idő",
-          "boiler_on_temp": "Kazán célhőmérséklet fűtéskor (0 = nem módosít)"
+          "boiler": "Kazán termosztát"
         }
       }
-    },
-    "error": {
-      "no_valves": "Legalább egy szelepet válassz ki.",
-      "boiler_in_valves": "A kazán termosztát nem lehet egyben szelep is."
     },
     "abort": {
       "already_configured": "Ehhez a kazán termosztáthoz már be van állítva az integráció."
@@ -24,19 +16,96 @@
   "options": {
     "step": {
       "init": {
-        "title": "Meross kazán szinkron",
+        "title": "Meross Boiler Sync",
+        "description": "Szobák: {rooms}\n\nA változtatások a **Mentés és kilépés** pont kiválasztása után lépnek életbe.",
+        "menu_options": {
+          "add_room": "Szoba hozzáadása",
+          "edit_room": "Szoba szerkesztése",
+          "remove_room": "Szoba törlése",
+          "settings": "Alapbeállítások",
+          "summer": "Nyári mód",
+          "done": "Mentés és kilépés"
+        }
+      },
+      "add_room": {
+        "title": "Szoba hozzáadása",
         "data": {
-          "boiler": "Kazán termosztát",
-          "valves": "Radiátor szelepek",
+          "name": "Szoba neve",
+          "valves": "Radiátor szelep(ek)",
+          "temperature_sensor": "Szoba hőmérséklet szenzor (opcionális)",
+          "humidity_sensor": "Szoba páratartalom szenzor (opcionális)"
+        },
+        "data_description": {
+          "name": "Pl. Nappali",
+          "valves": "A szoba szelepei. A szoba célhőmérséklete a szelepen beállított érték (több szelepnél a legmagasabb).",
+          "temperature_sensor": "Ha megadod, a hőigényt ez alapján számolja a szelep saját mérése helyett. Ha nem elérhető, a szelepek mérésére vált vissza.",
+          "humidity_sensor": "Magas páratartalomnál enyhén megemeli a szoba célhőmérsékletét (lásd Alapbeállítások)."
+        }
+      },
+      "edit_room": {
+        "title": "Szoba szerkesztése",
+        "data": {
+          "room": "Szoba"
+        }
+      },
+      "edit_room_form": {
+        "title": "Szoba szerkesztése",
+        "data": {
+          "name": "Szoba neve",
+          "valves": "Radiátor szelep(ek)",
+          "temperature_sensor": "Szoba hőmérséklet szenzor (opcionális)",
+          "humidity_sensor": "Szoba páratartalom szenzor (opcionális)"
+        },
+        "data_description": {
+          "name": "Pl. Nappali",
+          "valves": "A szoba szelepei. A szoba célhőmérséklete a szelepen beállított érték (több szelepnél a legmagasabb).",
+          "temperature_sensor": "Ha megadod, a hőigényt ez alapján számolja a szelep saját mérése helyett. Ha nem elérhető, a szelepek mérésére vált vissza.",
+          "humidity_sensor": "Magas páratartalomnál enyhén megemeli a szoba célhőmérsékletét (lásd Alapbeállítások)."
+        }
+      },
+      "remove_room": {
+        "title": "Szoba törlése",
+        "data": {
+          "rooms_to_remove": "Törlendő szobák"
+        }
+      },
+      "settings": {
+        "title": "Alapbeállítások",
+        "data": {
           "hysteresis": "Hiszterézis",
           "min_switch_time": "Minimális kapcsolási idő",
-          "boiler_on_temp": "Kazán célhőmérséklet fűtéskor (0 = nem módosít)"
+          "boiler_on_temp": "Kazán célhőmérséklet fűtéskor (0 = nem módosít)",
+          "humidity_max_boost": "Páratartalom miatti max. emelés (0 = ki)"
+        },
+        "data_description": {
+          "hysteresis": "A szoba akkor kér hőt, ha ennyivel hidegebb a célnál; addig kér, amíg a célt el nem éri.",
+          "min_switch_time": "A kazán be/ki kapcsolása között legalább ennyi idő telik el.",
+          "boiler_on_temp": "Ezt a célhőmérsékletet kapja a kazán termosztát, amikor fűtés kell.",
+          "humidity_max_boost": "A célhőmérséklet 60% páratartalomtól fokozatosan nő, 80%-nál éri el ezt az értéket. 17 °C alatti célnál nincs emelés."
+        }
+      },
+      "summer": {
+        "title": "Nyári mód",
+        "description": "Nyári módban nincs hőigény, a kazán termosztát kikapcsol. Akkor aktív, ha a dátum a nyári időszakon belül van ÉS a kinti 24 órás átlaghőmérséklet a küszöb felett van. Szenzor nélkül a nyári mód ki van kapcsolva.",
+        "data": {
+          "outdoor_sensor": "Kinti hőmérséklet szenzor",
+          "summer_temp": "Küszöb (24 órás átlag)",
+          "summer_start": "Nyári időszak kezdete (HH-NN)",
+          "summer_end": "Nyári időszak vége (HH-NN)"
+        },
+        "data_description": {
+          "summer_start": "Pl. 05-15",
+          "summer_end": "Pl. 09-15"
         }
       }
     },
     "error": {
+      "no_name": "Add meg a szoba nevét.",
+      "duplicate_name": "Ilyen nevű szoba már van.",
       "no_valves": "Legalább egy szelepet válassz ki.",
-      "boiler_in_valves": "A kazán termosztát nem lehet egyben szelep is."
+      "boiler_in_valves": "A kazán termosztát nem lehet szelep.",
+      "valve_in_use": "Ez a szelep már egy másik szobához tartozik.",
+      "invalid_date": "Érvénytelen dátum, a formátum HH-NN (pl. 05-15)."
     }
   }
 }

@@ -1,5 +1,7 @@
 {
   "name": "Meross Boiler Sync",
-  "zip_release": true,
-  "filename": "meross_boiler_sync-v.0.0.6.zip"
+  "country": ["GB", "HU"],
+  "homeassistant": "2024.5.0b0",
+  "persistent_directory": "traces",
+  "hacs": "1.6.0"
 }

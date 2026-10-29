@@ -4,7 +4,7 @@
   "documentation": "https://github.com/Semir333/meross_boiler_sync",
   "issue_tracker": "https://github.com/Semir333/meross_boiler_sync/issues",
   "codeowners": ["@Semir333"],
-  "version": "0.0.5",
+  "version": "0.0.7",
   "iot_class": "local_polling",
   "config_flow": true
 }

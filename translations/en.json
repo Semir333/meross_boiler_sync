@@ -1,0 +1,42 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Meross boiler sync",
+        "description": "Pick the boiler thermostat and the radiator valves. The boiler is called for heat when at least one valve is colder than its target.",
+        "data": {
+          "boiler": "Boiler thermostat",
+          "valves": "Radiator valves",
+          "hysteresis": "Hysteresis",
+          "min_switch_time": "Minimum switching time",
+          "boiler_on_temp": "Boiler target temperature when heating (0 = don't change)"
+        }
+      }
+    },
+    "error": {
+      "no_valves": "Select at least one valve.",
+      "boiler_in_valves": "The boiler thermostat cannot also be a valve."
+    },
+    "abort": {
+      "already_configured": "This boiler thermostat is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Meross boiler sync",
+        "data": {
+          "boiler": "Boiler thermostat",
+          "valves": "Radiator valves",
+          "hysteresis": "Hysteresis",
+          "min_switch_time": "Minimum switching time",
+          "boiler_on_temp": "Boiler target temperature when heating (0 = don't change)"
+        }
+      }
+    },
+    "error": {
+      "no_valves": "Select at least one valve.",
+      "boiler_in_valves": "The boiler thermostat cannot also be a valve."
+    }
+  }
+}

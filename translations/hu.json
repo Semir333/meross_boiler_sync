@@ -1,0 +1,42 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Meross kazán szinkron",
+        "description": "Válaszd ki a kazán termosztátot és a radiátor szelepeket. A kazán akkor kap fűtési igényt, ha legalább egy szelep hidegebb a célhőmérsékleténél.",
+        "data": {
+          "boiler": "Kazán termosztát",
+          "valves": "Radiátor szelepek",
+          "hysteresis": "Hiszterézis",
+          "min_switch_time": "Minimális kapcsolási idő",
+          "boiler_on_temp": "Kazán célhőmérséklet fűtéskor (0 = nem módosít)"
+        }
+      }
+    },
+    "error": {
+      "no_valves": "Legalább egy szelepet válassz ki.",
+      "boiler_in_valves": "A kazán termosztát nem lehet egyben szelep is."
+    },
+    "abort": {
+      "already_configured": "Ehhez a kazán termosztáthoz már be van állítva az integráció."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Meross kazán szinkron",
+        "data": {
+          "boiler": "Kazán termosztát",
+          "valves": "Radiátor szelepek",
+          "hysteresis": "Hiszterézis",
+          "min_switch_time": "Minimális kapcsolási idő",
+          "boiler_on_temp": "Kazán célhőmérséklet fűtéskor (0 = nem módosít)"
+        }
+      }
+    },
+    "error": {
+      "no_valves": "Legalább egy szelepet válassz ki.",
+      "boiler_in_valves": "A kazán termosztát nem lehet egyben szelep is."
+    }
+  }
+}

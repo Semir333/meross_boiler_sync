@@ -1,0 +1,12 @@
+{
+  "domain": "meross_boiler_sync",
+  "name": "Meross Boiler Sync",
+  "after_dependencies": ["meross_lan"],
+  "codeowners": [],
+  "config_flow": true,
+  "documentation": "https://www.home-assistant.io",
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "requirements": [],
+  "version": "2.3.0"
+}

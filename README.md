@@ -78,4 +78,4 @@ Installation:
 
 
 Thank you for @krahabb for the main controller plugin Meross_Lan.
-https://github.com/krahabb
+https://github.com/krahabb/meross_lan

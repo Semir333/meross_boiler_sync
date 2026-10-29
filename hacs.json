@@ -5,5 +5,4 @@
   "persistent_directory": "traces",
   "hacs": "1.6.0",
   "render_readme": true,
-  "category": "integration"
 }

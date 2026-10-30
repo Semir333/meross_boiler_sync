@@ -1,0 +1,245 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Meross Boiler Sync",
+        "description": "Velg termostaten til kjelen. Rom (ventil + termometer + hygrometer) og sommermodus legger du til etterpå med knappen **Konfigurer**.",
+        "data": {
+          "boiler": "Kjeletermostat"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Denne kjeletermostaten er allerede konfigurert."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Meross Boiler Sync",
+        "description": "Rom: {rooms}\n\nEndringer trer først i kraft etter at du velger **Lagre og avslutt**.",
+        "menu_options": {
+          "add_room": "Legg til rom",
+          "edit_room": "Rediger rom",
+          "remove_room": "Fjern rom",
+          "settings": "Grunninnstillinger",
+          "summer": "Sommermodus",
+          "done": "Lagre og avslutt"
+        }
+      },
+      "add_room": {
+        "title": "Legg til rom",
+        "data": {
+          "name": "Romnavn",
+          "valves": "Radiatorventil(er)",
+          "temperature_sensor": "Romtemperatursensor (valgfri)",
+          "valve_control": "Automatisk ventilstyring via termometer (eksperimentell)",
+          "valve_boost_threshold": "Terskel for ventilløft – dette rommet (tom = global verdi)",
+          "valve_boost_delay": "Ventetid før ventilløft – dette rommet, minutter (tom = global verdi)",
+          "valve_release_margin": "Ventilfrigjøring før målet – dette rommet (tom = global verdi)",
+          "valve_demand_link": "Koble kjelens varmebehov til ventilens tilstand",
+          "humidity_sensor": "Romfuktsensor (valgfri)"
+        },
+        "data_description": {
+          "name": "F.eks. Stue",
+          "valves": "Ventilene i dette rommet. Rommets måltemperatur er verdien som er satt på ventilen (den høyeste hvis det er flere).",
+          "temperature_sensor": "Hvis angitt, beregnes varmebehovet ut fra den i stedet for ventilens egen måling. Hvis den ikke er tilgjengelig, brukes ventilene.",
+          "valve_control": "Når romtermometeret viser at det er kaldt, heves ventilens måltemperatur midlertidig til ventilens maksimum (ventilen åpner helt) og settes tilbake til opprinnelig verdi når målet er nådd. Krever en temperatursensor.",
+          "valve_boost_threshold": "Gjelder bare med automatisk ventilstyring. Hvis tom, gjelder verdien fra Grunninnstillinger.",
+          "valve_boost_delay": "Hvor lenge avviket må vare før ventilen løftes. 0 = umiddelbart. Hvis tom, gjelder den globale verdien.",
+          "valve_release_margin": "Ventilen får tilbake sin opprinnelige måltemperatur så langt før målet. Må være mindre enn terskelen. Hvis tom, gjelder den globale verdien.",
+          "valve_demand_link": "Når dette er på, ber rommet bare om varme fra kjelen når ventilen er åpen (ventilens egen måling ligger under målet) eller når tillegget tvinger den opp. Da fyrer ikke kjelen mot stengte ventiler ved små avvik. Blokkerer ikke oppvarmingen hvis ventildata mangler.",
+          "humidity_sensor": "Ved høy luftfuktighet heves rommets måltemperatur litt (se Grunninnstillinger)."
+        }
+      },
+      "edit_room": {
+        "title": "Rediger rom",
+        "data": {
+          "room": "Rom"
+        }
+      },
+      "edit_room_form": {
+        "title": "Rediger rom",
+        "data": {
+          "name": "Romnavn",
+          "valves": "Radiatorventil(er)",
+          "temperature_sensor": "Romtemperatursensor (valgfri)",
+          "valve_control": "Automatisk ventilstyring via termometer (eksperimentell)",
+          "valve_boost_threshold": "Terskel for ventilløft – dette rommet (tom = global verdi)",
+          "valve_boost_delay": "Ventetid før ventilløft – dette rommet, minutter (tom = global verdi)",
+          "valve_release_margin": "Ventilfrigjøring før målet – dette rommet (tom = global verdi)",
+          "valve_demand_link": "Koble kjelens varmebehov til ventilens tilstand",
+          "humidity_sensor": "Romfuktsensor (valgfri)"
+        },
+        "data_description": {
+          "name": "F.eks. Stue",
+          "valves": "Ventilene i dette rommet. Rommets måltemperatur er verdien som er satt på ventilen (den høyeste hvis det er flere).",
+          "temperature_sensor": "Hvis angitt, beregnes varmebehovet ut fra den i stedet for ventilens egen måling. Hvis den ikke er tilgjengelig, brukes ventilene.",
+          "valve_control": "Når romtermometeret viser at det er kaldt, heves ventilens måltemperatur midlertidig til ventilens maksimum (ventilen åpner helt) og settes tilbake til opprinnelig verdi når målet er nådd. Krever en temperatursensor.",
+          "valve_boost_threshold": "Gjelder bare med automatisk ventilstyring. Hvis tom, gjelder verdien fra Grunninnstillinger.",
+          "valve_boost_delay": "Hvor lenge avviket må vare før ventilen løftes. 0 = umiddelbart. Hvis tom, gjelder den globale verdien.",
+          "valve_release_margin": "Ventilen får tilbake sin opprinnelige måltemperatur så langt før målet. Må være mindre enn terskelen. Hvis tom, gjelder den globale verdien.",
+          "valve_demand_link": "Når dette er på, ber rommet bare om varme fra kjelen når ventilen er åpen (ventilens egen måling ligger under målet) eller når tillegget tvinger den opp. Da fyrer ikke kjelen mot stengte ventiler ved små avvik. Blokkerer ikke oppvarmingen hvis ventildata mangler.",
+          "humidity_sensor": "Ved høy luftfuktighet heves rommets måltemperatur litt (se Grunninnstillinger)."
+        }
+      },
+      "remove_room": {
+        "title": "Fjern rom",
+        "data": {
+          "rooms_to_remove": "Rom som skal fjernes"
+        }
+      },
+      "settings": {
+        "title": "Grunninnstillinger",
+        "data": {
+          "hysteresis": "Hysterese",
+          "min_switch_time": "Minste koblingstid",
+          "boiler_on_temp": "Kjelens måltemperatur ved oppvarming (0 = ikke endre)",
+          "humidity_max_boost": "Maks. økning ved fuktighet (0 = av)",
+          "valve_boost_threshold": "Terskel for ventilløft – standard (hvor langt under målet)",
+          "valve_boost_delay": "Ventetid før ventilløft – standard",
+          "valve_release_margin": "Ventilfrigjøring før målet – standard",
+          "valve_dry_run": "Prøvekjøring av ventilstyring (kun logg, ingen skriving til ventilene)"
+        },
+        "data_description": {
+          "hysteresis": "Et rom ber om varme når det ligger så langt under målet, og fortsetter til målet er nådd.",
+          "min_switch_time": "Minste tid mellom på- og avslåing av kjelen.",
+          "boiler_on_temp": "Måltemperaturen som settes på kjeletermostaten når det trengs varme.",
+          "humidity_max_boost": "Måltemperaturen stiger gradvis fra 60 % luftfuktighet og når denne verdien ved 80 %. Ingen økning for mål under 17 °C.",
+          "valve_boost_threshold": "Standard for alle rom, kan overstyres per rom. Den automatiske styringen løfter bare når rommet ligger minst så langt under målet. Ved mindre avvik bestemmer ventilen selv, og restvarmen fra radiatoren er som regel nok. (Kjelens varmebehov starter fortsatt ved hysteresen.)",
+          "valve_boost_delay": "Standard for alle rom. Avviket må vare så lenge før ventilen løftes, slik at restvarmen fra radiatoren får varme opp rommet. Hvis avviket overstiger terskelen med 1 °C (f.eks. fordi du har hevet målet), er det ingen ventetid. 0 = umiddelbart.",
+          "valve_release_margin": "Standard for alle rom. Ventilen får tilbake sin opprinnelige måltemperatur så langt før rommet når målet, fordi restvarmen fra radiatoren fortsetter å varme opp rommet (hindrer overskyting). Må være mindre enn terskelen for ventilløft.",
+          "valve_dry_run": "Når dette er på, logger ventilstyringen bare hva den ville gjort (prefiks [PRÓBAÜZEM]) og endrer ingenting på ventilene. Anbefalt for den første ekte testen."
+        }
+      },
+      "summer": {
+        "title": "Sommermodus",
+        "description": "I sommermodus er det ikke noe varmebehov, og kjeletermostaten slås av. Modusen er aktiv når datoen ligger i sommerperioden OG gjennomsnittet av utetemperaturen over 24 timer ligger over terskelen. Uten sensor er sommermodus deaktivert.",
+        "data": {
+          "outdoor_sensor": "Utetemperatursensor",
+          "summer_temp": "Terskel (24-timers gjennomsnitt)",
+          "summer_start": "Start på sommerperioden (MM-DD)",
+          "summer_end": "Slutt på sommerperioden (MM-DD)"
+        },
+        "data_description": {
+          "summer_start": "F.eks. 05-15",
+          "summer_end": "F.eks. 09-15"
+        }
+      }
+    },
+    "error": {
+      "no_name": "Skriv inn et romnavn.",
+      "duplicate_name": "Det finnes allerede et rom med dette navnet.",
+      "no_valves": "Velg minst én ventil.",
+      "boiler_in_valves": "Kjeletermostaten kan ikke være en ventil.",
+      "valve_in_use": "Denne ventilen tilhører allerede et annet rom.",
+      "control_needs_sensor": "Ventilstyring krever en romtemperatursensor.",
+      "invalid_date": "Ugyldig dato, bruk MM-DD (f.eks. 05-15).",
+      "release_ge_threshold": "Frigjøringen må være mindre enn terskelen for ventilløft."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "room_demand": {
+        "name": "{room} varmebehov",
+        "state": {
+          "on": "Ber kjelen om varme",
+          "off": "Ber ikke om varme"
+        },
+        "state_attributes": {
+          "valves": {
+            "name": "Ventilene i rommet"
+          },
+          "valve_active": {
+            "name": "Rommet har en påslått ventil"
+          },
+          "current_temperature": {
+            "name": "Romtemperatur (brukes til beslutninger)"
+          },
+          "temperature_source": {
+            "name": "Temperaturkilde",
+            "state": {
+              "sensor": "Romtermometer",
+              "valve": "Ventilens egen måling (reserve, termometeret er utilgjengelig)"
+            }
+          },
+          "target_temperature": {
+            "name": "Måltemperatur (satt på ventilen)"
+          },
+          "effective_target": {
+            "name": "Effektiv måltemperatur (inkludert fuktøkning)"
+          },
+          "humidity": {
+            "name": "Romfuktighet"
+          },
+          "humidity_boost": {
+            "name": "Måløkning på grunn av fuktighet"
+          },
+          "room_below_target": {
+            "name": "Rommet er kaldere enn målet"
+          },
+          "deviation": {
+            "name": "Avvik fra målet (positivt = for kaldt)"
+          },
+          "valve_demand_link": {
+            "name": "Kjelens varmebehov koblet til ventilens tilstand (rombryter)"
+          },
+          "valve_open_estimate": {
+            "name": "Ventilen anslås å være åpen (etter egen måling)"
+          },
+          "boost_threshold": {
+            "name": "Terskel for ventilløft (hvor langt under målet)"
+          },
+          "boost_delay_minutes": {
+            "name": "Ventetid før ventilløft (minutter)"
+          },
+          "release_margin": {
+            "name": "Ventilfrigjøring før målet (°C)"
+          },
+          "valve_control": {
+            "name": "Automatisk ventilstyring aktivert"
+          },
+          "valve_boosted": {
+            "name": "Ventilen er nå tvunget åpen (målet hevet)"
+          },
+          "valve_boost_waiting": {
+            "name": "Ventilløft venter (ventetiden går)"
+          },
+          "valve_dry_run": {
+            "name": "Prøvekjøring av ventilstyring (kun logg)"
+          }
+        }
+      },
+      "summer_mode": {
+        "name": "Sommermodus",
+        "state": {
+          "on": "Sommermodus aktiv (ingen oppvarming)",
+          "off": "Ikke sommermodus"
+        },
+        "state_attributes": {
+          "outdoor_sensor": {
+            "name": "Utetemperatursensor"
+          },
+          "outdoor_temperature": {
+            "name": "Utetemperatur nå"
+          },
+          "outdoor_average_24h": {
+            "name": "Utetemperatur, 24-timers gjennomsnitt"
+          },
+          "threshold": {
+            "name": "Terskel for sommermodus (aktiv over dette 24-timers gjennomsnittet)"
+          },
+          "in_summer_period": {
+            "name": "Datoen ligger i sommerperioden"
+          },
+          "period_start": {
+            "name": "Start på sommerperioden (MM-DD)"
+          },
+          "period_end": {
+            "name": "Slutt på sommerperioden (MM-DD)"
+          }
+        }
+      }
+    }
+  }
+}

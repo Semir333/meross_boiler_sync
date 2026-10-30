@@ -134,13 +134,14 @@
       "boiler_in_valves": "The boiler thermostat cannot be a valve.",
       "valve_in_use": "This valve already belongs to another room.",
       "control_needs_sensor": "Valve control requires a room temperature sensor.",
-      "release_ge_threshold": "Release must be smaller than the boost threshold.",
-      "invalid_date": "Invalid date, use MM-DD (e.g. 05-15)."
+      "invalid_date": "Invalid date, use MM-DD (e.g. 05-15).",
+      "release_ge_threshold": "Release must be smaller than the boost threshold."
     }
   },
   "entity": {
     "binary_sensor": {
       "room_demand": {
+        "name": "{room} heat demand",
         "state": {
           "on": "Calling boiler for heat",
           "off": "Not calling for heat"
@@ -210,6 +211,7 @@
         }
       },
       "summer_mode": {
+        "name": "Summer mode",
         "state": {
           "on": "Summer mode active (no heating)",
           "off": "Not summer mode"

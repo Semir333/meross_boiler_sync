@@ -1,0 +1,245 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Meross Boiler Sync",
+        "description": "Välj pannans termostat. Rum (ventil + termometer + hygrometer) och sommarläge lägger du till efteråt med knappen **Konfigurera**.",
+        "data": {
+          "boiler": "Pannans termostat"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Den här panntermostaten är redan konfigurerad."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Meross Boiler Sync",
+        "description": "Rum: {rooms}\n\nÄndringar börjar gälla först när du väljer **Spara och avsluta**.",
+        "menu_options": {
+          "add_room": "Lägg till rum",
+          "edit_room": "Redigera rum",
+          "remove_room": "Ta bort rum",
+          "settings": "Grundinställningar",
+          "summer": "Sommarläge",
+          "done": "Spara och avsluta"
+        }
+      },
+      "add_room": {
+        "title": "Lägg till rum",
+        "data": {
+          "name": "Rumsnamn",
+          "valves": "Radiatorventil(er)",
+          "temperature_sensor": "Rumstemperatursensor (valfri)",
+          "valve_control": "Automatisk ventilreglering via termometer (experimentell)",
+          "valve_boost_threshold": "Tröskel för ventilhöjning – det här rummet (tomt = globalt värde)",
+          "valve_boost_delay": "Väntetid före ventilhöjning – det här rummet, minuter (tomt = globalt värde)",
+          "valve_release_margin": "Ventilfrigöring före målet – det här rummet (tomt = globalt värde)",
+          "valve_demand_link": "Koppla pannans värmebehov till ventilens tillstånd",
+          "humidity_sensor": "Rummets fuktsensor (valfri)"
+        },
+        "data_description": {
+          "name": "T.ex. Vardagsrum",
+          "valves": "Rummets ventiler. Rummets måltemperatur är det värde som är inställt på ventilen (den högsta om det finns flera).",
+          "temperature_sensor": "Om den anges beräknas värmebehovet från den i stället för ventilens egen mätning. Om den inte är tillgänglig används ventilerna.",
+          "valve_control": "När rumstermometern visar att det är kallt höjs ventilens måltemperatur tillfälligt till ventilens maximum (ventilen öppnar helt) och återställs till det ursprungliga värdet när målet nåtts. Kräver en temperatursensor.",
+          "valve_boost_threshold": "Gäller bara med automatisk ventilreglering. Om tomt används värdet från Grundinställningar.",
+          "valve_boost_delay": "Hur länge avvikelsen måste bestå innan höjningen sker. 0 = direkt. Om tomt gäller det globala värdet.",
+          "valve_release_margin": "Ventilen får tillbaka sin ursprungliga måltemperatur så här långt före målet. Måste vara mindre än tröskeln. Om tomt gäller det globala värdet.",
+          "valve_demand_link": "När detta är på begär rummet bara värme från pannan när ventilen är öppen (ventilens egen mätning ligger under dess mål) eller när insticksprogrammet tvingar upp den. Då eldar pannan inte mot stängda ventiler vid små avvikelser. Blockerar inte värmen om ventildata saknas.",
+          "humidity_sensor": "Vid hög luftfuktighet höjs rummets måltemperatur något (se Grundinställningar)."
+        }
+      },
+      "edit_room": {
+        "title": "Redigera rum",
+        "data": {
+          "room": "Rum"
+        }
+      },
+      "edit_room_form": {
+        "title": "Redigera rum",
+        "data": {
+          "name": "Rumsnamn",
+          "valves": "Radiatorventil(er)",
+          "temperature_sensor": "Rumstemperatursensor (valfri)",
+          "valve_control": "Automatisk ventilreglering via termometer (experimentell)",
+          "valve_boost_threshold": "Tröskel för ventilhöjning – det här rummet (tomt = globalt värde)",
+          "valve_boost_delay": "Väntetid före ventilhöjning – det här rummet, minuter (tomt = globalt värde)",
+          "valve_release_margin": "Ventilfrigöring före målet – det här rummet (tomt = globalt värde)",
+          "valve_demand_link": "Koppla pannans värmebehov till ventilens tillstånd",
+          "humidity_sensor": "Rummets fuktsensor (valfri)"
+        },
+        "data_description": {
+          "name": "T.ex. Vardagsrum",
+          "valves": "Rummets ventiler. Rummets måltemperatur är det värde som är inställt på ventilen (den högsta om det finns flera).",
+          "temperature_sensor": "Om den anges beräknas värmebehovet från den i stället för ventilens egen mätning. Om den inte är tillgänglig används ventilerna.",
+          "valve_control": "När rumstermometern visar att det är kallt höjs ventilens måltemperatur tillfälligt till ventilens maximum (ventilen öppnar helt) och återställs till det ursprungliga värdet när målet nåtts. Kräver en temperatursensor.",
+          "valve_boost_threshold": "Gäller bara med automatisk ventilreglering. Om tomt används värdet från Grundinställningar.",
+          "valve_boost_delay": "Hur länge avvikelsen måste bestå innan höjningen sker. 0 = direkt. Om tomt gäller det globala värdet.",
+          "valve_release_margin": "Ventilen får tillbaka sin ursprungliga måltemperatur så här långt före målet. Måste vara mindre än tröskeln. Om tomt gäller det globala värdet.",
+          "valve_demand_link": "När detta är på begär rummet bara värme från pannan när ventilen är öppen (ventilens egen mätning ligger under dess mål) eller när insticksprogrammet tvingar upp den. Då eldar pannan inte mot stängda ventiler vid små avvikelser. Blockerar inte värmen om ventildata saknas.",
+          "humidity_sensor": "Vid hög luftfuktighet höjs rummets måltemperatur något (se Grundinställningar)."
+        }
+      },
+      "remove_room": {
+        "title": "Ta bort rum",
+        "data": {
+          "rooms_to_remove": "Rum som ska tas bort"
+        }
+      },
+      "settings": {
+        "title": "Grundinställningar",
+        "data": {
+          "hysteresis": "Hysteres",
+          "min_switch_time": "Minsta omkopplingstid",
+          "boiler_on_temp": "Pannans måltemperatur vid uppvärmning (0 = ändra inte)",
+          "humidity_max_boost": "Max höjning vid fukt (0 = av)",
+          "valve_boost_threshold": "Tröskel för ventilhöjning – standard (hur långt under målet)",
+          "valve_boost_delay": "Väntetid före ventilhöjning – standard",
+          "valve_release_margin": "Ventilfrigöring före målet – standard",
+          "valve_dry_run": "Provkörning av ventilreglering (endast logg, inga skrivningar till ventilerna)"
+        },
+        "data_description": {
+          "hysteresis": "Ett rum begär värme när det ligger så här långt under målet och fortsätter tills målet nåtts.",
+          "min_switch_time": "Minsta tid mellan att pannan slås på och av.",
+          "boiler_on_temp": "Måltemperatur som ställs in på panntermostaten när värme behövs.",
+          "humidity_max_boost": "Måltemperaturen stiger gradvis från 60 % luftfuktighet och når detta värde vid 80 %. Ingen höjning för mål under 17 °C.",
+          "valve_boost_threshold": "Standard för alla rum, kan åsidosättas per rum. Den automatiska regleringen höjer bara när rummet ligger minst så här långt under målet. Vid mindre avvikelser bestämmer ventilen själv, och elementets restvärme räcker oftast. (Pannans värmebehov börjar fortfarande vid hysteresen.)",
+          "valve_boost_delay": "Standard för alla rum. Avvikelsen måste bestå så här länge före höjningen, så att elementets restvärme hinner värma rummet. Om avvikelsen överstiger tröskeln med 1 °C (t.ex. om du höjt målet) finns ingen väntetid. 0 = direkt.",
+          "valve_release_margin": "Standard för alla rum. Ventilen får tillbaka sin ursprungliga måltemperatur så här långt innan rummet når målet, eftersom elementets restvärme fortsätter värma rummet (förhindrar översläng). Måste vara mindre än tröskeln för höjning.",
+          "valve_dry_run": "När detta är på loggar ventilregleringen bara vad den skulle göra (prefix [PRÓBAÜZEM]) och ändrar ingenting på ventilerna. Rekommenderas för det första skarpa testet."
+        }
+      },
+      "summer": {
+        "title": "Sommarläge",
+        "description": "I sommarläge finns inget värmebehov och panntermostaten stängs av. Läget är aktivt när datumet ligger inom sommarperioden OCH dygnsmedelvärdet för utomhustemperaturen (24 timmar) ligger över tröskeln. Utan sensor är sommarläget avstängt.",
+        "data": {
+          "outdoor_sensor": "Utomhustemperatursensor",
+          "summer_temp": "Tröskel (24-timmarsmedelvärde)",
+          "summer_start": "Sommarperiodens start (MM-DD)",
+          "summer_end": "Sommarperiodens slut (MM-DD)"
+        },
+        "data_description": {
+          "summer_start": "T.ex. 05-15",
+          "summer_end": "T.ex. 09-15"
+        }
+      }
+    },
+    "error": {
+      "no_name": "Ange ett rumsnamn.",
+      "duplicate_name": "Det finns redan ett rum med det namnet.",
+      "no_valves": "Välj minst en ventil.",
+      "boiler_in_valves": "Panntermostaten kan inte vara en ventil.",
+      "valve_in_use": "Den här ventilen tillhör redan ett annat rum.",
+      "control_needs_sensor": "Ventilreglering kräver en rumstemperatursensor.",
+      "invalid_date": "Ogiltigt datum, använd MM-DD (t.ex. 05-15).",
+      "release_ge_threshold": "Frigöringen måste vara mindre än tröskeln för ventilhöjning."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "room_demand": {
+        "name": "{room} värmebehov",
+        "state": {
+          "on": "Begär värme från pannan",
+          "off": "Begär ingen värme"
+        },
+        "state_attributes": {
+          "valves": {
+            "name": "Rummets ventiler"
+          },
+          "valve_active": {
+            "name": "Rummet har en påslagen ventil"
+          },
+          "current_temperature": {
+            "name": "Rumstemperatur (används för beslut)"
+          },
+          "temperature_source": {
+            "name": "Temperaturkälla",
+            "state": {
+              "sensor": "Rumstermometer",
+              "valve": "Ventilens egen mätning (reserv, termometern ej tillgänglig)"
+            }
+          },
+          "target_temperature": {
+            "name": "Måltemperatur (inställd på ventilen)"
+          },
+          "effective_target": {
+            "name": "Effektiv måltemperatur (inklusive fukthöjning)"
+          },
+          "humidity": {
+            "name": "Rummets luftfuktighet"
+          },
+          "humidity_boost": {
+            "name": "Målhöjning på grund av fukt"
+          },
+          "room_below_target": {
+            "name": "Rummet är kallare än målet"
+          },
+          "deviation": {
+            "name": "Avvikelse från målet (positiv = för kallt)"
+          },
+          "valve_demand_link": {
+            "name": "Pannans värmebehov kopplat till ventilens tillstånd (rumsbrytare)"
+          },
+          "valve_open_estimate": {
+            "name": "Ventilen bedöms vara öppen (enligt egen mätning)"
+          },
+          "boost_threshold": {
+            "name": "Tröskel för ventilhöjning (hur långt under målet)"
+          },
+          "boost_delay_minutes": {
+            "name": "Väntetid före ventilhöjning (minuter)"
+          },
+          "release_margin": {
+            "name": "Ventilfrigöring före målet (°C)"
+          },
+          "valve_control": {
+            "name": "Automatisk ventilreglering aktiverad"
+          },
+          "valve_boosted": {
+            "name": "Ventilen är just nu tvingad öppen (målet höjt)"
+          },
+          "valve_boost_waiting": {
+            "name": "Ventilhöjning väntar (väntetiden pågår)"
+          },
+          "valve_dry_run": {
+            "name": "Provkörning av ventilreglering (endast logg)"
+          }
+        }
+      },
+      "summer_mode": {
+        "name": "Sommarläge",
+        "state": {
+          "on": "Sommarläge aktivt (ingen uppvärmning)",
+          "off": "Inget sommarläge"
+        },
+        "state_attributes": {
+          "outdoor_sensor": {
+            "name": "Utomhustemperatursensor"
+          },
+          "outdoor_temperature": {
+            "name": "Utomhustemperatur just nu"
+          },
+          "outdoor_average_24h": {
+            "name": "Utomhustemperatur, 24-timmarsmedelvärde"
+          },
+          "threshold": {
+            "name": "Tröskel för sommarläge (aktivt över detta 24-timmarsmedelvärde)"
+          },
+          "in_summer_period": {
+            "name": "Datumet ligger inom sommarperioden"
+          },
+          "period_start": {
+            "name": "Sommarperiodens start (MM-DD)"
+          },
+          "period_end": {
+            "name": "Sommarperiodens slut (MM-DD)"
+          }
+        }
+      }
+    }
+  }
+}

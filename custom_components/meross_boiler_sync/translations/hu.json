@@ -134,13 +134,14 @@
       "boiler_in_valves": "A kazán termosztát nem lehet szelep.",
       "valve_in_use": "Ez a szelep már egy másik szobához tartozik.",
       "control_needs_sensor": "A szelep szabályzáshoz meg kell adni a szoba hőmérséklet szenzorát.",
-      "release_ge_threshold": "A visszaengedésnek kisebbnek kell lennie, mint az emelés küszöbnek.",
-      "invalid_date": "Érvénytelen dátum, a formátum HH-NN (pl. 05-15)."
+      "invalid_date": "Érvénytelen dátum, a formátum HH-NN (pl. 05-15).",
+      "release_ge_threshold": "A visszaengedésnek kisebbnek kell lennie, mint az emelés küszöbnek."
     }
   },
   "entity": {
     "binary_sensor": {
       "room_demand": {
+        "name": "{room} fűtési igény",
         "state": {
           "on": "Hőt kér a kazántól",
           "off": "Nem kér hőt"
@@ -210,6 +211,7 @@
         }
       },
       "summer_mode": {
+        "name": "Nyári mód",
         "state": {
           "on": "Nyári mód aktív (nincs fűtés)",
           "off": "Nincs nyári mód"

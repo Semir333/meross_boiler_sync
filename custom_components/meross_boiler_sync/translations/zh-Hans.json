@@ -1,0 +1,245 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Meross Boiler Sync",
+        "description": "请选择锅炉温控器。房间（阀门 + 温度计 + 湿度计）和夏季模式可在之后通过**配置**按钮添加。",
+        "data": {
+          "boiler": "锅炉温控器"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "此锅炉温控器已配置。"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Meross Boiler Sync",
+        "description": "房间：{rooms}\n\n更改仅在选择**保存并退出**后生效。",
+        "menu_options": {
+          "add_room": "添加房间",
+          "edit_room": "编辑房间",
+          "remove_room": "删除房间",
+          "settings": "基本设置",
+          "summer": "夏季模式",
+          "done": "保存并退出"
+        }
+      },
+      "add_room": {
+        "title": "添加房间",
+        "data": {
+          "name": "房间名称",
+          "valves": "散热器阀门",
+          "temperature_sensor": "房间温度传感器（可选）",
+          "valve_control": "通过温度计自动控制阀门（实验性）",
+          "valve_boost_threshold": "阀门强制开启阈值 – 此房间（留空 = 全局值）",
+          "valve_boost_delay": "阀门强制开启前的等待时间 – 此房间，分钟（留空 = 全局值）",
+          "valve_release_margin": "达到目标前释放阀门 – 此房间（留空 = 全局值）",
+          "valve_demand_link": "将锅炉需求与阀门状态关联",
+          "humidity_sensor": "房间湿度传感器（可选）"
+        },
+        "data_description": {
+          "name": "例如：客厅",
+          "valves": "此房间的阀门。房间的目标温度为阀门上设置的值（有多个阀门时取最高值）。",
+          "temperature_sensor": "如已指定，将根据它而不是阀门自身的测量值来计算供暖需求。若不可用，则回退到阀门的测量值。",
+          "valve_control": "当房间温度计显示偏冷时，阀门的目标温度会暂时提高到阀门的最大值（阀门完全打开），达到目标后恢复为原始值。需要温度传感器。",
+          "valve_boost_threshold": "仅在启用阀门自动控制时有意义。留空时使用基本设置中的值。",
+          "valve_boost_delay": "偏差需持续多长时间才会强制开启阀门。0 = 立即。留空时使用全局值。",
+          "valve_release_margin": "在达到目标之前，阀门提前这么多恢复其原始目标温度。必须小于阈值。留空时使用全局值。",
+          "valve_demand_link": "开启后，房间仅在其阀门处于打开状态（阀门自身测量值低于其目标）或插件正在强制打开时，才向锅炉请求供热。这样在偏差较小时，锅炉不会对着关闭的阀门燃烧。若缺少阀门数据，则不会阻止供暖。",
+          "humidity_sensor": "湿度较高时，房间的目标温度会略微提高（参见基本设置）。"
+        }
+      },
+      "edit_room": {
+        "title": "编辑房间",
+        "data": {
+          "room": "房间"
+        }
+      },
+      "edit_room_form": {
+        "title": "编辑房间",
+        "data": {
+          "name": "房间名称",
+          "valves": "散热器阀门",
+          "temperature_sensor": "房间温度传感器（可选）",
+          "valve_control": "通过温度计自动控制阀门（实验性）",
+          "valve_boost_threshold": "阀门强制开启阈值 – 此房间（留空 = 全局值）",
+          "valve_boost_delay": "阀门强制开启前的等待时间 – 此房间，分钟（留空 = 全局值）",
+          "valve_release_margin": "达到目标前释放阀门 – 此房间（留空 = 全局值）",
+          "valve_demand_link": "将锅炉需求与阀门状态关联",
+          "humidity_sensor": "房间湿度传感器（可选）"
+        },
+        "data_description": {
+          "name": "例如：客厅",
+          "valves": "此房间的阀门。房间的目标温度为阀门上设置的值（有多个阀门时取最高值）。",
+          "temperature_sensor": "如已指定，将根据它而不是阀门自身的测量值来计算供暖需求。若不可用，则回退到阀门的测量值。",
+          "valve_control": "当房间温度计显示偏冷时，阀门的目标温度会暂时提高到阀门的最大值（阀门完全打开），达到目标后恢复为原始值。需要温度传感器。",
+          "valve_boost_threshold": "仅在启用阀门自动控制时有意义。留空时使用基本设置中的值。",
+          "valve_boost_delay": "偏差需持续多长时间才会强制开启阀门。0 = 立即。留空时使用全局值。",
+          "valve_release_margin": "在达到目标之前，阀门提前这么多恢复其原始目标温度。必须小于阈值。留空时使用全局值。",
+          "valve_demand_link": "开启后，房间仅在其阀门处于打开状态（阀门自身测量值低于其目标）或插件正在强制打开时，才向锅炉请求供热。这样在偏差较小时，锅炉不会对着关闭的阀门燃烧。若缺少阀门数据，则不会阻止供暖。",
+          "humidity_sensor": "湿度较高时，房间的目标温度会略微提高（参见基本设置）。"
+        }
+      },
+      "remove_room": {
+        "title": "删除房间",
+        "data": {
+          "rooms_to_remove": "要删除的房间"
+        }
+      },
+      "settings": {
+        "title": "基本设置",
+        "data": {
+          "hysteresis": "回差",
+          "min_switch_time": "最短切换时间",
+          "boiler_on_temp": "供暖时锅炉的目标温度（0 = 不更改）",
+          "humidity_max_boost": "因湿度产生的最大提升（0 = 关闭）",
+          "valve_boost_threshold": "阀门强制开启阈值 – 默认值（低于目标多少）",
+          "valve_boost_delay": "阀门强制开启前的等待时间 – 默认值",
+          "valve_release_margin": "达到目标前释放阀门 – 默认值",
+          "valve_dry_run": "阀门控制试运行（仅记录日志，不向阀门写入）"
+        },
+        "data_description": {
+          "hysteresis": "房间比目标低这么多时请求供热，并持续请求直到达到目标。",
+          "min_switch_time": "锅炉开关之间的最短间隔时间。",
+          "boiler_on_temp": "需要供热时设置在锅炉温控器上的目标温度。",
+          "humidity_max_boost": "目标温度从湿度 60% 起逐步上升，在 80% 时达到该值。目标低于 17 °C 时不提升。",
+          "valve_boost_threshold": "所有房间的默认值，可按房间覆盖。自动控制仅在房间比目标至少低这么多时才强制开启阀门。偏差更小时由阀门自行决定，散热器的余热通常已足够。（锅炉需求仍从回差处开始。）",
+          "valve_boost_delay": "所有房间的默认值。偏差需持续这么长时间才会强制开启阀门，以便散热器的余热有机会加热房间。如果偏差超过阈值 1 °C（例如您提高了目标），则无需等待。0 = 立即。",
+          "valve_release_margin": "所有房间的默认值。由于散热器的余热会继续加热房间（防止过冲），阀门会在房间达到目标前提前这么多恢复其原始目标温度。必须小于强制开启阈值。",
+          "valve_dry_run": "开启后，阀门控制只在日志中记录它将执行的操作（前缀 [PRÓBAÜZEM]），不会更改阀门上的任何内容。建议用于首次实际测试。"
+        }
+      },
+      "summer": {
+        "title": "夏季模式",
+        "description": "在夏季模式下没有供暖需求，锅炉温控器将关闭。当日期处于夏季期间，并且室外温度的 24 小时平均值高于阈值时，该模式生效。没有传感器时，夏季模式处于禁用状态。",
+        "data": {
+          "outdoor_sensor": "室外温度传感器",
+          "summer_temp": "阈值（24 小时平均值）",
+          "summer_start": "夏季期间开始 (MM-DD)",
+          "summer_end": "夏季期间结束 (MM-DD)"
+        },
+        "data_description": {
+          "summer_start": "例如 05-15",
+          "summer_end": "例如 09-15"
+        }
+      }
+    },
+    "error": {
+      "no_name": "请输入房间名称。",
+      "duplicate_name": "已存在同名房间。",
+      "no_valves": "请至少选择一个阀门。",
+      "boiler_in_valves": "锅炉温控器不能用作阀门。",
+      "valve_in_use": "此阀门已属于另一个房间。",
+      "control_needs_sensor": "阀门控制需要房间温度传感器。",
+      "invalid_date": "日期无效，请使用 MM-DD 格式（例如 05-15）。",
+      "release_ge_threshold": "释放值必须小于强制开启阈值。"
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "room_demand": {
+        "name": "{room} 供暖需求",
+        "state": {
+          "on": "正在向锅炉请求供热",
+          "off": "未请求供热"
+        },
+        "state_attributes": {
+          "valves": {
+            "name": "房间的阀门"
+          },
+          "valve_active": {
+            "name": "房间内有已开启的阀门"
+          },
+          "current_temperature": {
+            "name": "房间温度（用于决策）"
+          },
+          "temperature_source": {
+            "name": "温度来源",
+            "state": {
+              "sensor": "房间温度计",
+              "valve": "阀门自身测量值（备用，温度计不可用）"
+            }
+          },
+          "target_temperature": {
+            "name": "目标温度（设置在阀门上）"
+          },
+          "effective_target": {
+            "name": "有效目标温度（含湿度提升）"
+          },
+          "humidity": {
+            "name": "房间湿度"
+          },
+          "humidity_boost": {
+            "name": "因湿度提高的目标"
+          },
+          "room_below_target": {
+            "name": "房间比目标更冷"
+          },
+          "deviation": {
+            "name": "与目标的偏差（正值 = 过冷）"
+          },
+          "valve_demand_link": {
+            "name": "锅炉需求已与阀门状态关联（房间开关）"
+          },
+          "valve_open_estimate": {
+            "name": "阀门估计处于打开状态（根据其自身测量值）"
+          },
+          "boost_threshold": {
+            "name": "阀门强制开启阈值（低于目标多少）"
+          },
+          "boost_delay_minutes": {
+            "name": "阀门强制开启前的等待时间（分钟）"
+          },
+          "release_margin": {
+            "name": "达到目标前释放阀门 (°C)"
+          },
+          "valve_control": {
+            "name": "已启用阀门自动控制"
+          },
+          "valve_boosted": {
+            "name": "阀门当前被强制打开（目标已提高）"
+          },
+          "valve_boost_waiting": {
+            "name": "阀门强制开启待定（等待时间进行中）"
+          },
+          "valve_dry_run": {
+            "name": "阀门控制试运行（仅记录日志）"
+          }
+        }
+      },
+      "summer_mode": {
+        "name": "夏季模式",
+        "state": {
+          "on": "夏季模式已启用（不供暖）",
+          "off": "非夏季模式"
+        },
+        "state_attributes": {
+          "outdoor_sensor": {
+            "name": "室外温度传感器"
+          },
+          "outdoor_temperature": {
+            "name": "当前室外温度"
+          },
+          "outdoor_average_24h": {
+            "name": "室外温度 24 小时平均值"
+          },
+          "threshold": {
+            "name": "夏季模式阈值（高于该 24 小时平均值时生效）"
+          },
+          "in_summer_period": {
+            "name": "日期处于夏季期间"
+          },
+          "period_start": {
+            "name": "夏季期间开始 (MM-DD)"
+          },
+          "period_end": {
+            "name": "夏季期间结束 (MM-DD)"
+          }
+        }
+      }
+    }
+  }
+}

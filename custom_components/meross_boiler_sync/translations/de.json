@@ -1,0 +1,245 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Meross Boiler Sync",
+        "description": "Wähle den Kessel-Thermostat aus. Räume (Ventil + Thermometer + Hygrometer) und den Sommermodus fügst du anschließend über die Schaltfläche **Konfigurieren** hinzu.",
+        "data": {
+          "boiler": "Kessel-Thermostat"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Dieser Kessel-Thermostat ist bereits eingerichtet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Meross Boiler Sync",
+        "description": "Räume: {rooms}\n\nÄnderungen werden erst nach Auswahl von **Speichern und beenden** wirksam.",
+        "menu_options": {
+          "add_room": "Raum hinzufügen",
+          "edit_room": "Raum bearbeiten",
+          "remove_room": "Raum entfernen",
+          "settings": "Grundeinstellungen",
+          "summer": "Sommermodus",
+          "done": "Speichern und beenden"
+        }
+      },
+      "add_room": {
+        "title": "Raum hinzufügen",
+        "data": {
+          "name": "Raumname",
+          "valves": "Heizkörperventil(e)",
+          "temperature_sensor": "Raum-Temperatursensor (optional)",
+          "valve_control": "Automatische Ventilregelung per Thermometer (experimentell)",
+          "valve_boost_threshold": "Schwelle für Ventil-Anhebung – dieser Raum (leer = globaler Wert)",
+          "valve_boost_delay": "Wartezeit vor Ventil-Anhebung – dieser Raum, Minuten (leer = globaler Wert)",
+          "valve_release_margin": "Ventil-Freigabe vor dem Ziel – dieser Raum (leer = globaler Wert)",
+          "valve_demand_link": "Kesselanforderung an den Ventilzustand koppeln",
+          "humidity_sensor": "Raum-Feuchtesensor (optional)"
+        },
+        "data_description": {
+          "name": "Z. B. Wohnzimmer",
+          "valves": "Ventile dieses Raums. Die Zieltemperatur des Raums ist der am Ventil eingestellte Wert (bei mehreren Ventilen der höchste).",
+          "temperature_sensor": "Wenn angegeben, wird der Wärmebedarf daraus statt aus der Messung des Ventils berechnet. Bei Nichtverfügbarkeit wird auf die Ventile zurückgegriffen.",
+          "valve_control": "Zeigt das Raumthermometer Kälte an, wird die Zieltemperatur des Ventils vorübergehend auf das Ventilmaximum angehoben (Ventil öffnet vollständig) und nach Erreichen des Ziels auf den ursprünglichen Wert zurückgesetzt. Erfordert einen Temperatursensor.",
+          "valve_boost_threshold": "Nur relevant mit automatischer Ventilregelung. Wenn leer, gilt der Wert aus den Grundeinstellungen.",
+          "valve_boost_delay": "Wie lange die Abweichung bestehen muss, bevor angehoben wird. 0 = sofort. Wenn leer, gilt der globale Wert.",
+          "valve_release_margin": "Das Ventil erhält seine ursprüngliche Zieltemperatur so weit vor dem Ziel zurück. Muss kleiner als die Schwelle sein. Wenn leer, gilt der globale Wert.",
+          "valve_demand_link": "Wenn aktiv, fordert der Raum den Kessel nur an, wenn sein Ventil offen ist (die eigene Messung des Ventils liegt unter seinem Ziel) oder wenn das Plugin es gerade öffnet. So feuert der Kessel bei kleinen Abweichungen nicht gegen geschlossene Ventile. Blockiert die Heizung nicht, wenn Ventildaten fehlen.",
+          "humidity_sensor": "Bei hoher Luftfeuchtigkeit wird die Zieltemperatur des Raums leicht angehoben (siehe Grundeinstellungen)."
+        }
+      },
+      "edit_room": {
+        "title": "Raum bearbeiten",
+        "data": {
+          "room": "Raum"
+        }
+      },
+      "edit_room_form": {
+        "title": "Raum bearbeiten",
+        "data": {
+          "name": "Raumname",
+          "valves": "Heizkörperventil(e)",
+          "temperature_sensor": "Raum-Temperatursensor (optional)",
+          "valve_control": "Automatische Ventilregelung per Thermometer (experimentell)",
+          "valve_boost_threshold": "Schwelle für Ventil-Anhebung – dieser Raum (leer = globaler Wert)",
+          "valve_boost_delay": "Wartezeit vor Ventil-Anhebung – dieser Raum, Minuten (leer = globaler Wert)",
+          "valve_release_margin": "Ventil-Freigabe vor dem Ziel – dieser Raum (leer = globaler Wert)",
+          "valve_demand_link": "Kesselanforderung an den Ventilzustand koppeln",
+          "humidity_sensor": "Raum-Feuchtesensor (optional)"
+        },
+        "data_description": {
+          "name": "Z. B. Wohnzimmer",
+          "valves": "Ventile dieses Raums. Die Zieltemperatur des Raums ist der am Ventil eingestellte Wert (bei mehreren Ventilen der höchste).",
+          "temperature_sensor": "Wenn angegeben, wird der Wärmebedarf daraus statt aus der Messung des Ventils berechnet. Bei Nichtverfügbarkeit wird auf die Ventile zurückgegriffen.",
+          "valve_control": "Zeigt das Raumthermometer Kälte an, wird die Zieltemperatur des Ventils vorübergehend auf das Ventilmaximum angehoben (Ventil öffnet vollständig) und nach Erreichen des Ziels auf den ursprünglichen Wert zurückgesetzt. Erfordert einen Temperatursensor.",
+          "valve_boost_threshold": "Nur relevant mit automatischer Ventilregelung. Wenn leer, gilt der Wert aus den Grundeinstellungen.",
+          "valve_boost_delay": "Wie lange die Abweichung bestehen muss, bevor angehoben wird. 0 = sofort. Wenn leer, gilt der globale Wert.",
+          "valve_release_margin": "Das Ventil erhält seine ursprüngliche Zieltemperatur so weit vor dem Ziel zurück. Muss kleiner als die Schwelle sein. Wenn leer, gilt der globale Wert.",
+          "valve_demand_link": "Wenn aktiv, fordert der Raum den Kessel nur an, wenn sein Ventil offen ist (die eigene Messung des Ventils liegt unter seinem Ziel) oder wenn das Plugin es gerade öffnet. So feuert der Kessel bei kleinen Abweichungen nicht gegen geschlossene Ventile. Blockiert die Heizung nicht, wenn Ventildaten fehlen.",
+          "humidity_sensor": "Bei hoher Luftfeuchtigkeit wird die Zieltemperatur des Raums leicht angehoben (siehe Grundeinstellungen)."
+        }
+      },
+      "remove_room": {
+        "title": "Raum entfernen",
+        "data": {
+          "rooms_to_remove": "Zu entfernende Räume"
+        }
+      },
+      "settings": {
+        "title": "Grundeinstellungen",
+        "data": {
+          "hysteresis": "Hysterese",
+          "min_switch_time": "Minimale Schaltzeit",
+          "boiler_on_temp": "Kessel-Zieltemperatur beim Heizen (0 = nicht ändern)",
+          "humidity_max_boost": "Max. Anhebung bei Feuchtigkeit (0 = aus)",
+          "valve_boost_threshold": "Schwelle für Ventil-Anhebung – Standard (wie weit unter dem Ziel)",
+          "valve_boost_delay": "Wartezeit vor Ventil-Anhebung – Standard",
+          "valve_release_margin": "Ventil-Freigabe vor dem Ziel – Standard",
+          "valve_dry_run": "Testlauf der Ventilregelung (nur Protokoll, keine Schreibzugriffe auf Ventile)"
+        },
+        "data_description": {
+          "hysteresis": "Ein Raum fordert Wärme an, wenn er so weit unter dem Ziel liegt, und fordert weiter an, bis das Ziel erreicht ist.",
+          "min_switch_time": "Mindestzeit zwischen dem Ein- und Ausschalten des Kessels.",
+          "boiler_on_temp": "Zieltemperatur, die am Kessel-Thermostat gesetzt wird, wenn Wärme benötigt wird.",
+          "humidity_max_boost": "Die Zieltemperatur steigt ab 60 % Luftfeuchtigkeit schrittweise und erreicht bei 80 % diesen Wert. Keine Anhebung bei Zielen unter 17 °C.",
+          "valve_boost_threshold": "Standard für alle Räume, pro Raum überschreibbar. Die automatische Ventilregelung hebt nur an, wenn der Raum mindestens so weit unter dem Ziel liegt. Bei kleineren Abweichungen entscheidet das Ventil allein, und die Restwärme des Heizkörpers reicht meist aus. (Die Kesselanforderung beginnt weiterhin bei der Hysterese.)",
+          "valve_boost_delay": "Standard für alle Räume. Die Abweichung muss so lange bestehen, bevor angehoben wird, damit die Restwärme des Heizkörpers den Raum erwärmen kann. Liegt die Abweichung 1 °C über der Schwelle (z. B. weil du das Ziel erhöht hast), gibt es keine Wartezeit. 0 = sofort.",
+          "valve_release_margin": "Standard für alle Räume. Das Ventil erhält seine ursprüngliche Zieltemperatur so weit vor Erreichen des Ziels zurück, weil die Restwärme des Heizkörpers den Raum weiter erwärmt (verhindert Überschwingen). Muss kleiner als die Schwelle für die Anhebung sein.",
+          "valve_dry_run": "Wenn aktiv, protokolliert die Ventilregelung nur, was sie tun würde (Präfix [PRÓBAÜZEM]), und ändert nichts an den Ventilen. Empfohlen für den ersten Live-Test."
+        }
+      },
+      "summer": {
+        "title": "Sommermodus",
+        "description": "Im Sommermodus gibt es keinen Wärmebedarf, und der Kessel-Thermostat wird ausgeschaltet. Er ist aktiv, wenn das Datum im Sommerzeitraum liegt UND der 24-Stunden-Durchschnitt der Außentemperatur über dem Schwellenwert liegt. Ohne Sensor ist der Sommermodus deaktiviert.",
+        "data": {
+          "outdoor_sensor": "Außentemperatursensor",
+          "summer_temp": "Schwellenwert (24-Stunden-Durchschnitt)",
+          "summer_start": "Beginn des Sommerzeitraums (MM-DD)",
+          "summer_end": "Ende des Sommerzeitraums (MM-DD)"
+        },
+        "data_description": {
+          "summer_start": "Z. B. 05-15",
+          "summer_end": "Z. B. 09-15"
+        }
+      }
+    },
+    "error": {
+      "no_name": "Gib einen Raumnamen ein.",
+      "duplicate_name": "Ein Raum mit diesem Namen existiert bereits.",
+      "no_valves": "Wähle mindestens ein Ventil aus.",
+      "boiler_in_valves": "Der Kessel-Thermostat kann kein Ventil sein.",
+      "valve_in_use": "Dieses Ventil gehört bereits zu einem anderen Raum.",
+      "control_needs_sensor": "Die Ventilregelung erfordert einen Raum-Temperatursensor.",
+      "invalid_date": "Ungültiges Datum, Format MM-DD verwenden (z. B. 05-15).",
+      "release_ge_threshold": "Die Freigabe muss kleiner als die Schwelle für die Anhebung sein."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "room_demand": {
+        "name": "{room} Wärmebedarf",
+        "state": {
+          "on": "Fordert Wärme vom Kessel an",
+          "off": "Fordert keine Wärme an"
+        },
+        "state_attributes": {
+          "valves": {
+            "name": "Ventile des Raums"
+          },
+          "valve_active": {
+            "name": "Raum hat ein eingeschaltetes Ventil"
+          },
+          "current_temperature": {
+            "name": "Raumtemperatur (für Entscheidungen verwendet)"
+          },
+          "temperature_source": {
+            "name": "Temperaturquelle",
+            "state": {
+              "sensor": "Raumthermometer",
+              "valve": "Eigene Messung des Ventils (Ersatz, Thermometer nicht verfügbar)"
+            }
+          },
+          "target_temperature": {
+            "name": "Zieltemperatur (am Ventil eingestellt)"
+          },
+          "effective_target": {
+            "name": "Effektive Zieltemperatur (inkl. Feuchtigkeitsanhebung)"
+          },
+          "humidity": {
+            "name": "Raumluftfeuchtigkeit"
+          },
+          "humidity_boost": {
+            "name": "Zielanhebung wegen Luftfeuchtigkeit"
+          },
+          "room_below_target": {
+            "name": "Raum ist kälter als das Ziel"
+          },
+          "deviation": {
+            "name": "Abweichung vom Ziel (positiv = zu kalt)"
+          },
+          "valve_demand_link": {
+            "name": "Kesselanforderung an Ventilzustand gekoppelt (Raumschalter)"
+          },
+          "valve_open_estimate": {
+            "name": "Ventil vermutlich offen (nach eigener Messung)"
+          },
+          "boost_threshold": {
+            "name": "Schwelle für Ventil-Anhebung (wie weit unter dem Ziel)"
+          },
+          "boost_delay_minutes": {
+            "name": "Wartezeit vor Ventil-Anhebung (Minuten)"
+          },
+          "release_margin": {
+            "name": "Ventil-Freigabe vor dem Ziel (°C)"
+          },
+          "valve_control": {
+            "name": "Automatische Ventilregelung aktiviert"
+          },
+          "valve_boosted": {
+            "name": "Ventil aktuell zwangsgeöffnet (Ziel angehoben)"
+          },
+          "valve_boost_waiting": {
+            "name": "Ventil-Anhebung ausstehend (Wartezeit läuft)"
+          },
+          "valve_dry_run": {
+            "name": "Testlauf der Ventilregelung (nur Protokoll)"
+          }
+        }
+      },
+      "summer_mode": {
+        "name": "Sommermodus",
+        "state": {
+          "on": "Sommermodus aktiv (keine Heizung)",
+          "off": "Kein Sommermodus"
+        },
+        "state_attributes": {
+          "outdoor_sensor": {
+            "name": "Außentemperatursensor"
+          },
+          "outdoor_temperature": {
+            "name": "Aktuelle Außentemperatur"
+          },
+          "outdoor_average_24h": {
+            "name": "Außentemperatur im 24-Stunden-Durchschnitt"
+          },
+          "threshold": {
+            "name": "Schwellenwert Sommermodus (aktiv über diesem 24-Stunden-Durchschnitt)"
+          },
+          "in_summer_period": {
+            "name": "Datum liegt im Sommerzeitraum"
+          },
+          "period_start": {
+            "name": "Beginn des Sommerzeitraums (MM-DD)"
+          },
+          "period_end": {
+            "name": "Ende des Sommerzeitraums (MM-DD)"
+          }
+        }
+      }
+    }
+  }
+}

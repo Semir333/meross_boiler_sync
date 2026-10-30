@@ -1,0 +1,245 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Meross Boiler Sync",
+        "description": "Selecteer de thermostaat van de cv-ketel. Kamers (kraan + thermometer + hygrometer) en de zomermodus voeg je daarna toe met de knop **Configureren**.",
+        "data": {
+          "boiler": "Ketelthermostaat"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Deze ketelthermostaat is al geconfigureerd."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Meross Boiler Sync",
+        "description": "Kamers: {rooms}\n\nWijzigingen worden pas actief nadat je **Opslaan en afsluiten** kiest.",
+        "menu_options": {
+          "add_room": "Kamer toevoegen",
+          "edit_room": "Kamer bewerken",
+          "remove_room": "Kamer verwijderen",
+          "settings": "Basisinstellingen",
+          "summer": "Zomermodus",
+          "done": "Opslaan en afsluiten"
+        }
+      },
+      "add_room": {
+        "title": "Kamer toevoegen",
+        "data": {
+          "name": "Kamernaam",
+          "valves": "Radiatorkra(a)n(en)",
+          "temperature_sensor": "Kamertemperatuursensor (optioneel)",
+          "valve_control": "Automatische kraanregeling via thermometer (experimenteel)",
+          "valve_boost_threshold": "Drempel voor kraanverhoging – deze kamer (leeg = algemene waarde)",
+          "valve_boost_delay": "Wachttijd voor kraanverhoging – deze kamer, minuten (leeg = algemene waarde)",
+          "valve_release_margin": "Kraan vrijgeven vóór het doel – deze kamer (leeg = algemene waarde)",
+          "valve_demand_link": "Ketelvraag koppelen aan de kraanstatus",
+          "humidity_sensor": "Kamervochtigheidssensor (optioneel)"
+        },
+        "data_description": {
+          "name": "Bijv. Woonkamer",
+          "valves": "Kranen van deze kamer. De doeltemperatuur van de kamer is de waarde die op de kraan is ingesteld (bij meerdere kranen de hoogste).",
+          "temperature_sensor": "Indien ingevuld wordt de warmtevraag hieruit berekend in plaats van uit de eigen meting van de kraan. Valt terug op de kranen als de sensor niet beschikbaar is.",
+          "valve_control": "Als de kamerthermometer aangeeft dat het koud is, wordt de doeltemperatuur van de kraan tijdelijk verhoogd tot het maximum van de kraan (de kraan gaat volledig open) en na het bereiken van het doel teruggezet naar de oorspronkelijke waarde. Vereist een temperatuursensor.",
+          "valve_boost_threshold": "Alleen relevant met automatische kraanregeling. Indien leeg geldt de waarde uit de Basisinstellingen.",
+          "valve_boost_delay": "Hoe lang de afwijking moet aanhouden voordat de kraan wordt verhoogd. 0 = direct. Indien leeg geldt de algemene waarde.",
+          "valve_release_margin": "De kraan krijgt zijn oorspronkelijke doeltemperatuur zo ver vóór het doel terug. Moet kleiner zijn dan de drempel. Indien leeg geldt de algemene waarde.",
+          "valve_demand_link": "Indien ingeschakeld vraagt de kamer alleen warmte aan de ketel als de kraan open is (de eigen meting van de kraan ligt onder zijn doel) of als de plugin hem openzet. Zo stookt de ketel bij kleine afwijkingen niet tegen gesloten kranen. Blokkeert het verwarmen niet als kraangegevens ontbreken.",
+          "humidity_sensor": "Bij hoge luchtvochtigheid wordt de doeltemperatuur van de kamer licht verhoogd (zie Basisinstellingen)."
+        }
+      },
+      "edit_room": {
+        "title": "Kamer bewerken",
+        "data": {
+          "room": "Kamer"
+        }
+      },
+      "edit_room_form": {
+        "title": "Kamer bewerken",
+        "data": {
+          "name": "Kamernaam",
+          "valves": "Radiatorkra(a)n(en)",
+          "temperature_sensor": "Kamertemperatuursensor (optioneel)",
+          "valve_control": "Automatische kraanregeling via thermometer (experimenteel)",
+          "valve_boost_threshold": "Drempel voor kraanverhoging – deze kamer (leeg = algemene waarde)",
+          "valve_boost_delay": "Wachttijd voor kraanverhoging – deze kamer, minuten (leeg = algemene waarde)",
+          "valve_release_margin": "Kraan vrijgeven vóór het doel – deze kamer (leeg = algemene waarde)",
+          "valve_demand_link": "Ketelvraag koppelen aan de kraanstatus",
+          "humidity_sensor": "Kamervochtigheidssensor (optioneel)"
+        },
+        "data_description": {
+          "name": "Bijv. Woonkamer",
+          "valves": "Kranen van deze kamer. De doeltemperatuur van de kamer is de waarde die op de kraan is ingesteld (bij meerdere kranen de hoogste).",
+          "temperature_sensor": "Indien ingevuld wordt de warmtevraag hieruit berekend in plaats van uit de eigen meting van de kraan. Valt terug op de kranen als de sensor niet beschikbaar is.",
+          "valve_control": "Als de kamerthermometer aangeeft dat het koud is, wordt de doeltemperatuur van de kraan tijdelijk verhoogd tot het maximum van de kraan (de kraan gaat volledig open) en na het bereiken van het doel teruggezet naar de oorspronkelijke waarde. Vereist een temperatuursensor.",
+          "valve_boost_threshold": "Alleen relevant met automatische kraanregeling. Indien leeg geldt de waarde uit de Basisinstellingen.",
+          "valve_boost_delay": "Hoe lang de afwijking moet aanhouden voordat de kraan wordt verhoogd. 0 = direct. Indien leeg geldt de algemene waarde.",
+          "valve_release_margin": "De kraan krijgt zijn oorspronkelijke doeltemperatuur zo ver vóór het doel terug. Moet kleiner zijn dan de drempel. Indien leeg geldt de algemene waarde.",
+          "valve_demand_link": "Indien ingeschakeld vraagt de kamer alleen warmte aan de ketel als de kraan open is (de eigen meting van de kraan ligt onder zijn doel) of als de plugin hem openzet. Zo stookt de ketel bij kleine afwijkingen niet tegen gesloten kranen. Blokkeert het verwarmen niet als kraangegevens ontbreken.",
+          "humidity_sensor": "Bij hoge luchtvochtigheid wordt de doeltemperatuur van de kamer licht verhoogd (zie Basisinstellingen)."
+        }
+      },
+      "remove_room": {
+        "title": "Kamer verwijderen",
+        "data": {
+          "rooms_to_remove": "Te verwijderen kamers"
+        }
+      },
+      "settings": {
+        "title": "Basisinstellingen",
+        "data": {
+          "hysteresis": "Hysterese",
+          "min_switch_time": "Minimale schakeltijd",
+          "boiler_on_temp": "Doeltemperatuur ketel tijdens verwarmen (0 = niet wijzigen)",
+          "humidity_max_boost": "Max. verhoging bij luchtvochtigheid (0 = uit)",
+          "valve_boost_threshold": "Drempel voor kraanverhoging – standaard (hoever onder het doel)",
+          "valve_boost_delay": "Wachttijd voor kraanverhoging – standaard",
+          "valve_release_margin": "Kraan vrijgeven vóór het doel – standaard",
+          "valve_dry_run": "Proefmodus kraanregeling (alleen loggen, niets naar de kranen schrijven)"
+        },
+        "data_description": {
+          "hysteresis": "Een kamer vraagt warmte aan als hij zoveel onder het doel ligt, en blijft vragen tot het doel is bereikt.",
+          "min_switch_time": "Minimale tijd tussen het in- en uitschakelen van de ketel.",
+          "boiler_on_temp": "Doeltemperatuur die op de ketelthermostaat wordt ingesteld wanneer warmte nodig is.",
+          "humidity_max_boost": "De doeltemperatuur stijgt geleidelijk vanaf 60% luchtvochtigheid en bereikt deze waarde bij 80%. Geen verhoging bij doelen onder 17 °C.",
+          "valve_boost_threshold": "Standaard voor alle kamers, per kamer te overschrijven. De automatische kraanregeling verhoogt alleen als de kamer minstens zoveel onder het doel ligt. Bij kleinere afwijkingen beslist de kraan zelf en is de restwarmte van de radiator meestal genoeg. (De ketelvraag start nog steeds bij de hysterese.)",
+          "valve_boost_delay": "Standaard voor alle kamers. De afwijking moet zo lang aanhouden voordat de kraan wordt verhoogd, zodat de restwarmte van de radiator de kamer kan opwarmen. Als de afwijking 1 °C boven de drempel ligt (bijv. omdat je het doel hebt verhoogd), is er geen wachttijd. 0 = direct.",
+          "valve_release_margin": "Standaard voor alle kamers. De kraan krijgt zijn oorspronkelijke doeltemperatuur zo ver vóór het bereiken van het doel terug, omdat de restwarmte van de radiator de kamer nog verder opwarmt (voorkomt doorschieten). Moet kleiner zijn dan de drempel voor kraanverhoging.",
+          "valve_dry_run": "Indien ingeschakeld logt de kraanregeling alleen wat ze zou doen (voorvoegsel [PRÓBAÜZEM]) en wijzigt ze niets aan de kranen. Aanbevolen voor de eerste livetest."
+        }
+      },
+      "summer": {
+        "title": "Zomermodus",
+        "description": "In de zomermodus is er geen warmtevraag en wordt de ketelthermostaat uitgeschakeld. De modus is actief als de datum binnen de zomerperiode valt EN het 24-uursgemiddelde van de buitentemperatuur boven de drempel ligt. Zonder sensor is de zomermodus uitgeschakeld.",
+        "data": {
+          "outdoor_sensor": "Buitentemperatuursensor",
+          "summer_temp": "Drempel (24-uursgemiddelde)",
+          "summer_start": "Begin zomerperiode (MM-DD)",
+          "summer_end": "Einde zomerperiode (MM-DD)"
+        },
+        "data_description": {
+          "summer_start": "Bijv. 05-15",
+          "summer_end": "Bijv. 09-15"
+        }
+      }
+    },
+    "error": {
+      "no_name": "Voer een kamernaam in.",
+      "duplicate_name": "Er bestaat al een kamer met deze naam.",
+      "no_valves": "Selecteer minstens één kraan.",
+      "boiler_in_valves": "De ketelthermostaat kan geen kraan zijn.",
+      "valve_in_use": "Deze kraan hoort al bij een andere kamer.",
+      "control_needs_sensor": "Kraanregeling vereist een kamertemperatuursensor.",
+      "invalid_date": "Ongeldige datum, gebruik MM-DD (bijv. 05-15).",
+      "release_ge_threshold": "Het vrijgeven moet kleiner zijn dan de drempel voor kraanverhoging."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "room_demand": {
+        "name": "{room} warmtevraag",
+        "state": {
+          "on": "Vraagt warmte aan de ketel",
+          "off": "Vraagt geen warmte"
+        },
+        "state_attributes": {
+          "valves": {
+            "name": "Kranen van de kamer"
+          },
+          "valve_active": {
+            "name": "Kamer heeft een ingeschakelde kraan"
+          },
+          "current_temperature": {
+            "name": "Kamertemperatuur (gebruikt voor beslissingen)"
+          },
+          "temperature_source": {
+            "name": "Temperatuurbron",
+            "state": {
+              "sensor": "Kamerthermometer",
+              "valve": "Eigen meting van de kraan (terugval, thermometer niet beschikbaar)"
+            }
+          },
+          "target_temperature": {
+            "name": "Doeltemperatuur (ingesteld op de kraan)"
+          },
+          "effective_target": {
+            "name": "Effectieve doeltemperatuur (incl. verhoging door luchtvochtigheid)"
+          },
+          "humidity": {
+            "name": "Luchtvochtigheid kamer"
+          },
+          "humidity_boost": {
+            "name": "Doelverhoging door luchtvochtigheid"
+          },
+          "room_below_target": {
+            "name": "Kamer is kouder dan het doel"
+          },
+          "deviation": {
+            "name": "Afwijking van het doel (positief = te koud)"
+          },
+          "valve_demand_link": {
+            "name": "Ketelvraag gekoppeld aan kraanstatus (kamerschakelaar)"
+          },
+          "valve_open_estimate": {
+            "name": "Kraan vermoedelijk open (volgens eigen meting)"
+          },
+          "boost_threshold": {
+            "name": "Drempel voor kraanverhoging (hoever onder het doel)"
+          },
+          "boost_delay_minutes": {
+            "name": "Wachttijd voor kraanverhoging (minuten)"
+          },
+          "release_margin": {
+            "name": "Kraan vrijgeven vóór het doel (°C)"
+          },
+          "valve_control": {
+            "name": "Automatische kraanregeling ingeschakeld"
+          },
+          "valve_boosted": {
+            "name": "Kraan momenteel geforceerd open (doel verhoogd)"
+          },
+          "valve_boost_waiting": {
+            "name": "Kraanverhoging in afwachting (wachttijd loopt)"
+          },
+          "valve_dry_run": {
+            "name": "Proefmodus kraanregeling (alleen loggen)"
+          }
+        }
+      },
+      "summer_mode": {
+        "name": "Zomermodus",
+        "state": {
+          "on": "Zomermodus actief (geen verwarming)",
+          "off": "Geen zomermodus"
+        },
+        "state_attributes": {
+          "outdoor_sensor": {
+            "name": "Buitentemperatuursensor"
+          },
+          "outdoor_temperature": {
+            "name": "Buitentemperatuur nu"
+          },
+          "outdoor_average_24h": {
+            "name": "Buitentemperatuur 24-uursgemiddelde"
+          },
+          "threshold": {
+            "name": "Drempel zomermodus (actief boven dit 24-uursgemiddelde)"
+          },
+          "in_summer_period": {
+            "name": "Datum valt binnen de zomerperiode"
+          },
+          "period_start": {
+            "name": "Begin zomerperiode (MM-DD)"
+          },
+          "period_end": {
+            "name": "Einde zomerperiode (MM-DD)"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,245 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Meross Boiler Sync",
+        "description": "Izvēlieties katla termostatu. Telpas (vārsts + termometrs + higrometrs) un vasaras režīmu pievienosiet pēc tam ar pogu **Konfigurēt**.",
+        "data": {
+          "boiler": "Katla termostats"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Šis katla termostats jau ir konfigurēts."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Meross Boiler Sync",
+        "description": "Telpas: {rooms}\n\nIzmaiņas stājas spēkā tikai pēc **Saglabāt un iziet** izvēles.",
+        "menu_options": {
+          "add_room": "Pievienot telpu",
+          "edit_room": "Rediģēt telpu",
+          "remove_room": "Noņemt telpu",
+          "settings": "Pamatiestatījumi",
+          "summer": "Vasaras režīms",
+          "done": "Saglabāt un iziet"
+        }
+      },
+      "add_room": {
+        "title": "Pievienot telpu",
+        "data": {
+          "name": "Telpas nosaukums",
+          "valves": "Radiatora vārsts(-i)",
+          "temperature_sensor": "Telpas temperatūras sensors (neobligāts)",
+          "valve_control": "Automātiska vārstu vadība pēc termometra (eksperimentāla)",
+          "valve_boost_threshold": "Vārsta pacelšanas slieksnis – šī telpa (tukšs = globālā vērtība)",
+          "valve_boost_delay": "Gaidīšanas laiks pirms vārsta pacelšanas – šī telpa, minūtes (tukšs = globālā vērtība)",
+          "valve_release_margin": "Vārsta atbrīvošana pirms mērķa – šī telpa (tukšs = globālā vērtība)",
+          "valve_demand_link": "Sasaistīt katla pieprasījumu ar vārsta stāvokli",
+          "humidity_sensor": "Telpas mitruma sensors (neobligāts)"
+        },
+        "data_description": {
+          "name": "Piem., Viesistaba",
+          "valves": "Šīs telpas vārsti. Telpas mērķa temperatūra ir vārstam iestatītā vērtība (ja vārstu ir vairāki, augstākā).",
+          "temperature_sensor": "Ja norādīts, siltuma pieprasījums tiek aprēķināts pēc šī sensora, nevis pēc paša vārsta mērījuma. Ja sensors nav pieejams, tiek izmantoti vārsti.",
+          "valve_control": "Kad telpas termometrs rāda, ka ir auksti, vārsta mērķa temperatūra īslaicīgi tiek paaugstināta līdz vārsta maksimumam (vārsts atveras pilnībā) un pēc mērķa sasniegšanas atjaunota sākotnējā vērtībā. Nepieciešams temperatūras sensors.",
+          "valve_boost_threshold": "Attiecas tikai uz automātisko vārstu vadību. Ja tukšs, tiek izmantota vērtība no Pamatiestatījumiem.",
+          "valve_boost_delay": "Cik ilgi novirzei jāsaglabājas pirms pacelšanas. 0 = nekavējoties. Ja tukšs, tiek izmantota globālā vērtība.",
+          "valve_release_margin": "Vārsts atgūst savu sākotnējo mērķa temperatūru par šādu starpību pirms mērķa. Jābūt mazākai par slieksni. Ja tukšs, tiek izmantota globālā vērtība.",
+          "valve_demand_link": "Ja ieslēgts, telpa pieprasa siltumu no katla tikai tad, kad tās vārsts ir atvērts (paša vārsta mērījums ir zem tā mērķa) vai kad spraudnis to piespiedu kārtā atver. Tā katls nekurina pret aizvērtiem vārstiem pie nelielām novirzēm. Nebloķē apkuri, ja vārsta dati nav pieejami.",
+          "humidity_sensor": "Pie augsta mitruma telpas mērķa temperatūra tiek nedaudz paaugstināta (skatīt Pamatiestatījumus)."
+        }
+      },
+      "edit_room": {
+        "title": "Rediģēt telpu",
+        "data": {
+          "room": "Telpa"
+        }
+      },
+      "edit_room_form": {
+        "title": "Rediģēt telpu",
+        "data": {
+          "name": "Telpas nosaukums",
+          "valves": "Radiatora vārsts(-i)",
+          "temperature_sensor": "Telpas temperatūras sensors (neobligāts)",
+          "valve_control": "Automātiska vārstu vadība pēc termometra (eksperimentāla)",
+          "valve_boost_threshold": "Vārsta pacelšanas slieksnis – šī telpa (tukšs = globālā vērtība)",
+          "valve_boost_delay": "Gaidīšanas laiks pirms vārsta pacelšanas – šī telpa, minūtes (tukšs = globālā vērtība)",
+          "valve_release_margin": "Vārsta atbrīvošana pirms mērķa – šī telpa (tukšs = globālā vērtība)",
+          "valve_demand_link": "Sasaistīt katla pieprasījumu ar vārsta stāvokli",
+          "humidity_sensor": "Telpas mitruma sensors (neobligāts)"
+        },
+        "data_description": {
+          "name": "Piem., Viesistaba",
+          "valves": "Šīs telpas vārsti. Telpas mērķa temperatūra ir vārstam iestatītā vērtība (ja vārstu ir vairāki, augstākā).",
+          "temperature_sensor": "Ja norādīts, siltuma pieprasījums tiek aprēķināts pēc šī sensora, nevis pēc paša vārsta mērījuma. Ja sensors nav pieejams, tiek izmantoti vārsti.",
+          "valve_control": "Kad telpas termometrs rāda, ka ir auksti, vārsta mērķa temperatūra īslaicīgi tiek paaugstināta līdz vārsta maksimumam (vārsts atveras pilnībā) un pēc mērķa sasniegšanas atjaunota sākotnējā vērtībā. Nepieciešams temperatūras sensors.",
+          "valve_boost_threshold": "Attiecas tikai uz automātisko vārstu vadību. Ja tukšs, tiek izmantota vērtība no Pamatiestatījumiem.",
+          "valve_boost_delay": "Cik ilgi novirzei jāsaglabājas pirms pacelšanas. 0 = nekavējoties. Ja tukšs, tiek izmantota globālā vērtība.",
+          "valve_release_margin": "Vārsts atgūst savu sākotnējo mērķa temperatūru par šādu starpību pirms mērķa. Jābūt mazākai par slieksni. Ja tukšs, tiek izmantota globālā vērtība.",
+          "valve_demand_link": "Ja ieslēgts, telpa pieprasa siltumu no katla tikai tad, kad tās vārsts ir atvērts (paša vārsta mērījums ir zem tā mērķa) vai kad spraudnis to piespiedu kārtā atver. Tā katls nekurina pret aizvērtiem vārstiem pie nelielām novirzēm. Nebloķē apkuri, ja vārsta dati nav pieejami.",
+          "humidity_sensor": "Pie augsta mitruma telpas mērķa temperatūra tiek nedaudz paaugstināta (skatīt Pamatiestatījumus)."
+        }
+      },
+      "remove_room": {
+        "title": "Noņemt telpu",
+        "data": {
+          "rooms_to_remove": "Noņemamās telpas"
+        }
+      },
+      "settings": {
+        "title": "Pamatiestatījumi",
+        "data": {
+          "hysteresis": "Histerēze",
+          "min_switch_time": "Minimālais pārslēgšanas laiks",
+          "boiler_on_temp": "Katla mērķa temperatūra apkures laikā (0 = nemainīt)",
+          "humidity_max_boost": "Maks. paaugstinājums mitruma dēļ (0 = izslēgts)",
+          "valve_boost_threshold": "Vārsta pacelšanas slieksnis – noklusējums (cik zem mērķa)",
+          "valve_boost_delay": "Gaidīšanas laiks pirms vārsta pacelšanas – noklusējums",
+          "valve_release_margin": "Vārsta atbrīvošana pirms mērķa – noklusējums",
+          "valve_dry_run": "Vārstu vadības izmēģinājuma režīms (tikai žurnāls, bez rakstīšanas vārstos)"
+        },
+        "data_description": {
+          "hysteresis": "Telpa pieprasa siltumu, kad tā ir par tik zem mērķa, un turpina pieprasīt, līdz mērķis ir sasniegts.",
+          "min_switch_time": "Minimālais laiks starp katla ieslēgšanu un izslēgšanu.",
+          "boiler_on_temp": "Mērķa temperatūra, kas tiek iestatīta katla termostatam, kad nepieciešams siltums.",
+          "humidity_max_boost": "Mērķa temperatūra pakāpeniski pieaug no 60 % mitruma un sasniedz šo vērtību pie 80 %. Mērķiem zem 17 °C paaugstinājuma nav.",
+          "valve_boost_threshold": "Noklusējums visām telpām, katrai telpai var pārrakstīt. Automātiskā vadība paceļ vārstu tikai tad, ja telpa ir vismaz par tik zem mērķa. Pie mazākām novirzēm vārsts lemj pats, un radiatora atlikušais siltums parasti ir pietiekams. (Katla pieprasījums joprojām sākas pie histerēzes.)",
+          "valve_boost_delay": "Noklusējums visām telpām. Novirzei jāsaglabājas tik ilgi pirms pacelšanas, lai radiatora atlikušais siltums var sasildīt telpu. Ja novirze pārsniedz slieksni par 1 °C (piem., esat paaugstinājis mērķi), gaidīšanas nav. 0 = nekavējoties.",
+          "valve_release_margin": "Noklusējums visām telpām. Vārsts atgūst sākotnējo mērķa temperatūru par tik pirms telpas mērķa sasniegšanas, jo radiatora atlikušais siltums turpina sildīt telpu (novērš pārsniegšanu). Jābūt mazākam par pacelšanas slieksni.",
+          "valve_dry_run": "Ja ieslēgts, vārstu vadība tikai ieraksta žurnālā, ko tā darītu (priedēklis [PRÓBAÜZEM]), un neko nemaina vārstos. Ieteicams pirmajam darbības testam."
+        }
+      },
+      "summer": {
+        "title": "Vasaras režīms",
+        "description": "Vasaras režīmā siltuma pieprasījuma nav, un katla termostats tiek izslēgts. Režīms ir aktīvs, kad datums ir vasaras periodā UN ārā temperatūras 24 stundu vidējā vērtība pārsniedz slieksni. Bez sensora vasaras režīms ir atspējots.",
+        "data": {
+          "outdoor_sensor": "Ārā temperatūras sensors",
+          "summer_temp": "Slieksnis (24 stundu vidējā)",
+          "summer_start": "Vasaras perioda sākums (MM-DD)",
+          "summer_end": "Vasaras perioda beigas (MM-DD)"
+        },
+        "data_description": {
+          "summer_start": "Piem., 05-15",
+          "summer_end": "Piem., 09-15"
+        }
+      }
+    },
+    "error": {
+      "no_name": "Ievadiet telpas nosaukumu.",
+      "duplicate_name": "Telpa ar šādu nosaukumu jau pastāv.",
+      "no_valves": "Izvēlieties vismaz vienu vārstu.",
+      "boiler_in_valves": "Katla termostats nevar būt vārsts.",
+      "valve_in_use": "Šis vārsts jau pieder citai telpai.",
+      "control_needs_sensor": "Vārstu vadībai nepieciešams telpas temperatūras sensors.",
+      "invalid_date": "Nederīgs datums, izmantojiet formātu MM-DD (piem., 05-15).",
+      "release_ge_threshold": "Atbrīvošanai jābūt mazākai par pacelšanas slieksni."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "room_demand": {
+        "name": "{room} siltuma pieprasījums",
+        "state": {
+          "on": "Pieprasa siltumu no katla",
+          "off": "Nepieprasa siltumu"
+        },
+        "state_attributes": {
+          "valves": {
+            "name": "Telpas vārsti"
+          },
+          "valve_active": {
+            "name": "Telpā ir ieslēgts vārsts"
+          },
+          "current_temperature": {
+            "name": "Telpas temperatūra (izmanto lēmumiem)"
+          },
+          "temperature_source": {
+            "name": "Temperatūras avots",
+            "state": {
+              "sensor": "Telpas termometrs",
+              "valve": "Paša vārsta mērījums (rezerves variants, termometrs nav pieejams)"
+            }
+          },
+          "target_temperature": {
+            "name": "Mērķa temperatūra (iestatīta vārstam)"
+          },
+          "effective_target": {
+            "name": "Efektīvā mērķa temperatūra (ar paaugstinājumu mitruma dēļ)"
+          },
+          "humidity": {
+            "name": "Telpas mitrums"
+          },
+          "humidity_boost": {
+            "name": "Mērķa paaugstinājums mitruma dēļ"
+          },
+          "room_below_target": {
+            "name": "Telpā ir aukstāk nekā mērķis"
+          },
+          "deviation": {
+            "name": "Novirze no mērķa (pozitīva = par aukstu)"
+          },
+          "valve_demand_link": {
+            "name": "Katla pieprasījums sasaistīts ar vārsta stāvokli (telpas slēdzis)"
+          },
+          "valve_open_estimate": {
+            "name": "Vārsts, visticamāk, atvērts (pēc paša mērījuma)"
+          },
+          "boost_threshold": {
+            "name": "Vārsta pacelšanas slieksnis (cik zem mērķa)"
+          },
+          "boost_delay_minutes": {
+            "name": "Gaidīšanas laiks pirms vārsta pacelšanas (minūtes)"
+          },
+          "release_margin": {
+            "name": "Vārsta atbrīvošana pirms mērķa (°C)"
+          },
+          "valve_control": {
+            "name": "Automātiska vārstu vadība ieslēgta"
+          },
+          "valve_boosted": {
+            "name": "Vārsts pašlaik piespiedu kārtā atvērts (mērķis paaugstināts)"
+          },
+          "valve_boost_waiting": {
+            "name": "Vārsta pacelšana gaida (notiek gaidīšanas laiks)"
+          },
+          "valve_dry_run": {
+            "name": "Vārstu vadības izmēģinājuma režīms (tikai žurnāls)"
+          }
+        }
+      },
+      "summer_mode": {
+        "name": "Vasaras režīms",
+        "state": {
+          "on": "Vasaras režīms aktīvs (bez apkures)",
+          "off": "Vasaras režīma nav"
+        },
+        "state_attributes": {
+          "outdoor_sensor": {
+            "name": "Ārā temperatūras sensors"
+          },
+          "outdoor_temperature": {
+            "name": "Ārā temperatūra pašlaik"
+          },
+          "outdoor_average_24h": {
+            "name": "Ārā temperatūras 24 stundu vidējā vērtība"
+          },
+          "threshold": {
+            "name": "Vasaras režīma slieksnis (aktīvs virs šīs 24 stundu vidējās vērtības)"
+          },
+          "in_summer_period": {
+            "name": "Datums ir vasaras periodā"
+          },
+          "period_start": {
+            "name": "Vasaras perioda sākums (MM-DD)"
+          },
+          "period_end": {
+            "name": "Vasaras perioda beigas (MM-DD)"
+          }
+        }
+      }
+    }
+  }
+}

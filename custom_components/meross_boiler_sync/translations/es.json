@@ -1,0 +1,245 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Meross Boiler Sync",
+        "description": "Selecciona el termostato de la caldera. Las habitaciones (válvula + termómetro + higrómetro) y el modo verano los añadirás después con el botón **Configurar**.",
+        "data": {
+          "boiler": "Termostato de la caldera"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Este termostato de caldera ya está configurado."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Meross Boiler Sync",
+        "description": "Habitaciones: {rooms}\n\nLos cambios solo se aplican después de elegir **Guardar y salir**.",
+        "menu_options": {
+          "add_room": "Añadir habitación",
+          "edit_room": "Editar habitación",
+          "remove_room": "Eliminar habitación",
+          "settings": "Ajustes básicos",
+          "summer": "Modo verano",
+          "done": "Guardar y salir"
+        }
+      },
+      "add_room": {
+        "title": "Añadir habitación",
+        "data": {
+          "name": "Nombre de la habitación",
+          "valves": "Válvula(s) del radiador",
+          "temperature_sensor": "Sensor de temperatura de la habitación (opcional)",
+          "valve_control": "Control automático de válvulas mediante termómetro (experimental)",
+          "valve_boost_threshold": "Umbral de refuerzo de la válvula – esta habitación (vacío = valor global)",
+          "valve_boost_delay": "Espera antes del refuerzo de la válvula – esta habitación, minutos (vacío = valor global)",
+          "valve_release_margin": "Liberación de la válvula antes del objetivo – esta habitación (vacío = valor global)",
+          "valve_demand_link": "Vincular la demanda de la caldera al estado de la válvula",
+          "humidity_sensor": "Sensor de humedad de la habitación (opcional)"
+        },
+        "data_description": {
+          "name": "Ej. Salón",
+          "valves": "Válvulas de esta habitación. La temperatura objetivo de la habitación es la configurada en la válvula (la más alta si hay varias).",
+          "temperature_sensor": "Si se indica, la demanda de calor se calcula con este sensor en lugar de la medición propia de la válvula. Si no está disponible, se usan las válvulas.",
+          "valve_control": "Cuando el termómetro de la habitación indica frío, la temperatura objetivo de la válvula se eleva temporalmente al máximo de la válvula (se abre por completo) y se restablece al valor original al alcanzar el objetivo. Requiere un sensor de temperatura.",
+          "valve_boost_threshold": "Solo relevante con el control automático de válvulas. Si está vacío, se aplica el valor de los Ajustes básicos.",
+          "valve_boost_delay": "Cuánto tiempo debe mantenerse la desviación antes del refuerzo. 0 = inmediato. Si está vacío, se aplica el valor global.",
+          "valve_release_margin": "La válvula recupera su objetivo original con esta antelación respecto al objetivo. Debe ser menor que el umbral. Si está vacío, se aplica el valor global.",
+          "valve_demand_link": "Si está activado, la habitación solo pide calor a la caldera cuando su válvula está abierta (la medición propia de la válvula está por debajo de su objetivo) o cuando el plugin la está forzando a abrir. Así la caldera no quema contra válvulas cerradas ante pequeñas desviaciones. No bloquea la calefacción si faltan datos de la válvula.",
+          "humidity_sensor": "Con humedad alta, la temperatura objetivo de la habitación se eleva ligeramente (ver Ajustes básicos)."
+        }
+      },
+      "edit_room": {
+        "title": "Editar habitación",
+        "data": {
+          "room": "Habitación"
+        }
+      },
+      "edit_room_form": {
+        "title": "Editar habitación",
+        "data": {
+          "name": "Nombre de la habitación",
+          "valves": "Válvula(s) del radiador",
+          "temperature_sensor": "Sensor de temperatura de la habitación (opcional)",
+          "valve_control": "Control automático de válvulas mediante termómetro (experimental)",
+          "valve_boost_threshold": "Umbral de refuerzo de la válvula – esta habitación (vacío = valor global)",
+          "valve_boost_delay": "Espera antes del refuerzo de la válvula – esta habitación, minutos (vacío = valor global)",
+          "valve_release_margin": "Liberación de la válvula antes del objetivo – esta habitación (vacío = valor global)",
+          "valve_demand_link": "Vincular la demanda de la caldera al estado de la válvula",
+          "humidity_sensor": "Sensor de humedad de la habitación (opcional)"
+        },
+        "data_description": {
+          "name": "Ej. Salón",
+          "valves": "Válvulas de esta habitación. La temperatura objetivo de la habitación es la configurada en la válvula (la más alta si hay varias).",
+          "temperature_sensor": "Si se indica, la demanda de calor se calcula con este sensor en lugar de la medición propia de la válvula. Si no está disponible, se usan las válvulas.",
+          "valve_control": "Cuando el termómetro de la habitación indica frío, la temperatura objetivo de la válvula se eleva temporalmente al máximo de la válvula (se abre por completo) y se restablece al valor original al alcanzar el objetivo. Requiere un sensor de temperatura.",
+          "valve_boost_threshold": "Solo relevante con el control automático de válvulas. Si está vacío, se aplica el valor de los Ajustes básicos.",
+          "valve_boost_delay": "Cuánto tiempo debe mantenerse la desviación antes del refuerzo. 0 = inmediato. Si está vacío, se aplica el valor global.",
+          "valve_release_margin": "La válvula recupera su objetivo original con esta antelación respecto al objetivo. Debe ser menor que el umbral. Si está vacío, se aplica el valor global.",
+          "valve_demand_link": "Si está activado, la habitación solo pide calor a la caldera cuando su válvula está abierta (la medición propia de la válvula está por debajo de su objetivo) o cuando el plugin la está forzando a abrir. Así la caldera no quema contra válvulas cerradas ante pequeñas desviaciones. No bloquea la calefacción si faltan datos de la válvula.",
+          "humidity_sensor": "Con humedad alta, la temperatura objetivo de la habitación se eleva ligeramente (ver Ajustes básicos)."
+        }
+      },
+      "remove_room": {
+        "title": "Eliminar habitación",
+        "data": {
+          "rooms_to_remove": "Habitaciones que eliminar"
+        }
+      },
+      "settings": {
+        "title": "Ajustes básicos",
+        "data": {
+          "hysteresis": "Histéresis",
+          "min_switch_time": "Tiempo mínimo de conmutación",
+          "boiler_on_temp": "Temperatura objetivo de la caldera al calentar (0 = no cambiar)",
+          "humidity_max_boost": "Aumento máx. por humedad (0 = desactivado)",
+          "valve_boost_threshold": "Umbral de refuerzo de la válvula – predeterminado (cuánto por debajo del objetivo)",
+          "valve_boost_delay": "Espera antes del refuerzo de la válvula – predeterminada",
+          "valve_release_margin": "Liberación de la válvula antes del objetivo – predeterminada",
+          "valve_dry_run": "Prueba del control de válvulas (solo registro, sin escribir en las válvulas)"
+        },
+        "data_description": {
+          "hysteresis": "Una habitación pide calor cuando está tanto por debajo del objetivo, y sigue pidiéndolo hasta alcanzarlo.",
+          "min_switch_time": "Tiempo mínimo entre encendidos y apagados de la caldera.",
+          "boiler_on_temp": "Temperatura objetivo que se fija en el termostato de la caldera cuando se necesita calor.",
+          "humidity_max_boost": "La temperatura objetivo sube gradualmente a partir del 60 % de humedad y alcanza este valor al 80 %. Sin aumento para objetivos inferiores a 17 °C.",
+          "valve_boost_threshold": "Valor predeterminado para todas las habitaciones, modificable por habitación. El control automático solo refuerza la válvula si la habitación está al menos tanto por debajo del objetivo. Con desviaciones menores decide la válvula por sí sola y el calor residual del radiador suele bastar. (La demanda de la caldera sigue empezando con la histéresis.)",
+          "valve_boost_delay": "Valor predeterminado para todas las habitaciones. La desviación debe mantenerse este tiempo antes del refuerzo, para que el calor residual del radiador pueda calentar la habitación. Si la desviación supera el umbral en 1 °C (p. ej. has subido el objetivo), no hay espera. 0 = inmediato.",
+          "valve_release_margin": "Valor predeterminado para todas las habitaciones. La válvula recupera su objetivo original con esta antelación respecto a que la habitación alcance el objetivo, porque el calor residual del radiador sigue calentándola (evita sobrepasarlo). Debe ser menor que el umbral de refuerzo.",
+          "valve_dry_run": "Si está activado, el control de válvulas solo registra lo que haría (prefijo [PRÓBAÜZEM]) y no modifica nada en las válvulas. Recomendado para la primera prueba real."
+        }
+      },
+      "summer": {
+        "title": "Modo verano",
+        "description": "En modo verano no hay demanda de calor y el termostato de la caldera se apaga. Está activo cuando la fecha está dentro del periodo de verano Y la media de 24 horas de la temperatura exterior supera el umbral. Sin sensor, el modo verano está desactivado.",
+        "data": {
+          "outdoor_sensor": "Sensor de temperatura exterior",
+          "summer_temp": "Umbral (media de 24 horas)",
+          "summer_start": "Inicio del periodo de verano (MM-DD)",
+          "summer_end": "Fin del periodo de verano (MM-DD)"
+        },
+        "data_description": {
+          "summer_start": "Ej. 05-15",
+          "summer_end": "Ej. 09-15"
+        }
+      }
+    },
+    "error": {
+      "no_name": "Introduce el nombre de la habitación.",
+      "duplicate_name": "Ya existe una habitación con este nombre.",
+      "no_valves": "Selecciona al menos una válvula.",
+      "boiler_in_valves": "El termostato de la caldera no puede ser una válvula.",
+      "valve_in_use": "Esta válvula ya pertenece a otra habitación.",
+      "control_needs_sensor": "El control de válvulas requiere un sensor de temperatura de la habitación.",
+      "invalid_date": "Fecha no válida, usa el formato MM-DD (ej. 05-15).",
+      "release_ge_threshold": "La liberación debe ser menor que el umbral de refuerzo."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "room_demand": {
+        "name": "{room} demanda de calor",
+        "state": {
+          "on": "Pide calor a la caldera",
+          "off": "No pide calor"
+        },
+        "state_attributes": {
+          "valves": {
+            "name": "Válvulas de la habitación"
+          },
+          "valve_active": {
+            "name": "La habitación tiene una válvula encendida"
+          },
+          "current_temperature": {
+            "name": "Temperatura de la habitación (usada para las decisiones)"
+          },
+          "temperature_source": {
+            "name": "Origen de la temperatura",
+            "state": {
+              "sensor": "Termómetro de la habitación",
+              "valve": "Medición propia de la válvula (alternativa, termómetro no disponible)"
+            }
+          },
+          "target_temperature": {
+            "name": "Temperatura objetivo (configurada en la válvula)"
+          },
+          "effective_target": {
+            "name": "Objetivo efectivo (con aumento por humedad)"
+          },
+          "humidity": {
+            "name": "Humedad de la habitación"
+          },
+          "humidity_boost": {
+            "name": "Aumento del objetivo por humedad"
+          },
+          "room_below_target": {
+            "name": "La habitación está más fría que el objetivo"
+          },
+          "deviation": {
+            "name": "Desviación respecto al objetivo (positivo = demasiado frío)"
+          },
+          "valve_demand_link": {
+            "name": "Demanda de la caldera vinculada al estado de la válvula (interruptor de la habitación)"
+          },
+          "valve_open_estimate": {
+            "name": "Válvula probablemente abierta (según su propia medición)"
+          },
+          "boost_threshold": {
+            "name": "Umbral de refuerzo de la válvula (cuánto por debajo del objetivo)"
+          },
+          "boost_delay_minutes": {
+            "name": "Espera antes del refuerzo de la válvula (minutos)"
+          },
+          "release_margin": {
+            "name": "Liberación de la válvula antes del objetivo (°C)"
+          },
+          "valve_control": {
+            "name": "Control automático de válvulas activado"
+          },
+          "valve_boosted": {
+            "name": "Válvula forzada a abrir actualmente (objetivo elevado)"
+          },
+          "valve_boost_waiting": {
+            "name": "Refuerzo de la válvula pendiente (tiempo de espera en curso)"
+          },
+          "valve_dry_run": {
+            "name": "Prueba del control de válvulas (solo registro)"
+          }
+        }
+      },
+      "summer_mode": {
+        "name": "Modo verano",
+        "state": {
+          "on": "Modo verano activo (sin calefacción)",
+          "off": "Sin modo verano"
+        },
+        "state_attributes": {
+          "outdoor_sensor": {
+            "name": "Sensor de temperatura exterior"
+          },
+          "outdoor_temperature": {
+            "name": "Temperatura exterior actual"
+          },
+          "outdoor_average_24h": {
+            "name": "Media de 24 horas de la temperatura exterior"
+          },
+          "threshold": {
+            "name": "Umbral del modo verano (activo por encima de esta media de 24 horas)"
+          },
+          "in_summer_period": {
+            "name": "La fecha está dentro del periodo de verano"
+          },
+          "period_start": {
+            "name": "Inicio del periodo de verano (MM-DD)"
+          },
+          "period_end": {
+            "name": "Fin del periodo de verano (MM-DD)"
+          }
+        }
+      }
+    }
+  }
+}

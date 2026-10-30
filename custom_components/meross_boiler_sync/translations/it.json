@@ -1,0 +1,245 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Meross Boiler Sync",
+        "description": "Seleziona il termostato della caldaia. Le stanze (valvola + termometro + igrometro) e la modalità estate le aggiungerai dopo con il pulsante **Configura**.",
+        "data": {
+          "boiler": "Termostato della caldaia"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Questo termostato della caldaia è già configurato."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Meross Boiler Sync",
+        "description": "Stanze: {rooms}\n\nLe modifiche diventano effettive solo dopo aver scelto **Salva ed esci**.",
+        "menu_options": {
+          "add_room": "Aggiungi stanza",
+          "edit_room": "Modifica stanza",
+          "remove_room": "Rimuovi stanza",
+          "settings": "Impostazioni di base",
+          "summer": "Modalità estate",
+          "done": "Salva ed esci"
+        }
+      },
+      "add_room": {
+        "title": "Aggiungi stanza",
+        "data": {
+          "name": "Nome della stanza",
+          "valves": "Valvola/e del termosifone",
+          "temperature_sensor": "Sensore di temperatura della stanza (facoltativo)",
+          "valve_control": "Controllo automatico delle valvole tramite termometro (sperimentale)",
+          "valve_boost_threshold": "Soglia di spinta della valvola – questa stanza (vuoto = valore globale)",
+          "valve_boost_delay": "Attesa prima della spinta della valvola – questa stanza, minuti (vuoto = valore globale)",
+          "valve_release_margin": "Rilascio della valvola prima del target – questa stanza (vuoto = valore globale)",
+          "valve_demand_link": "Collega la richiesta della caldaia allo stato della valvola",
+          "humidity_sensor": "Sensore di umidità della stanza (facoltativo)"
+        },
+        "data_description": {
+          "name": "Es. Soggiorno",
+          "valves": "Valvole di questa stanza. Il target della stanza è quello impostato sulla valvola (il più alto se ce ne sono più di una).",
+          "temperature_sensor": "Se indicato, la richiesta di calore viene calcolata da questo sensore invece che dalla misura della valvola. Se non è disponibile, si usano le valvole.",
+          "valve_control": "Quando il termometro della stanza indica freddo, il target della valvola viene alzato temporaneamente al massimo della valvola (si apre completamente) e ripristinato al valore originale una volta raggiunto il target. Richiede un sensore di temperatura.",
+          "valve_boost_threshold": "Rilevante solo con il controllo automatico delle valvole. Se vuoto, vale il valore delle Impostazioni di base.",
+          "valve_boost_delay": "Per quanto tempo lo scostamento deve persistere prima della spinta. 0 = subito. Se vuoto, vale il valore globale.",
+          "valve_release_margin": "La valvola riottiene il target originale con questo anticipo rispetto al target. Deve essere inferiore alla soglia. Se vuoto, vale il valore globale.",
+          "valve_demand_link": "Se attivo, la stanza richiede calore alla caldaia solo quando la sua valvola è aperta (la misura della valvola è sotto il suo target) o quando il plugin la sta forzando ad aprirsi. Così la caldaia non scalda contro valvole chiuse per piccoli scostamenti. Non blocca il riscaldamento se mancano i dati della valvola.",
+          "humidity_sensor": "Con umidità elevata il target della stanza viene alzato leggermente (vedi Impostazioni di base)."
+        }
+      },
+      "edit_room": {
+        "title": "Modifica stanza",
+        "data": {
+          "room": "Stanza"
+        }
+      },
+      "edit_room_form": {
+        "title": "Modifica stanza",
+        "data": {
+          "name": "Nome della stanza",
+          "valves": "Valvola/e del termosifone",
+          "temperature_sensor": "Sensore di temperatura della stanza (facoltativo)",
+          "valve_control": "Controllo automatico delle valvole tramite termometro (sperimentale)",
+          "valve_boost_threshold": "Soglia di spinta della valvola – questa stanza (vuoto = valore globale)",
+          "valve_boost_delay": "Attesa prima della spinta della valvola – questa stanza, minuti (vuoto = valore globale)",
+          "valve_release_margin": "Rilascio della valvola prima del target – questa stanza (vuoto = valore globale)",
+          "valve_demand_link": "Collega la richiesta della caldaia allo stato della valvola",
+          "humidity_sensor": "Sensore di umidità della stanza (facoltativo)"
+        },
+        "data_description": {
+          "name": "Es. Soggiorno",
+          "valves": "Valvole di questa stanza. Il target della stanza è quello impostato sulla valvola (il più alto se ce ne sono più di una).",
+          "temperature_sensor": "Se indicato, la richiesta di calore viene calcolata da questo sensore invece che dalla misura della valvola. Se non è disponibile, si usano le valvole.",
+          "valve_control": "Quando il termometro della stanza indica freddo, il target della valvola viene alzato temporaneamente al massimo della valvola (si apre completamente) e ripristinato al valore originale una volta raggiunto il target. Richiede un sensore di temperatura.",
+          "valve_boost_threshold": "Rilevante solo con il controllo automatico delle valvole. Se vuoto, vale il valore delle Impostazioni di base.",
+          "valve_boost_delay": "Per quanto tempo lo scostamento deve persistere prima della spinta. 0 = subito. Se vuoto, vale il valore globale.",
+          "valve_release_margin": "La valvola riottiene il target originale con questo anticipo rispetto al target. Deve essere inferiore alla soglia. Se vuoto, vale il valore globale.",
+          "valve_demand_link": "Se attivo, la stanza richiede calore alla caldaia solo quando la sua valvola è aperta (la misura della valvola è sotto il suo target) o quando il plugin la sta forzando ad aprirsi. Così la caldaia non scalda contro valvole chiuse per piccoli scostamenti. Non blocca il riscaldamento se mancano i dati della valvola.",
+          "humidity_sensor": "Con umidità elevata il target della stanza viene alzato leggermente (vedi Impostazioni di base)."
+        }
+      },
+      "remove_room": {
+        "title": "Rimuovi stanza",
+        "data": {
+          "rooms_to_remove": "Stanze da rimuovere"
+        }
+      },
+      "settings": {
+        "title": "Impostazioni di base",
+        "data": {
+          "hysteresis": "Isteresi",
+          "min_switch_time": "Tempo minimo di commutazione",
+          "boiler_on_temp": "Target della caldaia in riscaldamento (0 = non modificare)",
+          "humidity_max_boost": "Aumento massimo per umidità (0 = disattivato)",
+          "valve_boost_threshold": "Soglia di spinta della valvola – predefinita (quanto sotto il target)",
+          "valve_boost_delay": "Attesa prima della spinta della valvola – predefinita",
+          "valve_release_margin": "Rilascio della valvola prima del target – predefinito",
+          "valve_dry_run": "Prova del controllo valvole (solo log, nessuna scrittura sulle valvole)"
+        },
+        "data_description": {
+          "hysteresis": "Una stanza richiede calore quando è sotto il target di questo valore, e continua a richiederlo finché il target non è raggiunto.",
+          "min_switch_time": "Tempo minimo tra accensioni e spegnimenti della caldaia.",
+          "boiler_on_temp": "Target impostato sul termostato della caldaia quando serve calore.",
+          "humidity_max_boost": "Il target sale gradualmente dal 60% di umidità e raggiunge questo valore all’80%. Nessun aumento per target inferiori a 17 °C.",
+          "valve_boost_threshold": "Predefinito per tutte le stanze, modificabile per singola stanza. Il controllo automatico spinge la valvola solo se la stanza è almeno a questa distanza sotto il target. Con scostamenti minori decide la valvola da sola e il calore residuo del termosifone di solito basta. (La richiesta alla caldaia parte comunque all’isteresi.)",
+          "valve_boost_delay": "Predefinito per tutte le stanze. Lo scostamento deve persistere per questo tempo prima della spinta, lasciando al calore residuo del termosifone la possibilità di scaldare la stanza. Se lo scostamento supera la soglia di 1 °C (es. hai alzato il target), non c’è attesa. 0 = subito.",
+          "valve_release_margin": "Predefinito per tutte le stanze. La valvola riottiene il target originale con questo anticipo rispetto al raggiungimento del target, perché il calore residuo del termosifone continua a scaldare la stanza (evita il superamento). Deve essere inferiore alla soglia di spinta.",
+          "valve_dry_run": "Se attivo, il controllo valvole scrive nel log solo ciò che farebbe (prefisso [PRÓBAÜZEM]) e non modifica nulla sulle valvole. Consigliato per il primo test reale."
+        }
+      },
+      "summer": {
+        "title": "Modalità estate",
+        "description": "In modalità estate non c’è richiesta di calore e il termostato della caldaia viene spento. È attiva quando la data rientra nel periodo estivo E la media sulle 24 ore della temperatura esterna è sopra la soglia. Senza sensore la modalità estate è disattivata.",
+        "data": {
+          "outdoor_sensor": "Sensore di temperatura esterna",
+          "summer_temp": "Soglia (media sulle 24 ore)",
+          "summer_start": "Inizio del periodo estivo (MM-DD)",
+          "summer_end": "Fine del periodo estivo (MM-DD)"
+        },
+        "data_description": {
+          "summer_start": "Es. 05-15",
+          "summer_end": "Es. 09-15"
+        }
+      }
+    },
+    "error": {
+      "no_name": "Inserisci il nome della stanza.",
+      "duplicate_name": "Esiste già una stanza con questo nome.",
+      "no_valves": "Seleziona almeno una valvola.",
+      "boiler_in_valves": "Il termostato della caldaia non può essere una valvola.",
+      "valve_in_use": "Questa valvola appartiene già a un’altra stanza.",
+      "control_needs_sensor": "Il controllo valvole richiede un sensore di temperatura della stanza.",
+      "invalid_date": "Data non valida, usa il formato MM-DD (es. 05-15).",
+      "release_ge_threshold": "Il rilascio deve essere inferiore alla soglia di spinta."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "room_demand": {
+        "name": "{room} richiesta di calore",
+        "state": {
+          "on": "Richiede calore alla caldaia",
+          "off": "Non richiede calore"
+        },
+        "state_attributes": {
+          "valves": {
+            "name": "Valvole della stanza"
+          },
+          "valve_active": {
+            "name": "La stanza ha una valvola accesa"
+          },
+          "current_temperature": {
+            "name": "Temperatura della stanza (usata per le decisioni)"
+          },
+          "temperature_source": {
+            "name": "Fonte della temperatura",
+            "state": {
+              "sensor": "Termometro della stanza",
+              "valve": "Misura propria della valvola (ripiego, termometro non disponibile)"
+            }
+          },
+          "target_temperature": {
+            "name": "Temperatura target (impostata sulla valvola)"
+          },
+          "effective_target": {
+            "name": "Target effettivo (con aumento per umidità)"
+          },
+          "humidity": {
+            "name": "Umidità della stanza"
+          },
+          "humidity_boost": {
+            "name": "Aumento del target per umidità"
+          },
+          "room_below_target": {
+            "name": "La stanza è più fredda del target"
+          },
+          "deviation": {
+            "name": "Scostamento dal target (positivo = troppo freddo)"
+          },
+          "valve_demand_link": {
+            "name": "Richiesta caldaia collegata allo stato della valvola (interruttore della stanza)"
+          },
+          "valve_open_estimate": {
+            "name": "Valvola probabilmente aperta (in base alla sua misura)"
+          },
+          "boost_threshold": {
+            "name": "Soglia di spinta della valvola (quanto sotto il target)"
+          },
+          "boost_delay_minutes": {
+            "name": "Attesa prima della spinta della valvola (minuti)"
+          },
+          "release_margin": {
+            "name": "Rilascio della valvola prima del target (°C)"
+          },
+          "valve_control": {
+            "name": "Controllo automatico delle valvole attivo"
+          },
+          "valve_boosted": {
+            "name": "Valvola attualmente forzata aperta (target alzato)"
+          },
+          "valve_boost_waiting": {
+            "name": "Spinta della valvola in attesa (tempo di attesa in corso)"
+          },
+          "valve_dry_run": {
+            "name": "Prova del controllo valvole (solo log)"
+          }
+        }
+      },
+      "summer_mode": {
+        "name": "Modalità estate",
+        "state": {
+          "on": "Modalità estate attiva (nessun riscaldamento)",
+          "off": "Modalità estate non attiva"
+        },
+        "state_attributes": {
+          "outdoor_sensor": {
+            "name": "Sensore di temperatura esterna"
+          },
+          "outdoor_temperature": {
+            "name": "Temperatura esterna attuale"
+          },
+          "outdoor_average_24h": {
+            "name": "Media sulle 24 ore della temperatura esterna"
+          },
+          "threshold": {
+            "name": "Soglia della modalità estate (attiva sopra questa media sulle 24 ore)"
+          },
+          "in_summer_period": {
+            "name": "La data rientra nel periodo estivo"
+          },
+          "period_start": {
+            "name": "Inizio del periodo estivo (MM-DD)"
+          },
+          "period_end": {
+            "name": "Fine del periodo estivo (MM-DD)"
+          }
+        }
+      }
+    }
+  }
+}

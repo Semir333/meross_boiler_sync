@@ -1,0 +1,245 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Meross Boiler Sync",
+        "description": "Sélectionnez le thermostat de la chaudière. Vous ajouterez ensuite les pièces (vanne + thermomètre + hygromètre) et le mode été avec le bouton **Configurer**.",
+        "data": {
+          "boiler": "Thermostat de chaudière"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Ce thermostat de chaudière est déjà configuré."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Meross Boiler Sync",
+        "description": "Pièces : {rooms}\n\nLes modifications ne prennent effet qu’après avoir choisi **Enregistrer et quitter**.",
+        "menu_options": {
+          "add_room": "Ajouter une pièce",
+          "edit_room": "Modifier une pièce",
+          "remove_room": "Supprimer une pièce",
+          "settings": "Paramètres de base",
+          "summer": "Mode été",
+          "done": "Enregistrer et quitter"
+        }
+      },
+      "add_room": {
+        "title": "Ajouter une pièce",
+        "data": {
+          "name": "Nom de la pièce",
+          "valves": "Vanne(s) de radiateur",
+          "temperature_sensor": "Capteur de température de la pièce (facultatif)",
+          "valve_control": "Régulation automatique des vannes par thermomètre (expérimental)",
+          "valve_boost_threshold": "Seuil de relance de la vanne – cette pièce (vide = valeur globale)",
+          "valve_boost_delay": "Délai avant relance de la vanne – cette pièce, minutes (vide = valeur globale)",
+          "valve_release_margin": "Relâchement de la vanne avant la consigne – cette pièce (vide = valeur globale)",
+          "valve_demand_link": "Lier la demande de chaudière à l’état de la vanne",
+          "humidity_sensor": "Capteur d’humidité de la pièce (facultatif)"
+        },
+        "data_description": {
+          "name": "Ex. Salon",
+          "valves": "Vannes de cette pièce. La consigne de la pièce est celle réglée sur la vanne (la plus élevée s’il y en a plusieurs).",
+          "temperature_sensor": "Si renseigné, la demande de chaleur est calculée à partir de ce capteur plutôt que de la mesure propre de la vanne. Repli sur les vannes s’il est indisponible.",
+          "valve_control": "Lorsque le thermomètre de la pièce indique qu’il fait froid, la consigne de la vanne est temporairement portée au maximum de la vanne (elle s’ouvre complètement), puis rétablie à sa valeur d’origine une fois la consigne atteinte. Nécessite un capteur de température.",
+          "valve_boost_threshold": "Utile uniquement avec la régulation automatique des vannes. Si vide, la valeur des Paramètres de base s’applique.",
+          "valve_boost_delay": "Durée pendant laquelle l’écart doit persister avant la relance. 0 = immédiat. Si vide, la valeur globale s’applique.",
+          "valve_release_margin": "La vanne retrouve sa consigne d’origine à cet écart avant la consigne de la pièce. Doit être inférieur au seuil. Si vide, la valeur globale s’applique.",
+          "valve_demand_link": "Si activé, la pièce ne sollicite la chaudière que lorsque sa vanne est ouverte (la mesure propre de la vanne est sous sa consigne) ou lorsque le plugin la force à s’ouvrir. Évite que la chaudière chauffe contre des vannes fermées en cas de petit écart. Ne bloque pas le chauffage si les données de la vanne manquent.",
+          "humidity_sensor": "En cas d’humidité élevée, la consigne de la pièce est légèrement relevée (voir Paramètres de base)."
+        }
+      },
+      "edit_room": {
+        "title": "Modifier une pièce",
+        "data": {
+          "room": "Pièce"
+        }
+      },
+      "edit_room_form": {
+        "title": "Modifier une pièce",
+        "data": {
+          "name": "Nom de la pièce",
+          "valves": "Vanne(s) de radiateur",
+          "temperature_sensor": "Capteur de température de la pièce (facultatif)",
+          "valve_control": "Régulation automatique des vannes par thermomètre (expérimental)",
+          "valve_boost_threshold": "Seuil de relance de la vanne – cette pièce (vide = valeur globale)",
+          "valve_boost_delay": "Délai avant relance de la vanne – cette pièce, minutes (vide = valeur globale)",
+          "valve_release_margin": "Relâchement de la vanne avant la consigne – cette pièce (vide = valeur globale)",
+          "valve_demand_link": "Lier la demande de chaudière à l’état de la vanne",
+          "humidity_sensor": "Capteur d’humidité de la pièce (facultatif)"
+        },
+        "data_description": {
+          "name": "Ex. Salon",
+          "valves": "Vannes de cette pièce. La consigne de la pièce est celle réglée sur la vanne (la plus élevée s’il y en a plusieurs).",
+          "temperature_sensor": "Si renseigné, la demande de chaleur est calculée à partir de ce capteur plutôt que de la mesure propre de la vanne. Repli sur les vannes s’il est indisponible.",
+          "valve_control": "Lorsque le thermomètre de la pièce indique qu’il fait froid, la consigne de la vanne est temporairement portée au maximum de la vanne (elle s’ouvre complètement), puis rétablie à sa valeur d’origine une fois la consigne atteinte. Nécessite un capteur de température.",
+          "valve_boost_threshold": "Utile uniquement avec la régulation automatique des vannes. Si vide, la valeur des Paramètres de base s’applique.",
+          "valve_boost_delay": "Durée pendant laquelle l’écart doit persister avant la relance. 0 = immédiat. Si vide, la valeur globale s’applique.",
+          "valve_release_margin": "La vanne retrouve sa consigne d’origine à cet écart avant la consigne de la pièce. Doit être inférieur au seuil. Si vide, la valeur globale s’applique.",
+          "valve_demand_link": "Si activé, la pièce ne sollicite la chaudière que lorsque sa vanne est ouverte (la mesure propre de la vanne est sous sa consigne) ou lorsque le plugin la force à s’ouvrir. Évite que la chaudière chauffe contre des vannes fermées en cas de petit écart. Ne bloque pas le chauffage si les données de la vanne manquent.",
+          "humidity_sensor": "En cas d’humidité élevée, la consigne de la pièce est légèrement relevée (voir Paramètres de base)."
+        }
+      },
+      "remove_room": {
+        "title": "Supprimer une pièce",
+        "data": {
+          "rooms_to_remove": "Pièces à supprimer"
+        }
+      },
+      "settings": {
+        "title": "Paramètres de base",
+        "data": {
+          "hysteresis": "Hystérésis",
+          "min_switch_time": "Durée minimale entre deux commutations",
+          "boiler_on_temp": "Consigne de la chaudière en chauffe (0 = ne pas modifier)",
+          "humidity_max_boost": "Relèvement max. selon l’humidité (0 = désactivé)",
+          "valve_boost_threshold": "Seuil de relance de la vanne – par défaut (écart sous la consigne)",
+          "valve_boost_delay": "Délai avant relance de la vanne – par défaut",
+          "valve_release_margin": "Relâchement de la vanne avant la consigne – par défaut",
+          "valve_dry_run": "Simulation de la régulation des vannes (journal uniquement, aucune écriture sur les vannes)"
+        },
+        "data_description": {
+          "hysteresis": "Une pièce demande de la chaleur lorsqu’elle est d’autant sous la consigne, et continue jusqu’à ce que la consigne soit atteinte.",
+          "min_switch_time": "Durée minimale entre deux marches/arrêts de la chaudière.",
+          "boiler_on_temp": "Consigne appliquée au thermostat de la chaudière lorsque de la chaleur est nécessaire.",
+          "humidity_max_boost": "La consigne augmente progressivement à partir de 60 % d’humidité et atteint cette valeur à 80 %. Aucun relèvement pour les consignes inférieures à 17 °C.",
+          "valve_boost_threshold": "Valeur par défaut pour toutes les pièces, modifiable par pièce. La régulation automatique ne relance la vanne que si la pièce est au moins aussi loin sous la consigne. En dessous, la vanne décide seule et la chaleur résiduelle du radiateur suffit généralement. (La demande de chaudière démarre toujours à l’hystérésis.)",
+          "valve_boost_delay": "Valeur par défaut pour toutes les pièces. L’écart doit persister aussi longtemps avant la relance, afin de laisser la chaleur résiduelle du radiateur réchauffer la pièce. Si l’écart dépasse le seuil de 1 °C (p. ex. consigne relevée), il n’y a pas d’attente. 0 = immédiat.",
+          "valve_release_margin": "Valeur par défaut pour toutes les pièces. La vanne retrouve sa consigne d’origine un peu avant que la pièce atteigne la consigne, car la chaleur résiduelle du radiateur continue de la réchauffer (évite le dépassement). Doit être inférieur au seuil de relance.",
+          "valve_dry_run": "Si activé, la régulation des vannes se contente d’indiquer dans le journal ce qu’elle ferait (préfixe [PRÓBAÜZEM]) et ne modifie rien sur les vannes. Recommandé pour le premier essai réel."
+        }
+      },
+      "summer": {
+        "title": "Mode été",
+        "description": "En mode été, il n’y a aucune demande de chaleur et le thermostat de la chaudière est éteint. Le mode est actif lorsque la date est dans la période estivale ET que la moyenne sur 24 h de la température extérieure dépasse le seuil. Sans capteur, le mode été est désactivé.",
+        "data": {
+          "outdoor_sensor": "Capteur de température extérieure",
+          "summer_temp": "Seuil (moyenne sur 24 h)",
+          "summer_start": "Début de la période estivale (MM-DD)",
+          "summer_end": "Fin de la période estivale (MM-DD)"
+        },
+        "data_description": {
+          "summer_start": "Ex. 05-15",
+          "summer_end": "Ex. 09-15"
+        }
+      }
+    },
+    "error": {
+      "no_name": "Saisissez un nom de pièce.",
+      "duplicate_name": "Une pièce portant ce nom existe déjà.",
+      "no_valves": "Sélectionnez au moins une vanne.",
+      "boiler_in_valves": "Le thermostat de la chaudière ne peut pas être une vanne.",
+      "valve_in_use": "Cette vanne appartient déjà à une autre pièce.",
+      "control_needs_sensor": "La régulation des vannes nécessite un capteur de température de la pièce.",
+      "invalid_date": "Date invalide, utilisez le format MM-DD (ex. 05-15).",
+      "release_ge_threshold": "Le relâchement doit être inférieur au seuil de relance."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "room_demand": {
+        "name": "{room} demande de chaleur",
+        "state": {
+          "on": "Demande de la chaleur à la chaudière",
+          "off": "Ne demande pas de chaleur"
+        },
+        "state_attributes": {
+          "valves": {
+            "name": "Vannes de la pièce"
+          },
+          "valve_active": {
+            "name": "La pièce a une vanne activée"
+          },
+          "current_temperature": {
+            "name": "Température de la pièce (utilisée pour les décisions)"
+          },
+          "temperature_source": {
+            "name": "Source de la température",
+            "state": {
+              "sensor": "Thermomètre de la pièce",
+              "valve": "Mesure propre de la vanne (repli, thermomètre indisponible)"
+            }
+          },
+          "target_temperature": {
+            "name": "Température de consigne (réglée sur la vanne)"
+          },
+          "effective_target": {
+            "name": "Consigne effective (avec relèvement selon l’humidité)"
+          },
+          "humidity": {
+            "name": "Humidité de la pièce"
+          },
+          "humidity_boost": {
+            "name": "Relèvement de la consigne selon l’humidité"
+          },
+          "room_below_target": {
+            "name": "La pièce est plus froide que la consigne"
+          },
+          "deviation": {
+            "name": "Écart par rapport à la consigne (positif = trop froid)"
+          },
+          "valve_demand_link": {
+            "name": "Demande de chaudière liée à l’état de la vanne (interrupteur de la pièce)"
+          },
+          "valve_open_estimate": {
+            "name": "Vanne probablement ouverte (d’après sa propre mesure)"
+          },
+          "boost_threshold": {
+            "name": "Seuil de relance de la vanne (écart sous la consigne)"
+          },
+          "boost_delay_minutes": {
+            "name": "Délai avant relance de la vanne (minutes)"
+          },
+          "release_margin": {
+            "name": "Relâchement de la vanne avant la consigne (°C)"
+          },
+          "valve_control": {
+            "name": "Régulation automatique des vannes activée"
+          },
+          "valve_boosted": {
+            "name": "Vanne actuellement forcée ouverte (consigne relevée)"
+          },
+          "valve_boost_waiting": {
+            "name": "Relance de la vanne en attente (délai en cours)"
+          },
+          "valve_dry_run": {
+            "name": "Simulation de la régulation des vannes (journal uniquement)"
+          }
+        }
+      },
+      "summer_mode": {
+        "name": "Mode été",
+        "state": {
+          "on": "Mode été actif (pas de chauffage)",
+          "off": "Pas de mode été"
+        },
+        "state_attributes": {
+          "outdoor_sensor": {
+            "name": "Capteur de température extérieure"
+          },
+          "outdoor_temperature": {
+            "name": "Température extérieure actuelle"
+          },
+          "outdoor_average_24h": {
+            "name": "Moyenne sur 24 h de la température extérieure"
+          },
+          "threshold": {
+            "name": "Seuil du mode été (actif au-dessus de cette moyenne sur 24 h)"
+          },
+          "in_summer_period": {
+            "name": "La date est dans la période estivale"
+          },
+          "period_start": {
+            "name": "Début de la période estivale (MM-DD)"
+          },
+          "period_end": {
+            "name": "Fin de la période estivale (MM-DD)"
+          }
+        }
+      }
+    }
+  }
+}

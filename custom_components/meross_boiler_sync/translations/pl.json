@@ -1,0 +1,245 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Meross Boiler Sync",
+        "description": "Wybierz termostat kotła. Pomieszczenia (zawór + termometr + higrometr) oraz tryb letni dodasz później przyciskiem **Konfiguruj**.",
+        "data": {
+          "boiler": "Termostat kotła"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Ten termostat kotła jest już skonfigurowany."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Meross Boiler Sync",
+        "description": "Pomieszczenia: {rooms}\n\nZmiany zaczną obowiązywać dopiero po wybraniu **Zapisz i zakończ**.",
+        "menu_options": {
+          "add_room": "Dodaj pomieszczenie",
+          "edit_room": "Edytuj pomieszczenie",
+          "remove_room": "Usuń pomieszczenie",
+          "settings": "Ustawienia podstawowe",
+          "summer": "Tryb letni",
+          "done": "Zapisz i zakończ"
+        }
+      },
+      "add_room": {
+        "title": "Dodaj pomieszczenie",
+        "data": {
+          "name": "Nazwa pomieszczenia",
+          "valves": "Zawór(y) grzejnikowy(e)",
+          "temperature_sensor": "Czujnik temperatury pomieszczenia (opcjonalnie)",
+          "valve_control": "Automatyczna regulacja zaworów według termometru (eksperymentalne)",
+          "valve_boost_threshold": "Próg wymuszenia zaworu – to pomieszczenie (puste = wartość globalna)",
+          "valve_boost_delay": "Czas oczekiwania przed wymuszeniem zaworu – to pomieszczenie, minuty (puste = wartość globalna)",
+          "valve_release_margin": "Zwolnienie zaworu przed osiągnięciem celu – to pomieszczenie (puste = wartość globalna)",
+          "valve_demand_link": "Powiąż zapotrzebowanie kotła ze stanem zaworu",
+          "humidity_sensor": "Czujnik wilgotności pomieszczenia (opcjonalnie)"
+        },
+        "data_description": {
+          "name": "Np. Salon",
+          "valves": "Zawory tego pomieszczenia. Temperatura docelowa pomieszczenia to wartość ustawiona na zaworze (przy kilku zaworach – najwyższa).",
+          "temperature_sensor": "Jeśli podano, zapotrzebowanie na ciepło jest liczone na jego podstawie, a nie z własnego pomiaru zaworu. Gdy jest niedostępny, używane są zawory.",
+          "valve_control": "Gdy termometr pomieszczenia wskazuje chłód, temperatura docelowa zaworu jest tymczasowo podnoszona do maksimum zaworu (zawór otwiera się całkowicie), a po osiągnięciu celu przywracana do pierwotnej wartości. Wymaga czujnika temperatury.",
+          "valve_boost_threshold": "Ma znaczenie tylko przy automatycznej regulacji zaworów. Jeśli puste, obowiązuje wartość z Ustawień podstawowych.",
+          "valve_boost_delay": "Jak długo odchyłka musi się utrzymywać przed wymuszeniem. 0 = natychmiast. Jeśli puste, obowiązuje wartość globalna.",
+          "valve_release_margin": "Zawór odzyskuje pierwotną temperaturę docelową z takim wyprzedzeniem przed celem. Musi być mniejsze niż próg. Jeśli puste, obowiązuje wartość globalna.",
+          "valve_demand_link": "Gdy włączone, pomieszczenie zgłasza zapotrzebowanie na ciepło do kotła tylko wtedy, gdy jego zawór jest otwarty (własny pomiar zaworu jest poniżej jego celu) lub gdy wtyczka właśnie go wymusza. Dzięki temu kocioł nie pracuje na zamknięte zawory przy małych odchyłkach. Nie blokuje ogrzewania, gdy brakuje danych zaworu.",
+          "humidity_sensor": "Przy wysokiej wilgotności temperatura docelowa pomieszczenia jest lekko podnoszona (patrz Ustawienia podstawowe)."
+        }
+      },
+      "edit_room": {
+        "title": "Edytuj pomieszczenie",
+        "data": {
+          "room": "Pomieszczenie"
+        }
+      },
+      "edit_room_form": {
+        "title": "Edytuj pomieszczenie",
+        "data": {
+          "name": "Nazwa pomieszczenia",
+          "valves": "Zawór(y) grzejnikowy(e)",
+          "temperature_sensor": "Czujnik temperatury pomieszczenia (opcjonalnie)",
+          "valve_control": "Automatyczna regulacja zaworów według termometru (eksperymentalne)",
+          "valve_boost_threshold": "Próg wymuszenia zaworu – to pomieszczenie (puste = wartość globalna)",
+          "valve_boost_delay": "Czas oczekiwania przed wymuszeniem zaworu – to pomieszczenie, minuty (puste = wartość globalna)",
+          "valve_release_margin": "Zwolnienie zaworu przed osiągnięciem celu – to pomieszczenie (puste = wartość globalna)",
+          "valve_demand_link": "Powiąż zapotrzebowanie kotła ze stanem zaworu",
+          "humidity_sensor": "Czujnik wilgotności pomieszczenia (opcjonalnie)"
+        },
+        "data_description": {
+          "name": "Np. Salon",
+          "valves": "Zawory tego pomieszczenia. Temperatura docelowa pomieszczenia to wartość ustawiona na zaworze (przy kilku zaworach – najwyższa).",
+          "temperature_sensor": "Jeśli podano, zapotrzebowanie na ciepło jest liczone na jego podstawie, a nie z własnego pomiaru zaworu. Gdy jest niedostępny, używane są zawory.",
+          "valve_control": "Gdy termometr pomieszczenia wskazuje chłód, temperatura docelowa zaworu jest tymczasowo podnoszona do maksimum zaworu (zawór otwiera się całkowicie), a po osiągnięciu celu przywracana do pierwotnej wartości. Wymaga czujnika temperatury.",
+          "valve_boost_threshold": "Ma znaczenie tylko przy automatycznej regulacji zaworów. Jeśli puste, obowiązuje wartość z Ustawień podstawowych.",
+          "valve_boost_delay": "Jak długo odchyłka musi się utrzymywać przed wymuszeniem. 0 = natychmiast. Jeśli puste, obowiązuje wartość globalna.",
+          "valve_release_margin": "Zawór odzyskuje pierwotną temperaturę docelową z takim wyprzedzeniem przed celem. Musi być mniejsze niż próg. Jeśli puste, obowiązuje wartość globalna.",
+          "valve_demand_link": "Gdy włączone, pomieszczenie zgłasza zapotrzebowanie na ciepło do kotła tylko wtedy, gdy jego zawór jest otwarty (własny pomiar zaworu jest poniżej jego celu) lub gdy wtyczka właśnie go wymusza. Dzięki temu kocioł nie pracuje na zamknięte zawory przy małych odchyłkach. Nie blokuje ogrzewania, gdy brakuje danych zaworu.",
+          "humidity_sensor": "Przy wysokiej wilgotności temperatura docelowa pomieszczenia jest lekko podnoszona (patrz Ustawienia podstawowe)."
+        }
+      },
+      "remove_room": {
+        "title": "Usuń pomieszczenie",
+        "data": {
+          "rooms_to_remove": "Pomieszczenia do usunięcia"
+        }
+      },
+      "settings": {
+        "title": "Ustawienia podstawowe",
+        "data": {
+          "hysteresis": "Histereza",
+          "min_switch_time": "Minimalny czas przełączania",
+          "boiler_on_temp": "Temperatura docelowa kotła podczas grzania (0 = nie zmieniaj)",
+          "humidity_max_boost": "Maks. podwyższenie z powodu wilgotności (0 = wyłączone)",
+          "valve_boost_threshold": "Próg wymuszenia zaworu – domyślny (o ile poniżej celu)",
+          "valve_boost_delay": "Czas oczekiwania przed wymuszeniem zaworu – domyślny",
+          "valve_release_margin": "Zwolnienie zaworu przed osiągnięciem celu – domyślne",
+          "valve_dry_run": "Tryb próbny regulacji zaworów (tylko dziennik, bez zapisu do zaworów)"
+        },
+        "data_description": {
+          "hysteresis": "Pomieszczenie zgłasza zapotrzebowanie na ciepło, gdy jest o tyle poniżej celu, i robi to aż do osiągnięcia celu.",
+          "min_switch_time": "Minimalny czas między włączeniem a wyłączeniem kotła.",
+          "boiler_on_temp": "Temperatura docelowa ustawiana na termostacie kotła, gdy potrzebne jest ciepło.",
+          "humidity_max_boost": "Temperatura docelowa rośnie stopniowo od 60% wilgotności i osiąga tę wartość przy 80%. Brak podwyższenia dla celów poniżej 17 °C.",
+          "valve_boost_threshold": "Wartość domyślna dla wszystkich pomieszczeń, możliwa do zmiany dla każdego z osobna. Automatyczna regulacja wymusza zawór tylko wtedy, gdy pomieszczenie jest co najmniej o tyle poniżej celu. Przy mniejszych odchyłkach zawór decyduje sam, a ciepło resztkowe grzejnika zwykle wystarcza. (Zapotrzebowanie kotła nadal zaczyna się od histerezy.)",
+          "valve_boost_delay": "Wartość domyślna dla wszystkich pomieszczeń. Odchyłka musi się utrzymywać tak długo przed wymuszeniem, aby ciepło resztkowe grzejnika mogło ogrzać pomieszczenie. Jeśli odchyłka przekracza próg o 1 °C (np. podniesiono cel), nie ma oczekiwania. 0 = natychmiast.",
+          "valve_release_margin": "Wartość domyślna dla wszystkich pomieszczeń. Zawór odzyskuje pierwotną temperaturę docelową z takim wyprzedzeniem przed osiągnięciem celu przez pomieszczenie, ponieważ ciepło resztkowe grzejnika nadal je ogrzewa (zapobiega przegrzaniu). Musi być mniejsze niż próg wymuszenia.",
+          "valve_dry_run": "Gdy włączone, regulacja zaworów tylko zapisuje w dzienniku, co by zrobiła (prefiks [PRÓBAÜZEM]), i niczego nie zmienia na zaworach. Zalecane przy pierwszym teście na żywo."
+        }
+      },
+      "summer": {
+        "title": "Tryb letni",
+        "description": "W trybie letnim nie ma zapotrzebowania na ciepło, a termostat kotła jest wyłączony. Tryb jest aktywny, gdy data mieści się w okresie letnim ORAZ 24-godzinna średnia temperatury zewnętrznej przekracza próg. Bez czujnika tryb letni jest wyłączony.",
+        "data": {
+          "outdoor_sensor": "Czujnik temperatury zewnętrznej",
+          "summer_temp": "Próg (średnia z 24 godzin)",
+          "summer_start": "Początek okresu letniego (MM-DD)",
+          "summer_end": "Koniec okresu letniego (MM-DD)"
+        },
+        "data_description": {
+          "summer_start": "Np. 05-15",
+          "summer_end": "Np. 09-15"
+        }
+      }
+    },
+    "error": {
+      "no_name": "Podaj nazwę pomieszczenia.",
+      "duplicate_name": "Pomieszczenie o tej nazwie już istnieje.",
+      "no_valves": "Wybierz co najmniej jeden zawór.",
+      "boiler_in_valves": "Termostat kotła nie może być zaworem.",
+      "valve_in_use": "Ten zawór należy już do innego pomieszczenia.",
+      "control_needs_sensor": "Regulacja zaworów wymaga czujnika temperatury pomieszczenia.",
+      "invalid_date": "Nieprawidłowa data, użyj formatu MM-DD (np. 05-15).",
+      "release_ge_threshold": "Zwolnienie musi być mniejsze niż próg wymuszenia."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "room_demand": {
+        "name": "{room} zapotrzebowanie na ciepło",
+        "state": {
+          "on": "Zgłasza zapotrzebowanie na ciepło do kotła",
+          "off": "Nie zgłasza zapotrzebowania na ciepło"
+        },
+        "state_attributes": {
+          "valves": {
+            "name": "Zawory pomieszczenia"
+          },
+          "valve_active": {
+            "name": "W pomieszczeniu jest włączony zawór"
+          },
+          "current_temperature": {
+            "name": "Temperatura pomieszczenia (używana do decyzji)"
+          },
+          "temperature_source": {
+            "name": "Źródło temperatury",
+            "state": {
+              "sensor": "Termometr pomieszczenia",
+              "valve": "Własny pomiar zaworu (zastępczo, termometr niedostępny)"
+            }
+          },
+          "target_temperature": {
+            "name": "Temperatura docelowa (ustawiona na zaworze)"
+          },
+          "effective_target": {
+            "name": "Efektywna temperatura docelowa (z podwyższeniem wilgotnościowym)"
+          },
+          "humidity": {
+            "name": "Wilgotność pomieszczenia"
+          },
+          "humidity_boost": {
+            "name": "Podwyższenie celu z powodu wilgotności"
+          },
+          "room_below_target": {
+            "name": "Pomieszczenie jest chłodniejsze niż cel"
+          },
+          "deviation": {
+            "name": "Odchyłka od celu (dodatnia = za zimno)"
+          },
+          "valve_demand_link": {
+            "name": "Zapotrzebowanie kotła powiązane ze stanem zaworu (przełącznik pomieszczenia)"
+          },
+          "valve_open_estimate": {
+            "name": "Zawór prawdopodobnie otwarty (wg własnego pomiaru)"
+          },
+          "boost_threshold": {
+            "name": "Próg wymuszenia zaworu (o ile poniżej celu)"
+          },
+          "boost_delay_minutes": {
+            "name": "Czas oczekiwania przed wymuszeniem zaworu (minuty)"
+          },
+          "release_margin": {
+            "name": "Zwolnienie zaworu przed osiągnięciem celu (°C)"
+          },
+          "valve_control": {
+            "name": "Automatyczna regulacja zaworów włączona"
+          },
+          "valve_boosted": {
+            "name": "Zawór aktualnie wymuszony na otwarty (cel podniesiony)"
+          },
+          "valve_boost_waiting": {
+            "name": "Wymuszenie zaworu oczekuje (trwa czas oczekiwania)"
+          },
+          "valve_dry_run": {
+            "name": "Tryb próbny regulacji zaworów (tylko dziennik)"
+          }
+        }
+      },
+      "summer_mode": {
+        "name": "Tryb letni",
+        "state": {
+          "on": "Tryb letni aktywny (brak ogrzewania)",
+          "off": "Brak trybu letniego"
+        },
+        "state_attributes": {
+          "outdoor_sensor": {
+            "name": "Czujnik temperatury zewnętrznej"
+          },
+          "outdoor_temperature": {
+            "name": "Aktualna temperatura zewnętrzna"
+          },
+          "outdoor_average_24h": {
+            "name": "Średnia 24-godzinna temperatury zewnętrznej"
+          },
+          "threshold": {
+            "name": "Próg trybu letniego (aktywny powyżej tej średniej 24-godzinnej)"
+          },
+          "in_summer_period": {
+            "name": "Data mieści się w okresie letnim"
+          },
+          "period_start": {
+            "name": "Początek okresu letniego (MM-DD)"
+          },
+          "period_end": {
+            "name": "Koniec okresu letniego (MM-DD)"
+          }
+        }
+      }
+    }
+  }
+}

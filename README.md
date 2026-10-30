@@ -67,6 +67,16 @@ v.0.0.5 version
 Two new features: the three valve settings can be overridden on a room-by-room basis (if left blank, the general default value applies), and there will be a per-room switch that links the boiler's heat demand to the state of the valve.
 
 
+v.0.0.6,v.0.0.7 
+
+Versions only contains repository fixes for HACS.
+
+
+v.0.0.8
+
+Language fixes, and hints
+
+
 Installation:
 
 1.Download "Meross_LAN" plugin from HACS.

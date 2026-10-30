@@ -137,5 +137,107 @@
       "release_ge_threshold": "A visszaengedésnek kisebbnek kell lennie, mint az emelés küszöbnek.",
       "invalid_date": "Érvénytelen dátum, a formátum HH-NN (pl. 05-15)."
     }
+  },
+  "entity": {
+    "binary_sensor": {
+      "room_demand": {
+        "state": {
+          "on": "Hőt kér a kazántól",
+          "off": "Nem kér hőt"
+        },
+        "state_attributes": {
+          "valves": {
+            "name": "A szoba szelepei"
+          },
+          "valve_active": {
+            "name": "Van bekapcsolt szelep a szobában"
+          },
+          "current_temperature": {
+            "name": "Szoba hőmérséklete (amit a döntéshez használ)"
+          },
+          "temperature_source": {
+            "name": "Hőmérséklet forrása",
+            "state": {
+              "sensor": "Szoba hőmérő",
+              "valve": "Szelep saját mérése (tartalék, a hőmérő nem elérhető)"
+            }
+          },
+          "target_temperature": {
+            "name": "Célhőmérséklet (a szelepen beállított)"
+          },
+          "effective_target": {
+            "name": "Hatásos célhőmérséklet (páratartalom miatti emeléssel)"
+          },
+          "humidity": {
+            "name": "Szoba páratartalma"
+          },
+          "humidity_boost": {
+            "name": "Páratartalom miatti célhőmérséklet-emelés"
+          },
+          "room_below_target": {
+            "name": "A szoba hidegebb a célnál"
+          },
+          "deviation": {
+            "name": "Eltérés a céltól (pozitív = hideg van)"
+          },
+          "valve_demand_link": {
+            "name": "Kazán hőigény a szelep állapotához kötve (szobai kapcsoló)"
+          },
+          "valve_open_estimate": {
+            "name": "A szelep nyitottnak becsült (a saját mérése alapján)"
+          },
+          "boost_threshold": {
+            "name": "Szelep emelés küszöb (ennyivel legyen hidegebb a célnál)"
+          },
+          "boost_delay_minutes": {
+            "name": "Szelep emelés várakozás (perc)"
+          },
+          "release_margin": {
+            "name": "Szelep visszaengedés a cél előtt (°C)"
+          },
+          "valve_control": {
+            "name": "Automata szelep szabályzás bekapcsolva"
+          },
+          "valve_boosted": {
+            "name": "Szelep éppen ki van nyitva (célhőmérséklet megemelve)"
+          },
+          "valve_boost_waiting": {
+            "name": "Szelep emelésre vár (a várakozási idő fut)"
+          },
+          "valve_dry_run": {
+            "name": "Szelep szabályzás próbaüzem (csak naplóz)"
+          }
+        }
+      },
+      "summer_mode": {
+        "state": {
+          "on": "Nyári mód aktív (nincs fűtés)",
+          "off": "Nincs nyári mód"
+        },
+        "state_attributes": {
+          "outdoor_sensor": {
+            "name": "Kinti hőmérséklet szenzor"
+          },
+          "outdoor_temperature": {
+            "name": "Kinti hőmérséklet most"
+          },
+          "outdoor_average_24h": {
+            "name": "Kinti hőmérséklet 24 órás átlaga"
+          },
+          "threshold": {
+            "name": "Nyári mód küszöb (24 órás átlag fölött aktív)"
+          },
+          "in_summer_period": {
+            "name": "A dátum a nyári időszakon belül van"
+          },
+          "period_start": {
+            "name": "Nyári időszak kezdete (HH-NN)"
+          },
+          "period_end": {
+            "name": "Nyári időszak vége (HH-NN)"
+          }
+        }
+      }
+    }
   }
 }

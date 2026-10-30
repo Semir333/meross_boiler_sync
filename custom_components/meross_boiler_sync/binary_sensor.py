@@ -61,6 +61,7 @@ class RoomDemandSensor(_BaseSensor):
     """Be: a szoba hőt kér a kazántól."""
 
     _attr_icon = "mdi:radiator"
+    _attr_translation_key = "room_demand"
 
     def __init__(
         self, controller: BoilerController, entry: ConfigEntry, room_id: str, name: str
@@ -102,6 +103,7 @@ class SummerModeSensor(_BaseSensor):
     """Be: nyári mód aktív, a kazán nem kap hőigényt."""
 
     _attr_icon = "mdi:weather-sunny"
+    _attr_translation_key = "summer_mode"
 
     def __init__(self, controller: BoilerController, entry: ConfigEntry) -> None:
         super().__init__(controller, entry, "summer_mode", "Nyári mód")

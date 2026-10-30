@@ -137,5 +137,107 @@
       "release_ge_threshold": "Release must be smaller than the boost threshold.",
       "invalid_date": "Invalid date, use MM-DD (e.g. 05-15)."
     }
+  },
+  "entity": {
+    "binary_sensor": {
+      "room_demand": {
+        "state": {
+          "on": "Calling boiler for heat",
+          "off": "Not calling for heat"
+        },
+        "state_attributes": {
+          "valves": {
+            "name": "Valves of the room"
+          },
+          "valve_active": {
+            "name": "Room has a valve that is switched on"
+          },
+          "current_temperature": {
+            "name": "Room temperature (used for decisions)"
+          },
+          "temperature_source": {
+            "name": "Temperature source",
+            "state": {
+              "sensor": "Room thermometer",
+              "valve": "Valve's own reading (fallback, thermometer unavailable)"
+            }
+          },
+          "target_temperature": {
+            "name": "Target temperature (set on the valve)"
+          },
+          "effective_target": {
+            "name": "Effective target (including humidity boost)"
+          },
+          "humidity": {
+            "name": "Room humidity"
+          },
+          "humidity_boost": {
+            "name": "Target raise due to humidity"
+          },
+          "room_below_target": {
+            "name": "Room is colder than target"
+          },
+          "deviation": {
+            "name": "Deviation from target (positive = cold)"
+          },
+          "valve_demand_link": {
+            "name": "Boiler demand tied to valve state (room switch)"
+          },
+          "valve_open_estimate": {
+            "name": "Valve estimated open (from its own reading)"
+          },
+          "boost_threshold": {
+            "name": "Valve boost threshold (how far below target)"
+          },
+          "boost_delay_minutes": {
+            "name": "Valve boost wait (minutes)"
+          },
+          "release_margin": {
+            "name": "Valve release before target (°C)"
+          },
+          "valve_control": {
+            "name": "Automatic valve control enabled"
+          },
+          "valve_boosted": {
+            "name": "Valve currently forced open (target raised)"
+          },
+          "valve_boost_waiting": {
+            "name": "Valve boost pending (wait time running)"
+          },
+          "valve_dry_run": {
+            "name": "Valve control dry run (log only)"
+          }
+        }
+      },
+      "summer_mode": {
+        "state": {
+          "on": "Summer mode active (no heating)",
+          "off": "Not summer mode"
+        },
+        "state_attributes": {
+          "outdoor_sensor": {
+            "name": "Outdoor temperature sensor"
+          },
+          "outdoor_temperature": {
+            "name": "Outdoor temperature now"
+          },
+          "outdoor_average_24h": {
+            "name": "Outdoor 24h average"
+          },
+          "threshold": {
+            "name": "Summer mode threshold (active above this 24h average)"
+          },
+          "in_summer_period": {
+            "name": "Date is inside the summer period"
+          },
+          "period_start": {
+            "name": "Summer period start (MM-DD)"
+          },
+          "period_end": {
+            "name": "Summer period end (MM-DD)"
+          }
+        }
+      }
+    }
   }
 }

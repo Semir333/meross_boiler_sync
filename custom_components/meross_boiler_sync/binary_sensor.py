@@ -40,11 +40,11 @@ class _BaseSensor(BinarySensorEntity):
     _attr_has_entity_name = True
 
     def __init__(
-        self, controller: BoilerController, entry: ConfigEntry, key: str, name: str
+        self, controller: BoilerController, entry: ConfigEntry, key: str
     ) -> None:
+        # a név a translations/<nyelv>.json "entity" szekciójából jön (translation_key)
         self._controller = controller
         self._attr_unique_id = f"{entry.entry_id}_{key}"
-        self._attr_name = name
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
             name="Meross Boiler Sync",
@@ -66,8 +66,10 @@ class RoomDemandSensor(_BaseSensor):
     def __init__(
         self, controller: BoilerController, entry: ConfigEntry, room_id: str, name: str
     ) -> None:
-        super().__init__(controller, entry, f"room_{room_id}", f"{name} fűtési igény")
+        super().__init__(controller, entry, f"room_{room_id}")
         self._room_id = room_id
+        # a fordított név "{room} ..." helyőrzőjébe kerül a szoba neve
+        self._attr_translation_placeholders = {"room": name}
 
     @property
     def is_on(self) -> bool:
@@ -106,7 +108,7 @@ class SummerModeSensor(_BaseSensor):
     _attr_translation_key = "summer_mode"
 
     def __init__(self, controller: BoilerController, entry: ConfigEntry) -> None:
-        super().__init__(controller, entry, "summer_mode", "Nyári mód")
+        super().__init__(controller, entry, "summer_mode")
 
     @property
     def is_on(self) -> bool:

@@ -1,7 +1,7 @@
 # Meross Boiler Sync  
 Meross Boiler Sync is a custom Home Assistant integration designed to bridge the gap between Meross smart radiator valves and independent room thermometers/hygrometers.  
 
-In the native Meross ecosystem, heating demand and temperature regulation are controlled exclusively by the built-in sensors located directly inside the valves right next to the hot radiator. This often causes valves to shut off prematurely because radiant heat tricks the sensor while the rest of the room is still cold. This integration solves that problem by delegating heating demand calculations to external room thermometers while keeping your normal valve schedules intact.
+In the native Meross ecosystem, heating demand and temperature regulation are controlled exclusively by the built-in sensors located directly inside the valves right next to the hot radiator. This often causes valves to shut off prematurely because radiant heat tricks the sensor while the rest of the room is still cold. This integration solves that problem by delegating heating demand calculations to external room thermometers while keeping your normal valve schedules intact.`The plugin also work together with the boiler termostat what is a huge missing in the normal ecosystem. This plugin fill this gap!`
 
 Multi-language support translations for `en, de, nl, fr, it, es, ru, pl, uk, ko, ja, zh, nb, sv, lv, and hu.`
 

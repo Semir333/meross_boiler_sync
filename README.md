@@ -5,6 +5,7 @@ In the native Meross ecosystem, heating demand and temperature regulation are co
 
 Multi-language support translations for `en, de, nl, fr, it, es, ru, pl, uk, ko, ja, zh, nb, sv, lv, and hu.`
 
+<img width="1103" height="847" alt="image" src="https://github.com/user-attachments/assets/23d4b470-b65c-4914-ac61-abb163aafdea" />
 <img width="1213" height="861" alt="image" src="https://github.com/user-attachments/assets/edda4fe3-fb63-473a-b204-4da64492bd2f" />
 <img width="689" height="1229" alt="image" src="https://github.com/user-attachments/assets/4549fd19-3b29-44e2-a5e4-8a5c968f6155" />
 <img width="1370" height="549" alt="image" src="https://github.com/user-attachments/assets/fd188f98-f2fb-463a-a3ba-9030e9ff6138" />

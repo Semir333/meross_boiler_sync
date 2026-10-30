@@ -77,6 +77,12 @@ v.0.0.8
 Language fixes, and hints
 
 
+v.0.0.9
+
+More languages added
+en, de, nl, fr, it, es, ru, pl, uk, ko, ja, zh, nb, sv, lv, hu
+
+
 Installation:
 
 1.Download "Meross_LAN" plugin from HACS.

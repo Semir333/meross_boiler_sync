@@ -99,6 +99,11 @@
           "valve_boost_threshold": "Valve boost threshold – default (how far below target)",
           "valve_boost_delay": "Valve boost wait time – default",
           "valve_release_margin": "Valve release before target – default",
+          "stale_check_enabled": "Stale sensor check",
+          "stale_hours": "Sensor considered stale after (hours)",
+          "max_boost_enabled": "Limit valve boost duration",
+          "max_boost_hours": "Max. valve boost duration (hours)",
+          "max_boost_rest_minutes": "Rest after max. boost (minutes)",
           "valve_dry_run": "Valve control dry run (log only, no writes to valves)"
         },
         "data_description": {
@@ -109,6 +114,11 @@
           "valve_boost_threshold": "Default for all rooms, can be overridden per room. Automatic valve control only boosts when the room is at least this far below target. For smaller deviations the valve decides alone and the radiator's residual heat is usually enough. (Boiler demand still starts at the hysteresis.)",
           "valve_boost_delay": "The deviation must persist this long before boosting, giving the radiator's residual heat a chance to warm the room. If the deviation exceeds the threshold by 1 °C (e.g. you raised the target) there is no wait. 0 = immediately.",
           "valve_release_margin": "The valve gets its original target back this far before the room reaches the target, since the radiator's residual heat keeps warming the room (prevents overshoot). Must be smaller than the boost threshold.",
+          "stale_check_enabled": "When on, a sensor that has not reported for the time below is treated as unavailable (the room falls back to the valve's own reading, valve boost stops, and a Repairs notice appears). Also applies to the outdoor sensor.",
+          "stale_hours": "Battery sensors can freeze at their last value without becoming unavailable. Set this to at least twice the sensor's usual reporting interval, otherwise you get false alarms.",
+          "max_boost_enabled": "When on, the valve boost is stopped after the maximum duration below (protects against an open window, a misplaced sensor or a frozen value).",
+          "max_boost_hours": "After this long the valve gets its original target back, even if the room has not reached the target.",
+          "max_boost_rest_minutes": "How long no new boost is started after reaching the maximum duration. The room reaching its target resets this.",
           "valve_dry_run": "When on, valve control only logs what it would do ([PRÓBAÜZEM] prefix) and changes nothing on the valves. Recommended for the first live test."
         }
       },
@@ -207,6 +217,12 @@
           },
           "valve_dry_run": {
             "name": "Valve control dry run (log only)"
+          },
+          "temperature_sensor_stale": {
+            "name": "Room temperature sensor not updating (stale)"
+          },
+          "valve_boost_resting": {
+            "name": "Valve boost resting after maximum duration"
           }
         }
       },
@@ -237,9 +253,22 @@
           },
           "period_end": {
             "name": "Summer period end (MM-DD)"
+          },
+          "outdoor_sensor_stale": {
+            "name": "Outdoor sensor not updating (stale)"
           }
         }
       }
+    }
+  },
+  "issues": {
+    "stale_room_temp": {
+      "title": "Room temperature sensor is not updating",
+      "description": "The temperature sensor {sensor} of room {room} has not reported for over {hours} hours (its battery may be empty or it lost its connection). The room now uses the valves' own reading and automatic valve control is paused. This notice disappears once the sensor reports again."
+    },
+    "stale_outdoor": {
+      "title": "Outdoor temperature sensor is not updating",
+      "description": "The outdoor sensor {sensor} has not reported for over {hours} hours (its battery may be empty). Summer mode is switched off until it reports again, so heating stays allowed. This notice disappears once the sensor reports again."
     }
   }
 }

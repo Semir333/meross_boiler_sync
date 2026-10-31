@@ -95,6 +95,8 @@ class RoomDemandSensor(_BaseSensor):
             "boost_delay_minutes": round(st.boost_delay_s / 60, 1),
             "release_margin": st.release_margin,
             "valve_control": st.valve_control,
+            "temperature_sensor_stale": st.sensor_stale,
+            "valve_boost_resting": st.rest_until is not None,
             "valve_boost_waiting": st.cold_since is not None and not st.boost_wanted,
             "valve_boosted": st.boosted,
             "valve_dry_run": self._controller.valve_dry_run,
@@ -120,6 +122,7 @@ class SummerModeSensor(_BaseSensor):
         return {
             "outdoor_sensor": c.outdoor_sensor,
             "outdoor_temperature": c.outdoor_now,
+            "outdoor_sensor_stale": c.outdoor_stale,
             "outdoor_average_24h": c.outdoor_avg,
             "threshold": c.summer_temp,
             "in_summer_period": c.in_summer_period,

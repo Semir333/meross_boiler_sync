@@ -99,6 +99,11 @@
           "valve_boost_threshold": "Vārsta pacelšanas slieksnis – noklusējums (cik zem mērķa)",
           "valve_boost_delay": "Gaidīšanas laiks pirms vārsta pacelšanas – noklusējums",
           "valve_release_margin": "Vārsta atbrīvošana pirms mērķa – noklusējums",
+          "stale_check_enabled": "Novecojušu sensoru pārbaude",
+          "stale_hours": "Sensors tiek uzskatīts par novecojušu pēc (stundas)",
+          "max_boost_enabled": "Ierobežot vārsta pacelšanas ilgumu",
+          "max_boost_hours": "Maks. vārsta pacelšanas ilgums (stundas)",
+          "max_boost_rest_minutes": "Pauze pēc maks. ilguma (minūtes)",
           "valve_dry_run": "Vārstu vadības izmēģinājuma režīms (tikai žurnāls, bez rakstīšanas vārstos)"
         },
         "data_description": {
@@ -109,6 +114,11 @@
           "valve_boost_threshold": "Noklusējums visām telpām, katrai telpai var pārrakstīt. Automātiskā vadība paceļ vārstu tikai tad, ja telpa ir vismaz par tik zem mērķa. Pie mazākām novirzēm vārsts lemj pats, un radiatora atlikušais siltums parasti ir pietiekams. (Katla pieprasījums joprojām sākas pie histerēzes.)",
           "valve_boost_delay": "Noklusējums visām telpām. Novirzei jāsaglabājas tik ilgi pirms pacelšanas, lai radiatora atlikušais siltums var sasildīt telpu. Ja novirze pārsniedz slieksni par 1 °C (piem., esat paaugstinājis mērķi), gaidīšanas nav. 0 = nekavējoties.",
           "valve_release_margin": "Noklusējums visām telpām. Vārsts atgūst sākotnējo mērķa temperatūru par tik pirms telpas mērķa sasniegšanas, jo radiatora atlikušais siltums turpina sildīt telpu (novērš pārsniegšanu). Jābūt mazākam par pacelšanas slieksni.",
+          "stale_check_enabled": "Ja ieslēgts, sensors, kas zemāk norādīto laiku nav sūtījis datus, tiek uzskatīts par nepieejamu (telpa pāriet uz paša vārsta mērījumu, vārsta pacelšana apstājas un parādās labošanas paziņojums). Attiecas arī uz ārējo sensoru.",
+          "stale_hours": "Bateriju sensori var iestrēgt pie pēdējās vērtības, neparādoties kā nepieejami. Iestatiet vismaz divreiz garāku laiku par sensora parasto ziņošanas intervālu, citādi būs viltus trauksmes.",
+          "max_boost_enabled": "Ja ieslēgts, vārsta pacelšana tiek apturēta pēc zemāk norādītā maksimālā ilguma (aizsargā pret atvērtu logu, nepareizi novietotu sensoru vai iestrēgušu vērtību).",
+          "max_boost_hours": "Pēc šī laika vārsts atgūst sākotnējo mērķa temperatūru, pat ja telpa nav sasniegusi mērķi.",
+          "max_boost_rest_minutes": "Cik ilgi pēc maksimālā ilguma sasniegšanas netiek sākta jauna pacelšana. Tiek atiestatīts, kad telpa sasniedz savu mērķi.",
           "valve_dry_run": "Ja ieslēgts, vārstu vadība tikai ieraksta žurnālā, ko tā darītu (priedēklis [PRÓBAÜZEM]), un neko nemaina vārstos. Ieteicams pirmajam darbības testam."
         }
       },
@@ -207,6 +217,12 @@
           },
           "valve_dry_run": {
             "name": "Vārstu vadības izmēģinājuma režīms (tikai žurnāls)"
+          },
+          "temperature_sensor_stale": {
+            "name": "Telpas temperatūras sensors nesūta datus (novecojis)"
+          },
+          "valve_boost_resting": {
+            "name": "Vārsta pacelšana pauzē pēc maksimālā ilguma"
           }
         }
       },
@@ -237,9 +253,22 @@
           },
           "period_end": {
             "name": "Vasaras perioda beigas (MM-DD)"
+          },
+          "outdoor_sensor_stale": {
+            "name": "Ārējais sensors nesūta datus (novecojis)"
           }
         }
       }
+    }
+  },
+  "issues": {
+    "stale_room_temp": {
+      "title": "Telpas temperatūras sensors vairs nesūta datus",
+      "description": "Telpas {room} temperatūras sensors {sensor} nav sūtījis datus vairāk nekā {hours} stundas (iespējams, baterija ir tukša vai zudis savienojums). Telpa tagad izmanto vārstu paša mērījumu, un automātiskā vārstu vadība ir apturēta. Šis paziņojums pazudīs, tiklīdz sensors atkal sūtīs datus."
+    },
+    "stale_outdoor": {
+      "title": "Ārā temperatūras sensors vairs nesūta datus",
+      "description": "Ārējais sensors {sensor} nav sūtījis datus vairāk nekā {hours} stundas (iespējams, baterija ir tukša). Vasaras režīms paliek izslēgts, kamēr sensors atkal sūta datus, tāpēc apkure ir atļauta. Šis paziņojums pazudīs, tiklīdz sensors atkal sūtīs datus."
     }
   }
 }

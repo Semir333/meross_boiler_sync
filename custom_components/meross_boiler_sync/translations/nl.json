@@ -99,6 +99,11 @@
           "valve_boost_threshold": "Drempel voor kraanverhoging – standaard (hoever onder het doel)",
           "valve_boost_delay": "Wachttijd voor kraanverhoging – standaard",
           "valve_release_margin": "Kraan vrijgeven vóór het doel – standaard",
+          "stale_check_enabled": "Controle op verouderde sensoren",
+          "stale_hours": "Sensor geldt als verouderd na (uren)",
+          "max_boost_enabled": "Duur van kraanverhoging beperken",
+          "max_boost_hours": "Max. duur kraanverhoging (uren)",
+          "max_boost_rest_minutes": "Pauze na max. verhoging (minuten)",
           "valve_dry_run": "Proefmodus kraanregeling (alleen loggen, niets naar de kranen schrijven)"
         },
         "data_description": {
@@ -109,6 +114,11 @@
           "valve_boost_threshold": "Standaard voor alle kamers, per kamer te overschrijven. De automatische kraanregeling verhoogt alleen als de kamer minstens zoveel onder het doel ligt. Bij kleinere afwijkingen beslist de kraan zelf en is de restwarmte van de radiator meestal genoeg. (De ketelvraag start nog steeds bij de hysterese.)",
           "valve_boost_delay": "Standaard voor alle kamers. De afwijking moet zo lang aanhouden voordat de kraan wordt verhoogd, zodat de restwarmte van de radiator de kamer kan opwarmen. Als de afwijking 1 °C boven de drempel ligt (bijv. omdat je het doel hebt verhoogd), is er geen wachttijd. 0 = direct.",
           "valve_release_margin": "Standaard voor alle kamers. De kraan krijgt zijn oorspronkelijke doeltemperatuur zo ver vóór het bereiken van het doel terug, omdat de restwarmte van de radiator de kamer nog verder opwarmt (voorkomt doorschieten). Moet kleiner zijn dan de drempel voor kraanverhoging.",
+          "stale_check_enabled": "Indien ingeschakeld wordt een sensor die gedurende de onderstaande tijd niets heeft gemeld behandeld als niet beschikbaar (de kamer valt terug op de eigen meting van de kraan, de kraanverhoging stopt en er verschijnt een reparatiemelding). Geldt ook voor de buitensensor.",
+          "stale_hours": "Sensoren op batterij kunnen op hun laatste waarde blijven hangen zonder niet beschikbaar te worden. Stel dit minstens in op tweemaal het gebruikelijke meldinterval van de sensor, anders krijg je valse alarmen.",
+          "max_boost_enabled": "Indien ingeschakeld wordt de kraanverhoging na de onderstaande maximale duur gestopt (beschermt bij een open raam, een verkeerd geplaatste sensor of een bevroren waarde).",
+          "max_boost_hours": "Na deze tijd krijgt de kraan zijn oorspronkelijke doeltemperatuur terug, ook als de kamer het doel niet heeft bereikt.",
+          "max_boost_rest_minutes": "Hoe lang na het bereiken van de maximale duur geen nieuwe verhoging wordt gestart. Zodra de kamer het doel bereikt, wordt dit gereset.",
           "valve_dry_run": "Indien ingeschakeld logt de kraanregeling alleen wat ze zou doen (voorvoegsel [PRÓBAÜZEM]) en wijzigt ze niets aan de kranen. Aanbevolen voor de eerste livetest."
         }
       },
@@ -207,6 +217,12 @@
           },
           "valve_dry_run": {
             "name": "Proefmodus kraanregeling (alleen loggen)"
+          },
+          "temperature_sensor_stale": {
+            "name": "Kamertemperatuursensor meldt niet (verouderd)"
+          },
+          "valve_boost_resting": {
+            "name": "Kraanverhoging rust na maximale duur"
           }
         }
       },
@@ -237,9 +253,22 @@
           },
           "period_end": {
             "name": "Einde zomerperiode (MM-DD)"
+          },
+          "outdoor_sensor_stale": {
+            "name": "Buitensensor meldt niet (verouderd)"
           }
         }
       }
+    }
+  },
+  "issues": {
+    "stale_room_temp": {
+      "title": "Kamertemperatuursensor meldt niet meer",
+      "description": "De temperatuursensor {sensor} van kamer {room} heeft al meer dan {hours} uur niets gemeld (mogelijk is de batterij leeg of is de verbinding weg). De kamer gebruikt nu de eigen meting van de kranen en de automatische kraanregeling is gepauzeerd. Deze melding verdwijnt zodra de sensor weer meldt."
+    },
+    "stale_outdoor": {
+      "title": "Buitentemperatuursensor meldt niet meer",
+      "description": "De buitensensor {sensor} heeft al meer dan {hours} uur niets gemeld (mogelijk is de batterij leeg). De zomermodus blijft uitgeschakeld tot hij weer meldt, dus verwarmen blijft toegestaan. Deze melding verdwijnt zodra de sensor weer meldt."
     }
   }
 }

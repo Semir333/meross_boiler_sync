@@ -99,6 +99,11 @@
           "valve_boost_threshold": "Próg wymuszenia zaworu – domyślny (o ile poniżej celu)",
           "valve_boost_delay": "Czas oczekiwania przed wymuszeniem zaworu – domyślny",
           "valve_release_margin": "Zwolnienie zaworu przed osiągnięciem celu – domyślne",
+          "stale_check_enabled": "Wykrywanie nieaktualnych czujników",
+          "stale_hours": "Czujnik uznawany za nieaktualny po (godziny)",
+          "max_boost_enabled": "Ogranicz czas wymuszenia zaworu",
+          "max_boost_hours": "Maks. czas wymuszenia zaworu (godziny)",
+          "max_boost_rest_minutes": "Przerwa po maks. czasie (minuty)",
           "valve_dry_run": "Tryb próbny regulacji zaworów (tylko dziennik, bez zapisu do zaworów)"
         },
         "data_description": {
@@ -109,6 +114,11 @@
           "valve_boost_threshold": "Wartość domyślna dla wszystkich pomieszczeń, możliwa do zmiany dla każdego z osobna. Automatyczna regulacja wymusza zawór tylko wtedy, gdy pomieszczenie jest co najmniej o tyle poniżej celu. Przy mniejszych odchyłkach zawór decyduje sam, a ciepło resztkowe grzejnika zwykle wystarcza. (Zapotrzebowanie kotła nadal zaczyna się od histerezy.)",
           "valve_boost_delay": "Wartość domyślna dla wszystkich pomieszczeń. Odchyłka musi się utrzymywać tak długo przed wymuszeniem, aby ciepło resztkowe grzejnika mogło ogrzać pomieszczenie. Jeśli odchyłka przekracza próg o 1 °C (np. podniesiono cel), nie ma oczekiwania. 0 = natychmiast.",
           "valve_release_margin": "Wartość domyślna dla wszystkich pomieszczeń. Zawór odzyskuje pierwotną temperaturę docelową z takim wyprzedzeniem przed osiągnięciem celu przez pomieszczenie, ponieważ ciepło resztkowe grzejnika nadal je ogrzewa (zapobiega przegrzaniu). Musi być mniejsze niż próg wymuszenia.",
+          "stale_check_enabled": "Gdy włączone, czujnik, który nie zgłosił się przez podany niżej czas, jest traktowany jak niedostępny (pomieszczenie używa własnego pomiaru zaworu, wymuszanie zaworu zatrzymuje się i pojawia się powiadomienie w Naprawach). Dotyczy też czujnika zewnętrznego.",
+          "stale_hours": "Czujniki bateryjne mogą zawiesić się na ostatniej wartości, nie stając się niedostępnymi. Ustaw co najmniej dwukrotność typowego odstępu między raportami czujnika, inaczej będą fałszywe alarmy.",
+          "max_boost_enabled": "Gdy włączone, wymuszanie zaworu kończy się po podanym niżej maksymalnym czasie (chroni przed otwartym oknem, źle umieszczonym czujnikiem lub zawieszoną wartością).",
+          "max_boost_hours": "Po tym czasie zawór odzyskuje pierwotną temperaturę docelową, nawet jeśli pomieszczenie nie osiągnęło celu.",
+          "max_boost_rest_minutes": "Jak długo po osiągnięciu maksymalnego czasu nie rozpoczyna się nowe wymuszanie. Gdy pomieszczenie osiągnie cel, odliczanie jest zerowane.",
           "valve_dry_run": "Gdy włączone, regulacja zaworów tylko zapisuje w dzienniku, co by zrobiła (prefiks [PRÓBAÜZEM]), i niczego nie zmienia na zaworach. Zalecane przy pierwszym teście na żywo."
         }
       },
@@ -207,6 +217,12 @@
           },
           "valve_dry_run": {
             "name": "Tryb próbny regulacji zaworów (tylko dziennik)"
+          },
+          "temperature_sensor_stale": {
+            "name": "Czujnik temperatury pomieszczenia nie raportuje (nieaktualny)"
+          },
+          "valve_boost_resting": {
+            "name": "Wymuszanie zaworu wstrzymane po maksymalnym czasie"
           }
         }
       },
@@ -237,9 +253,22 @@
           },
           "period_end": {
             "name": "Koniec okresu letniego (MM-DD)"
+          },
+          "outdoor_sensor_stale": {
+            "name": "Czujnik zewnętrzny nie raportuje (nieaktualny)"
           }
         }
       }
+    }
+  },
+  "issues": {
+    "stale_room_temp": {
+      "title": "Czujnik temperatury pomieszczenia przestał raportować",
+      "description": "Czujnik temperatury {sensor} w pomieszczeniu {room} nie raportował od ponad {hours} godz. (bateria może być rozładowana lub utracono połączenie). Pomieszczenie używa teraz własnego pomiaru zaworów, a automatyczna regulacja zaworów jest wstrzymana. To powiadomienie zniknie, gdy czujnik znów zacznie raportować."
+    },
+    "stale_outdoor": {
+      "title": "Czujnik temperatury zewnętrznej przestał raportować",
+      "description": "Czujnik zewnętrzny {sensor} nie raportował od ponad {hours} godz. (bateria może być rozładowana). Tryb letni pozostaje wyłączony, dopóki czujnik nie zacznie znów raportować, więc ogrzewanie pozostaje dozwolone. To powiadomienie zniknie, gdy czujnik znów zacznie raportować."
     }
   }
 }

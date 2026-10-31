@@ -99,6 +99,11 @@
           "valve_boost_threshold": "Terskel for ventilløft – standard (hvor langt under målet)",
           "valve_boost_delay": "Ventetid før ventilløft – standard",
           "valve_release_margin": "Ventilfrigjøring før målet – standard",
+          "stale_check_enabled": "Kontroll av utdaterte sensorer",
+          "stale_hours": "Sensor regnes som utdatert etter (timer)",
+          "max_boost_enabled": "Begrens varigheten av ventilløft",
+          "max_boost_hours": "Maks. varighet for ventilløft (timer)",
+          "max_boost_rest_minutes": "Pause etter maks. varighet (minutter)",
           "valve_dry_run": "Prøvekjøring av ventilstyring (kun logg, ingen skriving til ventilene)"
         },
         "data_description": {
@@ -109,6 +114,11 @@
           "valve_boost_threshold": "Standard for alle rom, kan overstyres per rom. Den automatiske styringen løfter bare når rommet ligger minst så langt under målet. Ved mindre avvik bestemmer ventilen selv, og restvarmen fra radiatoren er som regel nok. (Kjelens varmebehov starter fortsatt ved hysteresen.)",
           "valve_boost_delay": "Standard for alle rom. Avviket må vare så lenge før ventilen løftes, slik at restvarmen fra radiatoren får varme opp rommet. Hvis avviket overstiger terskelen med 1 °C (f.eks. fordi du har hevet målet), er det ingen ventetid. 0 = umiddelbart.",
           "valve_release_margin": "Standard for alle rom. Ventilen får tilbake sin opprinnelige måltemperatur så langt før rommet når målet, fordi restvarmen fra radiatoren fortsetter å varme opp rommet (hindrer overskyting). Må være mindre enn terskelen for ventilløft.",
+          "stale_check_enabled": "Når dette er på, behandles en sensor som ikke har rapportert på tiden nedenfor som utilgjengelig (rommet faller tilbake på ventilens egen måling, ventilløftet stopper og et reparasjonsvarsel vises). Gjelder også utesensoren.",
+          "stale_hours": "Batteridrevne sensorer kan henge seg opp på siste verdi uten å bli utilgjengelige. Sett minst det dobbelte av sensorens vanlige rapporteringsintervall, ellers får du falske alarmer.",
+          "max_boost_enabled": "Når dette er på, avsluttes ventilløftet etter maksimal varighet nedenfor (beskytter ved åpent vindu, feilplassert sensor eller fastfrosset verdi).",
+          "max_boost_hours": "Etter denne tiden får ventilen tilbake sin opprinnelige måltemperatur, selv om rommet ikke har nådd målet.",
+          "max_boost_rest_minutes": "Hvor lenge ingen nytt løft startes etter at maksimal varighet er nådd. Nullstilles når rommet når målet.",
           "valve_dry_run": "Når dette er på, logger ventilstyringen bare hva den ville gjort (prefiks [PRÓBAÜZEM]) og endrer ingenting på ventilene. Anbefalt for den første ekte testen."
         }
       },
@@ -207,6 +217,12 @@
           },
           "valve_dry_run": {
             "name": "Prøvekjøring av ventilstyring (kun logg)"
+          },
+          "temperature_sensor_stale": {
+            "name": "Romtemperatursensoren rapporterer ikke (utdatert)"
+          },
+          "valve_boost_resting": {
+            "name": "Ventilløft på pause etter maksimal varighet"
           }
         }
       },
@@ -237,9 +253,22 @@
           },
           "period_end": {
             "name": "Slutt på sommerperioden (MM-DD)"
+          },
+          "outdoor_sensor_stale": {
+            "name": "Utesensoren rapporterer ikke (utdatert)"
           }
         }
       }
+    }
+  },
+  "issues": {
+    "stale_room_temp": {
+      "title": "Romtemperatursensoren rapporterer ikke lenger",
+      "description": "Temperatursensoren {sensor} i rommet {room} har ikke rapportert på over {hours} timer (batteriet kan være tomt eller forbindelsen brutt). Rommet bruker nå ventilenes egen måling, og den automatiske ventilstyringen er satt på pause. Dette varselet forsvinner når sensoren rapporterer igjen."
+    },
+    "stale_outdoor": {
+      "title": "Utetemperatursensoren rapporterer ikke lenger",
+      "description": "Utesensoren {sensor} har ikke rapportert på over {hours} timer (batteriet kan være tomt). Sommermodus forblir av til den rapporterer igjen, så oppvarming er fortsatt tillatt. Dette varselet forsvinner når sensoren rapporterer igjen."
     }
   }
 }

@@ -99,6 +99,11 @@
           "valve_boost_threshold": "Tröskel för ventilhöjning – standard (hur långt under målet)",
           "valve_boost_delay": "Väntetid före ventilhöjning – standard",
           "valve_release_margin": "Ventilfrigöring före målet – standard",
+          "stale_check_enabled": "Kontroll av inaktuella sensorer",
+          "stale_hours": "Sensor anses inaktuell efter (timmar)",
+          "max_boost_enabled": "Begränsa ventilhöjningens varaktighet",
+          "max_boost_hours": "Max varaktighet för ventilhöjning (timmar)",
+          "max_boost_rest_minutes": "Paus efter maxtiden (minuter)",
           "valve_dry_run": "Provkörning av ventilreglering (endast logg, inga skrivningar till ventilerna)"
         },
         "data_description": {
@@ -109,6 +114,11 @@
           "valve_boost_threshold": "Standard för alla rum, kan åsidosättas per rum. Den automatiska regleringen höjer bara när rummet ligger minst så här långt under målet. Vid mindre avvikelser bestämmer ventilen själv, och elementets restvärme räcker oftast. (Pannans värmebehov börjar fortfarande vid hysteresen.)",
           "valve_boost_delay": "Standard för alla rum. Avvikelsen måste bestå så här länge före höjningen, så att elementets restvärme hinner värma rummet. Om avvikelsen överstiger tröskeln med 1 °C (t.ex. om du höjt målet) finns ingen väntetid. 0 = direkt.",
           "valve_release_margin": "Standard för alla rum. Ventilen får tillbaka sin ursprungliga måltemperatur så här långt innan rummet når målet, eftersom elementets restvärme fortsätter värma rummet (förhindrar översläng). Måste vara mindre än tröskeln för höjning.",
+          "stale_check_enabled": "När detta är på behandlas en sensor som inte har rapporterat under tiden nedan som otillgänglig (rummet faller tillbaka på ventilens egen mätning, ventilhöjningen stoppar och en reparationsavisering visas). Gäller även utomhussensorn.",
+          "stale_hours": "Batterisensorer kan fastna på sitt sista värde utan att bli otillgängliga. Ange minst dubbla sensorns vanliga rapporteringsintervall, annars får du falsklarm.",
+          "max_boost_enabled": "När detta är på avslutas ventilhöjningen efter maxtiden nedan (skyddar vid öppet fönster, felplacerad sensor eller fastfruset värde).",
+          "max_boost_hours": "Efter den här tiden får ventilen tillbaka sin ursprungliga måltemperatur, även om rummet inte nått målet.",
+          "max_boost_rest_minutes": "Hur länge ingen ny höjning startas efter att maxtiden nåtts. Återställs när rummet når sitt mål.",
           "valve_dry_run": "När detta är på loggar ventilregleringen bara vad den skulle göra (prefix [PRÓBAÜZEM]) och ändrar ingenting på ventilerna. Rekommenderas för det första skarpa testet."
         }
       },
@@ -207,6 +217,12 @@
           },
           "valve_dry_run": {
             "name": "Provkörning av ventilreglering (endast logg)"
+          },
+          "temperature_sensor_stale": {
+            "name": "Rummets temperatursensor rapporterar inte (inaktuell)"
+          },
+          "valve_boost_resting": {
+            "name": "Ventilhöjning på paus efter maxtiden"
           }
         }
       },
@@ -237,9 +253,22 @@
           },
           "period_end": {
             "name": "Sommarperiodens slut (MM-DD)"
+          },
+          "outdoor_sensor_stale": {
+            "name": "Utomhussensorn rapporterar inte (inaktuell)"
           }
         }
       }
+    }
+  },
+  "issues": {
+    "stale_room_temp": {
+      "title": "Rummets temperatursensor rapporterar inte längre",
+      "description": "Temperatursensorn {sensor} i rummet {room} har inte rapporterat på över {hours} timmar (batteriet kan vara slut eller anslutningen bruten). Rummet använder nu ventilernas egen mätning och den automatiska ventilregleringen är pausad. Den här aviseringen försvinner när sensorn rapporterar igen."
+    },
+    "stale_outdoor": {
+      "title": "Utomhustemperatursensorn rapporterar inte längre",
+      "description": "Utomhussensorn {sensor} har inte rapporterat på över {hours} timmar (batteriet kan vara slut). Sommarläget förblir avstängt tills den rapporterar igen, så uppvärmning är fortsatt tillåten. Den här aviseringen försvinner när sensorn rapporterar igen."
     }
   }
 }

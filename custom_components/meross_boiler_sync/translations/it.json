@@ -99,6 +99,11 @@
           "valve_boost_threshold": "Soglia di spinta della valvola – predefinita (quanto sotto il target)",
           "valve_boost_delay": "Attesa prima della spinta della valvola – predefinita",
           "valve_release_margin": "Rilascio della valvola prima del target – predefinito",
+          "stale_check_enabled": "Controllo dei sensori non aggiornati",
+          "stale_hours": "Sensore considerato non aggiornato dopo (ore)",
+          "max_boost_enabled": "Limita la durata della spinta della valvola",
+          "max_boost_hours": "Durata massima della spinta della valvola (ore)",
+          "max_boost_rest_minutes": "Pausa dopo la durata massima (minuti)",
           "valve_dry_run": "Prova del controllo valvole (solo log, nessuna scrittura sulle valvole)"
         },
         "data_description": {
@@ -109,6 +114,11 @@
           "valve_boost_threshold": "Predefinito per tutte le stanze, modificabile per singola stanza. Il controllo automatico spinge la valvola solo se la stanza è almeno a questa distanza sotto il target. Con scostamenti minori decide la valvola da sola e il calore residuo del termosifone di solito basta. (La richiesta alla caldaia parte comunque all’isteresi.)",
           "valve_boost_delay": "Predefinito per tutte le stanze. Lo scostamento deve persistere per questo tempo prima della spinta, lasciando al calore residuo del termosifone la possibilità di scaldare la stanza. Se lo scostamento supera la soglia di 1 °C (es. hai alzato il target), non c’è attesa. 0 = subito.",
           "valve_release_margin": "Predefinito per tutte le stanze. La valvola riottiene il target originale con questo anticipo rispetto al raggiungimento del target, perché il calore residuo del termosifone continua a scaldare la stanza (evita il superamento). Deve essere inferiore alla soglia di spinta.",
+          "stale_check_enabled": "Se attivo, un sensore che non ha comunicato per il tempo indicato sotto viene trattato come non disponibile (la stanza ripiega sulla misura propria della valvola, la spinta si interrompe e compare una notifica di riparazione). Vale anche per il sensore esterno.",
+          "stale_hours": "I sensori a batteria possono bloccarsi sull’ultimo valore senza diventare non disponibili. Imposta almeno il doppio dell’intervallo di comunicazione abituale del sensore, altrimenti avrai falsi allarmi.",
+          "max_boost_enabled": "Se attivo, la spinta della valvola viene interrotta dopo la durata massima indicata sotto (protegge da finestra aperta, sensore mal posizionato o valore bloccato).",
+          "max_boost_hours": "Trascorso questo tempo la valvola riottiene il target originale, anche se la stanza non ha raggiunto il target.",
+          "max_boost_rest_minutes": "Per quanto tempo non parte una nuova spinta dopo aver raggiunto la durata massima. Si azzera quando la stanza raggiunge il target.",
           "valve_dry_run": "Se attivo, il controllo valvole scrive nel log solo ciò che farebbe (prefisso [PRÓBAÜZEM]) e non modifica nulla sulle valvole. Consigliato per il primo test reale."
         }
       },
@@ -207,6 +217,12 @@
           },
           "valve_dry_run": {
             "name": "Prova del controllo valvole (solo log)"
+          },
+          "temperature_sensor_stale": {
+            "name": "Sensore di temperatura della stanza non aggiornato"
+          },
+          "valve_boost_resting": {
+            "name": "Spinta della valvola in pausa dopo la durata massima"
           }
         }
       },
@@ -237,9 +253,22 @@
           },
           "period_end": {
             "name": "Fine del periodo estivo (MM-DD)"
+          },
+          "outdoor_sensor_stale": {
+            "name": "Sensore esterno non aggiornato"
           }
         }
       }
+    }
+  },
+  "issues": {
+    "stale_room_temp": {
+      "title": "Il sensore di temperatura della stanza non si aggiorna",
+      "description": "Il sensore di temperatura {sensor} della stanza {room} non comunica da oltre {hours} ore (la batteria potrebbe essere scarica o la connessione persa). La stanza usa ora la misura propria delle valvole e il controllo automatico delle valvole è sospeso. Questa notifica scompare appena il sensore torna a comunicare."
+    },
+    "stale_outdoor": {
+      "title": "Il sensore di temperatura esterna non si aggiorna",
+      "description": "Il sensore esterno {sensor} non comunica da oltre {hours} ore (la batteria potrebbe essere scarica). La modalità estate resta disattivata finché non torna a comunicare, quindi il riscaldamento resta consentito. Questa notifica scompare appena il sensore torna a comunicare."
     }
   }
 }

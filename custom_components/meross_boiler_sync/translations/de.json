@@ -99,6 +99,11 @@
           "valve_boost_threshold": "Schwelle für Ventil-Anhebung – Standard (wie weit unter dem Ziel)",
           "valve_boost_delay": "Wartezeit vor Ventil-Anhebung – Standard",
           "valve_release_margin": "Ventil-Freigabe vor dem Ziel – Standard",
+          "stale_check_enabled": "Prüfung auf veraltete Sensoren",
+          "stale_hours": "Sensor gilt als veraltet nach (Stunden)",
+          "max_boost_enabled": "Dauer der Ventil-Anhebung begrenzen",
+          "max_boost_hours": "Max. Dauer der Ventil-Anhebung (Stunden)",
+          "max_boost_rest_minutes": "Pause nach max. Anhebung (Minuten)",
           "valve_dry_run": "Testlauf der Ventilregelung (nur Protokoll, keine Schreibzugriffe auf Ventile)"
         },
         "data_description": {
@@ -109,6 +114,11 @@
           "valve_boost_threshold": "Standard für alle Räume, pro Raum überschreibbar. Die automatische Ventilregelung hebt nur an, wenn der Raum mindestens so weit unter dem Ziel liegt. Bei kleineren Abweichungen entscheidet das Ventil allein, und die Restwärme des Heizkörpers reicht meist aus. (Die Kesselanforderung beginnt weiterhin bei der Hysterese.)",
           "valve_boost_delay": "Standard für alle Räume. Die Abweichung muss so lange bestehen, bevor angehoben wird, damit die Restwärme des Heizkörpers den Raum erwärmen kann. Liegt die Abweichung 1 °C über der Schwelle (z. B. weil du das Ziel erhöht hast), gibt es keine Wartezeit. 0 = sofort.",
           "valve_release_margin": "Standard für alle Räume. Das Ventil erhält seine ursprüngliche Zieltemperatur so weit vor Erreichen des Ziels zurück, weil die Restwärme des Heizkörpers den Raum weiter erwärmt (verhindert Überschwingen). Muss kleiner als die Schwelle für die Anhebung sein.",
+          "stale_check_enabled": "Wenn aktiv, wird ein Sensor, der für die unten angegebene Zeit nichts gemeldet hat, wie nicht verfügbar behandelt (der Raum nutzt die Eigenmessung des Ventils, die Ventil-Anhebung stoppt und ein Reparaturhinweis erscheint). Gilt auch für den Außensensor.",
+          "stale_hours": "Batteriebetriebene Sensoren können auf ihrem letzten Wert hängen bleiben, ohne nicht verfügbar zu werden. Wähle mindestens das Doppelte des üblichen Meldeintervalls des Sensors, sonst gibt es Fehlalarme.",
+          "max_boost_enabled": "Wenn aktiv, wird die Ventil-Anhebung nach der unten angegebenen Höchstdauer beendet (schützt bei offenem Fenster, falsch platziertem Sensor oder eingefrorenem Wert).",
+          "max_boost_hours": "Nach dieser Zeit erhält das Ventil seine ursprüngliche Zieltemperatur zurück, auch wenn der Raum das Ziel nicht erreicht hat.",
+          "max_boost_rest_minutes": "Wie lange nach Erreichen der Höchstdauer keine neue Anhebung gestartet wird. Erreicht der Raum sein Ziel, wird dies zurückgesetzt.",
           "valve_dry_run": "Wenn aktiv, protokolliert die Ventilregelung nur, was sie tun würde (Präfix [PRÓBAÜZEM]), und ändert nichts an den Ventilen. Empfohlen für den ersten Live-Test."
         }
       },
@@ -207,6 +217,12 @@
           },
           "valve_dry_run": {
             "name": "Testlauf der Ventilregelung (nur Protokoll)"
+          },
+          "temperature_sensor_stale": {
+            "name": "Raum-Temperatursensor meldet nicht (veraltet)"
+          },
+          "valve_boost_resting": {
+            "name": "Ventil-Anhebung pausiert nach Höchstdauer"
           }
         }
       },
@@ -237,9 +253,22 @@
           },
           "period_end": {
             "name": "Ende des Sommerzeitraums (MM-DD)"
+          },
+          "outdoor_sensor_stale": {
+            "name": "Außensensor meldet nicht (veraltet)"
           }
         }
       }
+    }
+  },
+  "issues": {
+    "stale_room_temp": {
+      "title": "Raum-Temperatursensor meldet nicht mehr",
+      "description": "Der Temperatursensor {sensor} von Raum {room} hat seit über {hours} Stunden nichts gemeldet (möglicherweise ist die Batterie leer oder die Verbindung weg). Der Raum nutzt jetzt die Eigenmessung der Ventile, die automatische Ventilregelung ist pausiert. Dieser Hinweis verschwindet, sobald der Sensor wieder meldet."
+    },
+    "stale_outdoor": {
+      "title": "Außentemperatursensor meldet nicht mehr",
+      "description": "Der Außensensor {sensor} hat seit über {hours} Stunden nichts gemeldet (möglicherweise ist die Batterie leer). Der Sommermodus bleibt ausgeschaltet, bis er wieder meldet, daher bleibt das Heizen erlaubt. Dieser Hinweis verschwindet, sobald der Sensor wieder meldet."
     }
   }
 }

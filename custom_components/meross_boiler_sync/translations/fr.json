@@ -99,6 +99,11 @@
           "valve_boost_threshold": "Seuil de relance de la vanne – par défaut (écart sous la consigne)",
           "valve_boost_delay": "Délai avant relance de la vanne – par défaut",
           "valve_release_margin": "Relâchement de la vanne avant la consigne – par défaut",
+          "stale_check_enabled": "Détection des capteurs obsolètes",
+          "stale_hours": "Un capteur est considéré obsolète après (heures)",
+          "max_boost_enabled": "Limiter la durée de relance de la vanne",
+          "max_boost_hours": "Durée max. de relance de la vanne (heures)",
+          "max_boost_rest_minutes": "Pause après la durée max. (minutes)",
           "valve_dry_run": "Simulation de la régulation des vannes (journal uniquement, aucune écriture sur les vannes)"
         },
         "data_description": {
@@ -109,6 +114,11 @@
           "valve_boost_threshold": "Valeur par défaut pour toutes les pièces, modifiable par pièce. La régulation automatique ne relance la vanne que si la pièce est au moins aussi loin sous la consigne. En dessous, la vanne décide seule et la chaleur résiduelle du radiateur suffit généralement. (La demande de chaudière démarre toujours à l’hystérésis.)",
           "valve_boost_delay": "Valeur par défaut pour toutes les pièces. L’écart doit persister aussi longtemps avant la relance, afin de laisser la chaleur résiduelle du radiateur réchauffer la pièce. Si l’écart dépasse le seuil de 1 °C (p. ex. consigne relevée), il n’y a pas d’attente. 0 = immédiat.",
           "valve_release_margin": "Valeur par défaut pour toutes les pièces. La vanne retrouve sa consigne d’origine un peu avant que la pièce atteigne la consigne, car la chaleur résiduelle du radiateur continue de la réchauffer (évite le dépassement). Doit être inférieur au seuil de relance.",
+          "stale_check_enabled": "Si activé, un capteur qui n’a rien transmis depuis la durée indiquée ci-dessous est traité comme indisponible (la pièce se replie sur la mesure propre de la vanne, la relance s’arrête et une notification de réparation apparaît). S’applique aussi au capteur extérieur.",
+          "stale_hours": "Les capteurs à pile peuvent se figer sur leur dernière valeur sans devenir indisponibles. Réglez au moins le double de l’intervalle de transmission habituel du capteur, sinon vous aurez de fausses alertes.",
+          "max_boost_enabled": "Si activé, la relance de la vanne s’arrête après la durée maximale indiquée ci-dessous (protège contre une fenêtre ouverte, un capteur mal placé ou une valeur figée).",
+          "max_boost_hours": "Passé ce délai, la vanne retrouve sa consigne d’origine, même si la pièce n’a pas atteint la consigne.",
+          "max_boost_rest_minutes": "Durée pendant laquelle aucune nouvelle relance n’est lancée après avoir atteint la durée maximale. Elle est réinitialisée quand la pièce atteint sa consigne.",
           "valve_dry_run": "Si activé, la régulation des vannes se contente d’indiquer dans le journal ce qu’elle ferait (préfixe [PRÓBAÜZEM]) et ne modifie rien sur les vannes. Recommandé pour le premier essai réel."
         }
       },
@@ -207,6 +217,12 @@
           },
           "valve_dry_run": {
             "name": "Simulation de la régulation des vannes (journal uniquement)"
+          },
+          "temperature_sensor_stale": {
+            "name": "Capteur de température de la pièce muet (obsolète)"
+          },
+          "valve_boost_resting": {
+            "name": "Relance de la vanne en pause après la durée maximale"
           }
         }
       },
@@ -237,9 +253,22 @@
           },
           "period_end": {
             "name": "Fin de la période estivale (MM-DD)"
+          },
+          "outdoor_sensor_stale": {
+            "name": "Capteur extérieur muet (obsolète)"
           }
         }
       }
+    }
+  },
+  "issues": {
+    "stale_room_temp": {
+      "title": "Le capteur de température de la pièce ne transmet plus",
+      "description": "Le capteur de température {sensor} de la pièce {room} n’a rien transmis depuis plus de {hours} heures (la pile est peut-être vide ou la connexion perdue). La pièce utilise maintenant la mesure propre des vannes et la régulation automatique des vannes est suspendue. Cette notification disparaît dès que le capteur transmet à nouveau."
+    },
+    "stale_outdoor": {
+      "title": "Le capteur de température extérieure ne transmet plus",
+      "description": "Le capteur extérieur {sensor} n’a rien transmis depuis plus de {hours} heures (la pile est peut-être vide). Le mode été reste désactivé jusqu’à ce qu’il transmette à nouveau, le chauffage reste donc autorisé. Cette notification disparaît dès que le capteur transmet à nouveau."
     }
   }
 }

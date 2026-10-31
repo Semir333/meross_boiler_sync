@@ -14,6 +14,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import HomeAssistant, State, callback
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.event import (
     async_call_later,
     async_track_state_change_event,
@@ -44,6 +45,11 @@ from .const import (
     CONF_ROOMS,
     CONF_SUMMER_END,
     CONF_SUMMER_START,
+    CONF_MAX_BOOST_ENABLED,
+    CONF_MAX_BOOST_HOURS,
+    CONF_MAX_BOOST_REST,
+    CONF_STALE_ENABLED,
+    CONF_STALE_HOURS,
     CONF_SUMMER_TEMP,
     CONF_VALVE_BOOST_DELAY,
     CONF_VALVE_BOOST_THRESHOLD,
@@ -55,6 +61,11 @@ from .const import (
     DEFAULT_MIN_SWITCH_TIME,
     DEFAULT_SUMMER_END,
     DEFAULT_SUMMER_START,
+    DEFAULT_MAX_BOOST_ENABLED,
+    DEFAULT_MAX_BOOST_HOURS,
+    DEFAULT_MAX_BOOST_REST,
+    DEFAULT_STALE_ENABLED,
+    DEFAULT_STALE_HOURS,
     DEFAULT_SUMMER_TEMP,
     DEFAULT_VALVE_BOOST_DELAY,
     DEFAULT_VALVE_BOOST_THRESHOLD,
@@ -162,6 +173,10 @@ class RoomStatus:
     valve_demand_link: bool = False
     valve_open: bool = False
     boiler_demand: bool = False
+    # biztonsági funkciók
+    sensor_stale: bool = False
+    boost_started: float | None = None
+    rest_until: float | None = None
 
 
 class BoilerController:
@@ -195,6 +210,24 @@ class BoilerController:
         if release >= self.valve_boost_threshold:  # különben azonnal újraindulna
             release = round(max(self.valve_boost_threshold - 0.1, 0.0), 2)
         self.valve_release_margin = release
+
+        # biztonsági funkciók (ki/be és értékek állíthatók)
+        stale_hours = float(cfg.get(CONF_STALE_HOURS, DEFAULT_STALE_HOURS))
+        self.stale_enabled = (
+            bool(cfg.get(CONF_STALE_ENABLED, DEFAULT_STALE_ENABLED)) and stale_hours > 0
+        )
+        self.stale_seconds = stale_hours * 3600
+        self.max_boost_enabled = bool(
+            cfg.get(CONF_MAX_BOOST_ENABLED, DEFAULT_MAX_BOOST_ENABLED)
+        )
+        self.max_boost_seconds = (
+            float(cfg.get(CONF_MAX_BOOST_HOURS, DEFAULT_MAX_BOOST_HOURS)) * 3600
+        )
+        self.max_boost_rest_seconds = (
+            float(cfg.get(CONF_MAX_BOOST_REST, DEFAULT_MAX_BOOST_REST)) * 60
+        )
+        self.outdoor_stale = False
+        self._issue_state: dict[str, bool] = {}
 
         self.outdoor_sensor: str | None = cfg.get(CONF_OUTDOOR_SENSOR) or None
         self.summer_temp = float(cfg.get(CONF_SUMMER_TEMP, DEFAULT_SUMMER_TEMP))
@@ -275,10 +308,14 @@ class BoilerController:
                 continue
         # újraindítás előtt még emelt szobák: ne engedjük el és emeljük újra feleslegesen
         for st in self.status.values():
-            if any(
-                v in self._boosts and not self._boosts[v]["restoring"] for v in st.valves
-            ):
+            live = [
+                self._boosts[v]["ts"]
+                for v in st.valves
+                if v in self._boosts and not self._boosts[v]["restoring"]
+            ]
+            if live:
                 st.boost_wanted = True
+                st.boost_started = min(live)  # a maximális idő az eredeti kezdettől számít
 
     async def async_start(self) -> None:
         if not self.rooms:
@@ -314,6 +351,10 @@ class BoilerController:
         if self._retry_unsub:
             self._retry_unsub()
             self._retry_unsub = None
+        for issue_id, active in list(self._issue_state.items()):
+            if active:
+                ir.async_delete_issue(self.hass, DOMAIN, issue_id)
+        self._issue_state.clear()
 
     @callback
     def async_add_listener(self, listener: Callable[[], None]) -> Callable[[], None]:
@@ -350,16 +391,74 @@ class BoilerController:
         )
 
     # ------------------------------------------------------------------ segédek
+    def _read_sensor(self, entity_id: str | None) -> tuple[float | None, bool]:
+        """(érték, elavult-e). Elavult: a szenzor a megadott ideje nem jelentett."""
+        if not entity_id:
+            return None, False
+        state = self.hass.states.get(entity_id)
+        if state is None or state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
+            return None, False
+        try:
+            value = float(state.state)
+        except (TypeError, ValueError):
+            return None, False
+        if self.stale_enabled:
+            reported = getattr(state, "last_reported", None) or getattr(
+                state, "last_updated", None
+            )
+            if (
+                reported is not None
+                and (dt_util.utcnow() - reported).total_seconds() > self.stale_seconds
+            ):
+                return None, True
+        return value, False
+
     def _read_float(self, entity_id: str | None) -> float | None:
+        return self._read_sensor(entity_id)[0]
+
+    def _reported_ts(self, entity_id: str | None) -> float | None:
+        """A szenzor utolsó jelentésének ideje (epoch), ha ismert."""
         if not entity_id:
             return None
         state = self.hass.states.get(entity_id)
-        if state is None or state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
+        if state is None:
             return None
-        try:
-            return float(state.state)
-        except (TypeError, ValueError):
-            return None
+        reported = getattr(state, "last_reported", None) or getattr(
+            state, "last_updated", None
+        )
+        return reported.timestamp() if reported is not None else None
+
+    def _stale_hours_text(self) -> str:
+        return f"{self.stale_seconds / 3600:g}"
+
+    def _sync_issue(
+        self,
+        issue_id: str,
+        active: bool,
+        translation_key: str,
+        placeholders: dict[str, str],
+    ) -> None:
+        """Javítások (Repairs) értesítés létrehozása / törlése, csak változáskor."""
+        if self._issue_state.get(issue_id) == active:
+            return
+        self._issue_state[issue_id] = active
+        if active:
+            _LOGGER.warning(
+                "Elavult szenzor: %s (%s óra óta nem jelentett)",
+                placeholders.get("sensor"),
+                placeholders.get("hours"),
+            )
+            ir.async_create_issue(
+                self.hass,
+                DOMAIN,
+                issue_id,
+                is_fixable=False,
+                severity=ir.IssueSeverity.WARNING,
+                translation_key=translation_key,
+                translation_placeholders=placeholders,
+            )
+        else:
+            ir.async_delete_issue(self.hass, DOMAIN, issue_id)
 
     def _in_summer_window(self, today: date) -> bool:
         md = (today.month, today.day)
@@ -384,12 +483,24 @@ class BoilerController:
             return
 
         now_ts = dt_util.utcnow().timestamp()
-        value = self._read_float(self.outdoor_sensor)
+        value, stale = self._read_sensor(self.outdoor_sensor)
         self.outdoor_now = value
+        self.outdoor_stale = stale
+        self._sync_issue(
+            f"stale_outdoor_{self.entry_id}",
+            stale,
+            "stale_outdoor",
+            {"sensor": self.outdoor_sensor, "hours": self._stale_hours_text()},
+        )
+        reported_ts = self._reported_ts(self.outdoor_sensor)
 
+        # csak akkor mintavételezünk, ha a szenzor az előző minta óta tényleg jelentett
         if value is not None and (
             not self._samples
-            or now_ts - self._samples[-1][0] >= SAMPLE_INTERVAL_SECONDS
+            or (
+                now_ts - self._samples[-1][0] >= SAMPLE_INTERVAL_SECONDS
+                and (reported_ts is None or reported_ts > self._samples[-1][0])
+            )
         ):
             self._samples.append((now_ts, value))
             self._store.async_delay_save(self._data_to_save, 600)
@@ -407,7 +518,8 @@ class BoilerController:
 
         self.in_summer_period = self._in_summer_window(dt_util.now().date())
 
-        if self.outdoor_avg is None or not self.in_summer_period:
+        if self.outdoor_avg is None or not self.in_summer_period or self.outdoor_stale:
+            # elavult kinti szenzornál nincs nyári mód: a fűtés engedélyezett marad
             self.summer_active = False
         elif self.summer_active:
             self.summer_active = (
@@ -446,6 +558,16 @@ class BoilerController:
 
         st.reachable = reachable > 0
         st.active = bool(targets)
+
+        temp_id = room.get(CONF_ROOM_TEMP)
+        sensor_value, sensor_stale = self._read_sensor(temp_id)
+        st.sensor_stale = sensor_stale
+        self._sync_issue(
+            f"stale_room_{self.entry_id}_{st.room_id}",
+            sensor_stale and bool(temp_id),
+            "stale_room_temp",
+            {"room": st.name, "sensor": temp_id or "", "hours": self._stale_hours_text()},
+        )
         st.current = st.source = st.target = st.effective_target = None
         st.deviation = None
         st.humidity = None
@@ -460,7 +582,7 @@ class BoilerController:
         st.target = max(targets)
 
         # aktuális hőmérséklet: szoba szenzor, ennek hiányában a szelepek átlaga
-        current = self._read_float(room.get(CONF_ROOM_TEMP))
+        current = sensor_value
         if current is not None:
             st.source = "sensor"
         elif valve_temps:
@@ -621,7 +743,8 @@ class BoilerController:
 
         - indul: ha a szoba legalább `küszöb`-bel hidegebb a célnál ÉS ez
           `várakozás` ideje folyamatosan fennáll (nagy eltérésnél nincs várakozás)
-        - megáll: ha a szoba a célhoz `visszaengedés`-nyire megközelített
+        - megáll: ha a szoba a célhoz `visszaengedés`-nyire megközelített,
+          vagy ha az emelés elérte a maximális időtartamot (utána pihenő)
         Kis eltérésnél a szelep maga dönt, a radiátor maradékhője elég lehet.
         """
         if not (
@@ -632,13 +755,40 @@ class BoilerController:
         ):
             st.boost_wanted = False
             st.cold_since = None
+            st.boost_started = None
+            if not st.calling:
+                st.rest_until = None  # a szoba elérte a célt: új kör kezdődhet
             return False
+
+        if st.rest_until is not None:
+            if now_ts < st.rest_until:
+                st.cold_since = None
+                return False
+            st.rest_until = None
 
         dev = st.deviation
         if st.boost_wanted:
+            if st.boost_started is None:
+                st.boost_started = now_ts
             if dev <= st.release_margin:
                 st.boost_wanted = False
                 st.cold_since = None
+                st.boost_started = None
+            elif (
+                self.max_boost_enabled
+                and now_ts - st.boost_started >= self.max_boost_seconds
+            ):
+                st.boost_wanted = False
+                st.cold_since = None
+                st.boost_started = None
+                st.rest_until = now_ts + self.max_boost_rest_seconds
+                _LOGGER.warning(
+                    "%s: a szelep emelése elérte a maximális időt (%s óra), "
+                    "a szelep visszaáll, %s percig nem emelek újra",
+                    st.name,
+                    f"{self.max_boost_seconds / 3600:g}",
+                    f"{self.max_boost_rest_seconds / 60:g}",
+                )
             return st.boost_wanted
 
         if dev >= st.boost_threshold:
@@ -647,6 +797,7 @@ class BoilerController:
             big = dev >= st.boost_threshold + BOOST_IMMEDIATE_EXTRA
             if big or now_ts - st.cold_since >= st.boost_delay_s:
                 st.boost_wanted = True
+                st.boost_started = now_ts
         else:
             st.cold_since = None
         return st.boost_wanted
@@ -702,12 +853,13 @@ class BoilerController:
         if rec is not None:
             at_boost = abs(raw - rec["boost"]) <= BOOST_TOLERANCE
             if rec["restoring"]:
-                if not at_boost:
-                    await self._async_drop_boost(valve_id)  # visszaállt
-                elif now_ts - rec["ts"] > RESTORE_RETRY_SECONDS:
-                    await self._async_restore(valve_id, state, rec)
-                return
-            if not at_boost:
+                if at_boost:
+                    if now_ts - rec["ts"] > RESTORE_RETRY_SECONDS:
+                        await self._async_restore(valve_id, state, rec)
+                    return
+                await self._async_drop_boost(valve_id)  # a szelep visszaállt
+                rec = None  # és ha kell, azonnal indulhat az új emelés
+            elif not at_boost:
                 if now_ts - rec["ts"] < BOOST_GRACE_SECONDS:
                     return  # még nem érkezett meg a szelep visszajelzése
                 _LOGGER.info(

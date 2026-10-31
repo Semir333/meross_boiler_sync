@@ -99,6 +99,11 @@
           "valve_boost_threshold": "Szelep emelés küszöb – alapértelmezés (ennyivel legyen hidegebb a célnál)",
           "valve_boost_delay": "Szelep emelés várakozás – alapértelmezés",
           "valve_release_margin": "Szelep visszaengedés a cél előtt – alapértelmezés",
+          "stale_check_enabled": "Elavult szenzor figyelése",
+          "stale_hours": "A szenzor elavultnak számít ennyi óra után",
+          "max_boost_enabled": "Szelep emelés időtartamának korlátozása",
+          "max_boost_hours": "Szelep emelés max. időtartama (óra)",
+          "max_boost_rest_minutes": "Pihenő a max. idő után (perc)",
           "valve_dry_run": "Szelep szabályzás próbaüzem (csak naplóz, nem ír a szelepekbe)"
         },
         "data_description": {
@@ -109,6 +114,11 @@
           "valve_boost_threshold": "Alapértelmezés minden szobára, szobánként felülírható. Az automata szelep szabályzás csak akkor emel, ha a szoba legalább ennyivel hidegebb a célnál. Kisebb eltérésnél a szelep maga dönt, és a radiátor maradékhője általában elég. (A kazán hőigénye ettől függetlenül a hiszterézisnél indul.)",
           "valve_boost_delay": "Alapértelmezés minden szobára. Az eltérésnek ennyi ideig folyamatosan fenn kell állnia az emelés előtt: addig megvárjuk, hogy a radiátor maradékhője felmelegíti-e a szobát. Ha az eltérés a küszöbnél 1 °C-kal is nagyobb (pl. magasabbra állítottad a célt), nincs várakozás. 0 = azonnal.",
           "valve_release_margin": "Alapértelmezés minden szobára. A szelep ennyivel a cél elérése előtt visszakapja az eredeti célhőmérsékletét, mert a radiátor maradékhője még tovább melegíti a szobát (túllövés ellen). Kisebbnek kell lennie az emelés küszöbnél.",
+          "stale_check_enabled": "Bekapcsolva a szenzor, amely a lent megadott ideje nem jelentett, elérhetetlennek számít: a szoba a szelep saját mérésére vált vissza, a szelep emelés leáll, és Javítások értesítés jelenik meg. A kinti szenzorra is vonatkozik.",
+          "stale_hours": "Az elemes szenzorok az utolsó értéken beragadhatnak anélkül, hogy elérhetetlenné válnának. Állítsd a szenzor szokásos jelentési idejének legalább a kétszeresére, különben hamis riasztást kapsz.",
+          "max_boost_enabled": "Bekapcsolva a szelep emelés a lent megadott maximális idő után leáll (nyitott ablak, rossz helyre tett szenzor vagy beragadt érték ellen véd).",
+          "max_boost_hours": "Ennyi idő után a szelep akkor is visszakapja az eredeti célhőmérsékletét, ha a szoba nem érte el a célt.",
+          "max_boost_rest_minutes": "A maximális idő elérése után ennyi ideig nem indul új emelés. Ha a szoba eléri a célját, ez nullázódik.",
           "valve_dry_run": "Bekapcsolva a szelep szabályzás csak a naplóba írja, mit tenne ([PRÓBAÜZEM] előtaggal), de nem módosít semmit a szelepeken. Az első élő teszthez ajánlott."
         }
       },
@@ -207,6 +217,12 @@
           },
           "valve_dry_run": {
             "name": "Szelep szabályzás próbaüzem (csak naplóz)"
+          },
+          "temperature_sensor_stale": {
+            "name": "A szoba hőmérő nem frissül (elavult)"
+          },
+          "valve_boost_resting": {
+            "name": "Szelep emelés pihenőn a max. idő után"
           }
         }
       },
@@ -237,9 +253,22 @@
           },
           "period_end": {
             "name": "Nyári időszak vége (HH-NN)"
+          },
+          "outdoor_sensor_stale": {
+            "name": "A kinti szenzor nem frissül (elavult)"
           }
         }
       }
+    }
+  },
+  "issues": {
+    "stale_room_temp": {
+      "title": "A szoba hőmérő nem frissül",
+      "description": "A(z) {room} szoba {sensor} hőmérője több mint {hours} órája nem jelentett (lehet, hogy lemerült az elem vagy megszakadt a kapcsolat). A szoba most a szelepek saját mérését használja, az automata szelep szabályzás szünetel. Az értesítés eltűnik, amint a szenzor újra jelent."
+    },
+    "stale_outdoor": {
+      "title": "A kinti hőmérséklet szenzor nem frissül",
+      "description": "A(z) {sensor} kinti szenzor több mint {hours} órája nem jelentett (lehet, hogy lemerült az elem). A nyári mód addig ki van kapcsolva, így a fűtés engedélyezett marad. Az értesítés eltűnik, amint a szenzor újra jelent."
     }
   }
 }

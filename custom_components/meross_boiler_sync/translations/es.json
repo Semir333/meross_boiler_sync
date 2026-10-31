@@ -99,6 +99,11 @@
           "valve_boost_threshold": "Umbral de refuerzo de la válvula – predeterminado (cuánto por debajo del objetivo)",
           "valve_boost_delay": "Espera antes del refuerzo de la válvula – predeterminada",
           "valve_release_margin": "Liberación de la válvula antes del objetivo – predeterminada",
+          "stale_check_enabled": "Comprobación de sensores obsoletos",
+          "stale_hours": "Un sensor se considera obsoleto tras (horas)",
+          "max_boost_enabled": "Limitar la duración del refuerzo de la válvula",
+          "max_boost_hours": "Duración máx. del refuerzo de la válvula (horas)",
+          "max_boost_rest_minutes": "Pausa tras la duración máx. (minutos)",
           "valve_dry_run": "Prueba del control de válvulas (solo registro, sin escribir en las válvulas)"
         },
         "data_description": {
@@ -109,6 +114,11 @@
           "valve_boost_threshold": "Valor predeterminado para todas las habitaciones, modificable por habitación. El control automático solo refuerza la válvula si la habitación está al menos tanto por debajo del objetivo. Con desviaciones menores decide la válvula por sí sola y el calor residual del radiador suele bastar. (La demanda de la caldera sigue empezando con la histéresis.)",
           "valve_boost_delay": "Valor predeterminado para todas las habitaciones. La desviación debe mantenerse este tiempo antes del refuerzo, para que el calor residual del radiador pueda calentar la habitación. Si la desviación supera el umbral en 1 °C (p. ej. has subido el objetivo), no hay espera. 0 = inmediato.",
           "valve_release_margin": "Valor predeterminado para todas las habitaciones. La válvula recupera su objetivo original con esta antelación respecto a que la habitación alcance el objetivo, porque el calor residual del radiador sigue calentándola (evita sobrepasarlo). Debe ser menor que el umbral de refuerzo.",
+          "stale_check_enabled": "Si está activado, un sensor que no ha informado durante el tiempo indicado abajo se trata como no disponible (la habitación recurre a la medición propia de la válvula, el refuerzo se detiene y aparece un aviso de reparación). También se aplica al sensor exterior.",
+          "stale_hours": "Los sensores de batería pueden quedarse bloqueados en su último valor sin pasar a no disponibles. Indica al menos el doble del intervalo de envío habitual del sensor; de lo contrario habrá falsas alarmas.",
+          "max_boost_enabled": "Si está activado, el refuerzo de la válvula se detiene tras la duración máxima indicada abajo (protege ante una ventana abierta, un sensor mal colocado o un valor bloqueado).",
+          "max_boost_hours": "Pasado este tiempo, la válvula recupera su objetivo original aunque la habitación no haya alcanzado el objetivo.",
+          "max_boost_rest_minutes": "Cuánto tiempo no se inicia un nuevo refuerzo tras alcanzar la duración máxima. Se reinicia cuando la habitación alcanza su objetivo.",
           "valve_dry_run": "Si está activado, el control de válvulas solo registra lo que haría (prefijo [PRÓBAÜZEM]) y no modifica nada en las válvulas. Recomendado para la primera prueba real."
         }
       },
@@ -207,6 +217,12 @@
           },
           "valve_dry_run": {
             "name": "Prueba del control de válvulas (solo registro)"
+          },
+          "temperature_sensor_stale": {
+            "name": "Sensor de temperatura de la habitación sin actualizar (obsoleto)"
+          },
+          "valve_boost_resting": {
+            "name": "Refuerzo de la válvula en pausa tras la duración máxima"
           }
         }
       },
@@ -237,9 +253,22 @@
           },
           "period_end": {
             "name": "Fin del periodo de verano (MM-DD)"
+          },
+          "outdoor_sensor_stale": {
+            "name": "Sensor exterior sin actualizar (obsoleto)"
           }
         }
       }
+    }
+  },
+  "issues": {
+    "stale_room_temp": {
+      "title": "El sensor de temperatura de la habitación no se actualiza",
+      "description": "El sensor de temperatura {sensor} de la habitación {room} no ha informado desde hace más de {hours} horas (puede que la batería esté agotada o que se haya perdido la conexión). La habitación usa ahora la medición propia de las válvulas y el control automático de válvulas está en pausa. Este aviso desaparece en cuanto el sensor vuelva a informar."
+    },
+    "stale_outdoor": {
+      "title": "El sensor de temperatura exterior no se actualiza",
+      "description": "El sensor exterior {sensor} no ha informado desde hace más de {hours} horas (puede que la batería esté agotada). El modo verano permanece desactivado hasta que vuelva a informar, por lo que la calefacción sigue permitida. Este aviso desaparece en cuanto el sensor vuelva a informar."
     }
   }
 }

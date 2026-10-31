@@ -15,6 +15,11 @@ CONF_BOILER_ON_TEMP = "boiler_on_temp"
 CONF_HUMIDITY_MAX_BOOST = "humidity_max_boost"
 CONF_OUTDOOR_SENSOR = "outdoor_sensor"
 CONF_VALVE_DRY_RUN = "valve_dry_run"
+CONF_STALE_ENABLED = "stale_check_enabled"
+CONF_STALE_HOURS = "stale_hours"
+CONF_MAX_BOOST_ENABLED = "max_boost_enabled"
+CONF_MAX_BOOST_HOURS = "max_boost_hours"
+CONF_MAX_BOOST_REST = "max_boost_rest_minutes"
 CONF_VALVE_BOOST_THRESHOLD = "valve_boost_threshold"
 CONF_VALVE_BOOST_DELAY = "valve_boost_delay"
 CONF_VALVE_RELEASE_MARGIN = "valve_release_margin"
@@ -38,6 +43,11 @@ DEFAULT_BOILER_ON_TEMP = 35  # °C, 0 = nem módosítjuk a kazán célhőmérsé
 DEFAULT_HUMIDITY_MAX_BOOST = 1.0  # °C, 0 = kikapcsolva
 DEFAULT_SUMMER_TEMP = 17.0  # °C (24 órás átlag)
 DEFAULT_VALVE_DRY_RUN = False
+DEFAULT_STALE_ENABLED = True
+DEFAULT_STALE_HOURS = 6  # óra: ennyi ideje nem jelentő szenzor elavultnak számít
+DEFAULT_MAX_BOOST_ENABLED = True
+DEFAULT_MAX_BOOST_HOURS = 3  # óra: a szelep emelés maximális időtartama
+DEFAULT_MAX_BOOST_REST = 60  # perc: pihenő a maximális idő után
 DEFAULT_VALVE_BOOST_THRESHOLD = 0.8  # °C: ennyivel hidegebb legyen a szoba, hogy a szelep emeljen
 DEFAULT_VALVE_BOOST_DELAY = 10  # perc: ennyi ideig álljon fenn az eltérés az emelés előtt
 DEFAULT_VALVE_RELEASE_MARGIN = 0.3  # °C: a cél előtt ennyivel visszaengedi a szelepet

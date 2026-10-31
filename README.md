@@ -31,6 +31,24 @@ Fully localized in over 15 languages (including English, Hungarian, German, Fren
 
 ## 📋 Version History
 
+### Version 0.1.0
+
+Monitoring for Stale Sensors (enabled by default, 6-hour threshold)
+
+If a thermometer has not reported data within the specified timeframe, the plugin treats it as unavailable. The room switches to using the valves' own internal temperature readings, automatic valve control is suspended, and the valve reverts to its original target setting.
+A notification—displaying the room name and the sensor ID—will appear under Settings → Fixes. Once the sensor reports data again, this notification will automatically disappear.
+This also applies to the outdoor sensor: if it becomes stale, "Summer Mode" is disabled, and heating remains enabled. No new data points from a stale sensor are added to the 24-hour average.
+A stale humidity sensor is simply ignored, meaning no adjustments based on humidity levels will be applied. No notification is sent in this case.
+Adjust the 6-hour threshold to match your sensor's typical reporting frequency. If a sensor reports infrequently, you may receive false alarms; in such cases, increase the threshold to at least twice the sensor's usual reporting interval.
+
+Limiting the Duration of Valve Adjustments (enabled by default; 3-hour limit, followed by a 60-minute cooldown)
+
+If an adjustment has been active for 3 hours and the room has still not reached its target temperature (e.g., due to an open window, a poorly placed sensor, or a "stuck" reading), the valve will revert to its original target and will not be adjusted again for 60 minutes.
+If the room reaches its target temperature, the cooldown period is reset. After a restart, the time is calculated from the original start point; it does not reset.
+This also applies during test mode, where entries are simply written to the log.
+
+The new sensor attributes are: `temperature_sensor_stale` and `valve_boost_resting` on the room sensor, and `outdoor_sensor_stale` on the summer mode sensor.
+
 ### Version 0.0.9  
 Expanded Multi-language Support: Added translations for `en, de, nl, fr, it, es, ru, pl, uk, ko, ja, zh, nb, sv, lv, and hu.`
 

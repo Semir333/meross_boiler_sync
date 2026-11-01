@@ -7,5 +7,6 @@
   "integration_type": "hub",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/Semir333/meross_boiler_sync/issues",
+  "dependencies": ["http", "frontend"],
   "version": "0.1.1"
 }

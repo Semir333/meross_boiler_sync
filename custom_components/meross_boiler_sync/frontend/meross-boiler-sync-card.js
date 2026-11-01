@@ -1,10 +1,6 @@
 /*!
  * Meross Boiler Sync – Lovelace kártya / Lovelace card
- * Verzió / version: 2.5.0
- *
- * Felvétel: Irányítópult szerkesztése → Kártya hozzáadása → "Meross Boiler Sync".
- * Add: Edit dashboard → Add card → "Meross Boiler Sync".
- * YAML: type: custom:meross-boiler-sync-card
+ * Verzió / version: 2.6.0
  */
 (() => {
   "use strict";
@@ -12,9 +8,6 @@
   const EDITOR_TAG = "meross-boiler-sync-card-editor";
   if (customElements.get(TAG)) return;
 
-  /* ===================================================================
-   *  Fordítások (hu / en)
-   * =================================================================== */
   const STR = {
     en: {
       st_idle: "Not calling", st_demand: "Calling for heat", st_boost: "Valve forced open",
@@ -26,7 +19,6 @@
       link: "Boiler demand tied to valve", dry: "Dry run", no_data: "No data",
       no_rooms: "No rooms found. Add rooms in the Meross Boiler Sync integration (Configure).",
       description: "Rooms, heat demand and summer mode of the Meross Boiler Sync integration.",
-      // szerkesztő
       sec_general: "General", sec_show: "What to show", sec_values: "Values and look", sec_colors: "Colors",
       design: "Design", d_glass: "Glass – ring gauge", d_minimal: "Minimal – compact rows",
       d_gradient: "Gradient tiles", d_list: "List – table with bar",
@@ -38,6 +30,8 @@
       show_summer: "Summer mode and outdoor temperature", show_current: "Current temperature",
       show_target: "Target temperature", show_humidity: "Humidity", show_deviation: "Deviation from target",
       show_status: "Status chip", show_flags: "Flags (valve control, link, dry run)",
+      show_controls: "Valve temperature controls (+/-)", show_presets: "Preset profiles",
+      show_glow: "Glow effect", show_animations: "Animated glass design",
       gauge_min: "Gauge minimum (°C)", gauge_max: "Gauge maximum (°C)", decimals: "Decimals",
       radius: "Corner radius (px)", opacity: "Background opacity (%)", blur: "Background blur (px)",
       h_gauge: "The ring / bar scale", reset_colors: "Reset colors",
@@ -67,6 +61,8 @@
       show_summer: "Nyári mód és kinti hőmérséklet", show_current: "Aktuális hőmérséklet",
       show_target: "Célhőmérséklet", show_humidity: "Páratartalom", show_deviation: "Eltérés a céltól",
       show_status: "Állapotcímke", show_flags: "Jelzők (szelepvezérlés, kötés, próbaüzem)",
+      show_controls: "Szelep hőmérséklet szabályzás (+/-)", show_presets: "Profilok (preset-ek) megjelenítése",
+      show_glow: "Glow (izzás) hatás", show_animations: "Animált üveg dizájn",
       gauge_min: "Mérő alsó értéke (°C)", gauge_max: "Mérő felső értéke (°C)", decimals: "Tizedesjegyek",
       radius: "Sarkok lekerekítése (px)", opacity: "Háttér átlátszatlansága (%)", blur: "Háttér elmosása (px)",
       h_gauge: "A gyűrű / sáv skálája", reset_colors: "Színek visszaállítása",
@@ -85,19 +81,17 @@
     return (STR[l] && STR[l][key]) || STR.en[key] || key;
   };
 
-  /* ===================================================================
-   *  Alapértékek, dizájn előbeállítások, színek
-   * =================================================================== */
   const DESIGNS = ["glass", "minimal", "gradient", "list"];
   const DEFAULTS = {
     design: "glass", title: "", rooms: [], columns: 0, tap_more_info: true,
     show_header: true, show_boiler: true, show_demand: true, show_summer: true,
     show_current: true, show_target: true, show_humidity: true, show_deviation: true,
     show_status: true, show_flags: true,
+    show_controls: true, show_presets: false, show_glow: true, show_animations: true,
     gauge_min: 15, gauge_max: 28, decimals: 1,
   };
   const PRESET = {
-    glass: { radius: 22, opacity: 55, blur: 14 },
+    glass: { radius: 24, opacity: 55, blur: 14 },
     minimal: { radius: 16, opacity: 40, blur: 0 },
     gradient: { radius: 24, opacity: 100, blur: 0 },
     list: { radius: 14, opacity: 45, blur: 8 },
@@ -116,7 +110,6 @@
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-  /** Szín CSS-ként. Tömb [r,g,b] / "#rrggbb" / bármilyen CSS szín (alpha: color-mix). */
   function cssColor(value, alpha) {
     const a = alpha == null ? 1 : alpha;
     let rgb = null;
@@ -130,9 +123,6 @@
     return "transparent";
   }
 
-  /* ===================================================================
-   *  Ikonok (saját, vonalas SVG – nem függ a HA ikonkészletétől)
-   * =================================================================== */
   const ICONS = {
     radiator: '<rect x="4" y="5" width="3" height="14" rx="1.5"/><rect x="10.5" y="5" width="3" height="14" rx="1.5"/><rect x="17" y="5" width="3" height="14" rx="1.5"/>',
     drop: '<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>',
@@ -147,6 +137,8 @@
     flask: '<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4A2 2 0 0 0 19 18l-5-9V3"/>',
     pause: '<path d="M9 5v14M15 5v14"/>',
     clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    minus: '<path d="M5 12h14"/>',
   };
   const ic = (name, cls) => `<svg class="ic ${cls || ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ""}</svg>`;
   const STATUS_ICON = {
@@ -154,9 +146,6 @@
     stale: "alert", window: "window", windowpend: "window", off: "power",
   };
 
-  /* ===================================================================
-   *  Adatgyűjtés a HA állapotokból
-   * =================================================================== */
   const isRoom = (s) => !!(s && s.entity_id && s.entity_id.startsWith("binary_sensor.") && s.attributes &&
     "room_below_target" in s.attributes && "valves" in s.attributes);
   const isSummer = (s) => !!(s && s.entity_id && s.entity_id.startsWith("binary_sensor.") && s.attributes &&
@@ -188,8 +177,11 @@
     const rooms = list.map((s) => {
       const a = s.attributes;
       const on = s.state === "on";
+      // Get first valve entity to control temperature/presets if available
+      const valves = a.valves || [];
+      const firstValveState = valves.length ? states[valves[0]] : null;
       return {
-        id: s.entity_id, on, a,
+        id: s.entity_id, on, a, valves, firstValveState,
         name: a.room_name || a.friendly_name || s.entity_id,
         status: statusOf(a, on),
         cur: a.current_temperature == null ? null : Number(a.current_temperature),
@@ -201,9 +193,6 @@
     return { rooms, summer, boiler: boilerId ? states[boilerId] || null : null, boilerId };
   }
 
-  /* ===================================================================
-   *  Megjelenítés
-   * =================================================================== */
   function arcPath(cx, cy, r, f) {
     const a0 = (135 * Math.PI) / 180;
     const sweep = 270 * clamp(f, 0, 1);
@@ -221,7 +210,7 @@
     :host { display:block; }
     * { box-sizing:border-box; }
     .root {
-      --r: var(--mbs-radius, 22px);
+      --r: var(--mbs-radius, 24px);
       --op: var(--mbs-opacity, 55%);
       --blur: var(--mbs-blur, 14px);
       --surface: color-mix(in srgb, var(--card-background-color, #1c1c1e) var(--op), transparent);
@@ -241,10 +230,11 @@
     .pill b { font-weight:600; }
     .pill small { color:var(--muted); font-size:.95em; }
     .pill[data-entity], .t[data-entity] { cursor:pointer; }
-    .grid { display:grid; gap:12px; grid-template-columns:repeat(var(--cols), minmax(0,1fr)); }
+    .grid { display:grid; gap:14px; grid-template-columns:repeat(var(--cols), minmax(0,1fr)); }
     .t { position:relative; border-radius:var(--r); background:var(--surface); border:1px solid var(--border);
-      backdrop-filter:blur(var(--blur)); -webkit-backdrop-filter:blur(var(--blur)); overflow:hidden; }
-    .t::before { content:""; position:absolute; left:0; right:0; top:0; height:3px; background:var(--c); opacity:.9; }
+      backdrop-filter:blur(var(--blur)); -webkit-backdrop-filter:blur(var(--blur)); overflow:hidden;
+      box-shadow: var(--mbs-glow, none); transition: box-shadow 0.3s ease; }
+    .t::before { content:""; position:absolute; left:0; right:0; top:0; height:3px; background:var(--c); opacity:.9; z-index:2; }
     .chip { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:999px; font-size:.72rem; font-weight:600;
       color:var(--c); background:color-mix(in srgb, var(--c) 16%, transparent); border:1px solid color-mix(in srgb, var(--c) 35%, transparent); white-space:nowrap; }
     .chip .ic { width:.95em; height:.95em; }
@@ -255,22 +245,61 @@
     ${COLOR_KEYS.map((k) => `[data-st="${k}"] { --c: var(--c-${k}); }`).join("\n")}
     [data-st="windowpend"] { --c: var(--c-window); }
 
-    /* ---------- glass ---------- */
-    .glass { padding:14px 12px 12px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:6px; }
-    .glass .nm { font-size:.98rem; font-weight:500; }
-    .ring { position:relative; width:min(100%, 170px); aspect-ratio:1; margin-bottom:-18px; }
+    /* ---------- animations ---------- */
+    .anim-demand::after {
+      content:""; position:absolute; bottom:0; left:0; right:0; height:35px; pointer-events:none; z-index:0;
+      background: linear-gradient(0deg, color-mix(in srgb, var(--c-demand) 35%, transparent) 0%, transparent 100%);
+      animation: flamePulse 3s ease-in-out infinite alternate;
+    }
+    @keyframes flamePulse {
+      0% { opacity: 0.3; transform: scaleY(0.9); }
+      100% { opacity: 0.8; transform: scaleY(1.1); }
+    }
+
+    .anim-stale::after {
+      content:""; position:absolute; bottom:0; left:0; right:0; height:35px; pointer-events:none; z-index:0;
+      background: linear-gradient(0deg, color-mix(in srgb, var(--c-stale) 40%, transparent) 0%, transparent 100%);
+      animation: stalePulse 1.5s ease-in-out infinite alternate;
+    }
+    @keyframes stalePulse {
+      0% { opacity: 0.2; }
+      100% { opacity: 0.7; }
+    }
+
+    .anim-window::after {
+      content:""; position:absolute; bottom:0; left:0; right:0; height:35px; pointer-events:none; z-index:0;
+      background: linear-gradient(0deg, color-mix(in srgb, var(--c-window) 35%, transparent) 0%, transparent 100%);
+      animation: windWave 4s ease-in-out infinite alternate;
+    }
+    @keyframes windWave {
+      0% { opacity: 0.3; transform: translateX(-5px); }
+      100% { opacity: 0.7; transform: translateX(5px); }
+    }
+
+    /* ---------- glass (larger & refined) ---------- */
+    .glass { padding:18px 14px 14px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:8px; min-width: 195px; }
+    .glass .nm { font-size:1.02rem; font-weight:600; z-index:1; }
+    .ring { position:relative; width:min(100%, 190px); aspect-ratio:1; margin-bottom:-20px; z-index:1; }
     .ring svg { width:100%; height:100%; display:block; }
     .ring .mid { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding-top:4%; }
-    .big { font-size:2.5rem; font-weight:400; line-height:1; display:flex; align-items:flex-start; }
-    .big .dc { font-size:1.1rem; margin-top:.5em; color:var(--muted); }
+    .big { font-size:2.7rem; font-weight:400; line-height:1; display:flex; align-items:flex-start; }
+    .big .dc { font-size:1.15rem; margin-top:.5em; color:var(--muted); }
     .big .un { font-size:.85rem; margin:.3em 0 0 .15em; color:var(--muted); }
-    .sub { font-size:.82rem; color:var(--muted); margin-top:4px; }
-    .glass .row { position:relative; display:flex; gap:14px; align-items:center; justify-content:center; font-size:.85rem; min-height:1.3em; }
+    .sub { font-size:.85rem; color:var(--muted); margin-top:4px; }
+    .glass .row { position:relative; display:flex; gap:14px; align-items:center; justify-content:center; font-size:.85rem; min-height:1.3em; z-index:1; }
     .hum { color:var(--c-rest-text, #64b5f6); display:inline-flex; gap:4px; align-items:center; }
-    .glass .chip { margin-top:2px; }
+    .glass .chip { margin-top:2px; z-index:1; }
+
+    /* ---------- controls & presets ---------- */
+    .controls { display:flex; align-items:center; justify-content:center; gap:8px; margin-top:6px; z-index:1; background: color-mix(in srgb, var(--text) 4%, transparent); padding:4px 10px; border-radius:12px; border:1px solid var(--border); }
+    .ctrl-btn { background:none; border:none; color:var(--text); cursor:pointer; padding:4px; border-radius:6px; display:flex; align-items:center; justify-content:center; transition: background 0.2s; }
+    .ctrl-btn:hover { background: color-mix(in srgb, var(--text) 12%, transparent); }
+    .ctrl-btn .ic { width:1.1rem; height:1.1rem; }
+    .ctrl-val { font-size:.9rem; font-weight:600; min-width:42px; text-align:center; }
+    .preset-select { background:var(--surface); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:3px 8px; font-size:.78rem; outline:none; margin-top:4px; cursor:pointer; z-index:1; }
 
     /* ---------- minimal ---------- */
-    .minimal { display:flex; align-items:center; gap:12px; padding:11px 14px; }
+    .minimal { display:flex; align-items:center; gap:12px; padding:13px 16px; }
     .minimal .ib { width:42px; height:42px; border-radius:50%; display:grid; place-items:center; flex:none;
       color:var(--c); background:color-mix(in srgb, var(--c) 18%, transparent); }
     .minimal .ib .ic { width:22px; height:22px; }
@@ -281,14 +310,14 @@
     .minimal .sb b { color:var(--text); font-weight:600; }
 
     /* ---------- gradient ---------- */
-    .gradient { padding:14px 16px 16px; display:flex; flex-direction:column; gap:6px; border:0;
+    .gradient { padding:16px 18px 18px; display:flex; flex-direction:column; gap:6px; border:0;
       background:linear-gradient(155deg, color-mix(in srgb, var(--c) 42%, var(--card-background-color, #1c1c1e)) 0%,
         color-mix(in srgb, var(--c) 10%, var(--card-background-color, #1c1c1e)) 100%); }
     .gradient::before { display:none; }
     .gradient .top { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:6px 8px; }
     .gradient .nm { font-weight:600; font-size:1rem; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .gradient .chip { background:color-mix(in srgb, #000 22%, transparent); color:var(--text); border-color:transparent; }
-    .gradient .bg { font-size:2.6rem; font-weight:300; line-height:1.05; }
+    .gradient .bg { font-size:2.7rem; font-weight:300; line-height:1.05; }
     .gradient .bg small { font-size:1rem; color:color-mix(in srgb, var(--text) 70%, transparent); margin-left:4px; }
     .gradient .sb { font-size:.82rem; color:color-mix(in srgb, var(--text) 78%, transparent); display:flex; gap:12px; flex-wrap:wrap; }
     .bar { position:relative; height:6px; border-radius:99px; background:color-mix(in srgb, var(--text) 16%, transparent); margin-top:6px; }
@@ -299,7 +328,7 @@
     .tbl { border-radius:var(--r); background:var(--surface); border:1px solid var(--border); overflow:hidden;
       backdrop-filter:blur(var(--blur)); -webkit-backdrop-filter:blur(var(--blur)); }
     .rw { display:grid; grid-template-columns:minmax(110px,1.1fr) 84px 92px minmax(90px,2fr) 118px 215px; gap:12px; align-items:center;
-      padding:10px 16px; border-top:1px solid var(--border); position:relative; }
+      padding:12px 16px; border-top:1px solid var(--border); position:relative; }
     .rw:first-child { border-top:0; }
     .rw::before { content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--c); }
     .rw .nm { font-weight:600; font-size:.93rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -347,7 +376,8 @@
       const colors = COLOR_KEYS.map((k) => `--c-${k}:${cssColor(cfg["color_" + k] != null ? cfg["color_" + k] : DEFAULT_COLORS[k])}`).join(";");
       const cols = Math.round(num(cfg.columns, 0));
       const grid = cols > 0 ? `--cols:${cols}` : `--cols:auto-fill`;
-      return `--mbs-radius:${num(cfg.radius, p.radius)}px;--mbs-opacity:${num(cfg.opacity, p.opacity)}%;--mbs-blur:${num(cfg.blur, p.blur)}px;${colors};${grid}`;
+      const glow = cfg.show_glow ? `--mbs-glow: 0 8px 32px 0 color-mix(in srgb, var(--c) 22%, transparent);` : `--mbs-glow: none;`;
+      return `--mbs-radius:${num(cfg.radius, p.radius)}px;--mbs-opacity:${num(cfg.opacity, p.opacity)}%;--mbs-blur:${num(cfg.blur, p.blur)}px;${glow}${colors};${grid}`;
     }
 
     _unit() {
@@ -387,6 +417,36 @@
       return `<span class="hum">${ic("drop")}${this._num(r.hum, 0)}%</span>`;
     }
 
+    _animationClass(r) {
+      if (!this._config.show_animations) return "";
+      if (r.status === "demand") return " anim-demand";
+      if (r.status === "stale") return " anim-stale";
+      if (r.status === "window") return " anim-window";
+      return "";
+    }
+
+    _controlsHtml(r) {
+      if (!this._config.show_controls || !r.valves.length) return "";
+      const target = r.target != null ? r.target : 21;
+      let presetsHtml = "";
+      if (this._config.show_presets && r.firstValveState) {
+        const attrs = r.firstValveState.attributes || {};
+        const currentPreset = attrs.preset_mode;
+        const presets = attrs.preset_modes || [];
+        if (presets.length) {
+          presetsHtml = `<select class="preset-select" data-valve="${esc(r.valves[0])}" aria-label="Preset">
+            <option value="">-- Preset --</option>
+            ${presets.map(p => `<option value="${esc(p)}" ${p === currentPreset ? "selected" : ""}>${esc(p)}</option>`).join("")}
+          </select>`;
+        }
+      }
+      return `<div class="controls" onclick="event.stopPropagation()">
+        <button class="ctrl-btn" data-action="decrease" data-valve="${esc(r.valves[0])}" data-target="${target}" title="Decrease">${ic("minus")}</button>
+        <span class="ctrl-val">${this._num(target, 1)}°</span>
+        <button class="ctrl-btn" data-action="increase" data-valve="${esc(r.valves[0])}" data-target="${target}" title="Increase">${ic("plus")}</button>
+      </div>${presetsHtml}`;
+    }
+
     _tileGlass(r) {
       const c = this._config, d = Number(c.decimals) || 0;
       const min = Number(c.gauge_min), max = Number(c.gauge_max), span = Math.max(1, max - min);
@@ -405,7 +465,7 @@
       }
       const sub = c.show_target && r.target != null ? `<div class="sub">${esc(T(this._hass, "target"))} ${this._num(r.target, d)} ${esc(this._unit())}</div>` : "";
       const row = [this._hum(r), this._dev(r)].filter(Boolean).join("");
-      return `<div class="t glass" data-st="${r.status}" ${c.tap_more_info ? `data-entity="${esc(r.id)}"` : ""}>
+      return `<div class="t glass${this._animationClass(r)}" data-st="${r.status}" ${c.tap_more_info ? `data-entity="${esc(r.id)}"` : ""}>
         <div class="nm">${esc(r.name)}</div>
         <div class="ring">
           <svg viewBox="0 0 120 120"><path d="${arcPath(60, 60, 50, 1)}" fill="none" stroke="var(--track)" stroke-width="9" stroke-linecap="round"/>
@@ -414,6 +474,7 @@
         </div>
         <div class="row">${row}${this._flags(r)}</div>
         ${this._chip(r)}
+        ${this._controlsHtml(r)}
       </div>`;
     }
 
@@ -499,21 +560,52 @@
       else if (cfg.design === "list") body = `<div class="tbl">${data.rooms.map((r) => this._rowList(r)).join("")}</div>`;
       else {
         const tile = { glass: "_tileGlass", minimal: "_tileMinimal", gradient: "_tileGradient" }[cfg.design];
-        const minw = { glass: 170, minimal: 300, gradient: 235 }[cfg.design];
+        const minw = { glass: 195, minimal: 300, gradient: 235 }[cfg.design];
         body = `<div class="grid" style="${Number(cfg.columns) > 0 ? "" : `grid-template-columns:repeat(auto-fill,minmax(${minw}px,1fr))`}">${data.rooms.map((r) => this[tile](r)).join("")}</div>`;
       }
       this.shadowRoot.innerHTML = `<style>${CSS}</style><div class="root" style="${this._vars(cfg)}">${data.rooms.length || cfg.title ? this._header(data) : ""}${body}</div>`;
+
+      // Event listeners for more-info
       this.shadowRoot.querySelectorAll("[data-entity]").forEach((el) => {
         el.addEventListener("click", () => {
           this.dispatchEvent(new CustomEvent("hass-more-info", { bubbles: true, composed: true, detail: { entityId: el.getAttribute("data-entity") } }));
         });
       });
+
+      // Event listeners for temperature controls (+ / -)
+      this.shadowRoot.querySelectorAll(".ctrl-btn").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const valveId = btn.getAttribute("data-valve");
+          const currentTarget = parseFloat(btn.getAttribute("data-target")) || 21;
+          const action = btn.getAttribute("data-action");
+          const newTemp = action === "increase" ? currentTarget + 0.5 : currentTarget - 0.5;
+          if (valveId && this._hass) {
+            this._hass.callService("climate", "set_temperature", {
+              entity_id: valveId,
+              temperature: newTemp
+            });
+          }
+        });
+      });
+
+      // Event listeners for preset select
+      this.shadowRoot.querySelectorAll(".preset-select").forEach((sel) => {
+        sel.addEventListener("change", (e) => {
+          e.stopPropagation();
+          const valveId = sel.getAttribute("data-valve");
+          const preset = sel.value;
+          if (valveId && preset && this._hass) {
+            this._hass.callService("climate", "set_preset_mode", {
+              entity_id: valveId,
+              preset_mode: preset
+            });
+          }
+        });
+      });
     }
   }
 
-  /* ===================================================================
-   *  Vizuális szerkesztő (ha-form alapú)
-   * =================================================================== */
   class MerossBoilerSyncCardEditor extends HTMLElement {
     constructor() {
       super();
@@ -555,7 +647,7 @@
           B("tap_more_info"),
         ] },
         { id: "sec_show", schema: ["show_header", "show_boiler", "show_demand", "show_summer", "show_current", "show_target",
-          "show_humidity", "show_deviation", "show_status", "show_flags"].map(B) },
+          "show_humidity", "show_deviation", "show_status", "show_flags", "show_controls", "show_presets", "show_glow", "show_animations"].map(B) },
         { id: "sec_values", schema: [
           { name: "gauge_min", selector: { number: { min: -20, max: 40, step: 0.5, mode: "box", unit_of_measurement: "°C" } } },
           { name: "gauge_max", selector: { number: { min: -10, max: 60, step: 0.5, mode: "box", unit_of_measurement: "°C" } } },
@@ -568,7 +660,6 @@
       ];
     }
 
-    /** A szerkesztő mezőiben a kijelzett érték: alapértékek + dizájn előbeállítás + a felhasználó beállításai. */
     _display() {
       const c = { ...DEFAULTS, ...this._config };
       if (!DESIGNS.includes(c.design)) c.design = "glass";
@@ -582,7 +673,6 @@
     _emit(value) {
       const v = { ...value };
       v.decimals = Number(v.decimals);
-      // ami az előző vagy az új dizájn alapértéke, az nem egyéni beállítás (dizájnváltáskor ne ragadjon be)
       const pNew = PRESET[DESIGNS.includes(v.design) ? v.design : "glass"];
       const pOld = PRESET[DESIGNS.includes(this._config.design) ? this._config.design : "glass"];
       ["radius", "opacity", "blur"].forEach((k) => { if (Number(v[k]) === pNew[k] || Number(v[k]) === pOld[k]) delete v[k]; });

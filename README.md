@@ -51,7 +51,6 @@ If the plugin is currently actively “boosting” heat to the valve, the − / 
 <img width="1045" height="1287" alt="image" src="https://github.com/user-attachments/assets/18e97e2e-c42b-41db-9893-e8833bc324b0" />
 
 
-
 ### Version 1.1
 #### Window Sensor  
 You can assign one or more window/door sensors to each room. If multiple sensors are used, the opening of any one of them is sufficient to trigger the response.  

@@ -31,24 +31,52 @@ Fully localized in over 15 languages (including English, Hungarian, German, Fren
 
 ## 📋 Version History
 
+### Version 1.2
+
+#### Size:  
+The glass tile is ~250 px wide by default. In the editor, it can be adjusted from 70% to 160% using the “Tile size” slider; this applies to all designs.  
+#### Tap:  
+By default, this opens the valve thermostat. In the editor, this can be changed to trigger a heat-demand sensor or set to do nothing. The option to disable the legacy “details on touch” feature remains available.  
+#### − / + buttons:  
+These appear only on the glass design and can be disabled. The step increment is determined by the valve but can be overridden. Rapid taps are consolidated into a single command—or, in rooms with multiple valves, sent to every valve in that room.  
+#### Profiles:  
+The profile button displays the valve’s specific list of modes (auto, sleep, comfort, etc.); the selection applies to all valves in the room. This is also exclusive to the glass design and can be disabled.  
+#### Glow:  
+Adjustable in 5 intensity levels (1–5), the glow reflects the color of the current state and can be toggled on or off. You can specify which states trigger the glow; by default, it is active for all states except “valve off.” This feature works with the glass, minimal, and gradient tile designs.  
+#### Animated glass:  
+Features include a flame icon (“requesting heat”), a pulsing red base (“outdated sensor data”), a blue border (“window open”), and a subtle “breathing” effect for other states. It is disabled by default and will automatically stop if the system’s “reduced motion” setting is enabled.  
+If the plugin is currently actively “boosting” heat to the valve, the − / + buttons will adjust your original target setting. The plugin treats this as a new setting and resets the valve to it after the warm-up period. It also respects profile switches and does not revert to the previous setting.   
+
+<img width="1620" height="1618" alt="image" src="https://github.com/user-attachments/assets/b6fd45a4-1708-4f8d-b4af-80399c669fe6" />
+<img width="1045" height="1287" alt="image" src="https://github.com/user-attachments/assets/18e97e2e-c42b-41db-9893-e8833bc324b0" />
+
+
+
 ### Version 1.1
-Window Sensor
+#### Window Sensor  
 You can assign one or more window/door sensors to each room. If multiple sensors are used, the opening of any one of them is sufficient to trigger the response.  
-Delay: If a window remains open longer than the specified duration, the room will no longer request heat, and the valve will stop opening. Once the window is closed, heating resumes. Brief periods of ventilation (shorter than the delay) have no effect.  
-Settings: The default is 5 minutes (0 = immediate); this can be adjusted in the General Settings and overridden on a per-room basis.  
+#### Delay:  
+If a window remains open longer than the specified duration, the room will no longer request heat, and the valve will stop opening. Once the window is closed, heating resumes. Brief periods of ventilation (shorter than the delay) have no effect.  
+#### Settings:  
+The default is 5 minutes (0 = immediate); this can be adjusted in the General Settings and overridden on a per-room basis.  
 An unreachable (offline) window sensor is treated as "closed," meaning it does not block heating.  
 The window sensor does not physically close the valve; it merely pauses the heat demand. If you also need the valve to close, let me know—that would require a separate, minor adjustment.  
 
-Introducin lovelace card:  
+### Introducing lovelace card:  
 
 <img width="1944" height="811" alt="image" src="https://github.com/user-attachments/assets/9ddc66ff-d9fa-4011-bb89-c6e51f911562" />
 
-Visual editor with four sections:  
-General: design, title, selection of rooms (with custom order), and number of columns.  
-Content to display: boiler status, number of rooms requesting heat, summer mode, current temperature, target temperature, humidity, deviation, status label—individual indicators can be toggled on or off.  
-Values ​​and appearance: gauge scale, decimal precision, corner radius, and background transparency/blur.  
-Colors: color picker for each state, plus a button to reset to default colors.  
-Four design styles: glass gauge (closest to your current dashboard), minimalist rows, gradient tiles, and a list view with a status bar. Colors and background automatically adapt to your Home Assistant theme.  
+#### Visual editor with four sections:  
+#### General:  
+Design, title, selection of rooms (with custom order), and number of columns.  
+#### Content to display:  
+Boiler status, number of rooms requesting heat, summer mode, current temperature, target temperature, humidity, deviation, status label—individual indicators can be toggled on or off.  
+#### Values ​​and appearance:  
+Gauge scale, decimal precision, corner radius, and background transparency/blur.  
+#### Colors:  
+Color picker for each state, plus a button to reset to default colors.  
+#### Four design styles:  
+Glass gauge (closest to your current dashboard), minimalist rows, gradient tiles, and a list view with a status bar. Colors and background automatically adapt to your Home Assistant theme.  
 
 
 ### Version 0.1.0  

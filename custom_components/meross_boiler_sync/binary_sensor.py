@@ -79,6 +79,7 @@ class RoomDemandSensor(_BaseSensor):
     def extra_state_attributes(self) -> dict[str, Any]:
         st = self._controller.status[self._room_id]
         return {
+            "room_name": st.name,
             "valves": st.valves,
             "valve_active": st.active,
             "current_temperature": None if st.current is None else round(st.current, 1),
@@ -96,6 +97,8 @@ class RoomDemandSensor(_BaseSensor):
             "release_margin": st.release_margin,
             "valve_control": st.valve_control,
             "temperature_sensor_stale": st.sensor_stale,
+            "window_open": st.window_open,
+            "window_open_pending": st.window_open_since is not None and not st.window_open,
             "valve_boost_resting": st.rest_until is not None,
             "valve_boost_waiting": st.cold_since is not None and not st.boost_wanted,
             "valve_boosted": st.boosted,
@@ -120,6 +123,7 @@ class SummerModeSensor(_BaseSensor):
     def extra_state_attributes(self) -> dict[str, Any]:
         c = self._controller
         return {
+            "boiler_entity": c.boiler,
             "outdoor_sensor": c.outdoor_sensor,
             "outdoor_temperature": c.outdoor_now,
             "outdoor_sensor_stale": c.outdoor_stale,

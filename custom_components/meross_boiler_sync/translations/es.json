@@ -38,7 +38,9 @@
           "valve_boost_delay": "Espera antes del refuerzo de la válvula – esta habitación, minutos (vacío = valor global)",
           "valve_release_margin": "Liberación de la válvula antes del objetivo – esta habitación (vacío = valor global)",
           "valve_demand_link": "Vincular la demanda de la caldera al estado de la válvula",
-          "humidity_sensor": "Sensor de humedad de la habitación (opcional)"
+          "humidity_sensor": "Sensor de humedad de la habitación (opcional)",
+          "window_sensors": "Sensor(es) de ventana / puerta (opcional)",
+          "window_open_delay": "Retardo de ventana abierta – esta habitación, minutos (vacío = valor global)"
         },
         "data_description": {
           "name": "Ej. Salón",
@@ -49,7 +51,9 @@
           "valve_boost_delay": "Cuánto tiempo debe mantenerse la desviación antes del refuerzo. 0 = inmediato. Si está vacío, se aplica el valor global.",
           "valve_release_margin": "La válvula recupera su objetivo original con esta antelación respecto al objetivo. Debe ser menor que el umbral. Si está vacío, se aplica el valor global.",
           "valve_demand_link": "Si está activado, la habitación solo pide calor a la caldera cuando su válvula está abierta (la medición propia de la válvula está por debajo de su objetivo) o cuando el plugin la está forzando a abrir. Así la caldera no quema contra válvulas cerradas ante pequeñas desviaciones. No bloquea la calefacción si faltan datos de la válvula.",
-          "humidity_sensor": "Con humedad alta, la temperatura objetivo de la habitación se eleva ligeramente (ver Ajustes básicos)."
+          "humidity_sensor": "Con humedad alta, la temperatura objetivo de la habitación se eleva ligeramente (ver Ajustes básicos).",
+          "window_sensors": "Mientras una ventana o puerta permanezca abierta más tiempo que el retardo, la habitación deja de pedir calor y se libera el refuerzo de la válvula. Con varios sensores basta con uno abierto.",
+          "window_open_delay": "Cuánto tiempo debe estar abierta la ventana antes de que la habitación reaccione, para que una ventilación breve no cambie nada. 0 = inmediato. Si está vacío, se aplica el valor global."
         }
       },
       "edit_room": {
@@ -69,7 +73,9 @@
           "valve_boost_delay": "Espera antes del refuerzo de la válvula – esta habitación, minutos (vacío = valor global)",
           "valve_release_margin": "Liberación de la válvula antes del objetivo – esta habitación (vacío = valor global)",
           "valve_demand_link": "Vincular la demanda de la caldera al estado de la válvula",
-          "humidity_sensor": "Sensor de humedad de la habitación (opcional)"
+          "humidity_sensor": "Sensor de humedad de la habitación (opcional)",
+          "window_sensors": "Sensor(es) de ventana / puerta (opcional)",
+          "window_open_delay": "Retardo de ventana abierta – esta habitación, minutos (vacío = valor global)"
         },
         "data_description": {
           "name": "Ej. Salón",
@@ -80,7 +86,9 @@
           "valve_boost_delay": "Cuánto tiempo debe mantenerse la desviación antes del refuerzo. 0 = inmediato. Si está vacío, se aplica el valor global.",
           "valve_release_margin": "La válvula recupera su objetivo original con esta antelación respecto al objetivo. Debe ser menor que el umbral. Si está vacío, se aplica el valor global.",
           "valve_demand_link": "Si está activado, la habitación solo pide calor a la caldera cuando su válvula está abierta (la medición propia de la válvula está por debajo de su objetivo) o cuando el plugin la está forzando a abrir. Así la caldera no quema contra válvulas cerradas ante pequeñas desviaciones. No bloquea la calefacción si faltan datos de la válvula.",
-          "humidity_sensor": "Con humedad alta, la temperatura objetivo de la habitación se eleva ligeramente (ver Ajustes básicos)."
+          "humidity_sensor": "Con humedad alta, la temperatura objetivo de la habitación se eleva ligeramente (ver Ajustes básicos).",
+          "window_sensors": "Mientras una ventana o puerta permanezca abierta más tiempo que el retardo, la habitación deja de pedir calor y se libera el refuerzo de la válvula. Con varios sensores basta con uno abierto.",
+          "window_open_delay": "Cuánto tiempo debe estar abierta la ventana antes de que la habitación reaccione, para que una ventilación breve no cambie nada. 0 = inmediato. Si está vacío, se aplica el valor global."
         }
       },
       "remove_room": {
@@ -104,7 +112,9 @@
           "max_boost_enabled": "Limitar la duración del refuerzo de la válvula",
           "max_boost_hours": "Duración máx. del refuerzo de la válvula (horas)",
           "max_boost_rest_minutes": "Pausa tras la duración máx. (minutos)",
-          "valve_dry_run": "Prueba del control de válvulas (solo registro, sin escribir en las válvulas)"
+          "window_open_delay": "Retardo de ventana abierta – predeterminado (minutos)",
+          "valve_dry_run": "Prueba del control de válvulas (solo registro, sin escribir en las válvulas)",
+          "register_card": "Cargar la tarjeta de Lovelace"
         },
         "data_description": {
           "hysteresis": "Una habitación pide calor cuando está tanto por debajo del objetivo, y sigue pidiéndolo hasta alcanzarlo.",
@@ -119,7 +129,9 @@
           "max_boost_enabled": "Si está activado, el refuerzo de la válvula se detiene tras la duración máxima indicada abajo (protege ante una ventana abierta, un sensor mal colocado o un valor bloqueado).",
           "max_boost_hours": "Pasado este tiempo, la válvula recupera su objetivo original aunque la habitación no haya alcanzado el objetivo.",
           "max_boost_rest_minutes": "Cuánto tiempo no se inicia un nuevo refuerzo tras alcanzar la duración máxima. Se reinicia cuando la habitación alcanza su objetivo.",
-          "valve_dry_run": "Si está activado, el control de válvulas solo registra lo que haría (prefijo [PRÓBAÜZEM]) y no modifica nada en las válvulas. Recomendado para la primera prueba real."
+          "window_open_delay": "Predeterminado para todas las habitaciones: cuánto tiempo debe estar abierta una ventana antes de pausar la calefacción de esa habitación. Una ventilación más corta no cambia nada.",
+          "valve_dry_run": "Si está activado, el control de válvulas solo registra lo que haría (prefijo [PRÓBAÜZEM]) y no modifica nada en las válvulas. Recomendado para la primera prueba real.",
+          "register_card": "Si está activado, la integración carga su tarjeta para que aparezca en la lista «Añadir tarjeta» (nunca añade una tarjeta a un panel por sí sola). Desactivarlo surte efecto tras reiniciar Home Assistant; después puedes añadir el recurso manualmente (consulta el README)."
         }
       },
       "summer": {
@@ -223,6 +235,15 @@
           },
           "valve_boost_resting": {
             "name": "Refuerzo de la válvula en pausa tras la duración máxima"
+          },
+          "window_open": {
+            "name": "Ventana abierta (calefacción de la habitación en pausa)"
+          },
+          "window_open_pending": {
+            "name": "Ventana abierta, esperando el retardo"
+          },
+          "room_name": {
+            "name": "Nombre de la habitación"
           }
         }
       },
@@ -256,6 +277,9 @@
           },
           "outdoor_sensor_stale": {
             "name": "Sensor exterior sin actualizar (obsoleto)"
+          },
+          "boiler_entity": {
+            "name": "Termostato de la caldera"
           }
         }
       }

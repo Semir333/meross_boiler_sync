@@ -15,6 +15,8 @@ CONF_BOILER_ON_TEMP = "boiler_on_temp"
 CONF_HUMIDITY_MAX_BOOST = "humidity_max_boost"
 CONF_OUTDOOR_SENSOR = "outdoor_sensor"
 CONF_VALVE_DRY_RUN = "valve_dry_run"
+CONF_WINDOW_DELAY = "window_open_delay"  # globális alapérték és szobai felülírás is
+CONF_REGISTER_CARD = "register_card"
 CONF_STALE_ENABLED = "stale_check_enabled"
 CONF_STALE_HOURS = "stale_hours"
 CONF_MAX_BOOST_ENABLED = "max_boost_enabled"
@@ -35,6 +37,7 @@ CONF_ROOM_TEMP = "temperature_sensor"
 CONF_ROOM_HUM = "humidity_sensor"
 CONF_ROOM_VALVE_CONTROL = "valve_control"
 CONF_ROOM_VALVE_LINK = "valve_demand_link"
+CONF_ROOM_WINDOWS = "window_sensors"
 
 # --- alapértékek
 DEFAULT_HYSTERESIS = 0.3  # °C
@@ -43,6 +46,8 @@ DEFAULT_BOILER_ON_TEMP = 35  # °C, 0 = nem módosítjuk a kazán célhőmérsé
 DEFAULT_HUMIDITY_MAX_BOOST = 1.0  # °C, 0 = kikapcsolva
 DEFAULT_SUMMER_TEMP = 17.0  # °C (24 órás átlag)
 DEFAULT_VALVE_DRY_RUN = False
+DEFAULT_WINDOW_DELAY = 5  # perc: ennyi ideig kell nyitva lennie az ablaknak
+DEFAULT_REGISTER_CARD = True
 DEFAULT_STALE_ENABLED = True
 DEFAULT_STALE_HOURS = 6  # óra: ennyi ideje nem jelentő szenzor elavultnak számít
 DEFAULT_MAX_BOOST_ENABLED = True

@@ -38,7 +38,9 @@
           "valve_boost_delay": "Gaidīšanas laiks pirms vārsta pacelšanas – šī telpa, minūtes (tukšs = globālā vērtība)",
           "valve_release_margin": "Vārsta atbrīvošana pirms mērķa – šī telpa (tukšs = globālā vērtība)",
           "valve_demand_link": "Sasaistīt katla pieprasījumu ar vārsta stāvokli",
-          "humidity_sensor": "Telpas mitruma sensors (neobligāts)"
+          "humidity_sensor": "Telpas mitruma sensors (neobligāts)",
+          "window_sensors": "Loga / durvju sensors(-i) (neobligāts)",
+          "window_open_delay": "Atvērta loga aizkave – šī telpa, minūtes (tukšs = globālā vērtība)"
         },
         "data_description": {
           "name": "Piem., Viesistaba",
@@ -49,7 +51,9 @@
           "valve_boost_delay": "Cik ilgi novirzei jāsaglabājas pirms pacelšanas. 0 = nekavējoties. Ja tukšs, tiek izmantota globālā vērtība.",
           "valve_release_margin": "Vārsts atgūst savu sākotnējo mērķa temperatūru par šādu starpību pirms mērķa. Jābūt mazākai par slieksni. Ja tukšs, tiek izmantota globālā vērtība.",
           "valve_demand_link": "Ja ieslēgts, telpa pieprasa siltumu no katla tikai tad, kad tās vārsts ir atvērts (paša vārsta mērījums ir zem tā mērķa) vai kad spraudnis to piespiedu kārtā atver. Tā katls nekurina pret aizvērtiem vārstiem pie nelielām novirzēm. Nebloķē apkuri, ja vārsta dati nav pieejami.",
-          "humidity_sensor": "Pie augsta mitruma telpas mērķa temperatūra tiek nedaudz paaugstināta (skatīt Pamatiestatījumus)."
+          "humidity_sensor": "Pie augsta mitruma telpas mērķa temperatūra tiek nedaudz paaugstināta (skatīt Pamatiestatījumus).",
+          "window_sensors": "Kamēr logs vai durvis ir atvērtas ilgāk par aizkavi, telpa nepieprasa siltumu un vārsta pacelšana tiek atbrīvota. Ja sensoru ir vairāki, pietiek ar vienu atvērtu.",
+          "window_open_delay": "Cik ilgi logam jābūt atvērtam, pirms telpa reaģē, lai īsa vēdināšana neko nepārslēgtu. 0 = nekavējoties. Ja tukšs, tiek izmantota globālā vērtība."
         }
       },
       "edit_room": {
@@ -69,7 +73,9 @@
           "valve_boost_delay": "Gaidīšanas laiks pirms vārsta pacelšanas – šī telpa, minūtes (tukšs = globālā vērtība)",
           "valve_release_margin": "Vārsta atbrīvošana pirms mērķa – šī telpa (tukšs = globālā vērtība)",
           "valve_demand_link": "Sasaistīt katla pieprasījumu ar vārsta stāvokli",
-          "humidity_sensor": "Telpas mitruma sensors (neobligāts)"
+          "humidity_sensor": "Telpas mitruma sensors (neobligāts)",
+          "window_sensors": "Loga / durvju sensors(-i) (neobligāts)",
+          "window_open_delay": "Atvērta loga aizkave – šī telpa, minūtes (tukšs = globālā vērtība)"
         },
         "data_description": {
           "name": "Piem., Viesistaba",
@@ -80,7 +86,9 @@
           "valve_boost_delay": "Cik ilgi novirzei jāsaglabājas pirms pacelšanas. 0 = nekavējoties. Ja tukšs, tiek izmantota globālā vērtība.",
           "valve_release_margin": "Vārsts atgūst savu sākotnējo mērķa temperatūru par šādu starpību pirms mērķa. Jābūt mazākai par slieksni. Ja tukšs, tiek izmantota globālā vērtība.",
           "valve_demand_link": "Ja ieslēgts, telpa pieprasa siltumu no katla tikai tad, kad tās vārsts ir atvērts (paša vārsta mērījums ir zem tā mērķa) vai kad spraudnis to piespiedu kārtā atver. Tā katls nekurina pret aizvērtiem vārstiem pie nelielām novirzēm. Nebloķē apkuri, ja vārsta dati nav pieejami.",
-          "humidity_sensor": "Pie augsta mitruma telpas mērķa temperatūra tiek nedaudz paaugstināta (skatīt Pamatiestatījumus)."
+          "humidity_sensor": "Pie augsta mitruma telpas mērķa temperatūra tiek nedaudz paaugstināta (skatīt Pamatiestatījumus).",
+          "window_sensors": "Kamēr logs vai durvis ir atvērtas ilgāk par aizkavi, telpa nepieprasa siltumu un vārsta pacelšana tiek atbrīvota. Ja sensoru ir vairāki, pietiek ar vienu atvērtu.",
+          "window_open_delay": "Cik ilgi logam jābūt atvērtam, pirms telpa reaģē, lai īsa vēdināšana neko nepārslēgtu. 0 = nekavējoties. Ja tukšs, tiek izmantota globālā vērtība."
         }
       },
       "remove_room": {
@@ -104,7 +112,9 @@
           "max_boost_enabled": "Ierobežot vārsta pacelšanas ilgumu",
           "max_boost_hours": "Maks. vārsta pacelšanas ilgums (stundas)",
           "max_boost_rest_minutes": "Pauze pēc maks. ilguma (minūtes)",
-          "valve_dry_run": "Vārstu vadības izmēģinājuma režīms (tikai žurnāls, bez rakstīšanas vārstos)"
+          "window_open_delay": "Atvērta loga aizkave – noklusējums (minūtes)",
+          "valve_dry_run": "Vārstu vadības izmēģinājuma režīms (tikai žurnāls, bez rakstīšanas vārstos)",
+          "register_card": "Ielādēt Lovelace karti"
         },
         "data_description": {
           "hysteresis": "Telpa pieprasa siltumu, kad tā ir par tik zem mērķa, un turpina pieprasīt, līdz mērķis ir sasniegts.",
@@ -119,7 +129,9 @@
           "max_boost_enabled": "Ja ieslēgts, vārsta pacelšana tiek apturēta pēc zemāk norādītā maksimālā ilguma (aizsargā pret atvērtu logu, nepareizi novietotu sensoru vai iestrēgušu vērtību).",
           "max_boost_hours": "Pēc šī laika vārsts atgūst sākotnējo mērķa temperatūru, pat ja telpa nav sasniegusi mērķi.",
           "max_boost_rest_minutes": "Cik ilgi pēc maksimālā ilguma sasniegšanas netiek sākta jauna pacelšana. Tiek atiestatīts, kad telpa sasniedz savu mērķi.",
-          "valve_dry_run": "Ja ieslēgts, vārstu vadība tikai ieraksta žurnālā, ko tā darītu (priedēklis [PRÓBAÜZEM]), un neko nemaina vārstos. Ieteicams pirmajam darbības testam."
+          "window_open_delay": "Noklusējums visām telpām: cik ilgi logam jābūt atvērtam, pirms šīs telpas apkure tiek apturēta. Īsāka vēdināšana neko nemaina.",
+          "valve_dry_run": "Ja ieslēgts, vārstu vadība tikai ieraksta žurnālā, ko tā darītu (priedēklis [PRÓBAÜZEM]), un neko nemaina vārstos. Ieteicams pirmajam darbības testam.",
+          "register_card": "Ja ieslēgts, integrācija ielādē savu karti, lai tā parādītos sarakstā “Pievienot karti” (tā nekad pati nepievieno karti nevienam informācijas panelim). Izslēgšana stājas spēkā pēc Home Assistant restartēšanas; pēc tam resursu var pievienot manuāli (skatiet README)."
         }
       },
       "summer": {
@@ -223,6 +235,15 @@
           },
           "valve_boost_resting": {
             "name": "Vārsta pacelšana pauzē pēc maksimālā ilguma"
+          },
+          "window_open": {
+            "name": "Logs atvērts (telpas apkure apturēta)"
+          },
+          "window_open_pending": {
+            "name": "Logs atvērts, gaida aizkavi"
+          },
+          "room_name": {
+            "name": "Telpas nosaukums"
           }
         }
       },
@@ -256,6 +277,9 @@
           },
           "outdoor_sensor_stale": {
             "name": "Ārējais sensors nesūta datus (novecojis)"
+          },
+          "boiler_entity": {
+            "name": "Katla termostats"
           }
         }
       }

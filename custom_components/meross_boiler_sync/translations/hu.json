@@ -38,7 +38,9 @@
           "valve_boost_delay": "Szelep emelés várakozás – ennél a szobánál, perc (üres = általános érték)",
           "valve_release_margin": "Szelep visszaengedés a cél előtt – ennél a szobánál (üres = általános érték)",
           "valve_demand_link": "Kazán hőigény a szelep állapotához kötve",
-          "humidity_sensor": "Szoba páratartalom szenzor (opcionális)"
+          "humidity_sensor": "Szoba páratartalom szenzor (opcionális)",
+          "window_sensors": "Ablak- / ajtóérzékelő(k) (opcionális)",
+          "window_open_delay": "Ablak nyitva késleltetés – ennél a szobánál, perc (üres = általános érték)"
         },
         "data_description": {
           "name": "Pl. Nappali",
@@ -49,7 +51,9 @@
           "valve_boost_delay": "Mennyi ideig kell fennállnia az eltérésnek az emelés előtt. 0 = azonnal. Üresen az általános érték érvényes.",
           "valve_release_margin": "A szelep ennyivel a cél előtt kapja vissza az eredeti célhőmérsékletét. Kisebbnek kell lennie a küszöbnél. Üresen az általános érték érvényes.",
           "valve_demand_link": "Bekapcsolva a szoba csak akkor kér hőt a kazántól, ha a szelep nyitva van (a szelep saját mérése a cél alatt van), vagy ha a plugin éppen kinyitotta. Így kis eltérésnél a kazán nem tüzel zárt szelepekbe. Szelep adat hiányában nem blokkolja a fűtést.",
-          "humidity_sensor": "Magas páratartalomnál enyhén megemeli a szoba célhőmérsékletét (lásd Alapbeállítások)."
+          "humidity_sensor": "Magas páratartalomnál enyhén megemeli a szoba célhőmérsékletét (lásd Alapbeállítások).",
+          "window_sensors": "Amíg egy ablak vagy ajtó a késleltetésnél tovább nyitva van, a szoba nem kér hőt, és a szelep emelés leáll. Több érzékelőnél bármelyik nyitott elég.",
+          "window_open_delay": "Mennyi ideig kell nyitva lennie az ablaknak, mielőtt a szoba reagál, így a rövid szellőztetés nem kapcsol semmit. 0 = azonnal. Üresen az általános érték érvényes."
         }
       },
       "edit_room": {
@@ -69,7 +73,9 @@
           "valve_boost_delay": "Szelep emelés várakozás – ennél a szobánál, perc (üres = általános érték)",
           "valve_release_margin": "Szelep visszaengedés a cél előtt – ennél a szobánál (üres = általános érték)",
           "valve_demand_link": "Kazán hőigény a szelep állapotához kötve",
-          "humidity_sensor": "Szoba páratartalom szenzor (opcionális)"
+          "humidity_sensor": "Szoba páratartalom szenzor (opcionális)",
+          "window_sensors": "Ablak- / ajtóérzékelő(k) (opcionális)",
+          "window_open_delay": "Ablak nyitva késleltetés – ennél a szobánál, perc (üres = általános érték)"
         },
         "data_description": {
           "name": "Pl. Nappali",
@@ -80,7 +86,9 @@
           "valve_boost_delay": "Mennyi ideig kell fennállnia az eltérésnek az emelés előtt. 0 = azonnal. Üresen az általános érték érvényes.",
           "valve_release_margin": "A szelep ennyivel a cél előtt kapja vissza az eredeti célhőmérsékletét. Kisebbnek kell lennie a küszöbnél. Üresen az általános érték érvényes.",
           "valve_demand_link": "Bekapcsolva a szoba csak akkor kér hőt a kazántól, ha a szelep nyitva van (a szelep saját mérése a cél alatt van), vagy ha a plugin éppen kinyitotta. Így kis eltérésnél a kazán nem tüzel zárt szelepekbe. Szelep adat hiányában nem blokkolja a fűtést.",
-          "humidity_sensor": "Magas páratartalomnál enyhén megemeli a szoba célhőmérsékletét (lásd Alapbeállítások)."
+          "humidity_sensor": "Magas páratartalomnál enyhén megemeli a szoba célhőmérsékletét (lásd Alapbeállítások).",
+          "window_sensors": "Amíg egy ablak vagy ajtó a késleltetésnél tovább nyitva van, a szoba nem kér hőt, és a szelep emelés leáll. Több érzékelőnél bármelyik nyitott elég.",
+          "window_open_delay": "Mennyi ideig kell nyitva lennie az ablaknak, mielőtt a szoba reagál, így a rövid szellőztetés nem kapcsol semmit. 0 = azonnal. Üresen az általános érték érvényes."
         }
       },
       "remove_room": {
@@ -104,7 +112,9 @@
           "max_boost_enabled": "Szelep emelés időtartamának korlátozása",
           "max_boost_hours": "Szelep emelés max. időtartama (óra)",
           "max_boost_rest_minutes": "Pihenő a max. idő után (perc)",
-          "valve_dry_run": "Szelep szabályzás próbaüzem (csak naplóz, nem ír a szelepekbe)"
+          "window_open_delay": "Ablak nyitva késleltetés – alapértelmezés (perc)",
+          "valve_dry_run": "Szelep szabályzás próbaüzem (csak naplóz, nem ír a szelepekbe)",
+          "register_card": "Lovelace kártya betöltése"
         },
         "data_description": {
           "hysteresis": "A szoba akkor kér hőt, ha ennyivel hidegebb a célnál; addig kér, amíg a célt el nem éri.",
@@ -119,7 +129,9 @@
           "max_boost_enabled": "Bekapcsolva a szelep emelés a lent megadott maximális idő után leáll (nyitott ablak, rossz helyre tett szenzor vagy beragadt érték ellen véd).",
           "max_boost_hours": "Ennyi idő után a szelep akkor is visszakapja az eredeti célhőmérsékletét, ha a szoba nem érte el a célt.",
           "max_boost_rest_minutes": "A maximális idő elérése után ennyi ideig nem indul új emelés. Ha a szoba eléri a célját, ez nullázódik.",
-          "valve_dry_run": "Bekapcsolva a szelep szabályzás csak a naplóba írja, mit tenne ([PRÓBAÜZEM] előtaggal), de nem módosít semmit a szelepeken. Az első élő teszthez ajánlott."
+          "window_open_delay": "Alapértelmezés minden szobára: mennyi ideig kell nyitva lennie az ablaknak, mielőtt a szoba fűtése szünetel. A rövidebb szellőztetés nem változtat semmit.",
+          "valve_dry_run": "Bekapcsolva a szelep szabályzás csak a naplóba írja, mit tenne ([PRÓBAÜZEM] előtaggal), de nem módosít semmit a szelepeken. Az első élő teszthez ajánlott.",
+          "register_card": "Bekapcsolva az integráció betölti a saját kártyáját, így megjelenik a „Kártya hozzáadása” listában (magától soha nem tesz kártyát egyetlen irányítópultra sem). Kikapcsolás a Home Assistant újraindítása után lép érvénybe; ilyenkor az erőforrást kézzel is felveheted (lásd README)."
         }
       },
       "summer": {
@@ -223,6 +235,15 @@
           },
           "valve_boost_resting": {
             "name": "Szelep emelés pihenőn a max. idő után"
+          },
+          "window_open": {
+            "name": "Ablak nyitva (a szoba fűtése szünetel)"
+          },
+          "window_open_pending": {
+            "name": "Ablak nyitva, a késleltetésre vár"
+          },
+          "room_name": {
+            "name": "Szoba neve"
           }
         }
       },
@@ -256,6 +277,9 @@
           },
           "outdoor_sensor_stale": {
             "name": "A kinti szenzor nem frissül (elavult)"
+          },
+          "boiler_entity": {
+            "name": "Kazán termosztát"
           }
         }
       }

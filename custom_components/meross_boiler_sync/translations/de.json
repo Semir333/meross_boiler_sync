@@ -38,7 +38,9 @@
           "valve_boost_delay": "Wartezeit vor Ventil-Anhebung – dieser Raum, Minuten (leer = globaler Wert)",
           "valve_release_margin": "Ventil-Freigabe vor dem Ziel – dieser Raum (leer = globaler Wert)",
           "valve_demand_link": "Kesselanforderung an den Ventilzustand koppeln",
-          "humidity_sensor": "Raum-Feuchtesensor (optional)"
+          "humidity_sensor": "Raum-Feuchtesensor (optional)",
+          "window_sensors": "Fenster-/Türsensor(en) (optional)",
+          "window_open_delay": "Verzögerung bei offenem Fenster – dieser Raum, Minuten (leer = globaler Wert)"
         },
         "data_description": {
           "name": "Z. B. Wohnzimmer",
@@ -49,7 +51,9 @@
           "valve_boost_delay": "Wie lange die Abweichung bestehen muss, bevor angehoben wird. 0 = sofort. Wenn leer, gilt der globale Wert.",
           "valve_release_margin": "Das Ventil erhält seine ursprüngliche Zieltemperatur so weit vor dem Ziel zurück. Muss kleiner als die Schwelle sein. Wenn leer, gilt der globale Wert.",
           "valve_demand_link": "Wenn aktiv, fordert der Raum den Kessel nur an, wenn sein Ventil offen ist (die eigene Messung des Ventils liegt unter seinem Ziel) oder wenn das Plugin es gerade öffnet. So feuert der Kessel bei kleinen Abweichungen nicht gegen geschlossene Ventile. Blockiert die Heizung nicht, wenn Ventildaten fehlen.",
-          "humidity_sensor": "Bei hoher Luftfeuchtigkeit wird die Zieltemperatur des Raums leicht angehoben (siehe Grundeinstellungen)."
+          "humidity_sensor": "Bei hoher Luftfeuchtigkeit wird die Zieltemperatur des Raums leicht angehoben (siehe Grundeinstellungen).",
+          "window_sensors": "Solange ein Fenster oder eine Tür länger als die Verzögerung offen ist, fordert der Raum keine Wärme an und die Ventil-Anhebung wird beendet. Bei mehreren Sensoren zählt jeder offene.",
+          "window_open_delay": "Wie lange das Fenster offen sein muss, bevor der Raum reagiert, damit kurzes Lüften nichts schaltet. 0 = sofort. Wenn leer, gilt der globale Wert."
         }
       },
       "edit_room": {
@@ -69,7 +73,9 @@
           "valve_boost_delay": "Wartezeit vor Ventil-Anhebung – dieser Raum, Minuten (leer = globaler Wert)",
           "valve_release_margin": "Ventil-Freigabe vor dem Ziel – dieser Raum (leer = globaler Wert)",
           "valve_demand_link": "Kesselanforderung an den Ventilzustand koppeln",
-          "humidity_sensor": "Raum-Feuchtesensor (optional)"
+          "humidity_sensor": "Raum-Feuchtesensor (optional)",
+          "window_sensors": "Fenster-/Türsensor(en) (optional)",
+          "window_open_delay": "Verzögerung bei offenem Fenster – dieser Raum, Minuten (leer = globaler Wert)"
         },
         "data_description": {
           "name": "Z. B. Wohnzimmer",
@@ -80,7 +86,9 @@
           "valve_boost_delay": "Wie lange die Abweichung bestehen muss, bevor angehoben wird. 0 = sofort. Wenn leer, gilt der globale Wert.",
           "valve_release_margin": "Das Ventil erhält seine ursprüngliche Zieltemperatur so weit vor dem Ziel zurück. Muss kleiner als die Schwelle sein. Wenn leer, gilt der globale Wert.",
           "valve_demand_link": "Wenn aktiv, fordert der Raum den Kessel nur an, wenn sein Ventil offen ist (die eigene Messung des Ventils liegt unter seinem Ziel) oder wenn das Plugin es gerade öffnet. So feuert der Kessel bei kleinen Abweichungen nicht gegen geschlossene Ventile. Blockiert die Heizung nicht, wenn Ventildaten fehlen.",
-          "humidity_sensor": "Bei hoher Luftfeuchtigkeit wird die Zieltemperatur des Raums leicht angehoben (siehe Grundeinstellungen)."
+          "humidity_sensor": "Bei hoher Luftfeuchtigkeit wird die Zieltemperatur des Raums leicht angehoben (siehe Grundeinstellungen).",
+          "window_sensors": "Solange ein Fenster oder eine Tür länger als die Verzögerung offen ist, fordert der Raum keine Wärme an und die Ventil-Anhebung wird beendet. Bei mehreren Sensoren zählt jeder offene.",
+          "window_open_delay": "Wie lange das Fenster offen sein muss, bevor der Raum reagiert, damit kurzes Lüften nichts schaltet. 0 = sofort. Wenn leer, gilt der globale Wert."
         }
       },
       "remove_room": {
@@ -104,7 +112,9 @@
           "max_boost_enabled": "Dauer der Ventil-Anhebung begrenzen",
           "max_boost_hours": "Max. Dauer der Ventil-Anhebung (Stunden)",
           "max_boost_rest_minutes": "Pause nach max. Anhebung (Minuten)",
-          "valve_dry_run": "Testlauf der Ventilregelung (nur Protokoll, keine Schreibzugriffe auf Ventile)"
+          "window_open_delay": "Verzögerung bei offenem Fenster – Standard (Minuten)",
+          "valve_dry_run": "Testlauf der Ventilregelung (nur Protokoll, keine Schreibzugriffe auf Ventile)",
+          "register_card": "Lovelace-Karte laden"
         },
         "data_description": {
           "hysteresis": "Ein Raum fordert Wärme an, wenn er so weit unter dem Ziel liegt, und fordert weiter an, bis das Ziel erreicht ist.",
@@ -119,7 +129,9 @@
           "max_boost_enabled": "Wenn aktiv, wird die Ventil-Anhebung nach der unten angegebenen Höchstdauer beendet (schützt bei offenem Fenster, falsch platziertem Sensor oder eingefrorenem Wert).",
           "max_boost_hours": "Nach dieser Zeit erhält das Ventil seine ursprüngliche Zieltemperatur zurück, auch wenn der Raum das Ziel nicht erreicht hat.",
           "max_boost_rest_minutes": "Wie lange nach Erreichen der Höchstdauer keine neue Anhebung gestartet wird. Erreicht der Raum sein Ziel, wird dies zurückgesetzt.",
-          "valve_dry_run": "Wenn aktiv, protokolliert die Ventilregelung nur, was sie tun würde (Präfix [PRÓBAÜZEM]), und ändert nichts an den Ventilen. Empfohlen für den ersten Live-Test."
+          "window_open_delay": "Standard für alle Räume: wie lange ein Fenster offen sein muss, bevor die Heizung für diesen Raum pausiert. Kürzeres Lüften ändert nichts.",
+          "valve_dry_run": "Wenn aktiv, protokolliert die Ventilregelung nur, was sie tun würde (Präfix [PRÓBAÜZEM]), und ändert nichts an den Ventilen. Empfohlen für den ersten Live-Test.",
+          "register_card": "Wenn aktiv, lädt die Integration ihre Karte, damit sie in der Liste „Karte hinzufügen“ erscheint (sie fügt nie selbstständig eine Karte zu einem Dashboard hinzu). Das Ausschalten wirkt nach einem Neustart von Home Assistant; dann kannst du die Ressource manuell hinzufügen (siehe README)."
         }
       },
       "summer": {
@@ -223,6 +235,15 @@
           },
           "valve_boost_resting": {
             "name": "Ventil-Anhebung pausiert nach Höchstdauer"
+          },
+          "window_open": {
+            "name": "Fenster offen (Heizung für diesen Raum pausiert)"
+          },
+          "window_open_pending": {
+            "name": "Fenster offen, wartet auf die Verzögerung"
+          },
+          "room_name": {
+            "name": "Raumname"
           }
         }
       },
@@ -256,6 +277,9 @@
           },
           "outdoor_sensor_stale": {
             "name": "Außensensor meldet nicht (veraltet)"
+          },
+          "boiler_entity": {
+            "name": "Kessel-Thermostat"
           }
         }
       }

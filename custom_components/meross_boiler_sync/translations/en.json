@@ -38,7 +38,9 @@
           "valve_boost_delay": "Valve boost wait – this room, minutes (empty = global value)",
           "valve_release_margin": "Valve release before target – this room (empty = global value)",
           "valve_demand_link": "Tie boiler demand to valve state",
-          "humidity_sensor": "Room humidity sensor (optional)"
+          "humidity_sensor": "Room humidity sensor (optional)",
+          "window_sensors": "Window / door sensor(s) (optional)",
+          "window_open_delay": "Window open delay – this room, minutes (empty = global value)"
         },
         "data_description": {
           "name": "E.g. Living room",
@@ -49,7 +51,9 @@
           "valve_boost_delay": "How long the deviation must persist before boosting. 0 = immediately. If empty, the global value applies.",
           "valve_release_margin": "The valve gets its original target back this far before the target. Must be below the threshold. If empty, the global value applies.",
           "valve_demand_link": "When on, the room only calls the boiler when its valve is open (valve's own reading is below its target) or when the plugin is forcing it open. Avoids firing the boiler into closed valves for small deviations. Does not block heating if valve data is missing.",
-          "humidity_sensor": "At high humidity the room target is raised slightly (see Settings)."
+          "humidity_sensor": "At high humidity the room target is raised slightly (see Settings).",
+          "window_sensors": "While a window or door stays open longer than the delay, the room stops calling for heat and the valve boost is released. With several sensors, any open one counts.",
+          "window_open_delay": "How long the window must stay open before the room reacts, so short airing changes nothing. 0 = immediately. If empty, the global value applies."
         }
       },
       "edit_room": {
@@ -69,7 +73,9 @@
           "valve_boost_delay": "Valve boost wait – this room, minutes (empty = global value)",
           "valve_release_margin": "Valve release before target – this room (empty = global value)",
           "valve_demand_link": "Tie boiler demand to valve state",
-          "humidity_sensor": "Room humidity sensor (optional)"
+          "humidity_sensor": "Room humidity sensor (optional)",
+          "window_sensors": "Window / door sensor(s) (optional)",
+          "window_open_delay": "Window open delay – this room, minutes (empty = global value)"
         },
         "data_description": {
           "name": "E.g. Living room",
@@ -80,7 +86,9 @@
           "valve_boost_delay": "How long the deviation must persist before boosting. 0 = immediately. If empty, the global value applies.",
           "valve_release_margin": "The valve gets its original target back this far before the target. Must be below the threshold. If empty, the global value applies.",
           "valve_demand_link": "When on, the room only calls the boiler when its valve is open (valve's own reading is below its target) or when the plugin is forcing it open. Avoids firing the boiler into closed valves for small deviations. Does not block heating if valve data is missing.",
-          "humidity_sensor": "At high humidity the room target is raised slightly (see Settings)."
+          "humidity_sensor": "At high humidity the room target is raised slightly (see Settings).",
+          "window_sensors": "While a window or door stays open longer than the delay, the room stops calling for heat and the valve boost is released. With several sensors, any open one counts.",
+          "window_open_delay": "How long the window must stay open before the room reacts, so short airing changes nothing. 0 = immediately. If empty, the global value applies."
         }
       },
       "remove_room": {
@@ -104,7 +112,9 @@
           "max_boost_enabled": "Limit valve boost duration",
           "max_boost_hours": "Max. valve boost duration (hours)",
           "max_boost_rest_minutes": "Rest after max. boost (minutes)",
-          "valve_dry_run": "Valve control dry run (log only, no writes to valves)"
+          "window_open_delay": "Window open delay – default (minutes)",
+          "valve_dry_run": "Valve control dry run (log only, no writes to valves)",
+          "register_card": "Load the Lovelace card"
         },
         "data_description": {
           "hysteresis": "A room calls for heat when this much below target, and keeps calling until the target is reached.",
@@ -119,7 +129,9 @@
           "max_boost_enabled": "When on, the valve boost is stopped after the maximum duration below (protects against an open window, a misplaced sensor or a frozen value).",
           "max_boost_hours": "After this long the valve gets its original target back, even if the room has not reached the target.",
           "max_boost_rest_minutes": "How long no new boost is started after reaching the maximum duration. The room reaching its target resets this.",
-          "valve_dry_run": "When on, valve control only logs what it would do ([PRÓBAÜZEM] prefix) and changes nothing on the valves. Recommended for the first live test."
+          "window_open_delay": "Default for all rooms: how long a window must stay open before heating for that room is paused. Shorter airing changes nothing.",
+          "valve_dry_run": "When on, valve control only logs what it would do ([PRÓBAÜZEM] prefix) and changes nothing on the valves. Recommended for the first live test.",
+          "register_card": "When on, the integration loads its card so it appears in the 'Add card' list (it never adds a card to a dashboard by itself). Turning it off takes effect after a Home Assistant restart; you can then add the resource manually (see README)."
         }
       },
       "summer": {
@@ -223,6 +235,15 @@
           },
           "valve_boost_resting": {
             "name": "Valve boost resting after maximum duration"
+          },
+          "window_open": {
+            "name": "Window open (heating paused for this room)"
+          },
+          "window_open_pending": {
+            "name": "Window open, waiting for the delay"
+          },
+          "room_name": {
+            "name": "Room name"
           }
         }
       },
@@ -256,6 +277,9 @@
           },
           "outdoor_sensor_stale": {
             "name": "Outdoor sensor not updating (stale)"
+          },
+          "boiler_entity": {
+            "name": "Boiler thermostat"
           }
         }
       }

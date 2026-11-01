@@ -5,7 +5,7 @@ import asyncio
 import logging
 from collections import deque
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, timedelta
 from typing import Any
 
@@ -50,7 +50,9 @@ from .const import (
     CONF_MAX_BOOST_REST,
     CONF_STALE_ENABLED,
     CONF_STALE_HOURS,
+    CONF_ROOM_WINDOWS,
     CONF_SUMMER_TEMP,
+    CONF_WINDOW_DELAY,
     CONF_VALVE_BOOST_DELAY,
     CONF_VALVE_BOOST_THRESHOLD,
     CONF_VALVE_DRY_RUN,
@@ -67,6 +69,7 @@ from .const import (
     DEFAULT_STALE_ENABLED,
     DEFAULT_STALE_HOURS,
     DEFAULT_SUMMER_TEMP,
+    DEFAULT_WINDOW_DELAY,
     DEFAULT_VALVE_BOOST_DELAY,
     DEFAULT_VALVE_BOOST_THRESHOLD,
     DEFAULT_VALVE_DRY_RUN,
@@ -177,6 +180,11 @@ class RoomStatus:
     sensor_stale: bool = False
     boost_started: float | None = None
     rest_until: float | None = None
+    # ablakérzékelők
+    window_sensors: list[str] = field(default_factory=list)
+    window_delay_s: float = DEFAULT_WINDOW_DELAY * 60
+    window_open_since: float | None = None
+    window_open: bool = False  # a késleltetés letelt: a szoba szünetel
 
 
 class BoilerController:
@@ -226,6 +234,7 @@ class BoilerController:
         self.max_boost_rest_seconds = (
             float(cfg.get(CONF_MAX_BOOST_REST, DEFAULT_MAX_BOOST_REST)) * 60
         )
+        self.window_delay_s = float(cfg.get(CONF_WINDOW_DELAY, DEFAULT_WINDOW_DELAY)) * 60
         self.outdoor_stale = False
         self._issue_state: dict[str, bool] = {}
 
@@ -282,6 +291,8 @@ class BoilerController:
             boost_delay_s=delay_min * 60,
             release_margin=release,
             valve_demand_link=bool(room.get(CONF_ROOM_VALVE_LINK)),
+            window_sensors=list(room.get(CONF_ROOM_WINDOWS) or []),
+            window_delay_s=opt(CONF_WINDOW_DELAY, self.window_delay_s / 60) * 60,
         )
 
     # ------------------------------------------------------------------ életciklus
@@ -329,6 +340,7 @@ class BoilerController:
             tracked.add(self.outdoor_sensor)
         for room in self.rooms:
             tracked.update(room[CONF_ROOM_VALVES])
+            tracked.update(room.get(CONF_ROOM_WINDOWS) or [])
             for key in (CONF_ROOM_TEMP, CONF_ROOM_HUM):
                 if room.get(key):
                     tracked.add(room[key])
@@ -568,6 +580,8 @@ class BoilerController:
             "stale_room_temp",
             {"room": st.name, "sensor": temp_id or "", "hours": self._stale_hours_text()},
         )
+        self._update_window(st)
+
         st.current = st.source = st.target = st.effective_target = None
         st.deviation = None
         st.humidity = None
@@ -618,6 +632,9 @@ class BoilerController:
                 st.calling = False
         elif current < st.effective_target - self.hysteresis:
             st.calling = True
+
+        if st.window_open:
+            st.calling = False  # nyitott ablak: a szoba nem kér hőt, a szelep emelés leáll
 
         st.valve_open = (
             self._valve_open(st.valve_open, pairs) if st.valve_demand_link else False
@@ -801,6 +818,30 @@ class BoilerController:
         else:
             st.cold_since = None
         return st.boost_wanted
+
+    def _update_window(self, st: RoomStatus) -> None:
+        """Az ablak csak a késleltetés letelte után számít nyitottnak (rövid szellőztetés nem)."""
+        now_ts = dt_util.utcnow().timestamp()
+        any_open = any(
+            (state := self.hass.states.get(entity_id)) is not None and state.state == "on"
+            for entity_id in st.window_sensors
+        )
+        if not any_open:
+            if st.window_open:
+                _LOGGER.info("%s: az ablak bezárva, a fűtés újra engedélyezett", st.name)
+            st.window_open_since = None
+            st.window_open = False
+            return
+        if st.window_open_since is None:
+            st.window_open_since = now_ts
+        was_open = st.window_open
+        st.window_open = now_ts - st.window_open_since >= st.window_delay_s
+        if st.window_open and not was_open:
+            _LOGGER.info(
+                "%s: az ablak %s perce nyitva, a szoba fűtése szünetel",
+                st.name,
+                f"{st.window_delay_s / 60:g}",
+            )
 
     def _valve_open(self, previous: bool, pairs: list[tuple[float, float]]) -> bool:
         """Becslés: a szelep a saját szabályzása szerint nyitva van-e (hiszterézissel)."""

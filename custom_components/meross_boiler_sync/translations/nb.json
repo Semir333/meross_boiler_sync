@@ -38,7 +38,9 @@
           "valve_boost_delay": "Ventetid før ventilløft – dette rommet, minutter (tom = global verdi)",
           "valve_release_margin": "Ventilfrigjøring før målet – dette rommet (tom = global verdi)",
           "valve_demand_link": "Koble kjelens varmebehov til ventilens tilstand",
-          "humidity_sensor": "Romfuktsensor (valgfri)"
+          "humidity_sensor": "Romfuktsensor (valgfri)",
+          "window_sensors": "Vindus-/dørsensor(er) (valgfri)",
+          "window_open_delay": "Forsinkelse for åpent vindu – dette rommet, minutter (tom = global verdi)"
         },
         "data_description": {
           "name": "F.eks. Stue",
@@ -49,7 +51,9 @@
           "valve_boost_delay": "Hvor lenge avviket må vare før ventilen løftes. 0 = umiddelbart. Hvis tom, gjelder den globale verdien.",
           "valve_release_margin": "Ventilen får tilbake sin opprinnelige måltemperatur så langt før målet. Må være mindre enn terskelen. Hvis tom, gjelder den globale verdien.",
           "valve_demand_link": "Når dette er på, ber rommet bare om varme fra kjelen når ventilen er åpen (ventilens egen måling ligger under målet) eller når tillegget tvinger den opp. Da fyrer ikke kjelen mot stengte ventiler ved små avvik. Blokkerer ikke oppvarmingen hvis ventildata mangler.",
-          "humidity_sensor": "Ved høy luftfuktighet heves rommets måltemperatur litt (se Grunninnstillinger)."
+          "humidity_sensor": "Ved høy luftfuktighet heves rommets måltemperatur litt (se Grunninnstillinger).",
+          "window_sensors": "Så lenge et vindu eller en dør står åpen lenger enn forsinkelsen, ber ikke rommet om varme, og ventilløftet slippes. Med flere sensorer teller hver åpen sensor.",
+          "window_open_delay": "Hvor lenge vinduet må stå åpent før rommet reagerer, slik at kort lufting ikke endrer noe. 0 = umiddelbart. Hvis tom, gjelder den globale verdien."
         }
       },
       "edit_room": {
@@ -69,7 +73,9 @@
           "valve_boost_delay": "Ventetid før ventilløft – dette rommet, minutter (tom = global verdi)",
           "valve_release_margin": "Ventilfrigjøring før målet – dette rommet (tom = global verdi)",
           "valve_demand_link": "Koble kjelens varmebehov til ventilens tilstand",
-          "humidity_sensor": "Romfuktsensor (valgfri)"
+          "humidity_sensor": "Romfuktsensor (valgfri)",
+          "window_sensors": "Vindus-/dørsensor(er) (valgfri)",
+          "window_open_delay": "Forsinkelse for åpent vindu – dette rommet, minutter (tom = global verdi)"
         },
         "data_description": {
           "name": "F.eks. Stue",
@@ -80,7 +86,9 @@
           "valve_boost_delay": "Hvor lenge avviket må vare før ventilen løftes. 0 = umiddelbart. Hvis tom, gjelder den globale verdien.",
           "valve_release_margin": "Ventilen får tilbake sin opprinnelige måltemperatur så langt før målet. Må være mindre enn terskelen. Hvis tom, gjelder den globale verdien.",
           "valve_demand_link": "Når dette er på, ber rommet bare om varme fra kjelen når ventilen er åpen (ventilens egen måling ligger under målet) eller når tillegget tvinger den opp. Da fyrer ikke kjelen mot stengte ventiler ved små avvik. Blokkerer ikke oppvarmingen hvis ventildata mangler.",
-          "humidity_sensor": "Ved høy luftfuktighet heves rommets måltemperatur litt (se Grunninnstillinger)."
+          "humidity_sensor": "Ved høy luftfuktighet heves rommets måltemperatur litt (se Grunninnstillinger).",
+          "window_sensors": "Så lenge et vindu eller en dør står åpen lenger enn forsinkelsen, ber ikke rommet om varme, og ventilløftet slippes. Med flere sensorer teller hver åpen sensor.",
+          "window_open_delay": "Hvor lenge vinduet må stå åpent før rommet reagerer, slik at kort lufting ikke endrer noe. 0 = umiddelbart. Hvis tom, gjelder den globale verdien."
         }
       },
       "remove_room": {
@@ -104,7 +112,9 @@
           "max_boost_enabled": "Begrens varigheten av ventilløft",
           "max_boost_hours": "Maks. varighet for ventilløft (timer)",
           "max_boost_rest_minutes": "Pause etter maks. varighet (minutter)",
-          "valve_dry_run": "Prøvekjøring av ventilstyring (kun logg, ingen skriving til ventilene)"
+          "window_open_delay": "Forsinkelse for åpent vindu – standard (minutter)",
+          "valve_dry_run": "Prøvekjøring av ventilstyring (kun logg, ingen skriving til ventilene)",
+          "register_card": "Last inn Lovelace-kortet"
         },
         "data_description": {
           "hysteresis": "Et rom ber om varme når det ligger så langt under målet, og fortsetter til målet er nådd.",
@@ -119,7 +129,9 @@
           "max_boost_enabled": "Når dette er på, avsluttes ventilløftet etter maksimal varighet nedenfor (beskytter ved åpent vindu, feilplassert sensor eller fastfrosset verdi).",
           "max_boost_hours": "Etter denne tiden får ventilen tilbake sin opprinnelige måltemperatur, selv om rommet ikke har nådd målet.",
           "max_boost_rest_minutes": "Hvor lenge ingen nytt løft startes etter at maksimal varighet er nådd. Nullstilles når rommet når målet.",
-          "valve_dry_run": "Når dette er på, logger ventilstyringen bare hva den ville gjort (prefiks [PRÓBAÜZEM]) og endrer ingenting på ventilene. Anbefalt for den første ekte testen."
+          "window_open_delay": "Standard for alle rom: hvor lenge et vindu må stå åpent før oppvarmingen i det rommet settes på pause. Kortere lufting endrer ingenting.",
+          "valve_dry_run": "Når dette er på, logger ventilstyringen bare hva den ville gjort (prefiks [PRÓBAÜZEM]) og endrer ingenting på ventilene. Anbefalt for den første ekte testen.",
+          "register_card": "Når dette er på, laster integrasjonen inn kortet sitt slik at det vises i listen «Legg til kort» (den legger aldri selv til et kort på et dashbord). Å slå det av trer i kraft etter en omstart av Home Assistant; deretter kan du legge til ressursen manuelt (se README)."
         }
       },
       "summer": {
@@ -223,6 +235,15 @@
           },
           "valve_boost_resting": {
             "name": "Ventilløft på pause etter maksimal varighet"
+          },
+          "window_open": {
+            "name": "Vindu åpent (oppvarmingen i rommet er satt på pause)"
+          },
+          "window_open_pending": {
+            "name": "Vindu åpent, venter på forsinkelsen"
+          },
+          "room_name": {
+            "name": "Romnavn"
           }
         }
       },
@@ -256,6 +277,9 @@
           },
           "outdoor_sensor_stale": {
             "name": "Utesensoren rapporterer ikke (utdatert)"
+          },
+          "boiler_entity": {
+            "name": "Kjeletermostat"
           }
         }
       }

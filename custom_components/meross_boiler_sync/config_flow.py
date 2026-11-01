@@ -22,8 +22,10 @@ from .const import (
     CONF_ROOM_NAME,
     CONF_ROOM_TEMP,
     CONF_ROOM_VALVE_CONTROL,
+    CONF_REGISTER_CARD,
     CONF_ROOM_VALVE_LINK,
     CONF_ROOM_VALVES,
+    CONF_ROOM_WINDOWS,
     CONF_ROOMS,
     CONF_SUMMER_END,
     CONF_SUMMER_START,
@@ -37,6 +39,7 @@ from .const import (
     CONF_VALVE_BOOST_THRESHOLD,
     CONF_VALVE_DRY_RUN,
     CONF_VALVE_RELEASE_MARGIN,
+    CONF_WINDOW_DELAY,
     DEFAULT_BOILER_ON_TEMP,
     DEFAULT_HUMIDITY_MAX_BOOST,
     DEFAULT_HYSTERESIS,
@@ -46,6 +49,7 @@ from .const import (
     DEFAULT_MAX_BOOST_ENABLED,
     DEFAULT_MAX_BOOST_HOURS,
     DEFAULT_MAX_BOOST_REST,
+    DEFAULT_REGISTER_CARD,
     DEFAULT_STALE_ENABLED,
     DEFAULT_STALE_HOURS,
     DEFAULT_SUMMER_TEMP,
@@ -53,6 +57,7 @@ from .const import (
     DEFAULT_VALVE_BOOST_THRESHOLD,
     DEFAULT_VALVE_DRY_RUN,
     DEFAULT_VALVE_RELEASE_MARGIN,
+    DEFAULT_WINDOW_DELAY,
     DOMAIN,
     parse_month_day,
 )
@@ -121,6 +126,12 @@ def _room_schema(values: dict[str, Any]) -> vol.Schema:
             vol.Optional(
                 CONF_ROOM_HUM, description=_suggest(values, CONF_ROOM_HUM)
             ): _entity("sensor", "humidity"),
+            vol.Optional(
+                CONF_ROOM_WINDOWS, description=_suggest(values, CONF_ROOM_WINDOWS)
+            ): _entity("binary_sensor", ["window", "door", "opening"], multiple=True),
+            vol.Optional(
+                CONF_WINDOW_DELAY, description=_suggest(values, CONF_WINDOW_DELAY)
+            ): _number(0, 120, 1, "min"),
         }
     )
 
@@ -183,8 +194,16 @@ def _settings_schema(values: dict[str, Any]) -> vol.Schema:
                 default=values.get(CONF_MAX_BOOST_REST, DEFAULT_MAX_BOOST_REST),
             ): _number(0, 480, 5, "min"),
             vol.Required(
+                CONF_WINDOW_DELAY,
+                default=values.get(CONF_WINDOW_DELAY, DEFAULT_WINDOW_DELAY),
+            ): _number(0, 120, 1, "min"),
+            vol.Required(
                 CONF_VALVE_DRY_RUN,
                 default=bool(values.get(CONF_VALVE_DRY_RUN, DEFAULT_VALVE_DRY_RUN)),
+            ): selector.BooleanSelector(),
+            vol.Required(
+                CONF_REGISTER_CARD,
+                default=bool(values.get(CONF_REGISTER_CARD, DEFAULT_REGISTER_CARD)),
             ): selector.BooleanSelector(),
         }
     )
@@ -246,6 +265,8 @@ class MerossBoilerSyncConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_BOILER_ON_TEMP: DEFAULT_BOILER_ON_TEMP,
                     CONF_HUMIDITY_MAX_BOOST: DEFAULT_HUMIDITY_MAX_BOOST,
                     CONF_VALVE_DRY_RUN: DEFAULT_VALVE_DRY_RUN,
+                    CONF_WINDOW_DELAY: DEFAULT_WINDOW_DELAY,
+                    CONF_REGISTER_CARD: DEFAULT_REGISTER_CARD,
                     CONF_STALE_ENABLED: DEFAULT_STALE_ENABLED,
                     CONF_STALE_HOURS: DEFAULT_STALE_HOURS,
                     CONF_MAX_BOOST_ENABLED: DEFAULT_MAX_BOOST_ENABLED,
@@ -338,10 +359,14 @@ class MerossBoilerSyncOptionsFlow(config_entries.OptionsFlow):
             CONF_VALVE_BOOST_THRESHOLD,
             CONF_VALVE_BOOST_DELAY,
             CONF_VALVE_RELEASE_MARGIN,
+            CONF_WINDOW_DELAY,
         ):
             if user_input.get(key) is not None:  # a 0 is érvényes érték
                 room[key] = float(user_input[key])
         room[CONF_ROOM_VALVE_LINK] = bool(user_input.get(CONF_ROOM_VALVE_LINK))
+        windows = [w for w in (user_input.get(CONF_ROOM_WINDOWS) or []) if w]
+        if windows:
+            room[CONF_ROOM_WINDOWS] = windows
         room[CONF_ROOM_VALVE_CONTROL] = bool(
             user_input.get(CONF_ROOM_VALVE_CONTROL) and user_input.get(CONF_ROOM_TEMP)
         )

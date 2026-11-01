@@ -38,7 +38,9 @@
           "valve_boost_delay": "Väntetid före ventilhöjning – det här rummet, minuter (tomt = globalt värde)",
           "valve_release_margin": "Ventilfrigöring före målet – det här rummet (tomt = globalt värde)",
           "valve_demand_link": "Koppla pannans värmebehov till ventilens tillstånd",
-          "humidity_sensor": "Rummets fuktsensor (valfri)"
+          "humidity_sensor": "Rummets fuktsensor (valfri)",
+          "window_sensors": "Fönster-/dörrsensor(er) (valfri)",
+          "window_open_delay": "Fördröjning för öppet fönster – det här rummet, minuter (tomt = globalt värde)"
         },
         "data_description": {
           "name": "T.ex. Vardagsrum",
@@ -49,7 +51,9 @@
           "valve_boost_delay": "Hur länge avvikelsen måste bestå innan höjningen sker. 0 = direkt. Om tomt gäller det globala värdet.",
           "valve_release_margin": "Ventilen får tillbaka sin ursprungliga måltemperatur så här långt före målet. Måste vara mindre än tröskeln. Om tomt gäller det globala värdet.",
           "valve_demand_link": "När detta är på begär rummet bara värme från pannan när ventilen är öppen (ventilens egen mätning ligger under dess mål) eller när insticksprogrammet tvingar upp den. Då eldar pannan inte mot stängda ventiler vid små avvikelser. Blockerar inte värmen om ventildata saknas.",
-          "humidity_sensor": "Vid hög luftfuktighet höjs rummets måltemperatur något (se Grundinställningar)."
+          "humidity_sensor": "Vid hög luftfuktighet höjs rummets måltemperatur något (se Grundinställningar).",
+          "window_sensors": "Så länge ett fönster eller en dörr står öppen längre än fördröjningen begär rummet ingen värme och ventilhöjningen släpps. Med flera sensorer räcker det att en är öppen.",
+          "window_open_delay": "Hur länge fönstret måste vara öppet innan rummet reagerar, så att kort vädring inte ändrar något. 0 = direkt. Om tomt gäller det globala värdet."
         }
       },
       "edit_room": {
@@ -69,7 +73,9 @@
           "valve_boost_delay": "Väntetid före ventilhöjning – det här rummet, minuter (tomt = globalt värde)",
           "valve_release_margin": "Ventilfrigöring före målet – det här rummet (tomt = globalt värde)",
           "valve_demand_link": "Koppla pannans värmebehov till ventilens tillstånd",
-          "humidity_sensor": "Rummets fuktsensor (valfri)"
+          "humidity_sensor": "Rummets fuktsensor (valfri)",
+          "window_sensors": "Fönster-/dörrsensor(er) (valfri)",
+          "window_open_delay": "Fördröjning för öppet fönster – det här rummet, minuter (tomt = globalt värde)"
         },
         "data_description": {
           "name": "T.ex. Vardagsrum",
@@ -80,7 +86,9 @@
           "valve_boost_delay": "Hur länge avvikelsen måste bestå innan höjningen sker. 0 = direkt. Om tomt gäller det globala värdet.",
           "valve_release_margin": "Ventilen får tillbaka sin ursprungliga måltemperatur så här långt före målet. Måste vara mindre än tröskeln. Om tomt gäller det globala värdet.",
           "valve_demand_link": "När detta är på begär rummet bara värme från pannan när ventilen är öppen (ventilens egen mätning ligger under dess mål) eller när insticksprogrammet tvingar upp den. Då eldar pannan inte mot stängda ventiler vid små avvikelser. Blockerar inte värmen om ventildata saknas.",
-          "humidity_sensor": "Vid hög luftfuktighet höjs rummets måltemperatur något (se Grundinställningar)."
+          "humidity_sensor": "Vid hög luftfuktighet höjs rummets måltemperatur något (se Grundinställningar).",
+          "window_sensors": "Så länge ett fönster eller en dörr står öppen längre än fördröjningen begär rummet ingen värme och ventilhöjningen släpps. Med flera sensorer räcker det att en är öppen.",
+          "window_open_delay": "Hur länge fönstret måste vara öppet innan rummet reagerar, så att kort vädring inte ändrar något. 0 = direkt. Om tomt gäller det globala värdet."
         }
       },
       "remove_room": {
@@ -104,7 +112,9 @@
           "max_boost_enabled": "Begränsa ventilhöjningens varaktighet",
           "max_boost_hours": "Max varaktighet för ventilhöjning (timmar)",
           "max_boost_rest_minutes": "Paus efter maxtiden (minuter)",
-          "valve_dry_run": "Provkörning av ventilreglering (endast logg, inga skrivningar till ventilerna)"
+          "window_open_delay": "Fördröjning för öppet fönster – standard (minuter)",
+          "valve_dry_run": "Provkörning av ventilreglering (endast logg, inga skrivningar till ventilerna)",
+          "register_card": "Läs in Lovelace-kortet"
         },
         "data_description": {
           "hysteresis": "Ett rum begär värme när det ligger så här långt under målet och fortsätter tills målet nåtts.",
@@ -119,7 +129,9 @@
           "max_boost_enabled": "När detta är på avslutas ventilhöjningen efter maxtiden nedan (skyddar vid öppet fönster, felplacerad sensor eller fastfruset värde).",
           "max_boost_hours": "Efter den här tiden får ventilen tillbaka sin ursprungliga måltemperatur, även om rummet inte nått målet.",
           "max_boost_rest_minutes": "Hur länge ingen ny höjning startas efter att maxtiden nåtts. Återställs när rummet når sitt mål.",
-          "valve_dry_run": "När detta är på loggar ventilregleringen bara vad den skulle göra (prefix [PRÓBAÜZEM]) och ändrar ingenting på ventilerna. Rekommenderas för det första skarpa testet."
+          "window_open_delay": "Standard för alla rum: hur länge ett fönster måste vara öppet innan värmen för det rummet pausas. Kortare vädring ändrar ingenting.",
+          "valve_dry_run": "När detta är på loggar ventilregleringen bara vad den skulle göra (prefix [PRÓBAÜZEM]) och ändrar ingenting på ventilerna. Rekommenderas för det första skarpa testet.",
+          "register_card": "När detta är på läser integrationen in sitt kort så att det visas i listan ”Lägg till kort” (den lägger aldrig själv till ett kort på en instrumentpanel). Att stänga av det gäller efter en omstart av Home Assistant; därefter kan du lägga till resursen manuellt (se README)."
         }
       },
       "summer": {
@@ -223,6 +235,15 @@
           },
           "valve_boost_resting": {
             "name": "Ventilhöjning på paus efter maxtiden"
+          },
+          "window_open": {
+            "name": "Fönster öppet (värmen för rummet pausad)"
+          },
+          "window_open_pending": {
+            "name": "Fönster öppet, väntar på fördröjningen"
+          },
+          "room_name": {
+            "name": "Rumsnamn"
           }
         }
       },
@@ -256,6 +277,9 @@
           },
           "outdoor_sensor_stale": {
             "name": "Utomhussensorn rapporterar inte (inaktuell)"
+          },
+          "boiler_entity": {
+            "name": "Panntermostat"
           }
         }
       }

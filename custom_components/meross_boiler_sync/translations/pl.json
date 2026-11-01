@@ -38,7 +38,9 @@
           "valve_boost_delay": "Czas oczekiwania przed wymuszeniem zaworu – to pomieszczenie, minuty (puste = wartość globalna)",
           "valve_release_margin": "Zwolnienie zaworu przed osiągnięciem celu – to pomieszczenie (puste = wartość globalna)",
           "valve_demand_link": "Powiąż zapotrzebowanie kotła ze stanem zaworu",
-          "humidity_sensor": "Czujnik wilgotności pomieszczenia (opcjonalnie)"
+          "humidity_sensor": "Czujnik wilgotności pomieszczenia (opcjonalnie)",
+          "window_sensors": "Czujnik(i) okna / drzwi (opcjonalnie)",
+          "window_open_delay": "Opóźnienie otwartego okna – to pomieszczenie, minuty (puste = wartość globalna)"
         },
         "data_description": {
           "name": "Np. Salon",
@@ -49,7 +51,9 @@
           "valve_boost_delay": "Jak długo odchyłka musi się utrzymywać przed wymuszeniem. 0 = natychmiast. Jeśli puste, obowiązuje wartość globalna.",
           "valve_release_margin": "Zawór odzyskuje pierwotną temperaturę docelową z takim wyprzedzeniem przed celem. Musi być mniejsze niż próg. Jeśli puste, obowiązuje wartość globalna.",
           "valve_demand_link": "Gdy włączone, pomieszczenie zgłasza zapotrzebowanie na ciepło do kotła tylko wtedy, gdy jego zawór jest otwarty (własny pomiar zaworu jest poniżej jego celu) lub gdy wtyczka właśnie go wymusza. Dzięki temu kocioł nie pracuje na zamknięte zawory przy małych odchyłkach. Nie blokuje ogrzewania, gdy brakuje danych zaworu.",
-          "humidity_sensor": "Przy wysokiej wilgotności temperatura docelowa pomieszczenia jest lekko podnoszona (patrz Ustawienia podstawowe)."
+          "humidity_sensor": "Przy wysokiej wilgotności temperatura docelowa pomieszczenia jest lekko podnoszona (patrz Ustawienia podstawowe).",
+          "window_sensors": "Dopóki okno lub drzwi są otwarte dłużej niż opóźnienie, pomieszczenie nie zgłasza zapotrzebowania na ciepło, a wymuszanie zaworu jest zwalniane. Przy kilku czujnikach liczy się każdy otwarty.",
+          "window_open_delay": "Jak długo okno musi być otwarte, zanim pomieszczenie zareaguje, aby krótkie wietrzenie niczego nie przełączało. 0 = natychmiast. Jeśli puste, obowiązuje wartość globalna."
         }
       },
       "edit_room": {
@@ -69,7 +73,9 @@
           "valve_boost_delay": "Czas oczekiwania przed wymuszeniem zaworu – to pomieszczenie, minuty (puste = wartość globalna)",
           "valve_release_margin": "Zwolnienie zaworu przed osiągnięciem celu – to pomieszczenie (puste = wartość globalna)",
           "valve_demand_link": "Powiąż zapotrzebowanie kotła ze stanem zaworu",
-          "humidity_sensor": "Czujnik wilgotności pomieszczenia (opcjonalnie)"
+          "humidity_sensor": "Czujnik wilgotności pomieszczenia (opcjonalnie)",
+          "window_sensors": "Czujnik(i) okna / drzwi (opcjonalnie)",
+          "window_open_delay": "Opóźnienie otwartego okna – to pomieszczenie, minuty (puste = wartość globalna)"
         },
         "data_description": {
           "name": "Np. Salon",
@@ -80,7 +86,9 @@
           "valve_boost_delay": "Jak długo odchyłka musi się utrzymywać przed wymuszeniem. 0 = natychmiast. Jeśli puste, obowiązuje wartość globalna.",
           "valve_release_margin": "Zawór odzyskuje pierwotną temperaturę docelową z takim wyprzedzeniem przed celem. Musi być mniejsze niż próg. Jeśli puste, obowiązuje wartość globalna.",
           "valve_demand_link": "Gdy włączone, pomieszczenie zgłasza zapotrzebowanie na ciepło do kotła tylko wtedy, gdy jego zawór jest otwarty (własny pomiar zaworu jest poniżej jego celu) lub gdy wtyczka właśnie go wymusza. Dzięki temu kocioł nie pracuje na zamknięte zawory przy małych odchyłkach. Nie blokuje ogrzewania, gdy brakuje danych zaworu.",
-          "humidity_sensor": "Przy wysokiej wilgotności temperatura docelowa pomieszczenia jest lekko podnoszona (patrz Ustawienia podstawowe)."
+          "humidity_sensor": "Przy wysokiej wilgotności temperatura docelowa pomieszczenia jest lekko podnoszona (patrz Ustawienia podstawowe).",
+          "window_sensors": "Dopóki okno lub drzwi są otwarte dłużej niż opóźnienie, pomieszczenie nie zgłasza zapotrzebowania na ciepło, a wymuszanie zaworu jest zwalniane. Przy kilku czujnikach liczy się każdy otwarty.",
+          "window_open_delay": "Jak długo okno musi być otwarte, zanim pomieszczenie zareaguje, aby krótkie wietrzenie niczego nie przełączało. 0 = natychmiast. Jeśli puste, obowiązuje wartość globalna."
         }
       },
       "remove_room": {
@@ -104,7 +112,9 @@
           "max_boost_enabled": "Ogranicz czas wymuszenia zaworu",
           "max_boost_hours": "Maks. czas wymuszenia zaworu (godziny)",
           "max_boost_rest_minutes": "Przerwa po maks. czasie (minuty)",
-          "valve_dry_run": "Tryb próbny regulacji zaworów (tylko dziennik, bez zapisu do zaworów)"
+          "window_open_delay": "Opóźnienie otwartego okna – domyślne (minuty)",
+          "valve_dry_run": "Tryb próbny regulacji zaworów (tylko dziennik, bez zapisu do zaworów)",
+          "register_card": "Wczytaj kartę Lovelace"
         },
         "data_description": {
           "hysteresis": "Pomieszczenie zgłasza zapotrzebowanie na ciepło, gdy jest o tyle poniżej celu, i robi to aż do osiągnięcia celu.",
@@ -119,7 +129,9 @@
           "max_boost_enabled": "Gdy włączone, wymuszanie zaworu kończy się po podanym niżej maksymalnym czasie (chroni przed otwartym oknem, źle umieszczonym czujnikiem lub zawieszoną wartością).",
           "max_boost_hours": "Po tym czasie zawór odzyskuje pierwotną temperaturę docelową, nawet jeśli pomieszczenie nie osiągnęło celu.",
           "max_boost_rest_minutes": "Jak długo po osiągnięciu maksymalnego czasu nie rozpoczyna się nowe wymuszanie. Gdy pomieszczenie osiągnie cel, odliczanie jest zerowane.",
-          "valve_dry_run": "Gdy włączone, regulacja zaworów tylko zapisuje w dzienniku, co by zrobiła (prefiks [PRÓBAÜZEM]), i niczego nie zmienia na zaworach. Zalecane przy pierwszym teście na żywo."
+          "window_open_delay": "Wartość domyślna dla wszystkich pomieszczeń: jak długo okno musi być otwarte, zanim ogrzewanie tego pomieszczenia zostanie wstrzymane. Krótsze wietrzenie niczego nie zmienia.",
+          "valve_dry_run": "Gdy włączone, regulacja zaworów tylko zapisuje w dzienniku, co by zrobiła (prefiks [PRÓBAÜZEM]), i niczego nie zmienia na zaworach. Zalecane przy pierwszym teście na żywo.",
+          "register_card": "Gdy włączone, integracja wczytuje swoją kartę, aby pojawiła się na liście „Dodaj kartę” (nigdy sama nie dodaje karty do pulpitu). Wyłączenie zadziała po ponownym uruchomieniu Home Assistanta; wtedy możesz dodać zasób ręcznie (zobacz README)."
         }
       },
       "summer": {
@@ -223,6 +235,15 @@
           },
           "valve_boost_resting": {
             "name": "Wymuszanie zaworu wstrzymane po maksymalnym czasie"
+          },
+          "window_open": {
+            "name": "Okno otwarte (ogrzewanie pomieszczenia wstrzymane)"
+          },
+          "window_open_pending": {
+            "name": "Okno otwarte, oczekiwanie na opóźnienie"
+          },
+          "room_name": {
+            "name": "Nazwa pomieszczenia"
           }
         }
       },
@@ -256,6 +277,9 @@
           },
           "outdoor_sensor_stale": {
             "name": "Czujnik zewnętrzny nie raportuje (nieaktualny)"
+          },
+          "boiler_entity": {
+            "name": "Termostat kotła"
           }
         }
       }

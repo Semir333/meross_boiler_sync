@@ -38,7 +38,9 @@
           "valve_boost_delay": "Délai avant relance de la vanne – cette pièce, minutes (vide = valeur globale)",
           "valve_release_margin": "Relâchement de la vanne avant la consigne – cette pièce (vide = valeur globale)",
           "valve_demand_link": "Lier la demande de chaudière à l’état de la vanne",
-          "humidity_sensor": "Capteur d’humidité de la pièce (facultatif)"
+          "humidity_sensor": "Capteur d’humidité de la pièce (facultatif)",
+          "window_sensors": "Capteur(s) de fenêtre / porte (facultatif)",
+          "window_open_delay": "Délai fenêtre ouverte – cette pièce, minutes (vide = valeur globale)"
         },
         "data_description": {
           "name": "Ex. Salon",
@@ -49,7 +51,9 @@
           "valve_boost_delay": "Durée pendant laquelle l’écart doit persister avant la relance. 0 = immédiat. Si vide, la valeur globale s’applique.",
           "valve_release_margin": "La vanne retrouve sa consigne d’origine à cet écart avant la consigne de la pièce. Doit être inférieur au seuil. Si vide, la valeur globale s’applique.",
           "valve_demand_link": "Si activé, la pièce ne sollicite la chaudière que lorsque sa vanne est ouverte (la mesure propre de la vanne est sous sa consigne) ou lorsque le plugin la force à s’ouvrir. Évite que la chaudière chauffe contre des vannes fermées en cas de petit écart. Ne bloque pas le chauffage si les données de la vanne manquent.",
-          "humidity_sensor": "En cas d’humidité élevée, la consigne de la pièce est légèrement relevée (voir Paramètres de base)."
+          "humidity_sensor": "En cas d’humidité élevée, la consigne de la pièce est légèrement relevée (voir Paramètres de base).",
+          "window_sensors": "Tant qu’une fenêtre ou une porte reste ouverte plus longtemps que le délai, la pièce ne demande plus de chaleur et la relance de la vanne est relâchée. Avec plusieurs capteurs, un seul ouvert suffit.",
+          "window_open_delay": "Durée pendant laquelle la fenêtre doit rester ouverte avant que la pièce réagisse, afin qu’une courte aération ne déclenche rien. 0 = immédiat. Si vide, la valeur globale s’applique."
         }
       },
       "edit_room": {
@@ -69,7 +73,9 @@
           "valve_boost_delay": "Délai avant relance de la vanne – cette pièce, minutes (vide = valeur globale)",
           "valve_release_margin": "Relâchement de la vanne avant la consigne – cette pièce (vide = valeur globale)",
           "valve_demand_link": "Lier la demande de chaudière à l’état de la vanne",
-          "humidity_sensor": "Capteur d’humidité de la pièce (facultatif)"
+          "humidity_sensor": "Capteur d’humidité de la pièce (facultatif)",
+          "window_sensors": "Capteur(s) de fenêtre / porte (facultatif)",
+          "window_open_delay": "Délai fenêtre ouverte – cette pièce, minutes (vide = valeur globale)"
         },
         "data_description": {
           "name": "Ex. Salon",
@@ -80,7 +86,9 @@
           "valve_boost_delay": "Durée pendant laquelle l’écart doit persister avant la relance. 0 = immédiat. Si vide, la valeur globale s’applique.",
           "valve_release_margin": "La vanne retrouve sa consigne d’origine à cet écart avant la consigne de la pièce. Doit être inférieur au seuil. Si vide, la valeur globale s’applique.",
           "valve_demand_link": "Si activé, la pièce ne sollicite la chaudière que lorsque sa vanne est ouverte (la mesure propre de la vanne est sous sa consigne) ou lorsque le plugin la force à s’ouvrir. Évite que la chaudière chauffe contre des vannes fermées en cas de petit écart. Ne bloque pas le chauffage si les données de la vanne manquent.",
-          "humidity_sensor": "En cas d’humidité élevée, la consigne de la pièce est légèrement relevée (voir Paramètres de base)."
+          "humidity_sensor": "En cas d’humidité élevée, la consigne de la pièce est légèrement relevée (voir Paramètres de base).",
+          "window_sensors": "Tant qu’une fenêtre ou une porte reste ouverte plus longtemps que le délai, la pièce ne demande plus de chaleur et la relance de la vanne est relâchée. Avec plusieurs capteurs, un seul ouvert suffit.",
+          "window_open_delay": "Durée pendant laquelle la fenêtre doit rester ouverte avant que la pièce réagisse, afin qu’une courte aération ne déclenche rien. 0 = immédiat. Si vide, la valeur globale s’applique."
         }
       },
       "remove_room": {
@@ -104,7 +112,9 @@
           "max_boost_enabled": "Limiter la durée de relance de la vanne",
           "max_boost_hours": "Durée max. de relance de la vanne (heures)",
           "max_boost_rest_minutes": "Pause après la durée max. (minutes)",
-          "valve_dry_run": "Simulation de la régulation des vannes (journal uniquement, aucune écriture sur les vannes)"
+          "window_open_delay": "Délai fenêtre ouverte – par défaut (minutes)",
+          "valve_dry_run": "Simulation de la régulation des vannes (journal uniquement, aucune écriture sur les vannes)",
+          "register_card": "Charger la carte Lovelace"
         },
         "data_description": {
           "hysteresis": "Une pièce demande de la chaleur lorsqu’elle est d’autant sous la consigne, et continue jusqu’à ce que la consigne soit atteinte.",
@@ -119,7 +129,9 @@
           "max_boost_enabled": "Si activé, la relance de la vanne s’arrête après la durée maximale indiquée ci-dessous (protège contre une fenêtre ouverte, un capteur mal placé ou une valeur figée).",
           "max_boost_hours": "Passé ce délai, la vanne retrouve sa consigne d’origine, même si la pièce n’a pas atteint la consigne.",
           "max_boost_rest_minutes": "Durée pendant laquelle aucune nouvelle relance n’est lancée après avoir atteint la durée maximale. Elle est réinitialisée quand la pièce atteint sa consigne.",
-          "valve_dry_run": "Si activé, la régulation des vannes se contente d’indiquer dans le journal ce qu’elle ferait (préfixe [PRÓBAÜZEM]) et ne modifie rien sur les vannes. Recommandé pour le premier essai réel."
+          "window_open_delay": "Valeur par défaut pour toutes les pièces : durée pendant laquelle une fenêtre doit rester ouverte avant que le chauffage de cette pièce soit mis en pause. Une aération plus courte ne change rien.",
+          "valve_dry_run": "Si activé, la régulation des vannes se contente d’indiquer dans le journal ce qu’elle ferait (préfixe [PRÓBAÜZEM]) et ne modifie rien sur les vannes. Recommandé pour le premier essai réel.",
+          "register_card": "Si activé, l’intégration charge sa carte pour qu’elle apparaisse dans la liste « Ajouter une carte » (elle n’ajoute jamais de carte à un tableau de bord d’elle-même). La désactivation prend effet après un redémarrage de Home Assistant ; vous pouvez alors ajouter la ressource manuellement (voir README)."
         }
       },
       "summer": {
@@ -223,6 +235,15 @@
           },
           "valve_boost_resting": {
             "name": "Relance de la vanne en pause après la durée maximale"
+          },
+          "window_open": {
+            "name": "Fenêtre ouverte (chauffage de la pièce en pause)"
+          },
+          "window_open_pending": {
+            "name": "Fenêtre ouverte, en attente du délai"
+          },
+          "room_name": {
+            "name": "Nom de la pièce"
           }
         }
       },
@@ -256,6 +277,9 @@
           },
           "outdoor_sensor_stale": {
             "name": "Capteur extérieur muet (obsolète)"
+          },
+          "boiler_entity": {
+            "name": "Thermostat de chaudière"
           }
         }
       }

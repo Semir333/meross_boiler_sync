@@ -38,7 +38,9 @@
           "valve_boost_delay": "Wachttijd voor kraanverhoging – deze kamer, minuten (leeg = algemene waarde)",
           "valve_release_margin": "Kraan vrijgeven vóór het doel – deze kamer (leeg = algemene waarde)",
           "valve_demand_link": "Ketelvraag koppelen aan de kraanstatus",
-          "humidity_sensor": "Kamervochtigheidssensor (optioneel)"
+          "humidity_sensor": "Kamervochtigheidssensor (optioneel)",
+          "window_sensors": "Raam-/deursensor(en) (optioneel)",
+          "window_open_delay": "Vertraging open raam – deze kamer, minuten (leeg = algemene waarde)"
         },
         "data_description": {
           "name": "Bijv. Woonkamer",
@@ -49,7 +51,9 @@
           "valve_boost_delay": "Hoe lang de afwijking moet aanhouden voordat de kraan wordt verhoogd. 0 = direct. Indien leeg geldt de algemene waarde.",
           "valve_release_margin": "De kraan krijgt zijn oorspronkelijke doeltemperatuur zo ver vóór het doel terug. Moet kleiner zijn dan de drempel. Indien leeg geldt de algemene waarde.",
           "valve_demand_link": "Indien ingeschakeld vraagt de kamer alleen warmte aan de ketel als de kraan open is (de eigen meting van de kraan ligt onder zijn doel) of als de plugin hem openzet. Zo stookt de ketel bij kleine afwijkingen niet tegen gesloten kranen. Blokkeert het verwarmen niet als kraangegevens ontbreken.",
-          "humidity_sensor": "Bij hoge luchtvochtigheid wordt de doeltemperatuur van de kamer licht verhoogd (zie Basisinstellingen)."
+          "humidity_sensor": "Bij hoge luchtvochtigheid wordt de doeltemperatuur van de kamer licht verhoogd (zie Basisinstellingen).",
+          "window_sensors": "Zolang een raam of deur langer dan de vertraging open staat, vraagt de kamer geen warmte meer en stopt de kraanverhoging. Bij meerdere sensoren telt elke open sensor.",
+          "window_open_delay": "Hoe lang het raam open moet staan voordat de kamer reageert, zodat kort luchten niets schakelt. 0 = direct. Indien leeg geldt de algemene waarde."
         }
       },
       "edit_room": {
@@ -69,7 +73,9 @@
           "valve_boost_delay": "Wachttijd voor kraanverhoging – deze kamer, minuten (leeg = algemene waarde)",
           "valve_release_margin": "Kraan vrijgeven vóór het doel – deze kamer (leeg = algemene waarde)",
           "valve_demand_link": "Ketelvraag koppelen aan de kraanstatus",
-          "humidity_sensor": "Kamervochtigheidssensor (optioneel)"
+          "humidity_sensor": "Kamervochtigheidssensor (optioneel)",
+          "window_sensors": "Raam-/deursensor(en) (optioneel)",
+          "window_open_delay": "Vertraging open raam – deze kamer, minuten (leeg = algemene waarde)"
         },
         "data_description": {
           "name": "Bijv. Woonkamer",
@@ -80,7 +86,9 @@
           "valve_boost_delay": "Hoe lang de afwijking moet aanhouden voordat de kraan wordt verhoogd. 0 = direct. Indien leeg geldt de algemene waarde.",
           "valve_release_margin": "De kraan krijgt zijn oorspronkelijke doeltemperatuur zo ver vóór het doel terug. Moet kleiner zijn dan de drempel. Indien leeg geldt de algemene waarde.",
           "valve_demand_link": "Indien ingeschakeld vraagt de kamer alleen warmte aan de ketel als de kraan open is (de eigen meting van de kraan ligt onder zijn doel) of als de plugin hem openzet. Zo stookt de ketel bij kleine afwijkingen niet tegen gesloten kranen. Blokkeert het verwarmen niet als kraangegevens ontbreken.",
-          "humidity_sensor": "Bij hoge luchtvochtigheid wordt de doeltemperatuur van de kamer licht verhoogd (zie Basisinstellingen)."
+          "humidity_sensor": "Bij hoge luchtvochtigheid wordt de doeltemperatuur van de kamer licht verhoogd (zie Basisinstellingen).",
+          "window_sensors": "Zolang een raam of deur langer dan de vertraging open staat, vraagt de kamer geen warmte meer en stopt de kraanverhoging. Bij meerdere sensoren telt elke open sensor.",
+          "window_open_delay": "Hoe lang het raam open moet staan voordat de kamer reageert, zodat kort luchten niets schakelt. 0 = direct. Indien leeg geldt de algemene waarde."
         }
       },
       "remove_room": {
@@ -104,7 +112,9 @@
           "max_boost_enabled": "Duur van kraanverhoging beperken",
           "max_boost_hours": "Max. duur kraanverhoging (uren)",
           "max_boost_rest_minutes": "Pauze na max. verhoging (minuten)",
-          "valve_dry_run": "Proefmodus kraanregeling (alleen loggen, niets naar de kranen schrijven)"
+          "window_open_delay": "Vertraging open raam – standaard (minuten)",
+          "valve_dry_run": "Proefmodus kraanregeling (alleen loggen, niets naar de kranen schrijven)",
+          "register_card": "Lovelace-kaart laden"
         },
         "data_description": {
           "hysteresis": "Een kamer vraagt warmte aan als hij zoveel onder het doel ligt, en blijft vragen tot het doel is bereikt.",
@@ -119,7 +129,9 @@
           "max_boost_enabled": "Indien ingeschakeld wordt de kraanverhoging na de onderstaande maximale duur gestopt (beschermt bij een open raam, een verkeerd geplaatste sensor of een bevroren waarde).",
           "max_boost_hours": "Na deze tijd krijgt de kraan zijn oorspronkelijke doeltemperatuur terug, ook als de kamer het doel niet heeft bereikt.",
           "max_boost_rest_minutes": "Hoe lang na het bereiken van de maximale duur geen nieuwe verhoging wordt gestart. Zodra de kamer het doel bereikt, wordt dit gereset.",
-          "valve_dry_run": "Indien ingeschakeld logt de kraanregeling alleen wat ze zou doen (voorvoegsel [PRÓBAÜZEM]) en wijzigt ze niets aan de kranen. Aanbevolen voor de eerste livetest."
+          "window_open_delay": "Standaard voor alle kamers: hoe lang een raam open moet staan voordat de verwarming van die kamer pauzeert. Korter luchten verandert niets.",
+          "valve_dry_run": "Indien ingeschakeld logt de kraanregeling alleen wat ze zou doen (voorvoegsel [PRÓBAÜZEM]) en wijzigt ze niets aan de kranen. Aanbevolen voor de eerste livetest.",
+          "register_card": "Indien ingeschakeld laadt de integratie haar kaart zodat die in de lijst 'Kaart toevoegen' verschijnt (er wordt nooit zelf een kaart aan een dashboard toegevoegd). Uitschakelen werkt na een herstart van Home Assistant; daarna kun je de resource handmatig toevoegen (zie README)."
         }
       },
       "summer": {
@@ -223,6 +235,15 @@
           },
           "valve_boost_resting": {
             "name": "Kraanverhoging rust na maximale duur"
+          },
+          "window_open": {
+            "name": "Raam open (verwarming voor deze kamer gepauzeerd)"
+          },
+          "window_open_pending": {
+            "name": "Raam open, wacht op de vertraging"
+          },
+          "room_name": {
+            "name": "Kamernaam"
           }
         }
       },
@@ -256,6 +277,9 @@
           },
           "outdoor_sensor_stale": {
             "name": "Buitensensor meldt niet (verouderd)"
+          },
+          "boiler_entity": {
+            "name": "Ketelthermostaat"
           }
         }
       }

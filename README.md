@@ -31,9 +31,28 @@ Fully localized in over 15 languages (including English, Hungarian, German, Fren
 
 ## 📋 Version History
 
-### Version 0.1.0
+### Version 1.1
+Window Sensor
+You can assign one or more window/door sensors to each room. If multiple sensors are used, the opening of any one of them is sufficient to trigger the response.  
+Delay: If a window remains open longer than the specified duration, the room will no longer request heat, and the valve will stop opening. Once the window is closed, heating resumes. Brief periods of ventilation (shorter than the delay) have no effect.  
+Settings: The default is 5 minutes (0 = immediate); this can be adjusted in the General Settings and overridden on a per-room basis.  
+An unreachable (offline) window sensor is treated as "closed," meaning it does not block heating.  
+The window sensor does not physically close the valve; it merely pauses the heat demand. If you also need the valve to close, let me know—that would require a separate, minor adjustment.  
 
-Monitoring for Stale Sensors (enabled by default, 6-hour threshold)
+Introducin lovelace card:  
+
+<img width="1944" height="811" alt="image" src="https://github.com/user-attachments/assets/9ddc66ff-d9fa-4011-bb89-c6e51f911562" />
+
+Visual editor with four sections:  
+General: design, title, selection of rooms (with custom order), and number of columns.  
+Content to display: boiler status, number of rooms requesting heat, summer mode, current temperature, target temperature, humidity, deviation, status label—individual indicators can be toggled on or off.  
+Values ​​and appearance: gauge scale, decimal precision, corner radius, and background transparency/blur.  
+Colors: color picker for each state, plus a button to reset to default colors.  
+Four design styles: glass gauge (closest to your current dashboard), minimalist rows, gradient tiles, and a list view with a status bar. Colors and background automatically adapt to your Home Assistant theme.  
+
+
+### Version 0.1.0  
+Monitoring for Stale Sensors (enabled by default, 6-hour threshold)  
 
 If a thermometer has not reported data within the specified timeframe, the plugin treats it as unavailable. The room switches to using the valves' own internal temperature readings, automatic valve control is suspended, and the valve reverts to its original target setting.
 A notification—displaying the room name and the sensor ID—will appear under Settings → Fixes. Once the sensor reports data again, this notification will automatically disappear.

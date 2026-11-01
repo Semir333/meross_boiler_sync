@@ -1,6 +1,6 @@
 /*!
  * Meross Boiler Sync – Lovelace kártya / Lovelace card
- * Verzió / version: 2.6.0
+ * Verzió / version: 2.6.1
  *
  * Felvétel: Irányítópult szerkesztése → Kártya hozzáadása → "Meross Boiler Sync".
  * Add: Edit dashboard → Add card → "Meross Boiler Sync".
@@ -1011,14 +1011,21 @@
     }
   }
 
-  customElements.define(TAG, MerossBoilerSyncCard);
-  customElements.define(EDITOR_TAG, MerossBoilerSyncCardEditor);
+  // ha a fájl valamiért kétszer fut le (pl. kézi erőforrás + automatikus), az ne okozzon hibát
+  const define = (tag, cls) => {
+    try { if (!customElements.get(tag)) customElements.define(tag, cls); }
+    catch (err) { console.warn("[meross-boiler-sync-card] " + tag + ":", err); }
+  };
+  define(TAG, MerossBoilerSyncCard);
+  define(EDITOR_TAG, MerossBoilerSyncCardEditor);
 
   window.customCards = window.customCards || [];
-  window.customCards.push({
-    type: TAG,
-    name: "Meross Boiler Sync",
-    description: (navigator.language || "").toLowerCase().startsWith("hu") ? STR.hu.description : STR.en.description,
-    preview: true,
-  });
+  if (!window.customCards.some((c) => c && c.type === TAG)) {
+    window.customCards.push({
+      type: TAG,
+      name: "Meross Boiler Sync",
+      description: (navigator.language || "").toLowerCase().startsWith("hu") ? STR.hu.description : STR.en.description,
+      preview: true,
+    });
+  }
 })();

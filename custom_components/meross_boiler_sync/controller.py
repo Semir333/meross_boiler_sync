@@ -84,6 +84,10 @@ from .const import (
     SAMPLE_INTERVAL_SECONDS,
     STORAGE_VERSION,
     SUMMER_HYSTERESIS,
+    TREND_HYSTERESIS,
+    TREND_MIN_SPAN_SECONDS,
+    TREND_SAMPLE_SECONDS,
+    TREND_WINDOW_SECONDS,
     parse_month_day,
 )
 
@@ -185,6 +189,43 @@ class RoomStatus:
     window_delay_s: float = DEFAULT_WINDOW_DELAY * 60
     window_open_since: float | None = None
     window_open: bool = False  # a késleltetés letelt: a szoba szünetel
+    # hőmérséklet trend (°C/óra), csak a kártyák kijelzéséhez
+    trend: float | None = None
+    trend_source: str | None = None
+    trend_samples: deque[tuple[float, float]] = field(default_factory=deque)
+
+
+def _slope_per_hour(samples: deque[tuple[float, float]]) -> float | None:
+    """Legkisebb négyzetes egyenes meredeksége °C/órában; kevés / rövid mintából None."""
+    if len(samples) < 3:
+        return None
+    t0 = samples[0][0]
+    if samples[-1][0] - t0 < TREND_MIN_SPAN_SECONDS:
+        return None
+    xs = [ts - t0 for ts, _ in samples]
+    ys = [val for _, val in samples]
+    n = len(samples)
+    mean_x = sum(xs) / n
+    mean_y = sum(ys) / n
+    den = sum((x - mean_x) ** 2 for x in xs)
+    if den <= 0:
+        return None
+    num = sum((x - mean_x) * (y - mean_y) for x, y in zip(xs, ys))
+    return round(num / den * 3600, 2) + 0.0  # + 0.0: a "-0.0" ne jelenjen meg
+
+
+def _stable_trend(prev: float | None, raw: float | None) -> float | None:
+    """A kiadott trend: 0,1-re kerekítve, és csak ≥ 0,2 °C/óra változásnál frissül.
+
+    Így az attribútum nem változik minden percben, és nem terheli feleslegesen
+    az állapot-előzményeket.
+    """
+    if raw is None:
+        return None
+    val = round(raw, 1) + 0.0
+    if prev is None or abs(val - prev) >= TREND_HYSTERESIS - 1e-9:
+        return val
+    return prev
 
 
 class BoilerController:
@@ -590,6 +631,7 @@ class BoilerController:
         if not targets:
             st.calling = False
             st.valve_open = False
+            self._update_trend(st)  # nincs aktuális érték: a trend törlődik
             return st
 
         # a szoba célhőmérséklete a szelep(ek)en beállított érték (a legmagasabb)
@@ -603,6 +645,7 @@ class BoilerController:
             current = sum(valve_temps) / len(valve_temps)
             st.source = "valve"
         st.current = current
+        self._update_trend(st)
 
         # páratartalom miatti célhőmérséklet-emelés
         humidity = self._read_float(room.get(CONF_ROOM_HUM))
@@ -640,6 +683,46 @@ class BoilerController:
             self._valve_open(st.valve_open, pairs) if st.valve_demand_link else False
         )
         return st
+
+    def _update_trend(self, st: RoomStatus) -> None:
+        """A szoba hőmérsékletének változási sebessége (°C/óra) az utolsó ~30 percből.
+
+        Csak kijelzésre szolgál (kártyák), a vezérlést nem befolyásolja.
+        """
+        if st.current is None:
+            st.trend_samples.clear()
+            st.trend = None
+            st.trend_source = None
+            return
+        now_ts = dt_util.utcnow().timestamp()
+        if st.trend_source != st.source:  # más forrás: más mérés, nem keverjük össze
+            st.trend_samples.clear()
+            st.trend_source = st.source
+        samples = st.trend_samples
+        if not samples or now_ts - samples[-1][0] >= TREND_SAMPLE_SECONDS:
+            samples.append((now_ts, st.current))
+        cutoff = now_ts - TREND_WINDOW_SECONDS
+        while samples and samples[0][0] < cutoff:
+            samples.popleft()
+        st.trend = _stable_trend(st.trend, _slope_per_hour(samples))
+
+    def room_times(self, st: RoomStatus) -> dict[str, float | None]:
+        """A kártyák visszaszámlálóihoz: mikor történik a következő esemény (epoch)."""
+        waiting = st.cold_since is not None and not st.boost_wanted
+        return {
+            "boost_starts_at": st.cold_since + st.boost_delay_s if waiting else None,
+            "boost_rest_until": st.rest_until,
+            "boost_max_until": (
+                st.boost_started + self.max_boost_seconds
+                if st.boost_wanted and self.max_boost_enabled and st.boost_started is not None
+                else None
+            ),
+            "window_pending_until": (
+                st.window_open_since + st.window_delay_s
+                if st.window_open_since is not None and not st.window_open
+                else None
+            ),
+        }
 
     # ------------------------------------------------------------------ kiértékelés
     async def async_evaluate(self) -> None:

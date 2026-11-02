@@ -131,7 +131,7 @@
           "max_boost_rest_minutes": "A maximális idő elérése után ennyi ideig nem indul új emelés. Ha a szoba eléri a célját, ez nullázódik.",
           "window_open_delay": "Alapértelmezés minden szobára: mennyi ideig kell nyitva lennie az ablaknak, mielőtt a szoba fűtése szünetel. A rövidebb szellőztetés nem változtat semmit.",
           "valve_dry_run": "Bekapcsolva a szelep szabályzás csak a naplóba írja, mit tenne ([PRÓBAÜZEM] előtaggal), de nem módosít semmit a szelepeken. Az első élő teszthez ajánlott.",
-          "register_card": "Bekapcsolva az integráció betölti a saját kártyáját, így megjelenik a „Kártya hozzáadása” listában (magától soha nem tesz kártyát egyetlen irányítópultra sem). Kikapcsolás a Home Assistant újraindítása után lép érvénybe; ilyenkor az erőforrást kézzel is felveheted (lásd README)."
+          "register_card": "Bekapcsolva az integráció felveszi a kártya fájlját az irányítópult erőforrásai közé (Beállítások → Irányítópultok → Erőforrások), és frissen tartja a verzióját, így megjelenik a „Kártya hozzáadása” listában. Magától soha nem tesz kártyát egyetlen irányítópultra sem. YAML módú irányítópultnál az erőforrást kézzel kell felvenni (lásd README). Kikapcsolva az integráció nem nyúl az erőforrásokhoz."
         }
       },
       "summer": {
@@ -241,6 +241,21 @@
           },
           "window_open_pending": {
             "name": "Ablak nyitva, a késleltetésre vár"
+          },
+          "temperature_trend": {
+            "name": "Hőmérséklet változása (°C/óra, az utolsó ~30 percből)"
+          },
+          "valve_boost_starts_at": {
+            "name": "A szelep emelés ekkor indul (a várakozás vége)"
+          },
+          "valve_boost_rest_until": {
+            "name": "A pihenő vége (addig nem emel újra)"
+          },
+          "valve_boost_max_until": {
+            "name": "Az emelés legfeljebb eddig tart"
+          },
+          "window_open_pending_until": {
+            "name": "Ekkor számít nyitottnak az ablak"
           },
           "room_name": {
             "name": "Szoba neve"

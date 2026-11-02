@@ -131,7 +131,7 @@
           "max_boost_rest_minutes": "How long no new boost is started after reaching the maximum duration. The room reaching its target resets this.",
           "window_open_delay": "Default for all rooms: how long a window must stay open before heating for that room is paused. Shorter airing changes nothing.",
           "valve_dry_run": "When on, valve control only logs what it would do ([PRÓBAÜZEM] prefix) and changes nothing on the valves. Recommended for the first live test.",
-          "register_card": "When on, the integration loads its card so it appears in the 'Add card' list (it never adds a card to a dashboard by itself). Turning it off takes effect after a Home Assistant restart; you can then add the resource manually (see README)."
+          "register_card": "When on, the integration adds the card file to the dashboard resources (Settings → Dashboards → Resources) and keeps its version up to date, so it appears in the 'Add card' list (it never adds a card to a dashboard by itself). With YAML-mode dashboards you have to add the resource manually (see README). When off, the integration does not touch the resources."
         }
       },
       "summer": {
@@ -241,6 +241,21 @@
           },
           "window_open_pending": {
             "name": "Window open, waiting for the delay"
+          },
+          "temperature_trend": {
+            "name": "Temperature change (°C/hour, from the last ~30 minutes)"
+          },
+          "valve_boost_starts_at": {
+            "name": "Valve boost starts at (end of the wait time)"
+          },
+          "valve_boost_rest_until": {
+            "name": "Rest ends at (no new boost until then)"
+          },
+          "valve_boost_max_until": {
+            "name": "Boost lasts at most until"
+          },
+          "window_open_pending_until": {
+            "name": "Window counts as open from"
           },
           "room_name": {
             "name": "Room name"

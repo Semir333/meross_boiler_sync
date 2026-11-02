@@ -67,6 +67,11 @@ MAX_EFFECTIVE_TARGET = 26.0  # °C, a páratartalom miatt sem emelünk e fölé
 SUMMER_HYSTERESIS = 1.0  # °C
 AVG_WINDOW_SECONDS = 24 * 3600
 SAMPLE_INTERVAL_SECONDS = 300
+# a szoba hőmérsékletének trendje (°C/óra): az utolsó ~30 percből, percenkénti mintákból
+TREND_WINDOW_SECONDS = 30 * 60
+TREND_SAMPLE_SECONDS = 60
+TREND_MIN_SPAN_SECONDS = 10 * 60  # ennél rövidebb mintavételből még nem számolunk trendet
+TREND_HYSTERESIS = 0.2  # °C/óra: ennél kisebb változásnál a kiadott érték nem frissül (kíméli az adatbázist)
 STORAGE_VERSION = 1
 
 # --- szelep szabályzás (kísérleti)

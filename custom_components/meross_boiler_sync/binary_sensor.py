@@ -1,6 +1,7 @@
 """Diagnosztikai szenzorok: szobánkénti hőigény és nyári mód."""
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Any
 
 from homeassistant.components.binary_sensor import BinarySensorEntity
@@ -35,6 +36,13 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
+def _iso(ts: float | None) -> str | None:
+    """Epoch -> ISO 8601 (UTC); a kártyák ebből számolják a visszaszámlálót."""
+    if ts is None:
+        return None
+    return datetime.fromtimestamp(ts, tz=timezone.utc).isoformat()
+
+
 class _BaseSensor(BinarySensorEntity):
     _attr_should_poll = False
     _attr_has_entity_name = True
@@ -62,6 +70,16 @@ class RoomDemandSensor(_BaseSensor):
 
     _attr_icon = "mdi:radiator"
     _attr_translation_key = "room_demand"
+    # a kártyák visszaszámlálóihoz / trendjéhez kellenek, de az előzményekbe nem érdemes menteni őket
+    _unrecorded_attributes = frozenset(
+        {
+            "temperature_trend",
+            "valve_boost_starts_at",
+            "valve_boost_rest_until",
+            "valve_boost_max_until",
+            "window_open_pending_until",
+        }
+    )
 
     def __init__(
         self, controller: BoilerController, entry: ConfigEntry, room_id: str, name: str
@@ -78,6 +96,7 @@ class RoomDemandSensor(_BaseSensor):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         st = self._controller.status[self._room_id]
+        times = self._controller.room_times(st)
         return {
             "room_name": st.name,
             "valves": st.valves,
@@ -103,6 +122,12 @@ class RoomDemandSensor(_BaseSensor):
             "valve_boost_waiting": st.cold_since is not None and not st.boost_wanted,
             "valve_boosted": st.boosted,
             "valve_dry_run": self._controller.valve_dry_run,
+            # a kártyákhoz: trend és a visszaszámlálók időpontjai (ISO, UTC)
+            "temperature_trend": st.trend,
+            "valve_boost_starts_at": _iso(times["boost_starts_at"]),
+            "valve_boost_rest_until": _iso(times["boost_rest_until"]),
+            "valve_boost_max_until": _iso(times["boost_max_until"]),
+            "window_open_pending_until": _iso(times["window_pending_until"]),
         }
 
 

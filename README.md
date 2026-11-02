@@ -31,7 +31,11 @@ Fully localized in over 15 languages (including English, Hungarian, German, Fren
 
 ## 📋 Version History
 
-### Version 1.4
+### Version 1.6
+
+Energy sensors
+
+### Version 1.4,1.5
 
 #### 5 new cards:  
 Why the Boiler is Heating, Detailed Room View, Weekly Heat Map, Heating Statistics, and Alerts.

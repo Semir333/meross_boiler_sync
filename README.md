@@ -31,6 +31,33 @@ Fully localized in over 15 languages (including English, Hungarian, German, Fren
 
 ## 📋 Version History
 
+### Version 1.3
+
+#### Three new cards (available as separate items in the card selector, featuring a minimalist "glass" aesthetic):  
+
+#### Overview / Boiler:  
+Displays the boiler, outdoor temperature, and summer mode at the top. Below, rooms are positioned along a "pipeline" network; a dashed line flows from the boiler to any room requesting heat. An animation of falling snow appears during freezing winter weather, while a sun icon is shown in summer mode.  
+#### Daily Heating Timeline:  
+A bar for each room, representing the past 6/12/24 hours or the last 7 days. Includes a summary row for the boiler at the top, complete with a legend.  
+#### Chip Row:  
+Available in three styles (chip, chip + target, or dot), with an optional boiler-summary chip.  
+
+#### New Design Elements and Effects (each with an individual on/off toggle):  
+
+#### Radiator Design:  
+The radiator fins glow based on the valve state; when heat is requested, heat waves appear to rise above them.  
+Temperature-coded color ring (blue → green → yellow → orange).  
+#### Trend and Estimate:  
+e.g., "+0.8°/h · approx. 35 min."  
+Countdown rings for states such as "Waiting," "Resting," "Window Open," and "Boosting."  
+#### Smooth Transitions:  
+The ring slides, and the numbers scroll.  
+####  Quick-Action Buttons:  
+A bar for "Auto / Comfort / ... (for all rooms)," with a "mixed" indicator if the profiles differ across rooms.
+
+<img width="1620" height="2765" alt="image" src="https://github.com/user-attachments/assets/6ddfea24-5895-4bbd-a48c-f0a22849e9a3" />
+
+
 ### Version 1.2
 
 #### Size:  

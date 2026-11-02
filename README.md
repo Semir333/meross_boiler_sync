@@ -33,6 +33,10 @@ Fully localized in over 15 languages (including English, Hungarian, German, Fren
 
 ### Version 1.6
 
+Add heat off to profile choose
+
+### Version 1.6
+
 Energy sensors
 
 ### Version 1.4,1.5

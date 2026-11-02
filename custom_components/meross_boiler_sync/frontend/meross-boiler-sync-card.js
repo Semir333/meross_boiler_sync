@@ -1,6 +1,6 @@
 /*!
  * Meross Boiler Sync – Lovelace kártyák / Lovelace cards
- * Verzió / version: 2.10.0
+ * Verzió / version: 2.10.1
  *
  * Felvétel: Irányítópult szerkesztése → Kártya hozzáadása → "Meross Boiler Sync".
  * Add: Edit dashboard → Add card → "Meross Boiler Sync".
@@ -323,6 +323,8 @@
   Object.assign(STR.hu, {
     // visszaszámláló címkék
     cd_manual: "Fűtés most", cd_pre: "Előfűtés",
+    // 2.10: a profilválasztó "Fűtés ki" eleme
+    preset_off: "Fűtés ki",
     // Fűts most gomb és felugró
     bn_title: "Fűts most", bn_ask: "Mennyi ideig fűtsön?", bn_stop: "Megszakítás", bn_raised: "Megemelt cél",
     bn_pick: "{from}° → {to}°",
@@ -357,6 +359,7 @@
   });
   Object.assign(STR.en, {
     cd_manual: "Heat now", cd_pre: "Preheat",
+    preset_off: "Heating off",
     bn_title: "Heat now", bn_ask: "Heat for how long?", bn_stop: "Stop", bn_raised: "Raised target",
     bn_pick: "{from}° → {to}°",
     bn_no_window: "Can't start while a window is open.", bn_no_stale: "The thermometer isn't reporting fresh data, so it can't start.",
@@ -533,7 +536,9 @@
     close: '<path d="M6 6l12 12M18 6L6 18"/>',
     bolt: '<path d="M13 3L5 13h6l-1 8 8-10h-6z"/>',
   };
-  const PRESET_ICON = { auto: "auto", sleep: "moon", comfort: "sofa", eco: "leaf", away: "away", home: "home", manual: "tune", boost: "flame" };
+  /** A profilválasztó utolsó eleme: nem valódi profil, hanem a szelepek kikapcsolása (hvac_mode: off). */
+  const OFF_PRESET = "__off__";
+  const PRESET_ICON = { auto: "auto", sleep: "moon", comfort: "sofa", eco: "leaf", away: "away", home: "home", manual: "tune", boost: "flame", [OFF_PRESET]: "power" };
   const ic = (name, cls) => `<svg class="ic ${cls || ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ""}</svg>`;
   const STATUS_ICON = {
     idle: "thermo", demand: "flame", boost: "valve", waiting: "clock", rest: "pause",
@@ -588,6 +593,7 @@
         id: v.entity_id, state: v.state, name: v.attributes.friendly_name || v.entity_id, cur: num(v.attributes.current_temperature),
         preset: v.attributes.preset_mode == null ? null : String(v.attributes.preset_mode),
         presets: Array.isArray(v.attributes.preset_modes) ? v.attributes.preset_modes.map(String) : [],
+        modes: Array.isArray(v.attributes.hvac_modes) ? v.attributes.hvac_modes.map(String) : [],
         min: num(v.attributes.min_temp), max: num(v.attributes.max_temp), step: num(v.attributes.target_temp_step), target: num(v.attributes.temperature),
         ok: v.state !== "unavailable" && v.state !== "unknown" && v.state !== "off",
       });
@@ -631,6 +637,15 @@
       starts: all.find(isStarts) || null, cycling: all.find(isCycling) || null,
     };
   }
+
+  /** Kikapcsolás: csak az a szelep kapcsolható ki, amelyik elérhető és a hvac_modes listájában szerepel az "off". */
+  const reachable = (x) => x.state !== "unavailable" && x.state !== "unknown";
+  const canOffValve = (x) => reachable(x) && x.modes.includes("off");
+  const isOffValve = (x) => x.state === "off" && x.modes.includes("off");
+  /** Visszakapcsoláskor melyik módba: heat, különben auto, különben az első nem-"off" mód. */
+  const onModeOf = (x) => ["heat", "auto", "heat_cool"].find((m) => x.modes.includes(m)) || x.modes.find((m) => m !== "off") || "heat";
+  /** A szoba ki van kapcsolva: minden elérhető szelepe "off" (és legalább egy tud kikapcsolni). */
+  const roomIsOff = (r) => { const rv = r.valves.filter(reachable); return rv.length > 0 && rv.every((x) => x.state === "off") && rv.some(canOffValve); };
 
   const boilerOn = (b) => !!b && b.state !== "off" && b.state !== "unavailable" && b.state !== "unknown";
 
@@ -790,12 +805,14 @@
     .pre .ic { width:1em; height:1em; }
     .pre .chev { width:.8em; height:.8em; opacity:.7; }
     .menu { position:absolute; right:-.2em; bottom:calc(100% + .5em); min-width:9.5em; max-height:15em; overflow:auto; padding:.35em; border-radius:1em; z-index:6;
-      background:color-mix(in srgb, var(--card-background-color, #1c1c1e) 97%, transparent); border:1px solid var(--border);
+      background:var(--card-background-color, #1c1c1e); border:1px solid var(--border);
       box-shadow:0 10px 30px rgba(0,0,0,.45); text-align:left; }
     .mi { display:flex; align-items:center; gap:.6em; width:100%; padding:.5em .65em; border-radius:.7em; font:inherit; font-size:.82em; border:0;
       background:transparent; color:var(--text); cursor:pointer; text-align:left; }
     .mi:hover { background:color-mix(in srgb, var(--text) 9%, transparent); }
     .mi.on { background:color-mix(in srgb, var(--c) 18%, transparent); color:var(--c); font-weight:600; }
+    .mi.moff { position:relative; margin-top:.6em; }
+    .mi.moff::before { content:""; position:absolute; left:.5em; right:.5em; top:-.32em; height:1px; background:color-mix(in srgb, var(--text) 16%, transparent); }
     .mi .ic { width:1.15em; height:1.15em; }
     .mi .ck { margin-left:auto; }
 
@@ -1254,6 +1271,7 @@
     .sheet .pchips button { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:99px; font:inherit; font-size:.78rem; color:var(--muted); border:1px solid var(--border); background:color-mix(in srgb,var(--text) 5%,transparent); cursor:pointer; }
     .sheet .pchips button.on { color:var(--text); font-weight:600; background:color-mix(in srgb,var(--text) 15%,transparent); }
     .sheet .pchips .ic { width:14px; height:14px; }
+    .sheet .pchips button.poff { margin-left:auto; }
     .sheet .vl { margin-top:8px; }
     .sheet .vr { display:grid; grid-template-columns:20px 1fr auto; gap:10px; align-items:center; padding:8px 0; font-size:.82rem; border-top:1px solid color-mix(in srgb,var(--text) 8%,transparent); }
     .sheet .vr .ic { width:16px; height:16px; color:var(--c); } .sheet .vr .a { color:var(--muted); font-variant-numeric:tabular-nums; } .sheet .vr .a b { color:var(--text); font-weight:600; }
@@ -1521,6 +1539,7 @@
 
     _presetLabelFor(valveId, p) {
       const h = this._hass;
+      if (p === OFF_PRESET) return T(h, "preset_off");
       try {
         if (h && typeof h.formatEntityAttributeValue === "function" && h.states[valveId]) {
           const t = h.formatEntityAttributeValue(h.states[valveId], "preset_mode", p);
@@ -1571,6 +1590,22 @@
         .catch(() => { if (this._pending[id] === p) { clearTimeout(p.expire); delete this._pending[id]; this._redraw(); } });
     }
 
+    /** A profilválasztó elemei: a szelep profiljai + (ha a szelep tud kikapcsolni) a "Fűtés ki". */
+    _presetIds(r) {
+      const v = r.valve;
+      if (!v) return [];
+      const ids = v.presets.slice();
+      if (r.valves.some(canOffValve)) ids.push(OFF_PRESET);
+      return ids;
+    }
+
+    /** A kiválasztott elem: a várakozó (optimista) érték, különben "Fűtés ki" ha a szoba ki van kapcsolva, különben a profil. */
+    _presetCur(r, pend) {
+      if (pend) return pend.value;
+      if (roomIsOff(r)) return OFF_PRESET;
+      return r.valve ? r.valve.preset : null;
+    }
+
     _setPreset(id, preset) {
       const r = this._room(id);
       this._open = null;
@@ -1581,8 +1616,18 @@
       p.expire = setTimeout(() => { if (this._pendingPreset[id] === p) { delete this._pendingPreset[id]; this._redraw(); } }, 8000);
       this._pendingPreset[id] = p;
       this._redraw();
-      this._callService("climate", "set_preset_mode", { entity_id: r.valveIds, preset_mode: preset })
-        .catch(() => { if (this._pendingPreset[id] === p) { clearTimeout(p.expire); delete this._pendingPreset[id]; this._redraw(); } });
+      let call;
+      if (preset === OFF_PRESET) {
+        const ids = r.valves.filter(canOffValve).map((x) => x.id);
+        call = ids.length ? this._callService("climate", "set_hvac_mode", { entity_id: ids, hvac_mode: "off" }) : Promise.resolve();
+      } else {
+        // a kikapcsolt szelepeket előbb visszakapcsoljuk (mód szerint csoportosítva), aztán jön a profil
+        const groups = {};
+        r.valves.filter(isOffValve).forEach((x) => { (groups[onModeOf(x)] = groups[onModeOf(x)] || []).push(x.id); });
+        const ons = Object.keys(groups).map((m) => this._callService("climate", "set_hvac_mode", { entity_id: groups[m], hvac_mode: m }));
+        call = Promise.all(ons).then(() => this._callService("climate", "set_preset_mode", { entity_id: r.valveIds, preset_mode: preset }));
+      }
+      call.catch(() => { if (this._pendingPreset[id] === p) { clearTimeout(p.expire); delete this._pendingPreset[id]; this._redraw(); } });
     }
 
     /* ---------- gyorsgombok: minden megjelenített szoba profilja egyszerre ---------- */
@@ -1657,7 +1702,8 @@
           delete this._pending[r.id];
         }
         const q = this._pendingPreset[r.id];
-        if (q && r.valve && r.valve.preset === q.value) {
+        const reached = q && (q.value === OFF_PRESET ? roomIsOff(r) : r.valve && r.valve.preset === q.value && !r.valves.some(isOffValve));
+        if (reached) {
           clearTimeout(q.expire);
           delete this._pendingPreset[r.id];
         }
@@ -2779,16 +2825,17 @@
       }
 
       // profil (preset) választó
-      const showPre = !!(c.show_presets && v && v.presets.length);
+      const pids = this._presetIds(r);
+      const showPre = !!(c.show_presets && v && pids.length);
       let pre = "", menu = "";
       if (showPre) {
-        const cur = pendP ? pendP.value : v.preset;
+        const cur = this._presetCur(r, pendP);
         const open = this._open === r.id;
         const label = cur != null ? this._presetLabelFor(v.id, cur) : T(h, "preset_word");
         pre = `<button type="button" class="pre" data-act="menu" data-room="${esc(r.id)}" aria-haspopup="listbox" aria-expanded="${open}"${v.state === "unavailable" ? " disabled" : ""}>${ic(PRESET_ICON[cur] || "tune")}<span>${esc(label)}</span>${ic("chev", "chev")}</button>`;
         if (open) {
-          menu = `<div class="menu" role="listbox" data-act="none">${v.presets.map((p) =>
-            `<button type="button" class="mi${p === cur ? " on" : ""}" role="option" aria-selected="${p === cur}" data-act="preset" data-room="${esc(r.id)}" data-preset="${esc(p)}">${ic(PRESET_ICON[p] || "tune")}<span>${esc(this._presetLabelFor(v.id, p))}</span>${p === cur ? `<span class="ck">${ic("check")}</span>` : ""}</button>`).join("")}</div>`;
+          menu = `<div class="menu" role="listbox" data-act="none">${pids.map((p) =>
+            `<button type="button" class="mi${p === cur ? " on" : ""}${p === OFF_PRESET ? " moff" : ""}" role="option" aria-selected="${p === cur}" data-act="preset" data-room="${esc(r.id)}" data-preset="${esc(p)}">${ic(PRESET_ICON[p] || "tune")}<span>${esc(this._presetLabelFor(v.id, p))}</span>${p === cur ? `<span class="ck">${ic("check")}</span>` : ""}</button>`).join("")}</div>`;
         }
       }
 
@@ -3132,11 +3179,11 @@
         sh.fresh = false;
         chart = roomChartHtml(h, r, rowsOf(h, hist, r.id, true), from, to, 12, intro);
       } else chart = this._hMsg();
-      const cur = pendP ? pendP.value : v ? v.preset : null;
-      const chips = v && v.presets.length ? `<div class="pchips">${v.presets.map((p) =>
-        `<button type="button" class="${p === cur ? "on" : ""}" data-sact="preset" data-preset="${esc(p)}">${ic(PRESET_ICON[p] || "tune")}${esc(this._presetLabelFor(v.id, p))}</button>`).join("")}</div>` : "";
+      const cur = v ? this._presetCur(r, pendP) : null, pids = this._presetIds(r);
+      const chips = v && pids.length ? `<div class="pchips">${pids.map((p) =>
+        `<button type="button" class="${p === cur ? "on" : ""}${p === OFF_PRESET ? " poff" : ""}" data-sact="preset" data-preset="${esc(p)}">${ic(PRESET_ICON[p] || "tune")}${esc(this._presetLabelFor(v.id, p))}</button>`).join("")}</div>` : "";
       const valves = r.valves.map((x) => {
-        const col = !x.ok ? "var(--c-stale)" : r.a.valve_boosted ? "var(--c-boost)" : "var(--c-idle)";
+        const col = isOffValve(x) ? "var(--c-off)" : !x.ok ? "var(--c-stale)" : r.a.valve_boosted ? "var(--c-boost)" : "var(--c-idle)";
         return `<div class="vr" style="--c:${col}">${ic("valve")}<span class="vn">${esc(x.name)}</span><span class="a">${x.cur != null ? `<b>${this._num(x.cur, d)}°</b>` : "–"}${x.target != null ? ` → ${this._num(x.target, d)}°` : ""}</span></div>`;
       }).join("");
       const big = this._bigInner(r.cur, d);
@@ -3281,11 +3328,12 @@
       const h = this._hass, d = Number(this._config.decimals) || 0;
       if (!r.valves.length) return "";
       const rows = r.valves.map((v) => {
-        const col = !v.ok ? "var(--c-stale)" : r.a.valve_boosted ? "var(--c-boost)" : "var(--c-idle)";
-        const label = v.preset != null ? this._presetLabelFor(v.id, v.preset) : "";
+        const off = isOffValve(v);
+        const col = off ? "var(--c-off)" : !v.ok ? "var(--c-stale)" : r.a.valve_boosted ? "var(--c-boost)" : "var(--c-idle)";
+        const label = off ? this._presetLabelFor(v.id, OFF_PRESET) : v.preset != null ? this._presetLabelFor(v.id, v.preset) : "";
         return `<div class="vr" style="--c:${col}" data-entity="${esc(v.id)}">${ic("valve")}<span class="vn">${esc(v.name)}</span>
           <span class="a">${v.cur != null ? `<b>${this._num(v.cur, d)}°</b>` : "–"}${v.target != null ? ` → ${this._num(v.target, d)}°` : ""}</span>
-          ${label ? `<span class="pr">${ic(PRESET_ICON[v.preset] || "tune")}${esc(label)}</span>` : "<span></span>"}</div>`;
+          ${label ? `<span class="pr">${ic(PRESET_ICON[off ? OFF_PRESET : v.preset] || "tune")}${esc(label)}</span>` : "<span></span>"}</div>`;
       }).join("");
       return `<div class="vl"><div class="sm">${esc(F(h, "rc_valves", { n: r.valves.length }))}</div>${rows}</div>`;
     }

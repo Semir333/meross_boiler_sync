@@ -31,6 +31,36 @@ Fully localized in over 15 languages (including English, Hungarian, German, Fren
 
 ## 📋 Version History
 
+### Version 1.4
+
+#### 5 new cards:  
+Why the Boiler is Heating, Detailed Room View, Weekly Heat Map, Heating Statistics, and Alerts.
+#### Design:  
+Sparklines on tiles, draggable rings, room view accessible via long-press, heat map tiles, night mode, and E-ink or neon styles. Each feature includes an on/off toggle.
+#### Background functions:  
+#### Heat Now:  
+Includes a button for a timed target temperature increase, complete with a countdown timer.
+#### Pre-heating:  
+The plugin learns the room's heating rate and initiates heating in advance.
+#### Events for automations and the Home Assistant log.  
+#### Boiler cycle monitoring (alerts for frequent switching/short-cycling).  
+
+<img width="1277" height="716" alt="image" src="https://github.com/user-attachments/assets/2c9272a4-b158-4c9f-b89f-59fe1e32d4fb" />
+<img width="771" height="952" alt="image" src="https://github.com/user-attachments/assets/6d31e757-38d2-4b1f-be0a-7a1d6ddd7b7a" />
+<img width="1014" height="918" alt="image" src="https://github.com/user-attachments/assets/5f662473-ea09-481f-9ac3-b3e4bdef287c" />
+<img width="954" height="934" alt="image" src="https://github.com/user-attachments/assets/4a1e577a-0874-4c75-9512-9ced5b9fa586" />
+<img width="1118" height="673" alt="image" src="https://github.com/user-attachments/assets/3cb7fcf9-b270-47d5-ac66-1d7bb3419b4e" />
+<img width="1258" height="554" alt="image" src="https://github.com/user-attachments/assets/600c5c2e-88fd-4521-89f5-fcaeecd4b06c" />
+<img width="938" height="756" alt="image" src="https://github.com/user-attachments/assets/310df57d-700d-448c-94c4-e9e935ecd5ae" />
+<img width="1085" height="683" alt="image" src="https://github.com/user-attachments/assets/9d0edbeb-91cf-4596-9d71-3224c6d011d6" />
+<img width="1288" height="539" alt="image" src="https://github.com/user-attachments/assets/3763c084-bb66-47c9-8d35-73dd74c62c13" />
+<img width="969" height="703" alt="image" src="https://github.com/user-attachments/assets/a1743ad5-f0a2-4889-95f5-f4c17fb73395" />
+<img width="952" height="921" alt="image" src="https://github.com/user-attachments/assets/8a0657a2-cd18-4db8-92e5-72272af47cfb" />
+<img width="1261" height="806" alt="image" src="https://github.com/user-attachments/assets/5130c1e5-2a43-4651-bf61-9745c1e00a8a" />
+<img width="1188" height="901" alt="image" src="https://github.com/user-attachments/assets/1890d922-6a92-4ea1-a6b4-fff234c76ccb" />
+<img width="893" height="837" alt="image" src="https://github.com/user-attachments/assets/c2c71c67-1332-4573-a935-f8acd9b8ba17" />
+
+
 ### Version 1.3
 
 #### Three new cards (available as separate items in the card selector, featuring a minimalist "glass" aesthetic):  

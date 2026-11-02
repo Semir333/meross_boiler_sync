@@ -25,7 +25,7 @@
           "settings": "Alapbeállítások",
           "summer": "Nyári mód",
           "done": "Mentés és kilépés",
-          "features": "Funkciók (események, védelem, Fűts most, előfűtés)",
+          "features": "Funkciók (események, védelem, Fűts most, előfűtés, gázbecslés)",
           "preheat": "Előfűtés menetrend (szobánként)"
         }
       },
@@ -152,7 +152,7 @@
       },
       "features": {
         "title": "Funkciók",
-        "description": "Minden funkció külön ki- és bekapcsolható.\n\n**Események**: a plugin `meross_boiler_sync_event` eseményeket küld (szelepemelés, ablak, elavult szenzor, gyakori kapcsolgatás, Fűts most, előfűtés), amelyekre automatizációt építhetsz, és a HA naplóban is olvashatók.\n\n**Kazán ciklusok figyelése**: számolja a kazán indításait, és jelzi a gyakori kapcsolgatást.\n\n**Védelem**: ha be van kapcsolva, a kazán legalább a megadott ideig bekapcsolva / kikapcsolva marad, még akkor is, ha a szobák hőigénye közben változik. Ez késleltetheti a fűtést, ezért alapból ki van kapcsolva.\n\n**Fűts most**: a `meross_boiler_sync.boost_now` szolgáltatás (és a kártyák gombja) a szoba célhőmérsékletét ideiglenesen megemeli. Nyári módban, nyitott ablaknál és elavult szenzornál nem indul el.\n\n**Előfűtés**: a megadott időpontra felfűti a szobát, a tanult felfűtési sebesség alapján számolja ki, mikor kell kezdeni. A menetrendet a főmenü *Előfűtés menetrend* pontjában adhatod meg. Magától indul, ezért alapból ki van kapcsolva.",
+        "description": "Minden funkció külön ki- és bekapcsolható.\n\n**Események**: a plugin `meross_boiler_sync_event` eseményeket küld (szelepemelés, ablak, elavult szenzor, gyakori kapcsolgatás, Fűts most, előfűtés), amelyekre automatizációt építhetsz, és a HA naplóban is olvashatók.\n\n**Kazán ciklusok figyelése**: számolja a kazán indításait, és jelzi a gyakori kapcsolgatást.\n\n**Védelem**: ha be van kapcsolva, a kazán legalább a megadott ideig bekapcsolva / kikapcsolva marad, még akkor is, ha a szobák hőigénye közben változik. Ez késleltetheti a fűtést, ezért alapból ki van kapcsolva.\n\n**Fűts most**: a `meross_boiler_sync.boost_now` szolgáltatás (és a kártyák gombja) a szoba célhőmérsékletét ideiglenesen megemeli. Nyári módban, nyitott ablaknál és elavult szenzornál nem indul el.\n\n**Előfűtés**: a megadott időpontra felfűti a szobát, a tanult felfűtési sebesség alapján számolja ki, mikor kell kezdeni. A menetrendet a főmenü *Előfűtés menetrend* pontjában adhatod meg. Magától indul, ezért alapból ki van kapcsolva.\n\n**Gázbecslés**: becsült gázfogyasztás szenzort (m³) hoz létre, amit az Energia fülön a *Gázfogyasztás* alatt választhatsz ki. A kazán bekapcsolt idejét szorozza a lent megadott gázfogyasztással. Becslés, nem mérés, ezért alapból ki van kapcsolva.",
         "data": {
           "events_enabled": "Események és naplóbejegyzések",
           "cycle_monitor_enabled": "Kazán ciklusok figyelése (szenzorok)",
@@ -168,7 +168,9 @@
           "preheat_max_minutes": "Előfűtés: legkorábbi indulás a kész időpont előtt",
           "preheat_hold_minutes": "Előfűtés: a cél tartása a kész időpont után",
           "preheat_default_rate": "Előfűtés: alap felfűtési sebesség (amíg nem tanulta meg)",
-          "manual_boost_end_on_target": "Fűts most: véget ér, ha a szoba eléri a megemelt célt"
+          "manual_boost_end_on_target": "Fűts most: véget ér, ha a szoba eléri a megemelt célt",
+          "gas_estimate_enabled": "Gázbecslés (az Energia fülhöz)",
+          "gas_m3_per_hour": "Gázbecslés: gázfogyasztás bekapcsolt kazánnál"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Ha a kazán ennyiszer vagy többször indult az elmúlt órában, a Gyakori kapcsolgatás szenzor bekapcsol.",
@@ -177,7 +179,9 @@
           "manual_boost_offset": "Ennyivel emeli meg a szoba célhőmérsékletét a Fűts most ideje alatt. A szelepet a szelep szabályzás (ha a szobában be van kapcsolva) azonnal kinyitja.",
           "preheat_max_minutes": "Ennél korábban nem kezd előfűteni, akkor sem, ha a szoba nagyon kihűlt (alap: 240 perc).",
           "preheat_default_rate": "A szoba felfűtési sebességét a plugin a fűtés közben méri; ennyi fokkal számol óránként, amíg elég mintát nem gyűjtött (kb. 20 perc fűtés).",
-          "manual_boost_end_on_target": "Ha ki van kapcsolva, a Fűts most a teljes időtartamig tart, és a megemelt célt tartja."
+          "manual_boost_end_on_target": "Ha ki van kapcsolva, a Fűts most a teljes időtartamig tart, és a megemelt célt tartja.",
+          "gas_estimate_enabled": "Létrehozza a becsült gázfogyasztás szenzort. A kazán bekapcsolt idejét számolja; azt az időt, amíg a Home Assistant nem fut, nem számolja.",
+          "gas_m3_per_hour": "Hány m³ gázt fogyaszt a kazán óránként, amíg be van kapcsolva (a típustáblán vagy a számlán megtalálod). Hasonlítsd össze a szenzort a gázóra állásával, és ahhoz igazítsd az értéket."
         }
       },
       "preheat": {
@@ -463,6 +467,17 @@
           },
           "cycles": {
             "name": "Ciklusok (utolsó 12 óra)"
+          }
+        }
+      },
+      "gas_estimate": {
+        "name": "Becsült gázfogyasztás",
+        "state_attributes": {
+          "m3_per_hour": {
+            "name": "Gázfogyasztás bekapcsolva (m³/óra)"
+          },
+          "boiler_on": {
+            "name": "A kazán be van kapcsolva"
           }
         }
       }

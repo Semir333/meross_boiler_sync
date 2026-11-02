@@ -25,7 +25,7 @@
           "settings": "Basisinstellingen",
           "summer": "Zomermodus",
           "done": "Opslaan en afsluiten",
-          "features": "Functies (gebeurtenissen, beveiliging, Nu verwarmen, Voorverwarmen)",
+          "features": "Functies (gebeurtenissen, beveiliging, Nu verwarmen, Voorverwarmen, gasschatting)",
           "preheat": "Voorverwarmschema (per kamer)"
         }
       },
@@ -152,7 +152,7 @@
       },
       "features": {
         "title": "Functies",
-        "description": "Elke functie kan afzonderlijk worden in- en uitgeschakeld.\n\n**Gebeurtenissen**: de plugin stuurt `meross_boiler_sync_event`-gebeurtenissen (kraanverhoging, raam, verouderde sensor, korte cycli, Nu verwarmen, voorverwarmen) die je in automatiseringen kunt gebruiken; ze zijn ook te lezen in het HA-logboek.\n\n**Ketelcycli bewaken**: telt de ketelstarts en meldt korte cycli.\n\n**Beveiliging**: indien ingeschakeld blijft de ketel minstens de opgegeven tijd aan of uit, ook als de warmtevraag van de kamers intussen verandert. Dit kan de verwarming vertragen, daarom staat het standaard uit.\n\n**Nu verwarmen**: de service `meross_boiler_sync.boost_now` (en de knop op de kaarten) verhoogt tijdelijk het doel van de kamer. Het start niet in zomermodus, bij een open raam of een verouderde sensor.\n\n**Voorverwarmen**: verwarmt de kamer op tegen een bepaald tijdstip en berekent aan de hand van de geleerde opwarmsnelheid wanneer het moet beginnen. Stel het weekschema in via *Voorverwarmschema* in het hoofdmenu. Het start vanzelf, daarom staat het standaard uit.",
+        "description": "Elke functie kan afzonderlijk worden in- en uitgeschakeld.\n\n**Gebeurtenissen**: de plugin stuurt `meross_boiler_sync_event`-gebeurtenissen (kraanverhoging, raam, verouderde sensor, korte cycli, Nu verwarmen, voorverwarmen) die je in automatiseringen kunt gebruiken; ze zijn ook te lezen in het HA-logboek.\n\n**Ketelcycli bewaken**: telt de ketelstarts en meldt korte cycli.\n\n**Beveiliging**: indien ingeschakeld blijft de ketel minstens de opgegeven tijd aan of uit, ook als de warmtevraag van de kamers intussen verandert. Dit kan de verwarming vertragen, daarom staat het standaard uit.\n\n**Nu verwarmen**: de service `meross_boiler_sync.boost_now` (en de knop op de kaarten) verhoogt tijdelijk het doel van de kamer. Het start niet in zomermodus, bij een open raam of een verouderde sensor.\n\n**Voorverwarmen**: verwarmt de kamer op tegen een bepaald tijdstip en berekent aan de hand van de geleerde opwarmsnelheid wanneer het moet beginnen. Stel het weekschema in via *Voorverwarmschema* in het hoofdmenu. Het start vanzelf, daarom staat het standaard uit.\n\n**Gasschatting**: maakt een sensor voor het geschatte gasverbruik (m³) die je op het Energiedashboard onder *Gasverbruik* kunt kiezen. Hij vermenigvuldigt de aan-tijd van de ketel met het hieronder ingestelde gasverbruik. Het is een schatting, geen meting, en staat standaard uit.",
         "data": {
           "events_enabled": "Gebeurtenissen en logboekregels",
           "cycle_monitor_enabled": "Ketelcycli bewaken (sensoren)",
@@ -168,7 +168,9 @@
           "preheat_max_minutes": "Voorverwarmen: vroegste start vóór de gereedtijd",
           "preheat_hold_minutes": "Voorverwarmen: doel aanhouden na de gereedtijd",
           "preheat_default_rate": "Voorverwarmen: standaard opwarmsnelheid (tot ze geleerd is)",
-          "manual_boost_end_on_target": "Nu verwarmen: stoppen als de kamer het verhoogde doel bereikt"
+          "manual_boost_end_on_target": "Nu verwarmen: stoppen als de kamer het verhoogde doel bereikt",
+          "gas_estimate_enabled": "Gasschatting (voor het Energiedashboard)",
+          "gas_m3_per_hour": "Gasschatting: gasverbruik als de ketel aan staat"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Als de ketel het afgelopen uur zo vaak of vaker is gestart, gaat de sensor Korte cycli aan.",
@@ -177,7 +179,9 @@
           "manual_boost_offset": "Hoeveel het doel van de kamer tijdens Nu verwarmen wordt verhoogd. De kraan wordt door de kraanregeling (indien voor de kamer ingeschakeld) meteen geopend.",
           "preheat_max_minutes": "Voorverwarmen begint nooit eerder dan dit, ook niet als de kamer erg koud is (standaard: 240 min).",
           "preheat_default_rate": "De plugin meet de opwarmsnelheid van elke kamer tijdens het verwarmen; tot er genoeg metingen zijn (ongeveer 20 minuten verwarmen) rekent hij met dit aantal graden per uur.",
-          "manual_boost_end_on_target": "Indien uit duurt Nu verwarmen de volledige duur en houdt het het verhoogde doel aan."
+          "manual_boost_end_on_target": "Indien uit duurt Nu verwarmen de volledige duur en houdt het het verhoogde doel aan.",
+          "gas_estimate_enabled": "Voegt de sensor voor het geschatte gasverbruik toe. Hij telt de aan-tijd van de ketel; tijd waarin Home Assistant niet draait, wordt niet meegeteld.",
+          "gas_m3_per_hour": "Hoeveel m³ gas de ketel per uur verbruikt als hij aan staat (zie het typeplaatje of je rekening). Vergelijk de sensor met de stand van je gasmeter en pas deze waarde aan tot ze overeenkomen."
         }
       },
       "preheat": {
@@ -463,6 +467,17 @@
           },
           "cycles": {
             "name": "Cycli (laatste 12 u)"
+          }
+        }
+      },
+      "gas_estimate": {
+        "name": "Geschat gasverbruik",
+        "state_attributes": {
+          "m3_per_hour": {
+            "name": "Gasverbruik bij ingeschakelde ketel (m³/u)"
+          },
+          "boiler_on": {
+            "name": "Ketel is aan"
           }
         }
       }

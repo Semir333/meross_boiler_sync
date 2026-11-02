@@ -25,7 +25,7 @@
           "settings": "Grundeinstellungen",
           "summer": "Sommermodus",
           "done": "Speichern und beenden",
-          "features": "Funktionen (Ereignisse, Schutz, Jetzt heizen, Vorheizen)",
+          "features": "Funktionen (Ereignisse, Schutz, Jetzt heizen, Vorheizen, Gasschätzung)",
           "preheat": "Vorheiz-Zeitplan (pro Raum)"
         }
       },
@@ -152,7 +152,7 @@
       },
       "features": {
         "title": "Funktionen",
-        "description": "Jede Funktion lässt sich einzeln ein- und ausschalten.\n\n**Ereignisse**: Das Plugin sendet `meross_boiler_sync_event`-Ereignisse (Ventilanhebung, Fenster, veralteter Sensor, Kurzzyklen, Jetzt heizen, Vorheizen), die du in Automationen nutzen kannst; sie sind auch im HA-Logbuch zu lesen.\n\n**Kesselzyklen überwachen**: zählt die Kesselstarts und meldet Kurzzyklen.\n\n**Schutz**: Wenn aktiv, bleibt der Kessel mindestens die angegebene Zeit ein- bzw. ausgeschaltet, auch wenn sich der Wärmebedarf der Räume in der Zwischenzeit ändert. Das kann die Heizung verzögern, daher ist es standardmäßig aus.\n\n**Jetzt heizen**: Der Dienst `meross_boiler_sync.boost_now` (und die Schaltfläche der Karten) hebt das Ziel des Raums vorübergehend an. Er startet nicht im Sommermodus, bei offenem Fenster oder veraltetem Sensor.\n\n**Vorheizen**: Heizt den Raum zu einer bestimmten Zeit auf und berechnet anhand der gelernten Aufheizrate, wann es beginnen muss. Den Wochenplan stellst du im Hauptmenü unter *Vorheiz-Zeitplan* ein. Es startet von selbst, daher ist es standardmäßig aus.",
+        "description": "Jede Funktion lässt sich einzeln ein- und ausschalten.\n\n**Ereignisse**: Das Plugin sendet `meross_boiler_sync_event`-Ereignisse (Ventilanhebung, Fenster, veralteter Sensor, Kurzzyklen, Jetzt heizen, Vorheizen), die du in Automationen nutzen kannst; sie sind auch im HA-Logbuch zu lesen.\n\n**Kesselzyklen überwachen**: zählt die Kesselstarts und meldet Kurzzyklen.\n\n**Schutz**: Wenn aktiv, bleibt der Kessel mindestens die angegebene Zeit ein- bzw. ausgeschaltet, auch wenn sich der Wärmebedarf der Räume in der Zwischenzeit ändert. Das kann die Heizung verzögern, daher ist es standardmäßig aus.\n\n**Jetzt heizen**: Der Dienst `meross_boiler_sync.boost_now` (und die Schaltfläche der Karten) hebt das Ziel des Raums vorübergehend an. Er startet nicht im Sommermodus, bei offenem Fenster oder veraltetem Sensor.\n\n**Vorheizen**: Heizt den Raum zu einer bestimmten Zeit auf und berechnet anhand der gelernten Aufheizrate, wann es beginnen muss. Den Wochenplan stellst du im Hauptmenü unter *Vorheiz-Zeitplan* ein. Es startet von selbst, daher ist es standardmäßig aus.\n\n**Gasschätzung**: erstellt einen Sensor für den geschätzten Gasverbrauch (m³), den du im Energie-Dashboard unter *Gasverbrauch* auswählen kannst. Er multipliziert die Einschaltzeit des Kessels mit dem unten eingestellten Gasverbrauch. Es ist eine Schätzung, keine Messung, und standardmäßig ausgeschaltet.",
         "data": {
           "events_enabled": "Ereignisse und Logbucheinträge",
           "cycle_monitor_enabled": "Kesselzyklen überwachen (Sensoren)",
@@ -168,7 +168,9 @@
           "preheat_max_minutes": "Vorheizen: frühester Start vor der Fertigzeit",
           "preheat_hold_minutes": "Vorheizen: Ziel nach der Fertigzeit halten",
           "preheat_default_rate": "Vorheizen: Standard-Aufheizrate (bis sie gelernt ist)",
-          "manual_boost_end_on_target": "Jetzt heizen: beenden, wenn der Raum das angehobene Ziel erreicht"
+          "manual_boost_end_on_target": "Jetzt heizen: beenden, wenn der Raum das angehobene Ziel erreicht",
+          "gas_estimate_enabled": "Gasschätzung (für das Energie-Dashboard)",
+          "gas_m3_per_hour": "Gasschätzung: Gasverbrauch bei eingeschaltetem Kessel"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Wenn der Kessel in der letzten Stunde so oft oder öfter gestartet ist, schaltet sich der Sensor „Kurzzyklen“ ein.",
@@ -177,7 +179,9 @@
           "manual_boost_offset": "Um wie viel das Ziel des Raums während „Jetzt heizen“ angehoben wird. Das Ventil wird von der Ventilsteuerung (falls für den Raum aktiv) sofort geöffnet.",
           "preheat_max_minutes": "Das Vorheizen beginnt nie früher als das, auch wenn der Raum sehr kalt ist (Standard: 240 Min.).",
           "preheat_default_rate": "Das Plugin misst die Aufheizrate jedes Raums beim Heizen; bis genug Messwerte vorliegen (etwa 20 Minuten Heizen), rechnet es mit dieser Zahl an Grad pro Stunde.",
-          "manual_boost_end_on_target": "Wenn aus, dauert „Jetzt heizen“ die volle Dauer und hält das angehobene Ziel."
+          "manual_boost_end_on_target": "Wenn aus, dauert „Jetzt heizen“ die volle Dauer und hält das angehobene Ziel.",
+          "gas_estimate_enabled": "Fügt den Sensor für den geschätzten Gasverbrauch hinzu. Er zählt die Einschaltzeit des Kessels; Zeiten, in denen Home Assistant nicht läuft, werden nicht gezählt.",
+          "gas_m3_per_hour": "Wie viele m³ Gas der Kessel pro Stunde im eingeschalteten Zustand verbraucht (siehe Typenschild oder Rechnung). Vergleiche den Sensor mit dem Stand deines Gaszählers und passe den Wert an, bis beide übereinstimmen."
         }
       },
       "preheat": {
@@ -463,6 +467,17 @@
           },
           "cycles": {
             "name": "Zyklen (letzte 12 h)"
+          }
+        }
+      },
+      "gas_estimate": {
+        "name": "Geschätzter Gasverbrauch",
+        "state_attributes": {
+          "m3_per_hour": {
+            "name": "Gasverbrauch bei Betrieb (m³/h)"
+          },
+          "boiler_on": {
+            "name": "Kessel ist eingeschaltet"
           }
         }
       }

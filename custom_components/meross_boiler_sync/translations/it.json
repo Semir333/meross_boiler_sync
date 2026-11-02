@@ -25,7 +25,7 @@
           "settings": "Impostazioni di base",
           "summer": "Modalità estate",
           "done": "Salva ed esci",
-          "features": "Funzioni (eventi, protezione, Riscalda ora, preriscaldamento)",
+          "features": "Funzioni (eventi, protezione, Riscalda ora, preriscaldamento, stima del gas)",
           "preheat": "Programma di preriscaldamento (per stanza)"
         }
       },
@@ -152,7 +152,7 @@
       },
       "features": {
         "title": "Funzioni",
-        "description": "Ogni funzione può essere attivata e disattivata separatamente.\n\n**Eventi**: il plugin invia eventi `meross_boiler_sync_event` (spinta della valvola, finestra, sensore non aggiornato, cicli brevi, Riscalda ora, preriscaldamento) che puoi usare nelle automazioni; sono leggibili anche nel registro di HA.\n\n**Monitoraggio dei cicli della caldaia**: conta gli avvii della caldaia e segnala i cicli brevi.\n\n**Protezione**: se attiva, la caldaia resta accesa / spenta almeno per il tempo indicato, anche se nel frattempo cambia la richiesta delle stanze. Può ritardare il riscaldamento, quindi è disattivata per impostazione predefinita.\n\n**Riscalda ora**: il servizio `meross_boiler_sync.boost_now` (e il pulsante delle schede) alza temporaneamente l'obiettivo della stanza. Non parte in modalità estate, con una finestra aperta o con un sensore non aggiornato.\n\n**Preriscaldamento**: scalda la stanza per un orario stabilito e, in base alla velocità di riscaldamento appresa, calcola quando iniziare. Imposta il programma settimanale in *Programma di preriscaldamento* nel menu principale. Parte da solo, quindi è disattivato per impostazione predefinita.",
+        "description": "Ogni funzione può essere attivata e disattivata separatamente.\n\n**Eventi**: il plugin invia eventi `meross_boiler_sync_event` (spinta della valvola, finestra, sensore non aggiornato, cicli brevi, Riscalda ora, preriscaldamento) che puoi usare nelle automazioni; sono leggibili anche nel registro di HA.\n\n**Monitoraggio dei cicli della caldaia**: conta gli avvii della caldaia e segnala i cicli brevi.\n\n**Protezione**: se attiva, la caldaia resta accesa / spenta almeno per il tempo indicato, anche se nel frattempo cambia la richiesta delle stanze. Può ritardare il riscaldamento, quindi è disattivata per impostazione predefinita.\n\n**Riscalda ora**: il servizio `meross_boiler_sync.boost_now` (e il pulsante delle schede) alza temporaneamente l'obiettivo della stanza. Non parte in modalità estate, con una finestra aperta o con un sensore non aggiornato.\n\n**Preriscaldamento**: scalda la stanza per un orario stabilito e, in base alla velocità di riscaldamento appresa, calcola quando iniziare. Imposta il programma settimanale in *Programma di preriscaldamento* nel menu principale. Parte da solo, quindi è disattivato per impostazione predefinita.\n\n**Stima del gas**: crea un sensore del consumo di gas stimato (m³) che puoi scegliere in *Consumo di gas* nella dashboard Energia. Moltiplica il tempo di accensione della caldaia per il consumo di gas impostato qui sotto. È una stima, non una misura, ed è disattivata per impostazione predefinita.",
         "data": {
           "events_enabled": "Eventi e voci del registro",
           "cycle_monitor_enabled": "Monitoraggio dei cicli della caldaia (sensori)",
@@ -168,7 +168,9 @@
           "preheat_max_minutes": "Preriscaldamento: avvio più anticipato prima dell'orario di fine",
           "preheat_hold_minutes": "Preriscaldamento: mantieni l'obiettivo dopo l'orario di fine",
           "preheat_default_rate": "Preriscaldamento: velocità di riscaldamento predefinita (finché non è appresa)",
-          "manual_boost_end_on_target": "Riscalda ora: termina quando la stanza raggiunge l'obiettivo alzato"
+          "manual_boost_end_on_target": "Riscalda ora: termina quando la stanza raggiunge l'obiettivo alzato",
+          "gas_estimate_enabled": "Stima del gas (per la dashboard Energia)",
+          "gas_m3_per_hour": "Stima del gas: consumo con la caldaia accesa"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Se la caldaia si è avviata così tante volte o più nell'ultima ora, il sensore Cicli brevi si attiva.",
@@ -177,7 +179,9 @@
           "manual_boost_offset": "Di quanto viene alzato l'obiettivo della stanza durante Riscalda ora. La valvola viene aperta subito dal controllo valvole (se attivo per la stanza).",
           "preheat_max_minutes": "Il preriscaldamento non parte mai prima di questo tempo, anche se la stanza è molto fredda (predefinito: 240 min).",
           "preheat_default_rate": "Il plugin misura la velocità di riscaldamento di ogni stanza mentre scalda; finché non ha abbastanza campioni (circa 20 minuti di riscaldamento) usa questi gradi all'ora.",
-          "manual_boost_end_on_target": "Se disattivato, Riscalda ora dura per l'intera durata e mantiene l'obiettivo alzato."
+          "manual_boost_end_on_target": "Se disattivato, Riscalda ora dura per l'intera durata e mantiene l'obiettivo alzato.",
+          "gas_estimate_enabled": "Aggiunge il sensore del consumo di gas stimato. Conta il tempo di accensione della caldaia; il tempo in cui Home Assistant non è in esecuzione non viene contato.",
+          "gas_m3_per_hour": "Quanti m³ di gas consuma la caldaia all'ora quando è accesa (vedi la targhetta o la bolletta). Confronta il sensore con la lettura del contatore del gas e regola questo valore finché non coincidono."
         }
       },
       "preheat": {
@@ -463,6 +467,17 @@
           },
           "cycles": {
             "name": "Cicli (ultime 12 h)"
+          }
+        }
+      },
+      "gas_estimate": {
+        "name": "Consumo di gas stimato",
+        "state_attributes": {
+          "m3_per_hour": {
+            "name": "Consumo di gas da accesa (m³/h)"
+          },
+          "boiler_on": {
+            "name": "La caldaia è accesa"
           }
         }
       }

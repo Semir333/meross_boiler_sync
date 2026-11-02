@@ -25,7 +25,7 @@
           "settings": "Ajustes básicos",
           "summer": "Modo verano",
           "done": "Guardar y salir",
-          "features": "Funciones (eventos, protección, Calentar ahora, precalentamiento)",
+          "features": "Funciones (eventos, protección, Calentar ahora, precalentamiento, estimación de gas)",
           "preheat": "Programa de precalentamiento (por habitación)"
         }
       },
@@ -152,7 +152,7 @@
       },
       "features": {
         "title": "Funciones",
-        "description": "Cada función se puede activar y desactivar por separado.\n\n**Eventos**: el plugin envía eventos `meross_boiler_sync_event` (refuerzo de válvula, ventana, sensor desactualizado, ciclos cortos, Calentar ahora, precalentamiento) que puedes usar en automatizaciones; también se pueden leer en el registro de HA.\n\n**Supervisión de ciclos de la caldera**: cuenta los arranques de la caldera y avisa de los ciclos cortos.\n\n**Protección**: si está activada, la caldera permanece encendida / apagada al menos el tiempo indicado aunque la demanda de las habitaciones cambie entretanto. Puede retrasar la calefacción, por eso está desactivada por defecto.\n\n**Calentar ahora**: el servicio `meross_boiler_sync.boost_now` (y el botón de las tarjetas) sube temporalmente el objetivo de la habitación. No arranca en modo verano, con una ventana abierta ni con un sensor desactualizado.\n\n**Precalentamiento**: calienta la habitación para una hora determinada y, según la velocidad de calentamiento aprendida, calcula cuándo debe empezar. Configura el programa semanal en *Programa de precalentamiento* en el menú principal. Arranca por sí solo, por eso está desactivado por defecto.",
+        "description": "Cada función se puede activar y desactivar por separado.\n\n**Eventos**: el plugin envía eventos `meross_boiler_sync_event` (refuerzo de válvula, ventana, sensor desactualizado, ciclos cortos, Calentar ahora, precalentamiento) que puedes usar en automatizaciones; también se pueden leer en el registro de HA.\n\n**Supervisión de ciclos de la caldera**: cuenta los arranques de la caldera y avisa de los ciclos cortos.\n\n**Protección**: si está activada, la caldera permanece encendida / apagada al menos el tiempo indicado aunque la demanda de las habitaciones cambie entretanto. Puede retrasar la calefacción, por eso está desactivada por defecto.\n\n**Calentar ahora**: el servicio `meross_boiler_sync.boost_now` (y el botón de las tarjetas) sube temporalmente el objetivo de la habitación. No arranca en modo verano, con una ventana abierta ni con un sensor desactualizado.\n\n**Precalentamiento**: calienta la habitación para una hora determinada y, según la velocidad de calentamiento aprendida, calcula cuándo debe empezar. Configura el programa semanal en *Programa de precalentamiento* en el menú principal. Arranca por sí solo, por eso está desactivado por defecto.\n\n**Estimación de gas**: crea un sensor de consumo de gas estimado (m³) que puedes elegir en *Consumo de gas* del panel Energía. Multiplica el tiempo de encendido de la caldera por el consumo de gas indicado abajo. Es una estimación, no una medición, y está desactivada por defecto.",
         "data": {
           "events_enabled": "Eventos y entradas del registro",
           "cycle_monitor_enabled": "Supervisión de ciclos de la caldera (sensores)",
@@ -168,7 +168,9 @@
           "preheat_max_minutes": "Precalentamiento: inicio más temprano antes de la hora de finalización",
           "preheat_hold_minutes": "Precalentamiento: mantener el objetivo después de la hora de finalización",
           "preheat_default_rate": "Precalentamiento: velocidad de calentamiento predeterminada (hasta que se aprenda)",
-          "manual_boost_end_on_target": "Calentar ahora: terminar cuando la habitación alcance el objetivo elevado"
+          "manual_boost_end_on_target": "Calentar ahora: terminar cuando la habitación alcance el objetivo elevado",
+          "gas_estimate_enabled": "Estimación de gas (para el panel Energía)",
+          "gas_m3_per_hour": "Estimación de gas: consumo con la caldera encendida"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Si la caldera ha arrancado tantas veces o más en la última hora, el sensor de Ciclos cortos se activa.",
@@ -177,7 +179,9 @@
           "manual_boost_offset": "Cuánto se sube el objetivo de la habitación durante Calentar ahora. El control de válvulas abre la válvula de inmediato (si está activado para la habitación).",
           "preheat_max_minutes": "El precalentamiento nunca empieza antes de este tiempo, aunque la habitación esté muy fría (predeterminado: 240 min).",
           "preheat_default_rate": "El plugin mide la velocidad de calentamiento de cada habitación mientras calienta; hasta que tiene suficientes muestras (unos 20 minutos de calefacción) usa estos grados por hora.",
-          "manual_boost_end_on_target": "Si está desactivado, Calentar ahora dura el tiempo completo y mantiene el objetivo elevado."
+          "manual_boost_end_on_target": "Si está desactivado, Calentar ahora dura el tiempo completo y mantiene el objetivo elevado.",
+          "gas_estimate_enabled": "Añade el sensor de consumo de gas estimado. Cuenta el tiempo de encendido de la caldera; el tiempo en que Home Assistant no está en funcionamiento no se cuenta.",
+          "gas_m3_per_hour": "Cuántos m³ de gas consume la caldera por hora mientras está encendida (consulta la placa de características o tu factura). Compara el sensor con la lectura de tu contador de gas y ajusta este valor hasta que coincidan."
         }
       },
       "preheat": {
@@ -463,6 +467,17 @@
           },
           "cycles": {
             "name": "Ciclos (últimas 12 h)"
+          }
+        }
+      },
+      "gas_estimate": {
+        "name": "Consumo de gas estimado",
+        "state_attributes": {
+          "m3_per_hour": {
+            "name": "Consumo de gas encendida (m³/h)"
+          },
+          "boiler_on": {
+            "name": "La caldera está encendida"
           }
         }
       }

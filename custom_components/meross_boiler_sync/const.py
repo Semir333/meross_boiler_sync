@@ -45,6 +45,9 @@ CONF_PREHEAT_ENABLED = "preheat_enabled"
 CONF_PREHEAT_MAX_MINUTES = "preheat_max_minutes"
 CONF_PREHEAT_HOLD_MINUTES = "preheat_hold_minutes"
 CONF_PREHEAT_DEFAULT_RATE = "preheat_default_rate"
+# 2.10: becsült gázfogyasztás az Energia fülhöz (külön kapcsolható)
+CONF_GAS_ESTIMATE = "gas_estimate_enabled"
+CONF_GAS_M3_PER_HOUR = "gas_m3_per_hour"
 
 # --- szoba kulcsok
 CONF_ROOM_ID = "id"
@@ -89,6 +92,8 @@ DEFAULT_PREHEAT_ENABLED = False  # az előfűtés magától indul, ezért alapb�
 DEFAULT_PREHEAT_MAX_MINUTES = 240  # perc: ennél korábban nem kezd előfűteni (4 óra)
 DEFAULT_PREHEAT_HOLD_MINUTES = 30  # perc: a "kész" időpont után ennyi ideig tartja a célt
 DEFAULT_PREHEAT_RATE = 1.0  # °C/óra: ennyivel számol, amíg nem tanulta meg a szoba felfűtési sebességét
+DEFAULT_GAS_ESTIMATE = False  # a becslés új szenzort hoz létre, ezért alapból ki van kapcsolva
+DEFAULT_GAS_M3_PER_HOUR = 1.6  # m³/óra: a kazán gázfogyasztása bekapcsolt állapotban (a kártyán is ez az alap)
 DEFAULT_SUMMER_START = "05-15"
 DEFAULT_SUMMER_END = "09-15"
 
@@ -123,6 +128,12 @@ MAX_RAISED_TARGET = 30.0  # °C: a megemelt (kézi / előfűtési) cél felső h
 HEATING_RATE_MIN = 0.1  # °C/óra: ennél lassabb / gyorsabb mintát nem tanul meg
 HEATING_RATE_MAX = 5.0
 HEATING_RATE_MIN_SAMPLES = 20  # ennyi percnyi fűtés után használja a tanult sebességet
+
+# --- becsült gázfogyasztás (2.10)
+GAS_M3_PER_HOUR_MIN = 0.1
+GAS_M3_PER_HOUR_MAX = 20.0
+GAS_MAX_GAP_SECONDS = 600  # ennél hosszabb kihagyás (újraindítás, elérhetetlen kazán) alatt nem számolunk fogyasztást
+GAS_SAVE_SECONDS = 300  # a számlálót legfeljebb ilyen gyakran mentjük
 HEATING_RATE_WINDOW = 240  # a tanulás ennyi minta után "állandó ablakú" átlag
 HEATING_RATE_MIN_TREND = 0.15  # °C/óra: ennél kisebb melegedés nem számít mintának
 PREHEAT_SAFETY = 1.15  # a becsült felfűtési időt ennyivel szorozza

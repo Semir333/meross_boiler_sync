@@ -25,7 +25,7 @@
           "settings": "Grunninnstillinger",
           "summer": "Sommermodus",
           "done": "Lagre og avslutt",
-          "features": "Funksjoner (hendelser, beskyttelse, Varm nå, forvarming)",
+          "features": "Funksjoner (hendelser, beskyttelse, Varm nå, forvarming, gassestimat)",
           "preheat": "Forvarmingsplan (per rom)"
         }
       },
@@ -152,7 +152,7 @@
       },
       "features": {
         "title": "Funksjoner",
-        "description": "Hver funksjon kan slås av og på separat.\n\n**Hendelser**: pluginen sender `meross_boiler_sync_event`-hendelser (ventilboost, vindu, utdatert sensor, korte sykluser, Varm nå, forvarming) som du kan bruke i automatiseringer; de kan også leses i HA-loggboken.\n\n**Overvåking av kjelesykluser**: teller kjelestarter og varsler om korte sykluser.\n\n**Beskyttelse**: når den er på, forblir kjelen på / av i minst den oppgitte tiden, selv om varmebehovet i rommene endrer seg i mellomtiden. Dette kan forsinke oppvarmingen, derfor er den av som standard.\n\n**Varm nå**: tjenesten `meross_boiler_sync.boost_now` (og knappen på kortene) hever midlertidig målet for rommet. Den starter ikke i sommermodus, med åpent vindu eller utdatert sensor.\n\n**Forvarming**: varmer opp rommet til et gitt tidspunkt og regner ut fra den lærte oppvarmingshastigheten ut når den må starte. Sett opp ukeplanen under *Forvarmingsplan* i hovedmenyen. Den starter av seg selv, derfor er den av som standard.",
+        "description": "Hver funksjon kan slås av og på separat.\n\n**Hendelser**: pluginen sender `meross_boiler_sync_event`-hendelser (ventilboost, vindu, utdatert sensor, korte sykluser, Varm nå, forvarming) som du kan bruke i automatiseringer; de kan også leses i HA-loggboken.\n\n**Overvåking av kjelesykluser**: teller kjelestarter og varsler om korte sykluser.\n\n**Beskyttelse**: når den er på, forblir kjelen på / av i minst den oppgitte tiden, selv om varmebehovet i rommene endrer seg i mellomtiden. Dette kan forsinke oppvarmingen, derfor er den av som standard.\n\n**Varm nå**: tjenesten `meross_boiler_sync.boost_now` (og knappen på kortene) hever midlertidig målet for rommet. Den starter ikke i sommermodus, med åpent vindu eller utdatert sensor.\n\n**Forvarming**: varmer opp rommet til et gitt tidspunkt og regner ut fra den lærte oppvarmingshastigheten ut når den må starte. Sett opp ukeplanen under *Forvarmingsplan* i hovedmenyen. Den starter av seg selv, derfor er den av som standard.\n\n**Gassestimat**: lager en sensor for estimert gassforbruk (m³) som du kan velge under *Gassforbruk* i Energi-dashbordet. Den multipliserer kjelens på-tid med gassforbruket som er satt nedenfor. Det er et estimat, ikke en måling, og er av som standard.",
         "data": {
           "events_enabled": "Hendelser og loggbokoppføringer",
           "cycle_monitor_enabled": "Overvåking av kjelesykluser (sensorer)",
@@ -168,7 +168,9 @@
           "preheat_max_minutes": "Forvarming: tidligste start før klartidspunktet",
           "preheat_hold_minutes": "Forvarming: hold målet etter klartidspunktet",
           "preheat_default_rate": "Forvarming: standard oppvarmingshastighet (til den er lært)",
-          "manual_boost_end_on_target": "Varm nå: avslutt når rommet når det hevede målet"
+          "manual_boost_end_on_target": "Varm nå: avslutt når rommet når det hevede målet",
+          "gas_estimate_enabled": "Gassestimat (for Energi-dashbordet)",
+          "gas_m3_per_hour": "Gassestimat: gassforbruk når kjelen er på"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Hvis kjelen har startet så mange ganger eller flere den siste timen, slår sensoren Korte sykluser seg på.",
@@ -177,7 +179,9 @@
           "manual_boost_offset": "Hvor mye målet for rommet heves under Varm nå. Ventilen åpnes straks av ventilstyringen (hvis den er slått på for rommet).",
           "preheat_max_minutes": "Forvarmingen starter aldri tidligere enn dette, selv om rommet er veldig kaldt (standard: 240 min).",
           "preheat_default_rate": "Pluginen måler oppvarmingshastigheten til hvert rom mens det varmes; til den har nok målinger (omtrent 20 minutters oppvarming) bruker den dette antallet grader per time.",
-          "manual_boost_end_on_target": "Når den er av, varer Varm nå hele varigheten og holder det hevede målet."
+          "manual_boost_end_on_target": "Når den er av, varer Varm nå hele varigheten og holder det hevede målet.",
+          "gas_estimate_enabled": "Legger til sensoren for estimert gassforbruk. Den teller kjelens på-tid; tid da Home Assistant ikke kjører, telles ikke.",
+          "gas_m3_per_hour": "Hvor mange m³ gass kjelen bruker per time mens den er på (se typeskiltet eller regningen). Sammenlign sensoren med avlesningen på gassmåleren og juster verdien til de stemmer overens."
         }
       },
       "preheat": {
@@ -463,6 +467,17 @@
           },
           "cycles": {
             "name": "Sykluser (siste 12 t)"
+          }
+        }
+      },
+      "gas_estimate": {
+        "name": "Estimert gassforbruk",
+        "state_attributes": {
+          "m3_per_hour": {
+            "name": "Gassforbruk når på (m³/t)"
+          },
+          "boiler_on": {
+            "name": "Kjelen er på"
           }
         }
       }

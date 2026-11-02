@@ -1,6 +1,6 @@
 /*!
  * Meross Boiler Sync – Lovelace kártyák / Lovelace cards
- * Verzió / version: 2.9.0
+ * Verzió / version: 2.10.0
  *
  * Felvétel: Irányítópult szerkesztése → Kártya hozzáadása → "Meross Boiler Sync".
  * Add: Edit dashboard → Add card → "Meross Boiler Sync".

@@ -25,7 +25,7 @@
           "settings": "Paramètres de base",
           "summer": "Mode été",
           "done": "Enregistrer et quitter",
-          "features": "Fonctionnalités (événements, protection, Chauffer maintenant, préchauffage)",
+          "features": "Fonctionnalités (événements, protection, Chauffer maintenant, préchauffage, estimation du gaz)",
           "preheat": "Programme de préchauffage (par pièce)"
         }
       },
@@ -152,7 +152,7 @@
       },
       "features": {
         "title": "Fonctionnalités",
-        "description": "Chaque fonctionnalité peut être activée et désactivée séparément.\n\n**Événements** : le plugin envoie des événements `meross_boiler_sync_event` (relance de vanne, fenêtre, capteur obsolète, cycles courts, Chauffer maintenant, préchauffage) utilisables dans des automatisations ; ils sont aussi lisibles dans le journal de HA.\n\n**Surveillance des cycles de la chaudière** : compte les démarrages de la chaudière et signale les cycles courts.\n\n**Protection** : si activée, la chaudière reste allumée / éteinte au moins la durée indiquée, même si la demande des pièces change entre-temps. Cela peut retarder le chauffage ; elle est donc désactivée par défaut.\n\n**Chauffer maintenant** : le service `meross_boiler_sync.boost_now` (et le bouton des cartes) relève temporairement la consigne de la pièce. Il ne démarre pas en mode été, avec une fenêtre ouverte ou un capteur obsolète.\n\n**Préchauffage** : chauffe la pièce pour une heure donnée et calcule, à partir de la vitesse de chauffe apprise, quand il faut commencer. Réglez le programme hebdomadaire sous *Programme de préchauffage* dans le menu principal. Il démarre tout seul ; il est donc désactivé par défaut.",
+        "description": "Chaque fonctionnalité peut être activée et désactivée séparément.\n\n**Événements** : le plugin envoie des événements `meross_boiler_sync_event` (relance de vanne, fenêtre, capteur obsolète, cycles courts, Chauffer maintenant, préchauffage) utilisables dans des automatisations ; ils sont aussi lisibles dans le journal de HA.\n\n**Surveillance des cycles de la chaudière** : compte les démarrages de la chaudière et signale les cycles courts.\n\n**Protection** : si activée, la chaudière reste allumée / éteinte au moins la durée indiquée, même si la demande des pièces change entre-temps. Cela peut retarder le chauffage ; elle est donc désactivée par défaut.\n\n**Chauffer maintenant** : le service `meross_boiler_sync.boost_now` (et le bouton des cartes) relève temporairement la consigne de la pièce. Il ne démarre pas en mode été, avec une fenêtre ouverte ou un capteur obsolète.\n\n**Préchauffage** : chauffe la pièce pour une heure donnée et calcule, à partir de la vitesse de chauffe apprise, quand il faut commencer. Réglez le programme hebdomadaire sous *Programme de préchauffage* dans le menu principal. Il démarre tout seul ; il est donc désactivé par défaut.\n\n**Estimation du gaz** : crée un capteur de consommation de gaz estimée (m³) que vous pouvez choisir sous *Consommation de gaz* dans le tableau de bord Énergie. Il multiplie la durée de marche de la chaudière par la consommation de gaz indiquée ci-dessous. C’est une estimation, pas une mesure, et elle est désactivée par défaut.",
         "data": {
           "events_enabled": "Événements et entrées du journal",
           "cycle_monitor_enabled": "Surveillance des cycles de la chaudière (capteurs)",
@@ -168,7 +168,9 @@
           "preheat_max_minutes": "Préchauffage : démarrage au plus tôt avant l’heure de fin",
           "preheat_hold_minutes": "Préchauffage : maintenir la consigne après l’heure de fin",
           "preheat_default_rate": "Préchauffage : vitesse de chauffe par défaut (tant qu’elle n’est pas apprise)",
-          "manual_boost_end_on_target": "Chauffer maintenant : s’arrêter quand la pièce atteint la consigne relevée"
+          "manual_boost_end_on_target": "Chauffer maintenant : s’arrêter quand la pièce atteint la consigne relevée",
+          "gas_estimate_enabled": "Estimation du gaz (pour le tableau de bord Énergie)",
+          "gas_m3_per_hour": "Estimation du gaz : consommation lorsque la chaudière est allumée"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Si la chaudière a démarré autant de fois ou plus au cours de la dernière heure, le capteur Cycles courts s’active.",
@@ -177,7 +179,9 @@
           "manual_boost_offset": "De combien la consigne de la pièce est relevée pendant Chauffer maintenant. La vanne est ouverte immédiatement par la commande de vanne (si elle est activée pour la pièce).",
           "preheat_max_minutes": "Le préchauffage ne démarre jamais plus tôt que cela, même si la pièce est très froide (par défaut : 240 min).",
           "preheat_default_rate": "Le plugin mesure la vitesse de chauffe de chaque pièce pendant le chauffage ; tant qu’il n’a pas assez de mesures (environ 20 minutes de chauffage), il calcule avec ce nombre de degrés par heure.",
-          "manual_boost_end_on_target": "Si désactivé, Chauffer maintenant dure toute la durée et maintient la consigne relevée."
+          "manual_boost_end_on_target": "Si désactivé, Chauffer maintenant dure toute la durée et maintient la consigne relevée.",
+          "gas_estimate_enabled": "Ajoute le capteur de consommation de gaz estimée. Il compte la durée de marche de la chaudière ; le temps pendant lequel Home Assistant n’est pas en cours d’exécution n’est pas compté.",
+          "gas_m3_per_hour": "Combien de m³ de gaz la chaudière consomme par heure lorsqu’elle est allumée (voir la plaque signalétique ou votre facture). Comparez le capteur avec le relevé de votre compteur de gaz et ajustez cette valeur jusqu’à ce qu’ils concordent."
         }
       },
       "preheat": {
@@ -463,6 +467,17 @@
           },
           "cycles": {
             "name": "Cycles (12 dernières h)"
+          }
+        }
+      },
+      "gas_estimate": {
+        "name": "Consommation de gaz estimée",
+        "state_attributes": {
+          "m3_per_hour": {
+            "name": "Consommation de gaz en marche (m³/h)"
+          },
+          "boiler_on": {
+            "name": "La chaudière est allumée"
           }
         }
       }

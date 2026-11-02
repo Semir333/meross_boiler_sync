@@ -27,6 +27,8 @@ from .const import (
     CONF_MANUAL_BOOST_MINUTES,
     CONF_MANUAL_BOOST_OFFSET,
     CONF_MIN_SWITCH_TIME,
+    CONF_GAS_ESTIMATE,
+    CONF_GAS_M3_PER_HOUR,
     CONF_PREHEAT_DEFAULT_RATE,
     CONF_PREHEAT_ENABLED,
     CONF_PREHEAT_HOLD_MINUTES,
@@ -74,6 +76,8 @@ from .const import (
     DEFAULT_PREHEAT_ENABLED,
     DEFAULT_PREHEAT_HOLD_MINUTES,
     DEFAULT_PREHEAT_MAX_MINUTES,
+    DEFAULT_GAS_ESTIMATE,
+    DEFAULT_GAS_M3_PER_HOUR,
     DEFAULT_PREHEAT_RATE,
     DEFAULT_SUMMER_END,
     DEFAULT_SUMMER_START,
@@ -306,6 +310,14 @@ def _features_schema(values: dict[str, Any]) -> vol.Schema:
                 CONF_PREHEAT_DEFAULT_RATE,
                 default=values.get(CONF_PREHEAT_DEFAULT_RATE, DEFAULT_PREHEAT_RATE),
             ): _number(0.2, 4, 0.1, "°C/h"),
+            vol.Required(
+                CONF_GAS_ESTIMATE,
+                default=bool(values.get(CONF_GAS_ESTIMATE, DEFAULT_GAS_ESTIMATE)),
+            ): selector.BooleanSelector(),
+            vol.Required(
+                CONF_GAS_M3_PER_HOUR,
+                default=values.get(CONF_GAS_M3_PER_HOUR, DEFAULT_GAS_M3_PER_HOUR),
+            ): _number(0.1, 20, 0.1, "m³/h"),
         }
     )
 
@@ -442,6 +454,8 @@ class MerossBoilerSyncConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_PREHEAT_MAX_MINUTES: DEFAULT_PREHEAT_MAX_MINUTES,
                     CONF_PREHEAT_HOLD_MINUTES: DEFAULT_PREHEAT_HOLD_MINUTES,
                     CONF_PREHEAT_DEFAULT_RATE: DEFAULT_PREHEAT_RATE,
+                    CONF_GAS_ESTIMATE: DEFAULT_GAS_ESTIMATE,
+                    CONF_GAS_M3_PER_HOUR: DEFAULT_GAS_M3_PER_HOUR,
                     CONF_ROOMS: [],
                 },
             )

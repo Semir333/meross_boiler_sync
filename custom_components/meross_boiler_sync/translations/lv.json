@@ -25,7 +25,7 @@
           "settings": "Pamatiestatījumi",
           "summer": "Vasaras režīms",
           "done": "Saglabāt un iziet",
-          "features": "Funkcijas (notikumi, aizsardzība, Sildīt tagad, priekšsildīšana)",
+          "features": "Funkcijas (notikumi, aizsardzība, Sildīt tagad, priekšsildīšana, gāzes aplēse)",
           "preheat": "Priekšsildīšanas grafiks (katrai telpai)"
         }
       },
@@ -152,7 +152,7 @@
       },
       "features": {
         "title": "Funkcijas",
-        "description": "Katru funkciju var ieslēgt un izslēgt atsevišķi.\n\n**Notikumi**: spraudnis sūta `meross_boiler_sync_event` notikumus (vārsta pastiprināšana, logs, novecojis sensors, īsi cikli, Sildīt tagad, priekšsildīšana), ko var izmantot automatizācijās; tos var arī izlasīt HA žurnālā.\n\n**Katla ciklu uzraudzība**: skaita katla ieslēgšanās reizes un norāda uz īsiem cikliem.\n\n**Aizsardzība**: ja ieslēgta, katls paliek ieslēgts / izslēgts vismaz norādīto laiku, pat ja telpu siltuma pieprasījums starplaikā mainās. Tas var aizkavēt apkuri, tāpēc pēc noklusējuma tā ir izslēgta.\n\n**Sildīt tagad**: pakalpojums `meross_boiler_sync.boost_now` (un kartes poga) uz laiku paaugstina telpas mērķi. Tas netiek startēts vasaras režīmā, pie atvērta loga vai novecojuša sensora.\n\n**Priekšsildīšana**: uzsilda telpu līdz noteiktam laikam un pēc apgūtā sildīšanas ātruma aprēķina, kad jāsāk. Nedēļas grafiku iestatiet sadaļā *Priekšsildīšanas grafiks* galvenajā izvēlnē. Tā sākas pati, tāpēc pēc noklusējuma ir izslēgta.",
+        "description": "Katru funkciju var ieslēgt un izslēgt atsevišķi.\n\n**Notikumi**: spraudnis sūta `meross_boiler_sync_event` notikumus (vārsta pastiprināšana, logs, novecojis sensors, īsi cikli, Sildīt tagad, priekšsildīšana), ko var izmantot automatizācijās; tos var arī izlasīt HA žurnālā.\n\n**Katla ciklu uzraudzība**: skaita katla ieslēgšanās reizes un norāda uz īsiem cikliem.\n\n**Aizsardzība**: ja ieslēgta, katls paliek ieslēgts / izslēgts vismaz norādīto laiku, pat ja telpu siltuma pieprasījums starplaikā mainās. Tas var aizkavēt apkuri, tāpēc pēc noklusējuma tā ir izslēgta.\n\n**Sildīt tagad**: pakalpojums `meross_boiler_sync.boost_now` (un kartes poga) uz laiku paaugstina telpas mērķi. Tas netiek startēts vasaras režīmā, pie atvērta loga vai novecojuša sensora.\n\n**Priekšsildīšana**: uzsilda telpu līdz noteiktam laikam un pēc apgūtā sildīšanas ātruma aprēķina, kad jāsāk. Nedēļas grafiku iestatiet sadaļā *Priekšsildīšanas grafiks* galvenajā izvēlnē. Tā sākas pati, tāpēc pēc noklusējuma ir izslēgta.\n\n**Gāzes aplēse**: izveido aptuvenā gāzes patēriņa sensoru (m³), ko var izvēlēties sadaļā *Gāzes patēriņš* enerģijas informācijas panelī. Tas reizina katla darbības laiku ar zemāk norādīto gāzes patēriņu. Tā ir aplēse, nevis mērījums, un pēc noklusējuma ir izslēgta.",
         "data": {
           "events_enabled": "Notikumi un žurnāla ieraksti",
           "cycle_monitor_enabled": "Katla ciklu uzraudzība (sensori)",
@@ -168,7 +168,9 @@
           "preheat_max_minutes": "Priekšsildīšana: agrākā sākšana pirms gatavības laika",
           "preheat_hold_minutes": "Priekšsildīšana: turēt mērķi pēc gatavības laika",
           "preheat_default_rate": "Priekšsildīšana: noklusējuma sildīšanas ātrums (līdz tas ir apgūts)",
-          "manual_boost_end_on_target": "Sildīt tagad: beigt, kad telpa sasniedz paaugstināto mērķi"
+          "manual_boost_end_on_target": "Sildīt tagad: beigt, kad telpa sasniedz paaugstināto mērķi",
+          "gas_estimate_enabled": "Gāzes aplēse (enerģijas informācijas panelim)",
+          "gas_m3_per_hour": "Gāzes aplēse: gāzes patēriņš ieslēgtam katlam"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Ja katls pēdējās stundas laikā ir ieslēdzies tik reižu vai vairāk, sensors Īsi cikli ieslēdzas.",
@@ -177,7 +179,9 @@
           "manual_boost_offset": "Par cik tiek paaugstināts telpas mērķis Sildīt tagad laikā. Vārstu uzreiz atver vārstu vadība (ja tā ir ieslēgta šai telpai).",
           "preheat_max_minutes": "Priekšsildīšana nekad nesākas agrāk par šo laiku, pat ja telpa ir ļoti auksta (noklusējums: 240 min).",
           "preheat_default_rate": "Spraudnis mēra katras telpas sildīšanas ātrumu sildīšanas laikā; kamēr nav pietiekami daudz mērījumu (apmēram 20 minūšu sildīšana), tas izmanto šo grādu skaitu stundā.",
-          "manual_boost_end_on_target": "Ja izslēgts, Sildīt tagad ilgst visu norādīto laiku un tur paaugstināto mērķi."
+          "manual_boost_end_on_target": "Ja izslēgts, Sildīt tagad ilgst visu norādīto laiku un tur paaugstināto mērķi.",
+          "gas_estimate_enabled": "Pievieno aptuvenā gāzes patēriņa sensoru. Tas skaita katla darbības laiku; laiks, kad Home Assistant nedarbojas, netiek skaitīts.",
+          "gas_m3_per_hour": "Cik m³ gāzes katls patērē stundā, kamēr ir ieslēgts (skatiet datu plāksnīti vai rēķinu). Salīdziniet sensoru ar gāzes skaitītāja rādījumu un pielāgojiet šo vērtību, līdz tie sakrīt."
         }
       },
       "preheat": {
@@ -463,6 +467,17 @@
           },
           "cycles": {
             "name": "Cikli (pēdējās 12 h)"
+          }
+        }
+      },
+      "gas_estimate": {
+        "name": "Aptuvenais gāzes patēriņš",
+        "state_attributes": {
+          "m3_per_hour": {
+            "name": "Gāzes patēriņš darbības laikā (m³/h)"
+          },
+          "boiler_on": {
+            "name": "Katls ir ieslēgts"
           }
         }
       }

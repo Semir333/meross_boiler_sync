@@ -46,6 +46,8 @@ from .const import (
     CONF_MANUAL_BOOST_MINUTES,
     CONF_MANUAL_BOOST_OFFSET,
     CONF_MIN_SWITCH_TIME,
+    CONF_GAS_ESTIMATE,
+    CONF_GAS_M3_PER_HOUR,
     CONF_PREHEAT_DEFAULT_RATE,
     CONF_PREHEAT_ENABLED,
     CONF_PREHEAT_HOLD_MINUTES,
@@ -92,6 +94,8 @@ from .const import (
     DEFAULT_PREHEAT_ENABLED,
     DEFAULT_PREHEAT_HOLD_MINUTES,
     DEFAULT_PREHEAT_MAX_MINUTES,
+    DEFAULT_GAS_ESTIMATE,
+    DEFAULT_GAS_M3_PER_HOUR,
     DEFAULT_PREHEAT_RATE,
     DEFAULT_SUMMER_END,
     DEFAULT_SUMMER_START,
@@ -110,6 +114,10 @@ from .const import (
     DOMAIN,
     EVENT_TYPE,
     HEATING_RATE_MAX,
+    GAS_M3_PER_HOUR_MAX,
+    GAS_M3_PER_HOUR_MIN,
+    GAS_MAX_GAP_SECONDS,
+    GAS_SAVE_SECONDS,
     HEATING_RATE_MIN,
     HEATING_RATE_MIN_SAMPLES,
     HEATING_RATE_MIN_TREND,
@@ -414,6 +422,17 @@ class BoilerController:
         self.preheat_default_rate = max(
             float(cfg.get(CONF_PREHEAT_DEFAULT_RATE, DEFAULT_PREHEAT_RATE)), HEATING_RATE_MIN
         )
+        # 2.10: becsült gázfogyasztás (a kazán bekapcsolt ideje × m³/óra), az Energia fülhöz
+        self.gas_enabled = bool(cfg.get(CONF_GAS_ESTIMATE, DEFAULT_GAS_ESTIMATE))
+        self.gas_m3_per_hour = _clamp(
+            float(cfg.get(CONF_GAS_M3_PER_HOUR, DEFAULT_GAS_M3_PER_HOUR)),
+            GAS_M3_PER_HOUR_MIN,
+            GAS_M3_PER_HOUR_MAX,
+        )
+        self.gas_m3 = 0.0  # a kezdet óta halmozott becsült fogyasztás (m³), újraindítás után is megmarad
+        self._gas_last_ts: float | None = None  # az utolsó elszámolás ideje
+        self._gas_last_on: bool | None = None  # a kazán állapota az utolsó elszámoláskor
+        self._gas_saved_ts = 0.0
         self.cycles = CycleLog()
         self.cycle_info: dict[str, Any] = self.cycles.stats(0)
         self.short_cycling = False
@@ -490,6 +509,10 @@ class BoilerController:
             except (TypeError, ValueError, IndexError):
                 continue
         self.cycles.load(data.get("cycles"))
+        try:
+            self.gas_m3 = max(0.0, float((data.get("gas") or {}).get("m3", 0.0)))
+        except (TypeError, ValueError, AttributeError):
+            self.gas_m3 = 0.0
         for valve_id, rec in (data.get("boosts") or {}).items():
             try:
                 self._boosts[valve_id] = {
@@ -1055,6 +1078,7 @@ class BoilerController:
             "samples": [[ts, val] for ts, val in self._samples],
             "boosts": self._boosts,
             "cycles": self.cycles.to_list(),
+            "gas": {"m3": round(self.gas_m3, 4)},
             "manual": {
                 st.room_id: {
                     "until": st.manual_until,
@@ -1392,10 +1416,45 @@ class BoilerController:
             return None
         return max(refs) - dt_util.utcnow()
 
+    def _account_gas(self, is_on: bool, event_ts: float, now_ts: float) -> None:
+        """Becsült gázfogyasztás: a kazán bekapcsolt ideje × a beállított m³/óra.
+
+        Becslés, nem mérés: a kazán működés közben modulál, ezért az érték gázóra nélkül csak
+        közelítő. Újraindítás, elérhetetlen kazán vagy hosszabb kihagyás alatt nem számol (a
+        kihagyott időt nem pótolja), hogy ne legyen túlbecslés.
+        """
+        if not self.gas_enabled:
+            self._gas_last_ts = None
+            self._gas_last_on = None
+            return
+        last_ts, last_on = self._gas_last_ts, self._gas_last_on
+        on_seconds = 0.0
+        if last_ts is not None and last_on is not None and 0 <= now_ts - last_ts <= GAS_MAX_GAP_SECONDS:
+            if is_on == last_on:
+                if is_on:
+                    on_seconds = now_ts - last_ts
+            else:
+                # váltás az utolsó elszámolás óta: a határ a váltás valódi ideje
+                boundary = min(max(event_ts, last_ts), now_ts)
+                on_seconds = (boundary - last_ts) if last_on else (now_ts - boundary)
+        if on_seconds > 0:
+            self.gas_m3 += on_seconds / 3600 * self.gas_m3_per_hour
+            if now_ts - self._gas_saved_ts >= GAS_SAVE_SECONDS:
+                self._gas_saved_ts = now_ts
+                self._store.async_delay_save(self._data_to_save, 5)
+        self._gas_last_ts, self._gas_last_on = now_ts, is_on
+
+    @property
+    def gas_boiler_on(self) -> bool | None:
+        """A kazán állapota az utolsó elszámoláskor (None: még nem látott / kihagyott)."""
+        return self._gas_last_on
+
     def _observe_boiler(self) -> None:
         """A kazán be/ki váltásainak naplózása; gyakori kapcsolgatás figyelése."""
         boiler = self.hass.states.get(self.boiler)
         if boiler is None or boiler.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
+            self._gas_last_ts = None  # kihagyott időre nem számolunk fogyasztást
+            self._gas_last_on = None
             return
         now_ts = dt_util.utcnow().timestamp()
         # a váltás valódi ideje (az állapot utolsó változása), hogy a késve észlelt váltás se csússzon el
@@ -1404,6 +1463,7 @@ class BoilerController:
         event_ts = min(max(event_ts, self.cycles.last_change() or 0.0), now_ts)
         if self.cycles.observe(boiler.state != HVACMode.OFF, event_ts):
             self._store.async_delay_save(self._data_to_save, 600)
+        self._account_gas(boiler.state != HVACMode.OFF, event_ts, now_ts)
         self.cycle_info = self.cycles.stats(now_ts)
         was = self.short_cycling
         self.short_cycling = self.cycle_monitor and self.cycles.is_short_cycling(

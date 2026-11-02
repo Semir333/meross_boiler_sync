@@ -25,7 +25,7 @@
           "settings": "Settings",
           "summer": "Summer mode",
           "done": "Save and exit",
-          "features": "Features (events, protection, Heat now, preheat)",
+          "features": "Features (events, protection, Heat now, preheat, gas estimate)",
           "preheat": "Preheat schedule (per room)"
         }
       },
@@ -152,7 +152,7 @@
       },
       "features": {
         "title": "Features",
-        "description": "Every feature can be switched on and off separately.\n\n**Events**: the plugin sends `meross_boiler_sync_event` events (valve boost, window, stale sensor, short cycling, Heat now, preheat) that you can use in automations; they are also readable in the HA logbook.\n\n**Boiler cycle monitoring**: counts boiler starts and flags short cycling.\n\n**Protection**: when on, the boiler stays on / off for at least the given time even if room demand changes meanwhile. This can delay heating, so it is off by default.\n\n**Heat now**: the `meross_boiler_sync.boost_now` service (and the cards' button) temporarily raises the room's target. It does not start in summer mode, with an open window or a stale sensor.\n\n**Preheat**: warms the room up for a given time, working out from the learned heating rate when to start. Set the weekly schedule under *Preheat schedule* in the main menu. It starts by itself, so it is off by default.",
+        "description": "Every feature can be switched on and off separately.\n\n**Events**: the plugin sends `meross_boiler_sync_event` events (valve boost, window, stale sensor, short cycling, Heat now, preheat) that you can use in automations; they are also readable in the HA logbook.\n\n**Boiler cycle monitoring**: counts boiler starts and flags short cycling.\n\n**Protection**: when on, the boiler stays on / off for at least the given time even if room demand changes meanwhile. This can delay heating, so it is off by default.\n\n**Heat now**: the `meross_boiler_sync.boost_now` service (and the cards' button) temporarily raises the room's target. It does not start in summer mode, with an open window or a stale sensor.\n\n**Preheat**: warms the room up for a given time, working out from the learned heating rate when to start. Set the weekly schedule under *Preheat schedule* in the main menu. It starts by itself, so it is off by default.\n\n**Gas estimate**: creates an estimated gas consumption sensor (m³) that you can pick under *Gas consumption* on the Energy dashboard. It multiplies the boiler's on-time by the gas consumption set below. It is an estimate, not a measurement, and it is off by default.",
         "data": {
           "events_enabled": "Events and logbook entries",
           "cycle_monitor_enabled": "Boiler cycle monitoring (sensors)",
@@ -168,7 +168,9 @@
           "preheat_max_minutes": "Preheat: earliest start before the ready time",
           "preheat_hold_minutes": "Preheat: hold the target after the ready time",
           "preheat_default_rate": "Preheat: default heating rate (until learned)",
-          "manual_boost_end_on_target": "Heat now: end when the room reaches the raised target"
+          "manual_boost_end_on_target": "Heat now: end when the room reaches the raised target",
+          "gas_estimate_enabled": "Gas estimate (for the Energy dashboard)",
+          "gas_m3_per_hour": "Gas estimate: gas use while the boiler is on"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "If the boiler started this many times or more in the last hour, the Short cycling sensor turns on.",
@@ -177,7 +179,9 @@
           "manual_boost_offset": "How much the room's target is raised during Heat now. The valve is opened right away by valve control (if enabled for the room).",
           "preheat_max_minutes": "Preheating never starts earlier than this, even if the room is very cold (default: 240 min).",
           "preheat_default_rate": "The plugin measures each room's heating rate while heating; until it has enough samples (about 20 minutes of heating) it uses this many degrees per hour.",
-          "manual_boost_end_on_target": "When off, Heat now lasts for the full duration and holds the raised target."
+          "manual_boost_end_on_target": "When off, Heat now lasts for the full duration and holds the raised target.",
+          "gas_estimate_enabled": "Adds the estimated gas consumption sensor. It counts the boiler's on-time; time while Home Assistant is not running is not counted.",
+          "gas_m3_per_hour": "How many m³ of gas the boiler uses per hour while it is on (see the type plate or your bill). Compare the sensor with your gas meter reading and adjust this value until they match."
         }
       },
       "preheat": {
@@ -463,6 +467,17 @@
           },
           "cycles": {
             "name": "Cycles (last 12 h)"
+          }
+        }
+      },
+      "gas_estimate": {
+        "name": "Estimated gas consumption",
+        "state_attributes": {
+          "m3_per_hour": {
+            "name": "Gas use while on (m³/h)"
+          },
+          "boiler_on": {
+            "name": "Boiler is on"
           }
         }
       }

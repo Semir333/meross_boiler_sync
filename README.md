@@ -31,7 +31,7 @@ Fully localized in over 15 languages (including English, Hungarian, German, Fren
 
 ## 📋 Version History
 
-### Version 1.6
+### Version 1.7
 
 Add heat off to profile choose
 

@@ -12,7 +12,14 @@ from homeassistant.helpers import selector
 
 from .const import (
     CONF_BOILER,
+    CONF_BOILER_MIN_OFF,
+    CONF_BOILER_MIN_ON,
     CONF_BOILER_ON_TEMP,
+    CONF_CYCLE_MAX_STARTS,
+    CONF_CYCLE_MIN_AVG_ON,
+    CONF_CYCLE_MONITOR,
+    CONF_CYCLE_PROTECTION,
+    CONF_EVENTS_ENABLED,
     CONF_HUMIDITY_MAX_BOOST,
     CONF_HYSTERESIS,
     CONF_MIN_SWITCH_TIME,
@@ -40,7 +47,14 @@ from .const import (
     CONF_VALVE_DRY_RUN,
     CONF_VALVE_RELEASE_MARGIN,
     CONF_WINDOW_DELAY,
+    DEFAULT_BOILER_MIN_OFF,
+    DEFAULT_BOILER_MIN_ON,
     DEFAULT_BOILER_ON_TEMP,
+    DEFAULT_CYCLE_MAX_STARTS,
+    DEFAULT_CYCLE_MIN_AVG_ON,
+    DEFAULT_CYCLE_MONITOR,
+    DEFAULT_CYCLE_PROTECTION,
+    DEFAULT_EVENTS_ENABLED,
     DEFAULT_HUMIDITY_MAX_BOOST,
     DEFAULT_HYSTERESIS,
     DEFAULT_MIN_SWITCH_TIME,
@@ -209,6 +223,42 @@ def _settings_schema(values: dict[str, Any]) -> vol.Schema:
     )
 
 
+def _features_schema(values: dict[str, Any]) -> vol.Schema:
+    """Események, kazán-ciklusok figyelése és az opcionális kazán védelem (mind kapcsolható)."""
+    return vol.Schema(
+        {
+            vol.Required(
+                CONF_EVENTS_ENABLED,
+                default=bool(values.get(CONF_EVENTS_ENABLED, DEFAULT_EVENTS_ENABLED)),
+            ): selector.BooleanSelector(),
+            vol.Required(
+                CONF_CYCLE_MONITOR,
+                default=bool(values.get(CONF_CYCLE_MONITOR, DEFAULT_CYCLE_MONITOR)),
+            ): selector.BooleanSelector(),
+            vol.Required(
+                CONF_CYCLE_MAX_STARTS,
+                default=values.get(CONF_CYCLE_MAX_STARTS, DEFAULT_CYCLE_MAX_STARTS),
+            ): _number(1, 30, 1, "×/h"),
+            vol.Required(
+                CONF_CYCLE_MIN_AVG_ON,
+                default=values.get(CONF_CYCLE_MIN_AVG_ON, DEFAULT_CYCLE_MIN_AVG_ON),
+            ): _number(0, 30, 1, "min"),
+            vol.Required(
+                CONF_CYCLE_PROTECTION,
+                default=bool(values.get(CONF_CYCLE_PROTECTION, DEFAULT_CYCLE_PROTECTION)),
+            ): selector.BooleanSelector(),
+            vol.Required(
+                CONF_BOILER_MIN_ON,
+                default=values.get(CONF_BOILER_MIN_ON, DEFAULT_BOILER_MIN_ON),
+            ): _number(0, 60, 1, "min"),
+            vol.Required(
+                CONF_BOILER_MIN_OFF,
+                default=values.get(CONF_BOILER_MIN_OFF, DEFAULT_BOILER_MIN_OFF),
+            ): _number(0, 60, 1, "min"),
+        }
+    )
+
+
 def _summer_schema(values: dict[str, Any]) -> vol.Schema:
     return vol.Schema(
         {
@@ -278,6 +328,13 @@ class MerossBoilerSyncConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_SUMMER_TEMP: DEFAULT_SUMMER_TEMP,
                     CONF_SUMMER_START: DEFAULT_SUMMER_START,
                     CONF_SUMMER_END: DEFAULT_SUMMER_END,
+                    CONF_EVENTS_ENABLED: DEFAULT_EVENTS_ENABLED,
+                    CONF_CYCLE_MONITOR: DEFAULT_CYCLE_MONITOR,
+                    CONF_CYCLE_MAX_STARTS: DEFAULT_CYCLE_MAX_STARTS,
+                    CONF_CYCLE_MIN_AVG_ON: DEFAULT_CYCLE_MIN_AVG_ON,
+                    CONF_CYCLE_PROTECTION: DEFAULT_CYCLE_PROTECTION,
+                    CONF_BOILER_MIN_ON: DEFAULT_BOILER_MIN_ON,
+                    CONF_BOILER_MIN_OFF: DEFAULT_BOILER_MIN_OFF,
                     CONF_ROOMS: [],
                 },
             )
@@ -378,7 +435,7 @@ class MerossBoilerSyncOptionsFlow(config_entries.OptionsFlow):
         menu = ["add_room"]
         if opts[CONF_ROOMS]:
             menu += ["edit_room", "remove_room"]
-        menu += ["settings", "summer", "done"]
+        menu += ["settings", "features", "summer", "done"]
         names = ", ".join(room[CONF_ROOM_NAME] for room in opts[CONF_ROOMS]) or "–"
         return self.async_show_menu(
             step_id="init",
@@ -483,6 +540,17 @@ class MerossBoilerSyncOptionsFlow(config_entries.OptionsFlow):
             step_id="settings",
             data_schema=_settings_schema(user_input or opts),
             errors=errors,
+        )
+
+    # --- funkciók: események, ciklusok, védelem
+    async def async_step_features(self, user_input: dict[str, Any] | None = None):
+        opts = self._load()
+        if user_input is not None:
+            opts.update(user_input)
+            return await self.async_step_init()
+        return self.async_show_form(
+            step_id="features",
+            data_schema=_features_schema(opts),
         )
 
     # --- nyári mód

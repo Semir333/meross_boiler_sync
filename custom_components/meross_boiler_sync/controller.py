@@ -6,7 +6,7 @@ import logging
 from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from typing import Any
 
 from homeassistant.components.climate import HVACMode
@@ -14,6 +14,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import HomeAssistant, State, callback
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.event import (
     async_call_later,
@@ -30,7 +31,14 @@ from .const import (
     BOOST_TOLERANCE,
     COMFORT_MIN_TARGET,
     CONF_BOILER,
+    CONF_BOILER_MIN_OFF,
+    CONF_BOILER_MIN_ON,
     CONF_BOILER_ON_TEMP,
+    CONF_CYCLE_MAX_STARTS,
+    CONF_CYCLE_MIN_AVG_ON,
+    CONF_CYCLE_MONITOR,
+    CONF_CYCLE_PROTECTION,
+    CONF_EVENTS_ENABLED,
     CONF_HUMIDITY_MAX_BOOST,
     CONF_HYSTERESIS,
     CONF_MIN_SWITCH_TIME,
@@ -57,7 +65,14 @@ from .const import (
     CONF_VALVE_BOOST_THRESHOLD,
     CONF_VALVE_DRY_RUN,
     CONF_VALVE_RELEASE_MARGIN,
+    DEFAULT_BOILER_MIN_OFF,
+    DEFAULT_BOILER_MIN_ON,
     DEFAULT_BOILER_ON_TEMP,
+    DEFAULT_CYCLE_MAX_STARTS,
+    DEFAULT_CYCLE_MIN_AVG_ON,
+    DEFAULT_CYCLE_MONITOR,
+    DEFAULT_CYCLE_PROTECTION,
+    DEFAULT_EVENTS_ENABLED,
     DEFAULT_HUMIDITY_MAX_BOOST,
     DEFAULT_HYSTERESIS,
     DEFAULT_MIN_SWITCH_TIME,
@@ -76,6 +91,7 @@ from .const import (
     DEFAULT_VALVE_MAX_TEMP,
     DEFAULT_VALVE_RELEASE_MARGIN,
     DOMAIN,
+    EVENT_TYPE,
     HUMIDITY_FULL,
     HUMIDITY_START,
     MAX_EFFECTIVE_TARGET,
@@ -90,6 +106,8 @@ from .const import (
     TREND_WINDOW_SECONDS,
     parse_month_day,
 )
+
+from .cycles import CycleLog
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -182,6 +200,7 @@ class RoomStatus:
     boiler_demand: bool = False
     # biztonsági funkciók
     sensor_stale: bool = False
+    temp_sensor: str | None = None
     boost_started: float | None = None
     rest_until: float | None = None
     # ablakérzékelők
@@ -279,6 +298,24 @@ class BoilerController:
         self.outdoor_stale = False
         self._issue_state: dict[str, bool] = {}
 
+        # 2.8: események, kazán-ciklusok, védelem (mind külön kapcsolható)
+        self.events_enabled = bool(cfg.get(CONF_EVENTS_ENABLED, DEFAULT_EVENTS_ENABLED))
+        self.cycle_monitor = bool(cfg.get(CONF_CYCLE_MONITOR, DEFAULT_CYCLE_MONITOR))
+        self.cycle_max_starts = float(cfg.get(CONF_CYCLE_MAX_STARTS, DEFAULT_CYCLE_MAX_STARTS))
+        self.cycle_min_avg_on = float(cfg.get(CONF_CYCLE_MIN_AVG_ON, DEFAULT_CYCLE_MIN_AVG_ON))
+        self.cycle_protection = bool(cfg.get(CONF_CYCLE_PROTECTION, DEFAULT_CYCLE_PROTECTION))
+        self.boiler_min_on = timedelta(
+            minutes=float(cfg.get(CONF_BOILER_MIN_ON, DEFAULT_BOILER_MIN_ON))
+        )
+        self.boiler_min_off = timedelta(
+            minutes=float(cfg.get(CONF_BOILER_MIN_OFF, DEFAULT_BOILER_MIN_OFF))
+        )
+        self.cycles = CycleLog()
+        self.cycle_info: dict[str, Any] = self.cycles.stats(0)
+        self.short_cycling = False
+        self._events_armed = False  # az első kiértékelés alatt nem küldünk eseményt
+        self._entity_ids: dict[str, str | None] = {}
+
         self.outdoor_sensor: str | None = cfg.get(CONF_OUTDOOR_SENSOR) or None
         self.summer_temp = float(cfg.get(CONF_SUMMER_TEMP, DEFAULT_SUMMER_TEMP))
         self.summer_start = parse_month_day(
@@ -326,6 +363,7 @@ class BoilerController:
             room_id=room[CONF_ROOM_ID],
             name=room[CONF_ROOM_NAME],
             valves=list(room[CONF_ROOM_VALVES]),
+            temp_sensor=room.get(CONF_ROOM_TEMP) or None,
             valve_control=bool(room.get(CONF_ROOM_VALVE_CONTROL))
             and bool(room.get(CONF_ROOM_TEMP)),
             boost_threshold=threshold,
@@ -347,6 +385,7 @@ class BoilerController:
                 self._samples.append((float(item[0]), float(item[1])))
             except (TypeError, ValueError, IndexError):
                 continue
+        self.cycles.load(data.get("cycles"))
         for valve_id, rec in (data.get("boosts") or {}).items():
             try:
                 self._boosts[valve_id] = {
@@ -443,6 +482,28 @@ class BoilerController:
             self.hass, delay + timedelta(seconds=1), self._handle_retry
         )
 
+    # ------------------------------------------------------------------ események
+    def _room_entity_id(self, room_id: str) -> str | None:
+        """A szoba "fűtési igény" szenzorának entity_id-ja (az eseményekhez és a naplóhoz)."""
+        if room_id not in self._entity_ids:
+            try:
+                self._entity_ids[room_id] = er.async_get(self.hass).async_get_entity_id(
+                    "binary_sensor", DOMAIN, f"{self.entry_id}_room_{room_id}"
+                )
+            except Exception:  # noqa: BLE001 - az esemény miatt ne álljon le a vezérlés
+                self._entity_ids[room_id] = None
+        return self._entity_ids[room_id]
+
+    def _emit(self, type_: str, st: RoomStatus | None = None, **extra: Any) -> None:
+        """meross_boiler_sync_event esemény küldése (ki/be kapcsolható; indulás alatt nem küld)."""
+        if not self.events_enabled or not self._events_armed:
+            return
+        data: dict[str, Any] = {"type": type_, **extra}
+        if st is not None:
+            data["room"] = st.name
+            data["entity_id"] = self._room_entity_id(st.room_id)
+        self.hass.bus.async_fire(EVENT_TYPE, data)
+
     # ------------------------------------------------------------------ segédek
     def _read_sensor(self, entity_id: str | None) -> tuple[float | None, bool]:
         """(érték, elavult-e). Elavult: a szenzor a megadott ideje nem jelentett."""
@@ -524,6 +585,7 @@ class BoilerController:
         return {
             "samples": [[ts, val] for ts, val in self._samples],
             "boosts": self._boosts,
+            "cycles": self.cycles.to_list(),
         }
 
     # ------------------------------------------------------------------ nyári mód
@@ -538,6 +600,8 @@ class BoilerController:
         now_ts = dt_util.utcnow().timestamp()
         value, stale = self._read_sensor(self.outdoor_sensor)
         self.outdoor_now = value
+        if stale != self.outdoor_stale:
+            self._emit_stale(None, self.outdoor_sensor, stale)
         self.outdoor_stale = stale
         self._sync_issue(
             f"stale_outdoor_{self.entry_id}",
@@ -614,6 +678,8 @@ class BoilerController:
 
         temp_id = room.get(CONF_ROOM_TEMP)
         sensor_value, sensor_stale = self._read_sensor(temp_id)
+        if temp_id and sensor_stale != st.sensor_stale:
+            self._emit_stale(st, temp_id, sensor_stale)
         st.sensor_stale = sensor_stale
         self._sync_issue(
             f"stale_room_{self.entry_id}_{st.room_id}",
@@ -684,6 +750,16 @@ class BoilerController:
         )
         return st
 
+    def _emit_stale(self, st: RoomStatus | None, sensor: str | None, stale: bool) -> None:
+        extra: dict[str, Any] = {"sensor": sensor}
+        if stale:
+            reported = self._reported_ts(sensor)
+            if reported is not None:
+                extra["age_minutes"] = round((dt_util.utcnow().timestamp() - reported) / 60)
+        if st is None:
+            extra["outdoor"] = True
+        self._emit("sensor_stale" if stale else "sensor_recovered", st, **extra)
+
     def _update_trend(self, st: RoomStatus) -> None:
         """A szoba hőmérsékletének változási sebessége (°C/óra) az utolsó ~30 percből.
 
@@ -730,6 +806,7 @@ class BoilerController:
             try:
                 await self._async_evaluate()
             finally:
+                self._events_armed = True  # az első kiértékelés után már küldhetünk eseményt
                 self._notify()
 
     async def _async_evaluate(self) -> None:
@@ -750,6 +827,7 @@ class BoilerController:
         await self._async_control_valves(statuses)
         for st in statuses:
             st.boiler_demand = self._room_boiler_demand(st)
+        self._observe_boiler()
 
         if not statuses or not any(st.reachable for st in statuses):
             # nincs szoba, vagy egyik szelep sem elérhető: nem nyúlunk a kazánhoz
@@ -762,9 +840,9 @@ class BoilerController:
             return
         boiler_on = boiler.state != HVACMode.OFF
 
-        if demand != boiler_on and self._last_switch is not None:
-            remaining = self._last_switch + self.min_switch - dt_util.utcnow()
-            if remaining > timedelta(0):
+        if demand != boiler_on:
+            remaining = self._switch_wait_remaining(demand)
+            if remaining is not None and remaining > timedelta(0):
                 self._schedule_retry(remaining)
                 return
 
@@ -784,6 +862,57 @@ class BoilerController:
                     if demand
                     else "nyári mód" if self.summer_active else "nincs hőigény"
                 ),
+            )
+
+    def _switch_wait_remaining(self, turning_on: bool) -> timedelta | None:
+        """Mennyi ideig kell még várni a kazán következő kapcsolásáig (None: nincs korlát).
+
+        Alapból a "minimális kapcsolási idő" számít az utolsó kapcsolástól. Ha a ciklus-védelem
+        be van kapcsolva, a kazán minimális be- / kikapcsolt ideje is (a megfigyelt váltásoktól,
+        így újraindítás után és külső kapcsolásnál is).
+        """
+        refs: list[datetime] = []
+        if self._last_switch is not None:
+            refs.append(self._last_switch + self.min_switch)
+        if self.cycle_protection:
+            wait = self.boiler_min_off if turning_on else self.boiler_min_on
+            if self._last_switch is not None:
+                refs.append(self._last_switch + wait)
+            last = self.cycles.last_change()
+            if last is not None:
+                refs.append(datetime.fromtimestamp(last, tz=timezone.utc) + wait)
+        if not refs:
+            return None
+        return max(refs) - dt_util.utcnow()
+
+    def _observe_boiler(self) -> None:
+        """A kazán be/ki váltásainak naplózása; gyakori kapcsolgatás figyelése."""
+        boiler = self.hass.states.get(self.boiler)
+        if boiler is None or boiler.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
+            return
+        now_ts = dt_util.utcnow().timestamp()
+        # a váltás valódi ideje (az állapot utolsó változása), hogy a késve észlelt váltás se csússzon el
+        changed = getattr(boiler, "last_changed", None)
+        event_ts = changed.timestamp() if changed is not None else now_ts
+        event_ts = min(max(event_ts, self.cycles.last_change() or 0.0), now_ts)
+        if self.cycles.observe(boiler.state != HVACMode.OFF, event_ts):
+            self._store.async_delay_save(self._data_to_save, 600)
+        self.cycle_info = self.cycles.stats(now_ts)
+        was = self.short_cycling
+        self.short_cycling = self.cycle_monitor and self.cycles.is_short_cycling(
+            self.cycle_info, self.cycle_max_starts, self.cycle_min_avg_on
+        )
+        if self.short_cycling and not was:
+            _LOGGER.warning(
+                "Gyakori kazán kapcsolgatás: %s indítás az utolsó órában, átlagos bekapcsolt idő %s perc",
+                self.cycle_info["starts_last_hour"],
+                self.cycle_info["avg_on_minutes"],
+            )
+            self._emit(
+                "short_cycling",
+                None,
+                starts_last_hour=self.cycle_info["starts_last_hour"],
+                avg_on_minutes=self.cycle_info["avg_on_minutes"],
             )
 
     # ------------------------------------------------------------------ szelep szabályzás
@@ -814,7 +943,10 @@ class BoilerController:
         now_ts = dt_util.utcnow().timestamp()
         for room in self.rooms:
             st = self.status[room[CONF_ROOM_ID]]
+            was, started = st.boost_wanted, st.boost_started
             boost = self._room_wants_boost(st, now_ts)
+            if boost != was:
+                self._emit_boost(st, boost, started, now_ts)
             for valve_id in room[CONF_ROOM_VALVES]:
                 want[valve_id] = boost
         # kikapcsolt / törölt vezérlésű szelepek: a korábbi emelést vissza kell állítani
@@ -837,6 +969,38 @@ class BoilerController:
                     v in self._boosts and not self._boosts[v]["restoring"]
                     for v in st.valves
                 )
+
+    def _boost_end_reason(self, st: RoomStatus) -> str:
+        """Miért ért véget a szelep emelése (az eseményhez)."""
+        if st.rest_until is not None:
+            return "max_time"
+        if st.window_open:
+            return "window"
+        if self.summer_active:
+            return "summer"
+        if not st.calling or (st.deviation is not None and st.deviation <= st.release_margin):
+            return "target_reached"
+        if st.source != "sensor":
+            return "sensor"
+        return "other"
+
+    def _emit_boost(
+        self, st: RoomStatus, started_now: bool, started_at: float | None, now_ts: float
+    ) -> None:
+        if started_now:
+            self._emit(
+                "boost_started",
+                st,
+                deviation=st.deviation,
+                current_temperature=None if st.current is None else round(st.current, 1),
+                target_temperature=st.effective_target,
+                dry_run=self.valve_dry_run,
+            )
+        else:
+            extra: dict[str, Any] = {"reason": self._boost_end_reason(st), "dry_run": self.valve_dry_run}
+            if started_at is not None:
+                extra["duration_minutes"] = round((now_ts - started_at) / 60)
+            self._emit("boost_ended", st, **extra)
 
     def _room_wants_boost(self, st: RoomStatus, now_ts: float) -> bool:
         """Mikor kell a szelepet ténylegesen kinyitni a szoba hőmérője alapján.
@@ -912,6 +1076,11 @@ class BoilerController:
         if not any_open:
             if st.window_open:
                 _LOGGER.info("%s: az ablak bezárva, a fűtés újra engedélyezett", st.name)
+                self._emit(
+                    "window_resumed",
+                    st,
+                    open_minutes=round((now_ts - (st.window_open_since or now_ts)) / 60),
+                )
             st.window_open_since = None
             st.window_open = False
             return
@@ -920,6 +1089,7 @@ class BoilerController:
         was_open = st.window_open
         st.window_open = now_ts - st.window_open_since >= st.window_delay_s
         if st.window_open and not was_open:
+            self._emit("window_paused", st, open_minutes=round(st.window_delay_s / 60))
             _LOGGER.info(
                 "%s: az ablak %s perce nyitva, a szoba fűtése szünetel",
                 st.name,

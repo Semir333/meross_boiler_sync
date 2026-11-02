@@ -28,6 +28,14 @@ CONF_VALVE_RELEASE_MARGIN = "valve_release_margin"
 CONF_SUMMER_TEMP = "summer_temp"
 CONF_SUMMER_START = "summer_start"
 CONF_SUMMER_END = "summer_end"
+# 2.8: események, kazán-ciklusok, védelem (mind külön ki/be kapcsolható)
+CONF_EVENTS_ENABLED = "events_enabled"
+CONF_CYCLE_MONITOR = "cycle_monitor_enabled"
+CONF_CYCLE_MAX_STARTS = "cycle_max_starts_per_hour"
+CONF_CYCLE_MIN_AVG_ON = "cycle_min_avg_on_minutes"
+CONF_CYCLE_PROTECTION = "cycle_protection_enabled"
+CONF_BOILER_MIN_ON = "boiler_min_on_minutes"
+CONF_BOILER_MIN_OFF = "boiler_min_off_minutes"
 
 # --- szoba kulcsok
 CONF_ROOM_ID = "id"
@@ -56,6 +64,13 @@ DEFAULT_MAX_BOOST_REST = 60  # perc: pihenő a maximális idő után
 DEFAULT_VALVE_BOOST_THRESHOLD = 0.8  # °C: ennyivel hidegebb legyen a szoba, hogy a szelep emeljen
 DEFAULT_VALVE_BOOST_DELAY = 10  # perc: ennyi ideig álljon fenn az eltérés az emelés előtt
 DEFAULT_VALVE_RELEASE_MARGIN = 0.3  # °C: a cél előtt ennyivel visszaengedi a szelepet
+DEFAULT_EVENTS_ENABLED = True
+DEFAULT_CYCLE_MONITOR = True
+DEFAULT_CYCLE_MAX_STARTS = 5  # indítás / óra: ennyitől számít gyakori kapcsolgatásnak
+DEFAULT_CYCLE_MIN_AVG_ON = 4  # perc: ennél rövidebb átlagos bekapcsolt idő gyakori kapcsolgatás
+DEFAULT_CYCLE_PROTECTION = False  # a védelem beavatkozik, ezért alapból ki van kapcsolva
+DEFAULT_BOILER_MIN_ON = 5  # perc: a védelem bekapcsolva ennyi ideig nem kapcsolja ki a kazánt
+DEFAULT_BOILER_MIN_OFF = 5  # perc: a védelem bekapcsolva ennyi ideig nem kapcsolja be újra
 DEFAULT_SUMMER_START = "05-15"
 DEFAULT_SUMMER_END = "09-15"
 
@@ -73,6 +88,13 @@ TREND_SAMPLE_SECONDS = 60
 TREND_MIN_SPAN_SECONDS = 10 * 60  # ennél rövidebb mintavételből még nem számolunk trendet
 TREND_HYSTERESIS = 0.2  # °C/óra: ennél kisebb változásnál a kiadott érték nem frissül (kíméli az adatbázist)
 STORAGE_VERSION = 1
+
+# --- események és kazán-ciklusok (2.8)
+EVENT_TYPE = "meross_boiler_sync_event"
+CYCLE_HISTORY_SECONDS = 24 * 3600  # ennyit őrzünk meg a kazán be/ki váltásaiból
+CYCLE_AVG_WINDOW_SECONDS = 2 * 3600  # az átlagos be/ki időt ennyi időre visszamenőleg számoljuk
+CYCLE_MIN_SAMPLES = 3  # ennyi lezárt ciklus kell, hogy az átlag alapján jelezzünk
+CYCLE_LIST_SECONDS = 12 * 3600  # a szenzor attribútumában ennyi időnyi ciklus látszik
 
 # --- szelep szabályzás (kísérleti)
 DEFAULT_VALVE_MAX_TEMP = 30.0  # °C, ha a szelep nem jelent max_temp-et

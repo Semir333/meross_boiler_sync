@@ -30,7 +30,7 @@ from .const import (
 )
 from .controller import BoilerController, async_restore_on_remove
 
-PLATFORMS = [Platform.BINARY_SENSOR]
+PLATFORMS = [Platform.BINARY_SENSOR, Platform.SENSOR]
 
 _LOGGER = logging.getLogger(__name__)
 

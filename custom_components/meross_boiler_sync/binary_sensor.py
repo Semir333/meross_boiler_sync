@@ -4,7 +4,10 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any
 
-from homeassistant.components.binary_sensor import BinarySensorEntity
+from homeassistant.components.binary_sensor import (
+    BinarySensorDeviceClass,
+    BinarySensorEntity,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
@@ -21,6 +24,8 @@ async def async_setup_entry(
     controller: BoilerController = hass.data[DOMAIN][entry.entry_id]
 
     entities: list[_BaseSensor] = [SummerModeSensor(controller, entry)]
+    if controller.cycle_monitor:
+        entities.append(ShortCyclingSensor(controller, entry))
     entities += [
         RoomDemandSensor(controller, entry, room[CONF_ROOM_ID], room[CONF_ROOM_NAME])
         for room in controller.rooms
@@ -30,7 +35,7 @@ async def async_setup_entry(
     valid = {entity.unique_id for entity in entities}
     registry = er.async_get(hass)
     for reg_entry in er.async_entries_for_config_entry(registry, entry.entry_id):
-        if reg_entry.unique_id not in valid:
+        if reg_entry.domain == "binary_sensor" and reg_entry.unique_id not in valid:
             registry.async_remove(reg_entry.entity_id)
 
     async_add_entities(entities)
@@ -115,6 +120,8 @@ class RoomDemandSensor(_BaseSensor):
             "boost_delay_minutes": round(st.boost_delay_s / 60, 1),
             "release_margin": st.release_margin,
             "valve_control": st.valve_control,
+            "temperature_sensor": st.temp_sensor,
+            "window_sensors": st.window_sensors,
             "temperature_sensor_stale": st.sensor_stale,
             "window_open": st.window_open,
             "window_open_pending": st.window_open_since is not None and not st.window_open,
@@ -157,4 +164,29 @@ class SummerModeSensor(_BaseSensor):
             "in_summer_period": c.in_summer_period,
             "period_start": "{:02d}-{:02d}".format(*c.summer_start),
             "period_end": "{:02d}-{:02d}".format(*c.summer_end),
+        }
+
+
+class ShortCyclingSensor(_BaseSensor):
+    """Be: a kazán gyakran kapcsolgat (kopás, pazarlás): sok indítás vagy túl rövid bekapcsolt idő."""
+
+    _attr_icon = "mdi:fire-alert"
+    _attr_translation_key = "short_cycling"
+    _attr_device_class = BinarySensorDeviceClass.PROBLEM
+
+    def __init__(self, controller: BoilerController, entry: ConfigEntry) -> None:
+        super().__init__(controller, entry, "short_cycling")
+
+    @property
+    def is_on(self) -> bool:
+        return self._controller.short_cycling
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        c = self._controller
+        return {
+            "starts_last_hour": c.cycle_info["starts_last_hour"],
+            "avg_on_minutes": c.cycle_info["avg_on_minutes"],
+            "max_starts_per_hour": c.cycle_max_starts,
+            "min_avg_on_minutes": c.cycle_min_avg_on,
         }

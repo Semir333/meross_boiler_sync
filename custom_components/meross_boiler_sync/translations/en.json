@@ -24,7 +24,8 @@
           "remove_room": "Remove room",
           "settings": "Settings",
           "summer": "Summer mode",
-          "done": "Save and exit"
+          "done": "Save and exit",
+          "features": "Features (events, boiler protection)"
         }
       },
       "add_room": {
@@ -147,6 +148,24 @@
           "summer_start": "E.g. 05-15",
           "summer_end": "E.g. 09-15"
         }
+      },
+      "features": {
+        "title": "Features",
+        "description": "Every feature can be switched on or off separately.\n\n**Events**: the integration fires `meross_boiler_sync_event` events (valve boost, window, stale sensor, short cycling) that you can use in automations; they also appear in the Home Assistant logbook.\n\n**Boiler cycle monitoring**: counts boiler starts and flags short cycling.\n\n**Protection**: when enabled, the boiler stays on / off for at least the given time, even if the rooms' demand changes in the meantime. This can delay heating, so it is off by default.",
+        "data": {
+          "events_enabled": "Events and logbook entries",
+          "cycle_monitor_enabled": "Boiler cycle monitoring (sensors)",
+          "cycle_max_starts_per_hour": "Short cycling: starts per hour",
+          "cycle_min_avg_on_minutes": "Short cycling: lower limit of the average on-time (0 = not monitored)",
+          "cycle_protection_enabled": "Boiler protection (minimum on / off time)",
+          "boiler_min_on_minutes": "Protection: keep the boiler on for at least",
+          "boiler_min_off_minutes": "Protection: keep the boiler off for at least"
+        },
+        "data_description": {
+          "cycle_max_starts_per_hour": "If the boiler started this many times or more in the last hour, the Short cycling sensor turns on.",
+          "cycle_min_avg_on_minutes": "If the average on-time of the last 2 hours (from at least 3 cycles) is shorter, it also reports.",
+          "cycle_protection_enabled": "The boiler is not switched off / on again before the minimum time has passed. The Minimum switching time (Basic settings) still applies."
+        }
       }
     },
     "error": {
@@ -259,6 +278,12 @@
           },
           "room_name": {
             "name": "Room name"
+          },
+          "temperature_sensor": {
+            "name": "Room temperature sensor"
+          },
+          "window_sensors": {
+            "name": "Window sensors"
           }
         }
       },
@@ -295,6 +320,52 @@
           },
           "boiler_entity": {
             "name": "Boiler thermostat"
+          }
+        }
+      },
+      "short_cycling": {
+        "name": "Short cycling",
+        "state": {
+          "on": "The boiler is short-cycling",
+          "off": "OK"
+        },
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "Starts in the last hour"
+          },
+          "avg_on_minutes": {
+            "name": "Average on-time (min)"
+          },
+          "max_starts_per_hour": {
+            "name": "Limit: starts per hour"
+          },
+          "min_avg_on_minutes": {
+            "name": "Limit: average on-time (min)"
+          }
+        }
+      }
+    },
+    "sensor": {
+      "boiler_starts": {
+        "name": "Boiler starts (24 h)",
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "Starts in the last hour"
+          },
+          "avg_on_minutes": {
+            "name": "Average on-time (min, last 2 h)"
+          },
+          "avg_off_minutes": {
+            "name": "Average off-time (min, last 2 h)"
+          },
+          "last_start": {
+            "name": "Last start"
+          },
+          "last_stop": {
+            "name": "Last stop"
+          },
+          "cycles": {
+            "name": "Cycles (last 12 h)"
           }
         }
       }

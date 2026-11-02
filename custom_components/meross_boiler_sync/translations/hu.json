@@ -24,7 +24,8 @@
           "remove_room": "Szoba törlése",
           "settings": "Alapbeállítások",
           "summer": "Nyári mód",
-          "done": "Mentés és kilépés"
+          "done": "Mentés és kilépés",
+          "features": "Funkciók (események, kazán védelem)"
         }
       },
       "add_room": {
@@ -147,6 +148,24 @@
           "summer_start": "Pl. 05-15",
           "summer_end": "Pl. 09-15"
         }
+      },
+      "features": {
+        "title": "Funkciók",
+        "description": "Minden funkció külön ki- és bekapcsolható.\n\n**Események**: a plugin `meross_boiler_sync_event` eseményeket küld (szelepemelés, ablak, elavult szenzor, gyakori kapcsolgatás), amelyekre automatizációt építhetsz, és a HA naplóban is olvashatók.\n\n**Kazán ciklusok figyelése**: számolja a kazán indításait, és jelzi a gyakori kapcsolgatást.\n\n**Védelem**: ha be van kapcsolva, a kazán legalább a megadott ideig bekapcsolva / kikapcsolva marad, még akkor is, ha a szobák hőigénye közben változik. Ez késleltetheti a fűtést, ezért alapból ki van kapcsolva.",
+        "data": {
+          "events_enabled": "Események és naplóbejegyzések",
+          "cycle_monitor_enabled": "Kazán ciklusok figyelése (szenzorok)",
+          "cycle_max_starts_per_hour": "Gyakori kapcsolgatás: indítások száma óránként",
+          "cycle_min_avg_on_minutes": "Gyakori kapcsolgatás: átlagos bekapcsolt idő alsó határa (0 = nem figyeli)",
+          "cycle_protection_enabled": "Kazán védelem (minimum be / ki idő)",
+          "boiler_min_on_minutes": "Védelem: a kazán legalább ennyi ideig marad bekapcsolva",
+          "boiler_min_off_minutes": "Védelem: a kazán legalább ennyi ideig marad kikapcsolva"
+        },
+        "data_description": {
+          "cycle_max_starts_per_hour": "Ha a kazán ennyiszer vagy többször indult az elmúlt órában, a Gyakori kapcsolgatás szenzor bekapcsol.",
+          "cycle_min_avg_on_minutes": "Ha az utolsó 2 óra átlagos bekapcsolt ideje (legalább 3 ciklusból) ennél rövidebb, szintén jelez.",
+          "cycle_protection_enabled": "A kazánt nem kapcsolja ki / vissza a megadott minimum idő letelte előtt. A 'Minimális kapcsolási idő' (Alapbeállítások) ettől függetlenül érvényes."
+        }
       }
     },
     "error": {
@@ -259,6 +278,12 @@
           },
           "room_name": {
             "name": "Szoba neve"
+          },
+          "temperature_sensor": {
+            "name": "Szoba hőmérő szenzor"
+          },
+          "window_sensors": {
+            "name": "Ablakérzékelők"
           }
         }
       },
@@ -295,6 +320,52 @@
           },
           "boiler_entity": {
             "name": "Kazán termosztát"
+          }
+        }
+      },
+      "short_cycling": {
+        "name": "Gyakori kapcsolgatás",
+        "state": {
+          "on": "A kazán gyakran kapcsolgat",
+          "off": "Rendben"
+        },
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "Indítások az utolsó órában"
+          },
+          "avg_on_minutes": {
+            "name": "Átlagos bekapcsolt idő (perc)"
+          },
+          "max_starts_per_hour": {
+            "name": "Határ: indítások óránként"
+          },
+          "min_avg_on_minutes": {
+            "name": "Határ: átlagos bekapcsolt idő (perc)"
+          }
+        }
+      }
+    },
+    "sensor": {
+      "boiler_starts": {
+        "name": "Kazán indítások (24 óra)",
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "Indítások az utolsó órában"
+          },
+          "avg_on_minutes": {
+            "name": "Átlagos bekapcsolt idő (perc, utolsó 2 óra)"
+          },
+          "avg_off_minutes": {
+            "name": "Átlagos kikapcsolt idő (perc, utolsó 2 óra)"
+          },
+          "last_start": {
+            "name": "Utolsó indítás"
+          },
+          "last_stop": {
+            "name": "Utolsó leállás"
+          },
+          "cycles": {
+            "name": "Ciklusok (utolsó 12 óra)"
           }
         }
       }

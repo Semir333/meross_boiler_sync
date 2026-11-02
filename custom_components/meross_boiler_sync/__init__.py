@@ -29,6 +29,7 @@ from .const import (
     STORAGE_VERSION,
 )
 from .controller import BoilerController, async_restore_on_remove
+from .services import async_setup_services, async_unload_services
 
 PLATFORMS = [Platform.BINARY_SENSOR, Platform.SENSOR]
 
@@ -68,6 +69,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = controller
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    await async_setup_services(hass)
     entry.async_on_unload(entry.add_update_listener(_async_reload))
     await controller.async_start()
     return True
@@ -79,6 +81,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         async_cancel_retry(hass)
         controller: BoilerController = hass.data[DOMAIN].pop(entry.entry_id)
         controller.async_stop()
+        if not hass.data[DOMAIN]:
+            async_unload_services(hass)
     return unload_ok
 
 

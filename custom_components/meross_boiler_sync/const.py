@@ -36,6 +36,15 @@ CONF_CYCLE_MIN_AVG_ON = "cycle_min_avg_on_minutes"
 CONF_CYCLE_PROTECTION = "cycle_protection_enabled"
 CONF_BOILER_MIN_ON = "boiler_min_on_minutes"
 CONF_BOILER_MIN_OFF = "boiler_min_off_minutes"
+# 2.9: "Fűts most" (megemelt cél) és előfűtés (mind külön ki/be kapcsolható)
+CONF_MANUAL_BOOST_ENABLED = "manual_boost_enabled"
+CONF_MANUAL_BOOST_MINUTES = "manual_boost_minutes"
+CONF_MANUAL_BOOST_OFFSET = "manual_boost_offset"
+CONF_MANUAL_BOOST_END_ON_TARGET = "manual_boost_end_on_target"
+CONF_PREHEAT_ENABLED = "preheat_enabled"
+CONF_PREHEAT_MAX_MINUTES = "preheat_max_minutes"
+CONF_PREHEAT_HOLD_MINUTES = "preheat_hold_minutes"
+CONF_PREHEAT_DEFAULT_RATE = "preheat_default_rate"
 
 # --- szoba kulcsok
 CONF_ROOM_ID = "id"
@@ -46,6 +55,7 @@ CONF_ROOM_HUM = "humidity_sensor"
 CONF_ROOM_VALVE_CONTROL = "valve_control"
 CONF_ROOM_VALVE_LINK = "valve_demand_link"
 CONF_ROOM_WINDOWS = "window_sensors"
+CONF_ROOM_PREHEAT = "preheat_schedule"  # [{"days": [0..6], "time": "HH:MM", "temperature": 22.0}]
 
 # --- alapértékek
 DEFAULT_HYSTERESIS = 0.3  # °C
@@ -71,6 +81,14 @@ DEFAULT_CYCLE_MIN_AVG_ON = 4  # perc: ennél rövidebb átlagos bekapcsolt idő 
 DEFAULT_CYCLE_PROTECTION = False  # a védelem beavatkozik, ezért alapból ki van kapcsolva
 DEFAULT_BOILER_MIN_ON = 5  # perc: a védelem bekapcsolva ennyi ideig nem kapcsolja ki a kazánt
 DEFAULT_BOILER_MIN_OFF = 5  # perc: a védelem bekapcsolva ennyi ideig nem kapcsolja be újra
+DEFAULT_MANUAL_BOOST_ENABLED = True
+DEFAULT_MANUAL_BOOST_MINUTES = 60  # perc: a "Fűts most" alap időtartama
+DEFAULT_MANUAL_BOOST_OFFSET = 2.0  # °C: ennyivel emeli meg a szoba célját
+DEFAULT_MANUAL_BOOST_END_ON_TARGET = False  # véget ér-e a Fűts most, amint a szoba eléri a megemelt célt
+DEFAULT_PREHEAT_ENABLED = False  # az előfűtés magától indul, ezért alapból ki van kapcsolva
+DEFAULT_PREHEAT_MAX_MINUTES = 240  # perc: ennél korábban nem kezd előfűteni (4 óra)
+DEFAULT_PREHEAT_HOLD_MINUTES = 30  # perc: a "kész" időpont után ennyi ideig tartja a célt
+DEFAULT_PREHEAT_RATE = 1.0  # °C/óra: ennyivel számol, amíg nem tanulta meg a szoba felfűtési sebességét
 DEFAULT_SUMMER_START = "05-15"
 DEFAULT_SUMMER_END = "09-15"
 
@@ -95,6 +113,21 @@ CYCLE_HISTORY_SECONDS = 24 * 3600  # ennyit őrzünk meg a kazán be/ki váltás
 CYCLE_AVG_WINDOW_SECONDS = 2 * 3600  # az átlagos be/ki időt ennyi időre visszamenőleg számoljuk
 CYCLE_MIN_SAMPLES = 3  # ennyi lezárt ciklus kell, hogy az átlag alapján jelezzünk
 CYCLE_LIST_SECONDS = 12 * 3600  # a szenzor attribútumában ennyi időnyi ciklus látszik
+
+# --- "Fűts most" és előfűtés (2.9)
+MANUAL_BOOST_MIN_MINUTES = 5
+MANUAL_BOOST_MAX_MINUTES = 480
+MANUAL_BOOST_MIN_OFFSET = 0.5
+MANUAL_BOOST_MAX_OFFSET = 5.0
+MAX_RAISED_TARGET = 30.0  # °C: a megemelt (kézi / előfűtési) cél felső határa
+HEATING_RATE_MIN = 0.1  # °C/óra: ennél lassabb / gyorsabb mintát nem tanul meg
+HEATING_RATE_MAX = 5.0
+HEATING_RATE_MIN_SAMPLES = 20  # ennyi percnyi fűtés után használja a tanult sebességet
+HEATING_RATE_WINDOW = 240  # a tanulás ennyi minta után "állandó ablakú" átlag
+HEATING_RATE_MIN_TREND = 0.15  # °C/óra: ennél kisebb melegedés nem számít mintának
+PREHEAT_SAFETY = 1.15  # a becsült felfűtési időt ennyivel szorozza
+PREHEAT_GRACE_SECONDS = 300  # ennyivel később érhető el a cél, ez még nem "nem éri el"
+PREHEAT_DONE_TOLERANCE = 0.2  # °C: ennyire a céltól már "kész"
 
 # --- szelep szabályzás (kísérleti)
 DEFAULT_VALVE_MAX_TEMP = 30.0  # °C, ha a szelep nem jelent max_temp-et

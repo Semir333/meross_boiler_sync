@@ -22,11 +22,20 @@ from .const import (
     CONF_EVENTS_ENABLED,
     CONF_HUMIDITY_MAX_BOOST,
     CONF_HYSTERESIS,
+    CONF_MANUAL_BOOST_ENABLED,
+    CONF_MANUAL_BOOST_END_ON_TARGET,
+    CONF_MANUAL_BOOST_MINUTES,
+    CONF_MANUAL_BOOST_OFFSET,
     CONF_MIN_SWITCH_TIME,
+    CONF_PREHEAT_DEFAULT_RATE,
+    CONF_PREHEAT_ENABLED,
+    CONF_PREHEAT_HOLD_MINUTES,
+    CONF_PREHEAT_MAX_MINUTES,
     CONF_OUTDOOR_SENSOR,
     CONF_ROOM_HUM,
     CONF_ROOM_ID,
     CONF_ROOM_NAME,
+    CONF_ROOM_PREHEAT,
     CONF_ROOM_TEMP,
     CONF_ROOM_VALVE_CONTROL,
     CONF_REGISTER_CARD,
@@ -57,7 +66,15 @@ from .const import (
     DEFAULT_EVENTS_ENABLED,
     DEFAULT_HUMIDITY_MAX_BOOST,
     DEFAULT_HYSTERESIS,
+    DEFAULT_MANUAL_BOOST_ENABLED,
+    DEFAULT_MANUAL_BOOST_END_ON_TARGET,
+    DEFAULT_MANUAL_BOOST_MINUTES,
+    DEFAULT_MANUAL_BOOST_OFFSET,
     DEFAULT_MIN_SWITCH_TIME,
+    DEFAULT_PREHEAT_ENABLED,
+    DEFAULT_PREHEAT_HOLD_MINUTES,
+    DEFAULT_PREHEAT_MAX_MINUTES,
+    DEFAULT_PREHEAT_RATE,
     DEFAULT_SUMMER_END,
     DEFAULT_SUMMER_START,
     DEFAULT_MAX_BOOST_ENABLED,
@@ -255,6 +272,88 @@ def _features_schema(values: dict[str, Any]) -> vol.Schema:
                 CONF_BOILER_MIN_OFF,
                 default=values.get(CONF_BOILER_MIN_OFF, DEFAULT_BOILER_MIN_OFF),
             ): _number(0, 60, 1, "min"),
+            vol.Required(
+                CONF_MANUAL_BOOST_ENABLED,
+                default=bool(values.get(CONF_MANUAL_BOOST_ENABLED, DEFAULT_MANUAL_BOOST_ENABLED)),
+            ): selector.BooleanSelector(),
+            vol.Required(
+                CONF_MANUAL_BOOST_MINUTES,
+                default=values.get(CONF_MANUAL_BOOST_MINUTES, DEFAULT_MANUAL_BOOST_MINUTES),
+            ): _number(5, 480, 5, "min"),
+            vol.Required(
+                CONF_MANUAL_BOOST_OFFSET,
+                default=values.get(CONF_MANUAL_BOOST_OFFSET, DEFAULT_MANUAL_BOOST_OFFSET),
+            ): _number(0.5, 5, 0.5, "°C"),
+            vol.Required(
+                CONF_MANUAL_BOOST_END_ON_TARGET,
+                default=bool(
+                    values.get(CONF_MANUAL_BOOST_END_ON_TARGET, DEFAULT_MANUAL_BOOST_END_ON_TARGET)
+                ),
+            ): selector.BooleanSelector(),
+            vol.Required(
+                CONF_PREHEAT_ENABLED,
+                default=bool(values.get(CONF_PREHEAT_ENABLED, DEFAULT_PREHEAT_ENABLED)),
+            ): selector.BooleanSelector(),
+            vol.Required(
+                CONF_PREHEAT_MAX_MINUTES,
+                default=values.get(CONF_PREHEAT_MAX_MINUTES, DEFAULT_PREHEAT_MAX_MINUTES),
+            ): _number(30, 480, 15, "min"),
+            vol.Required(
+                CONF_PREHEAT_HOLD_MINUTES,
+                default=values.get(CONF_PREHEAT_HOLD_MINUTES, DEFAULT_PREHEAT_HOLD_MINUTES),
+            ): _number(0, 180, 5, "min"),
+            vol.Required(
+                CONF_PREHEAT_DEFAULT_RATE,
+                default=values.get(CONF_PREHEAT_DEFAULT_RATE, DEFAULT_PREHEAT_RATE),
+            ): _number(0.2, 4, 0.1, "°C/h"),
+        }
+    )
+
+
+# ------------------------------------------------------------------ előfűtés menetrend
+CONF_PICK_ENTRIES = "entries_to_remove"
+ATTR_DAYS = "days"
+ATTR_TIME = "time"
+ATTR_TEMPERATURE = "temperature"
+_DAYS_HU = ["H", "K", "Sze", "Cs", "P", "Szo", "V"]
+_DAYS_EN = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+
+def schedule_text(entry: dict[str, Any], hu: bool) -> str:
+    """Egy menetrendi sor olvasható szövege, pl. "H, K, Sze, Cs, P 06:30 → 22 °C"."""
+    names = _DAYS_HU if hu else _DAYS_EN
+    days = sorted({int(d) for d in entry.get(ATTR_DAYS, []) if 0 <= int(d) <= 6})
+    if days == list(range(7)):
+        label = "minden nap" if hu else "every day"
+    elif days == [0, 1, 2, 3, 4]:
+        label = "H–P" if hu else "Mon–Fri"
+    elif days == [5, 6]:
+        label = "Szo–V" if hu else "Sat–Sun"
+    else:
+        label = ", ".join(names[d] for d in days)
+    temp = float(entry.get(ATTR_TEMPERATURE, 0))
+    return f"{label} {entry.get(ATTR_TIME, '')} → {temp:g} °C"
+
+
+def _schedule_add_schema(values: dict[str, Any]) -> vol.Schema:
+    return vol.Schema(
+        {
+            vol.Required(
+                ATTR_DAYS, default=values.get(ATTR_DAYS, ["0", "1", "2", "3", "4"])
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[str(d) for d in range(7)],
+                    multiple=True,
+                    mode=selector.SelectSelectorMode.LIST,
+                    translation_key="preheat_days",
+                )
+            ),
+            vol.Required(
+                ATTR_TIME, default=values.get(ATTR_TIME, "06:30:00")
+            ): selector.TimeSelector(),
+            vol.Required(
+                ATTR_TEMPERATURE, default=values.get(ATTR_TEMPERATURE, 21.0)
+            ): _number(5, 30, 0.5, "°C"),
         }
     )
 
@@ -335,6 +434,14 @@ class MerossBoilerSyncConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_CYCLE_PROTECTION: DEFAULT_CYCLE_PROTECTION,
                     CONF_BOILER_MIN_ON: DEFAULT_BOILER_MIN_ON,
                     CONF_BOILER_MIN_OFF: DEFAULT_BOILER_MIN_OFF,
+                    CONF_MANUAL_BOOST_ENABLED: DEFAULT_MANUAL_BOOST_ENABLED,
+                    CONF_MANUAL_BOOST_MINUTES: DEFAULT_MANUAL_BOOST_MINUTES,
+                    CONF_MANUAL_BOOST_OFFSET: DEFAULT_MANUAL_BOOST_OFFSET,
+                    CONF_MANUAL_BOOST_END_ON_TARGET: DEFAULT_MANUAL_BOOST_END_ON_TARGET,
+                    CONF_PREHEAT_ENABLED: DEFAULT_PREHEAT_ENABLED,
+                    CONF_PREHEAT_MAX_MINUTES: DEFAULT_PREHEAT_MAX_MINUTES,
+                    CONF_PREHEAT_HOLD_MINUTES: DEFAULT_PREHEAT_HOLD_MINUTES,
+                    CONF_PREHEAT_DEFAULT_RATE: DEFAULT_PREHEAT_RATE,
                     CONF_ROOMS: [],
                 },
             )
@@ -434,7 +541,7 @@ class MerossBoilerSyncOptionsFlow(config_entries.OptionsFlow):
         opts = self._load()
         menu = ["add_room"]
         if opts[CONF_ROOMS]:
-            menu += ["edit_room", "remove_room"]
+            menu += ["edit_room", "remove_room", "preheat"]
         menu += ["settings", "features", "summer", "done"]
         names = ", ".join(room[CONF_ROOM_NAME] for room in opts[CONF_ROOMS]) or "–"
         return self.async_show_menu(
@@ -493,9 +600,10 @@ class MerossBoilerSyncOptionsFlow(config_entries.OptionsFlow):
             errors = self._validate_room(user_input, self._edit_id)
             if not errors:
                 index = opts[CONF_ROOMS].index(room)
-                opts[CONF_ROOMS][index] = self._room_from_input(
-                    user_input, self._edit_id
-                )
+                updated = self._room_from_input(user_input, self._edit_id)
+                if room.get(CONF_ROOM_PREHEAT):  # a menetrendet ez az űrlap nem szerkeszti
+                    updated[CONF_ROOM_PREHEAT] = room[CONF_ROOM_PREHEAT]
+                opts[CONF_ROOMS][index] = updated
                 return await self.async_step_init()
         return self.async_show_form(
             step_id="edit_room_form",
@@ -540,6 +648,103 @@ class MerossBoilerSyncOptionsFlow(config_entries.OptionsFlow):
             step_id="settings",
             data_schema=_settings_schema(user_input or opts),
             errors=errors,
+        )
+
+    # --- előfűtés: szobánkénti heti menetrend
+    def _hu(self) -> bool:
+        return str(self.hass.config.language or "").lower().startswith("hu")
+
+    def _preheat_room(self) -> dict[str, Any] | None:
+        return next(
+            (r for r in self._load()[CONF_ROOMS] if r[CONF_ROOM_ID] == self._edit_id), None
+        )
+
+    async def async_step_preheat(self, user_input: dict[str, Any] | None = None):
+        if user_input is not None:
+            self._edit_id = user_input[CONF_PICK_ROOM]
+            return await self.async_step_preheat_menu()
+        return self.async_show_form(
+            step_id="preheat",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_PICK_ROOM): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=self._room_options(),
+                            mode=selector.SelectSelectorMode.DROPDOWN,
+                        )
+                    )
+                }
+            ),
+        )
+
+    async def async_step_preheat_menu(self, user_input: dict[str, Any] | None = None):
+        room = self._preheat_room()
+        if room is None:
+            return await self.async_step_init()
+        entries = room.get(CONF_ROOM_PREHEAT) or []
+        menu = ["preheat_add"] + (["preheat_remove"] if entries else []) + ["init"]
+        text = "\n".join(f"- {schedule_text(e, self._hu())}" for e in entries) or "–"
+        return self.async_show_menu(
+            step_id="preheat_menu",
+            menu_options=menu,
+            description_placeholders={"room": room[CONF_ROOM_NAME], "entries": text},
+        )
+
+    async def async_step_preheat_add(self, user_input: dict[str, Any] | None = None):
+        room = self._preheat_room()
+        if room is None:
+            return await self.async_step_init()
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            days = sorted({int(d) for d in user_input.get(ATTR_DAYS) or []})
+            if not days:
+                errors[ATTR_DAYS] = "no_days"
+            else:
+                room.setdefault(CONF_ROOM_PREHEAT, []).append(
+                    {
+                        ATTR_DAYS: days,
+                        ATTR_TIME: str(user_input[ATTR_TIME])[:5],
+                        ATTR_TEMPERATURE: float(user_input[ATTR_TEMPERATURE]),
+                    }
+                )
+                return await self.async_step_preheat_menu()
+        return self.async_show_form(
+            step_id="preheat_add",
+            data_schema=_schedule_add_schema(user_input or {}),
+            errors=errors,
+            description_placeholders={"room": room[CONF_ROOM_NAME]},
+        )
+
+    async def async_step_preheat_remove(self, user_input: dict[str, Any] | None = None):
+        room = self._preheat_room()
+        if room is None:
+            return await self.async_step_init()
+        entries = room.get(CONF_ROOM_PREHEAT) or []
+        if user_input is not None:
+            drop = {int(i) for i in user_input.get(CONF_PICK_ENTRIES) or []}
+            kept = [e for i, e in enumerate(entries) if i not in drop]
+            if kept:
+                room[CONF_ROOM_PREHEAT] = kept
+            else:
+                room.pop(CONF_ROOM_PREHEAT, None)
+            return await self.async_step_preheat_menu()
+        return self.async_show_form(
+            step_id="preheat_remove",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_PICK_ENTRIES): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=[
+                                {"value": str(i), "label": schedule_text(e, self._hu())}
+                                for i, e in enumerate(entries)
+                            ],
+                            multiple=True,
+                            mode=selector.SelectSelectorMode.LIST,
+                        )
+                    )
+                }
+            ),
+            description_placeholders={"room": room[CONF_ROOM_NAME]},
         )
 
     # --- funkciók: események, ciklusok, védelem

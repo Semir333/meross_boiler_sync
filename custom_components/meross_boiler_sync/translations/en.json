@@ -25,7 +25,8 @@
           "settings": "Settings",
           "summer": "Summer mode",
           "done": "Save and exit",
-          "features": "Features (events, boiler protection)"
+          "features": "Features (events, protection, Heat now, preheat)",
+          "preheat": "Preheat schedule (per room)"
         }
       },
       "add_room": {
@@ -151,7 +152,7 @@
       },
       "features": {
         "title": "Features",
-        "description": "Every feature can be switched on or off separately.\n\n**Events**: the integration fires `meross_boiler_sync_event` events (valve boost, window, stale sensor, short cycling) that you can use in automations; they also appear in the Home Assistant logbook.\n\n**Boiler cycle monitoring**: counts boiler starts and flags short cycling.\n\n**Protection**: when enabled, the boiler stays on / off for at least the given time, even if the rooms' demand changes in the meantime. This can delay heating, so it is off by default.",
+        "description": "Every feature can be switched on and off separately.\n\n**Events**: the plugin sends `meross_boiler_sync_event` events (valve boost, window, stale sensor, short cycling, Heat now, preheat) that you can use in automations; they are also readable in the HA logbook.\n\n**Boiler cycle monitoring**: counts boiler starts and flags short cycling.\n\n**Protection**: when on, the boiler stays on / off for at least the given time even if room demand changes meanwhile. This can delay heating, so it is off by default.\n\n**Heat now**: the `meross_boiler_sync.boost_now` service (and the cards' button) temporarily raises the room's target. It does not start in summer mode, with an open window or a stale sensor.\n\n**Preheat**: warms the room up for a given time, working out from the learned heating rate when to start. Set the weekly schedule under *Preheat schedule* in the main menu. It starts by itself, so it is off by default.",
         "data": {
           "events_enabled": "Events and logbook entries",
           "cycle_monitor_enabled": "Boiler cycle monitoring (sensors)",
@@ -159,12 +160,59 @@
           "cycle_min_avg_on_minutes": "Short cycling: lower limit of the average on-time (0 = not monitored)",
           "cycle_protection_enabled": "Boiler protection (minimum on / off time)",
           "boiler_min_on_minutes": "Protection: keep the boiler on for at least",
-          "boiler_min_off_minutes": "Protection: keep the boiler off for at least"
+          "boiler_min_off_minutes": "Protection: keep the boiler off for at least",
+          "manual_boost_enabled": "Heat now (raised target)",
+          "manual_boost_minutes": "Heat now: default duration",
+          "manual_boost_offset": "Heat now: target raise",
+          "preheat_enabled": "Preheat (schedule and service)",
+          "preheat_max_minutes": "Preheat: earliest start before the ready time",
+          "preheat_hold_minutes": "Preheat: hold the target after the ready time",
+          "preheat_default_rate": "Preheat: default heating rate (until learned)",
+          "manual_boost_end_on_target": "Heat now: end when the room reaches the raised target"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "If the boiler started this many times or more in the last hour, the Short cycling sensor turns on.",
           "cycle_min_avg_on_minutes": "If the average on-time of the last 2 hours (from at least 3 cycles) is shorter, it also reports.",
-          "cycle_protection_enabled": "The boiler is not switched off / on again before the minimum time has passed. The Minimum switching time (Basic settings) still applies."
+          "cycle_protection_enabled": "The boiler is not switched off / on again before the minimum time has passed. The Minimum switching time (Basic settings) still applies.",
+          "manual_boost_offset": "How much the room's target is raised during Heat now. The valve is opened right away by valve control (if enabled for the room).",
+          "preheat_max_minutes": "Preheating never starts earlier than this, even if the room is very cold (default: 240 min).",
+          "preheat_default_rate": "The plugin measures each room's heating rate while heating; until it has enough samples (about 20 minutes of heating) it uses this many degrees per hour.",
+          "manual_boost_end_on_target": "When off, Heat now lasts for the full duration and holds the raised target."
+        }
+      },
+      "preheat": {
+        "title": "Preheat schedule",
+        "description": "Pick the room whose weekly schedule you want to edit. Preheat only runs when it is switched on under Features.",
+        "data": {
+          "room": "Room"
+        }
+      },
+      "preheat_menu": {
+        "title": "Preheat: {room}",
+        "description": "Schedule of **{room}** (the room should be ready by the given time):\n\n{entries}",
+        "menu_options": {
+          "preheat_add": "Add a row",
+          "preheat_remove": "Remove rows",
+          "init": "Back to main menu"
+        }
+      },
+      "preheat_add": {
+        "title": "New schedule row: {room}",
+        "description": "On which days and by when the room should be at the given temperature. Preheat starts earlier by as much as the warm-up needs.",
+        "data": {
+          "days": "Days",
+          "time": "Ready by",
+          "temperature": "Target temperature"
+        },
+        "data_description": {
+          "temperature": "The room's target is raised to this during preheat (the valve's own target is not changed if it is higher)."
+        }
+      },
+      "preheat_remove": {
+        "title": "Remove schedule rows: {room}",
+        "description": "Tick the rows to remove.",
+        "data": {
+          "entries_to_remove": "Rows to remove"
         }
       }
     },
@@ -176,7 +224,8 @@
       "valve_in_use": "This valve already belongs to another room.",
       "control_needs_sensor": "Valve control requires a room temperature sensor.",
       "invalid_date": "Invalid date, use MM-DD (e.g. 05-15).",
-      "release_ge_threshold": "Release must be smaller than the boost threshold."
+      "release_ge_threshold": "Release must be smaller than the boost threshold.",
+      "no_days": "Select at least one day."
     }
   },
   "entity": {
@@ -284,6 +333,54 @@
           },
           "window_sensors": {
             "name": "Window sensors"
+          },
+          "manual_boost_available": {
+            "name": "Heat now available (switched on)"
+          },
+          "manual_boost_active": {
+            "name": "Heat now active"
+          },
+          "manual_boost_until": {
+            "name": "Heat now lasts until"
+          },
+          "manual_boost_offset": {
+            "name": "Heat now: target raise"
+          },
+          "manual_boost_default_minutes": {
+            "name": "Heat now: default duration (min)"
+          },
+          "manual_boost_default_offset": {
+            "name": "Heat now: default raise (°C)"
+          },
+          "preheat_available": {
+            "name": "Preheat switched on"
+          },
+          "preheat_status": {
+            "name": "Preheat status",
+            "state": {
+              "scheduled": "Scheduled",
+              "heating": "Preheating",
+              "ready": "Ready, holding",
+              "unreachable": "Cannot make it in time"
+            }
+          },
+          "preheat_start_at": {
+            "name": "Preheat start"
+          },
+          "preheat_ready_by": {
+            "name": "Preheat: ready by"
+          },
+          "preheat_target": {
+            "name": "Preheat target temperature"
+          },
+          "preheat_source": {
+            "name": "Preheat source (schedule / service)"
+          },
+          "heating_rate": {
+            "name": "Learned heating rate (°C/h)"
+          },
+          "heating_rate_learned": {
+            "name": "Heating rate has been learned"
           }
         }
       },
@@ -379,6 +476,90 @@
     "stale_outdoor": {
       "title": "Outdoor temperature sensor is not updating",
       "description": "The outdoor sensor {sensor} has not reported for over {hours} hours (its battery may be empty). Summer mode is switched off until it reports again, so heating stays allowed. This notice disappears once the sensor reports again."
+    }
+  },
+  "selector": {
+    "preheat_days": {
+      "options": {
+        "0": "Monday",
+        "1": "Tuesday",
+        "2": "Wednesday",
+        "3": "Thursday",
+        "4": "Friday",
+        "5": "Saturday",
+        "6": "Sunday"
+      }
+    }
+  },
+  "services": {
+    "boost_now": {
+      "name": "Heat now",
+      "description": "Temporarily raises the room's target (default: +2.0 °C for 60 minutes). It does not start in summer mode, with an open window or a stale sensor.",
+      "fields": {
+        "minutes": {
+          "name": "Duration",
+          "description": "How many minutes it lasts (default: set under Features)."
+        },
+        "offset": {
+          "name": "Raise",
+          "description": "How many °C to raise the target by (default: set under Features)."
+        }
+      }
+    },
+    "cancel_boost_now": {
+      "name": "Stop Heat now",
+      "description": "Ends Heat now early."
+    },
+    "preheat": {
+      "name": "Preheat",
+      "description": "One-off preheat: the room reaches the target temperature by the given time.",
+      "fields": {
+        "ready_by": {
+          "name": "Ready by",
+          "description": "A time (the next such time) or a date and time."
+        },
+        "target_temperature": {
+          "name": "Target temperature",
+          "description": "Warm the room up to this."
+        },
+        "hold_minutes": {
+          "name": "Hold",
+          "description": "How many minutes to hold the target after the ready time (default: set under Features)."
+        }
+      }
+    },
+    "cancel_preheat": {
+      "name": "Cancel preheat",
+      "description": "Clears the one-off request and skips the running or next scheduled preheat."
+    }
+  },
+  "exceptions": {
+    "boost_disabled": {
+      "message": "Heat now is switched off (Settings -> Features)."
+    },
+    "boost_summer": {
+      "message": "Heat now cannot start in summer mode."
+    },
+    "boost_window": {
+      "message": "{room}: Heat now cannot start with an open window."
+    },
+    "boost_stale": {
+      "message": "{room}: the thermometer is stale, so Heat now cannot start."
+    },
+    "boost_inactive": {
+      "message": "{room}: there is no switched-on, reachable valve in the room."
+    },
+    "preheat_disabled": {
+      "message": "Preheat is switched off (Settings -> Features)."
+    },
+    "preheat_past": {
+      "message": "{room}: that time has already passed."
+    },
+    "preheat_target": {
+      "message": "{room}: the target temperature must be between 5 and 30 °C."
+    },
+    "not_a_room": {
+      "message": "{entity_id} is not a Meross Boiler Sync room demand sensor."
     }
   }
 }

@@ -14,7 +14,7 @@ from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import CONF_ROOM_ID, CONF_ROOM_NAME, DOMAIN
+from .const import CONF_ROOM_ID, CONF_ROOM_NAME, DOMAIN, HEATING_RATE_MIN_SAMPLES
 from .controller import BoilerController
 
 
@@ -83,6 +83,11 @@ class RoomDemandSensor(_BaseSensor):
             "valve_boost_rest_until",
             "valve_boost_max_until",
             "window_open_pending_until",
+            # 2.9: "Fűts most" és előfűtés időpontjai, tanult sebesség
+            "manual_boost_until",
+            "preheat_start_at",
+            "preheat_ready_by",
+            "heating_rate",
         }
     )
 
@@ -100,8 +105,9 @@ class RoomDemandSensor(_BaseSensor):
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        st = self._controller.status[self._room_id]
-        times = self._controller.room_times(st)
+        c = self._controller
+        st = c.status[self._room_id]
+        times = c.room_times(st)
         return {
             "room_name": st.name,
             "valves": st.valves,
@@ -135,6 +141,22 @@ class RoomDemandSensor(_BaseSensor):
             "valve_boost_rest_until": _iso(times["boost_rest_until"]),
             "valve_boost_max_until": _iso(times["boost_max_until"]),
             "window_open_pending_until": _iso(times["window_pending_until"]),
+            # 2.9: "Fűts most" (megemelt cél)
+            "manual_boost_available": c.manual_boost_enabled,
+            "manual_boost_active": st.manual_until is not None,
+            "manual_boost_until": _iso(st.manual_until),
+            "manual_boost_offset": st.manual_offset if st.manual_until is not None else None,
+            "manual_boost_default_minutes": c.manual_boost_minutes,
+            "manual_boost_default_offset": c.manual_boost_offset,
+            # 2.9: előfűtés
+            "preheat_available": c.preheat_enabled,
+            "preheat_status": st.preheat_status,
+            "preheat_start_at": _iso(st.preheat_start_at),
+            "preheat_ready_by": _iso(st.preheat_ready_by),
+            "preheat_target": st.preheat_target,
+            "preheat_source": st.preheat_source,
+            "heating_rate": None if st.heating_rate is None else round(st.heating_rate, 2),
+            "heating_rate_learned": st.heating_samples >= HEATING_RATE_MIN_SAMPLES,
         }
 
 

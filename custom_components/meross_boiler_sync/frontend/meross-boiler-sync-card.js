@@ -1,6 +1,6 @@
 /*!
  * Meross Boiler Sync – Lovelace kártyák / Lovelace cards
- * Verzió / version: 2.8.0
+ * Verzió / version: 2.9.0
  *
  * Felvétel: Irányítópult szerkesztése → Kártya hozzáadása → "Meross Boiler Sync".
  * Add: Edit dashboard → Add card → "Meross Boiler Sync".
@@ -318,6 +318,72 @@
     h_gas: "The boiler's gas consumption while running (see the type plate or your bill).", h_gas_price: "The price of one cubic metre of gas, in the currency below.",
   });
   /* ===================================================================
+   *  Fordítások (2.9): Fűts most, Előfűtés, tanult melegedési sebesség
+   * =================================================================== */
+  Object.assign(STR.hu, {
+    // visszaszámláló címkék
+    cd_manual: "Fűtés most", cd_pre: "Előfűtés",
+    // Fűts most gomb és felugró
+    bn_title: "Fűts most", bn_ask: "Mennyi ideig fűtsön?", bn_stop: "Megszakítás", bn_raised: "Megemelt cél",
+    bn_pick: "{from}° → {to}°",
+    bn_no_window: "Nyitott ablak mellett nem indítható.", bn_no_stale: "A hőmérő nem ad friss adatot, ezért nem indítható.",
+    bn_no_summer: "Nyári módban nem indítható.", bn_no_off: "A szoba most ki van kapcsolva.",
+    bn_failed: "Nem sikerült elindítani.",
+    // előfűtés
+    pre_scheduled: "Előfűtés {t}", pre_ready: "Kész {t}",
+    pre_heating: "Előfűt", pre_done: "Kész · tartja",
+    pre_unreachable: "Nem éri el időben", pre_unreachable_sub: "Kész lenne {t}, de ennyi idő nem elég",
+    pre_skip: "Kihagyás", pre_cancel: "Mégse", pre_from_schedule: "menetrend", pre_from_service: "egyszeri kérés",
+    pre_day_tomorrow: "holnap",
+    pre_line: "Indul {start} · Kész {ready} · {v}°",
+    pre_line_heat: "Előfűt · Kész {ready} · {v}°",
+    pre_line_done: "Kész · tartja {v}°",
+    pre_line_bad: "Nem éri el időben · Kész {ready} · {v}°",
+    pre_rate: "tanult sebesség: {r} °C/ó", pre_rate_default: "alapérték: {r} °C/ó",
+    // Miért fűt
+    why_n_manual: "Fűtés most: még {t} · a cél +{o}°",
+    why_n_pre_scheduled: "előfűtés indul {t} · kész {r}", why_n_pre_heating: "előfűtés · kész {r} · {v}°",
+    why_n_pre_ready: "kész, tartja a célt ({v}°)", why_n_pre_bad: "az előfűtés nem éri el időben a célt ({v}°, kész: {r})",
+    // figyelmeztetések
+    al_preheat: "{room}: az előfűtés nem éri el időben a célt", al_preheat_sub: "{v}° kellene, kész: {t} — ennyi idő nem elég",
+    // statisztika: tanult sebesség
+    stt_rates: "Tanult melegedési sebesség", stt_rates_learning: "még tanul", stt_rates_note: "Az előfűtés ebből számolja, mikor kell indulni.",
+    unit_cph: "°C/ó", stt_rates_def: "alapérték",
+    // szerkesztő
+    show_boost: "Fűts most gomb", h_show_boost: "Egy lángos gomb: egy időre megemeli a szoba célját. Be kell kapcsolni az integrációban is.",
+    show_preheat: "Előfűtés jelzés", h_show_preheat: "Mutatja, mikor indul az előfűtés, és mikorra lesz kész a szoba.",
+    alert_preheat: "Az előfűtés nem éri el időben a célt", show_rates: "Tanult melegedési sebesség",
+    h_show_rates: "Szobánként mutatja, hány °C-ot melegszik óránként. Az előfűtés ebből számol.",
+  });
+  Object.assign(STR.en, {
+    cd_manual: "Heat now", cd_pre: "Preheat",
+    bn_title: "Heat now", bn_ask: "Heat for how long?", bn_stop: "Stop", bn_raised: "Raised target",
+    bn_pick: "{from}° → {to}°",
+    bn_no_window: "Can't start while a window is open.", bn_no_stale: "The thermometer isn't reporting fresh data, so it can't start.",
+    bn_no_summer: "Can't start in summer mode.", bn_no_off: "This room is switched off right now.",
+    bn_failed: "Couldn't start it.",
+    pre_scheduled: "Preheat {t}", pre_ready: "Ready {t}",
+    pre_heating: "Preheating", pre_done: "Ready · holding",
+    pre_unreachable: "Won't make it in time", pre_unreachable_sub: "It would be ready at {t}, but there isn't enough time",
+    pre_skip: "Skip", pre_cancel: "Cancel", pre_from_schedule: "schedule", pre_from_service: "one-off request",
+    pre_day_tomorrow: "tomorrow",
+    pre_line: "Starts {start} · Ready {ready} · {v}°",
+    pre_line_heat: "Preheating · Ready {ready} · {v}°",
+    pre_line_done: "Ready · holding {v}°",
+    pre_line_bad: "Won't make it in time · Ready {ready} · {v}°",
+    pre_rate: "learned speed: {r} °C/h", pre_rate_default: "default: {r} °C/h",
+    why_n_manual: "Heat now: {t} left · target +{o}°",
+    why_n_pre_scheduled: "preheat starts {t} · ready {r}", why_n_pre_heating: "preheating · ready {r} · {v}°",
+    why_n_pre_ready: "ready, holding the target ({v}°)", why_n_pre_bad: "preheat won't reach the target ({v}°, ready: {r}) in time",
+    al_preheat: "{room}: preheat won't reach the target in time", al_preheat_sub: "Needs {v}°, ready: {t} — not enough time",
+    stt_rates: "Learned heating speed", stt_rates_learning: "still learning", stt_rates_note: "Preheat uses this to work out when to start.",
+    unit_cph: "°C/h", stt_rates_def: "default",
+    show_boost: "Heat now button", h_show_boost: "A flame button: raises the room's target for a while. It must also be switched on in the integration.",
+    show_preheat: "Preheat indicator", h_show_preheat: "Shows when preheating starts and when the room will be ready.",
+    alert_preheat: "Preheat won't reach the target in time", show_rates: "Learned heating speed",
+    h_show_rates: "Shows, per room, how many °C it warms up per hour. Preheat works from this.",
+  });
+  /* ===================================================================
    *  Alapértékek, dizájn előbeállítások, színek
    * =================================================================== */
   const DESIGNS = ["glass", "radiator", "minimal", "gradient", "list", "heat"];
@@ -336,6 +402,8 @@
     show_sparkline: false, sparkline_hours: 24, drag_target: false, hold_action: "sheet",
     look: "glass", night_mode: false, night_from: "22:00", night_to: "06:00", night_dim: 70,
     heat_min: 17, heat_max: 25,
+    // 2.9: Fűts most gomb és előfűtés-jelzés (csempén alapból ki)
+    show_boost: false, show_preheat: false,
   };
   const WHY_DEFAULTS = {
     title: "", rooms: [], size: 100, tap_action: "valve", decimals: 1,
@@ -344,7 +412,7 @@
   const ROOM_DEFAULTS = {
     title: "", room: "", size: 100, tap_action: "valve", decimals: 1, hours: 24, step: 0,
     show_chart: true, show_valves: true, show_controls: true, show_presets: true, show_trend: true, show_eta: true,
-    show_countdown: true, smooth: true, gauge_min: 15, gauge_max: 28,
+    show_countdown: true, smooth: true, gauge_min: 15, gauge_max: 28, show_boost: true, show_preheat: true,
   };
   const HEATMAP_DEFAULTS = {
     title: "", entity: "boiler", rooms: [], size: 100, days: 7, show_selector: true, show_summary: true,
@@ -356,7 +424,7 @@
   const ALERTS_DEFAULTS = {
     title: "", rooms: [], size: 100, tap_action: "valve", window_minutes: 20, show_when_ok: false, compact: false,
     alert_stale: true, alert_unavailable: true, alert_window: true, alert_max_boost: true, alert_cycling: true,
-    show_cycles: false,
+    alert_preheat: true, show_cycles: false,
   };
   const OVERVIEW_DEFAULTS = {
     title: "", rooms: [], size: 100, tap_action: "valve", decimals: 1,
@@ -540,6 +608,16 @@
         dev: num(a.deviation),
         trend: num(a.temperature_trend),
         below: !!a.room_below_target,
+        // 2.9: Fűts most és előfűtés
+        boost: {
+          avail: !!a.manual_boost_available, active: !!a.manual_boost_active, until: toMs(a.manual_boost_until),
+          offset: num(a.manual_boost_offset), defMin: num(a.manual_boost_default_minutes) || 60, defOff: num(a.manual_boost_default_offset) || 0,
+        },
+        pre: {
+          avail: !!a.preheat_available, status: a.preheat_status || null, startAt: toMs(a.preheat_start_at),
+          readyBy: toMs(a.preheat_ready_by), target: num(a.preheat_target), source: a.preheat_source || null,
+        },
+        rate: num(a.heating_rate), rateLearned: !!a.heating_rate_learned,
         delayMin: num(a.boost_delay_minutes),
         times: {
           start: toMs(a.valve_boost_starts_at), rest: toMs(a.valve_boost_rest_until),
@@ -556,11 +634,16 @@
 
   const boilerOn = (b) => !!b && b.state !== "off" && b.state !== "unavailable" && b.state !== "unknown";
 
-  /** A visszaszámláló: melyik időpontig tart az aktuális állapot (ha a szenzor kiadta). */
-  function countdownOf(r, now) {
-    const t = r.times;
+  /** A visszaszámláló: melyik időpontig tart az aktuális állapot (ha a szenzor kiadta).
+   *  opts.manual: a "Fűts most" hátralévő ideje is; opts.pre: az előfűtés indulása előtti utolsó 10 perc is. */
+  function countdownOf(r, now, opts) {
+    const t = r.times, o = opts || {};
     let kind = null, end = null, total = null;
-    if (r.status === "windowpend" && t.win) { kind = "win"; end = t.win; }
+    if (o.manual && r.boost && r.boost.active && r.boost.until && r.boost.until > now) {
+      kind = "manual"; end = r.boost.until; total = Math.max((r.boost.defMin || 60) * 60000, end - now);
+    } else if (o.pre && r.pre && r.pre.status === "scheduled" && r.pre.startAt && r.pre.startAt > now && r.pre.startAt - now <= 600000) {
+      kind = "pre"; end = r.pre.startAt; total = 600000;
+    } else if (r.status === "windowpend" && t.win) { kind = "win"; end = t.win; }
     else if (r.status === "waiting" && t.start) { kind = "start"; end = t.start; if (r.delayMin) total = r.delayMin * 60000; }
     else if (r.status === "rest" && t.rest) { kind = "rest"; end = t.rest; }
     else if (r.status === "boost" && t.max) { kind = "max"; end = t.max; }
@@ -1237,6 +1320,77 @@
     .root.look-neon .ring svg { overflow:visible; }
     .root.look-neon .ring svg path[data-role="arc"] { filter:drop-shadow(0 0 5px var(--c)) drop-shadow(0 0 10px var(--c)); }
     .root.look-neon .t.heat { color:var(--fg,#fff); }
+
+    /* ---------- 2.9: Fűts most és előfűtés ---------- */
+    .bnb { position:relative; display:inline-grid; place-items:center; width:2.2em; height:2.2em; padding:0; border-radius:50%; font:inherit; font-size:.8em; flex:none;
+      color:var(--c-demand); background:color-mix(in srgb,var(--c-demand) 13%,transparent); border:1px solid color-mix(in srgb,var(--c-demand) 45%,transparent);
+      cursor:pointer; -webkit-tap-highlight-color:transparent; }
+    .bnb .ic { width:1.1em; height:1.1em; }
+    .bnb:hover, .bnb.on { background:color-mix(in srgb,var(--c-demand) 26%,transparent); }
+    .bnb:active { transform:scale(.93); }
+    .bnb::after { content:""; position:absolute; inset:-6px; }
+    .bnb.dis, .bnl.dis { opacity:.42; }
+    .bnl { display:inline-flex; align-items:center; gap:7px; padding:7px 14px; border-radius:99px; font:inherit; font-size:.84rem; color:var(--c-demand);
+      background:color-mix(in srgb,var(--c-demand) 12%,transparent); border:1px solid color-mix(in srgb,var(--c-demand) 45%,transparent); cursor:pointer; -webkit-tap-highlight-color:transparent; }
+    .bnl .ic { width:15px; height:15px; }
+    .bnl:hover:not(.act), .bnl.on { background:color-mix(in srgb,var(--c-demand) 24%,transparent); }
+    .bnl.act { cursor:default; padding:5px 6px 5px 12px; color:var(--text); }
+    .bnl.act .ic { color:var(--c-demand); }
+    .bnl.act b { color:var(--c-demand); font-weight:600; font-variant-numeric:tabular-nums; }
+    .bnx, .cd .cdx { position:relative; display:grid; place-items:center; width:1.7em; height:1.7em; padding:0; border-radius:50%; border:0; flex:none;
+      background:color-mix(in srgb,var(--text) 12%,transparent); color:var(--text); cursor:pointer; font:inherit; }
+    .bnx .ic, .cd .cdx .ic { width:.9em; height:.9em; }
+    .bnx:hover, .cd .cdx:hover { background:color-mix(in srgb,var(--text) 24%,transparent); }
+    .bnx::after, .cd .cdx::after { content:""; position:absolute; inset:-7px; }
+    .cd.cdc { padding-right:.35em; }
+    .bpop { position:absolute; left:50%; transform:translateX(-50%); bottom:calc(100% + .5em); z-index:7; width:max-content; max-width:calc(100% + 1em);
+      display:flex; flex-direction:column; gap:.55em; padding:.75em .85em; border-radius:1.1em; font-size:.8em; text-align:left; color:var(--text);
+      background:var(--card-background-color,#1c1c1e); border:1px solid var(--border); box-shadow:0 10px 30px rgba(0,0,0,.45); }
+    .bpop.inl { position:static; transform:none; width:auto; max-width:none; box-shadow:none; margin-top:12px; font-size:.84rem;
+      background:color-mix(in srgb,var(--text) 5%,transparent); }
+    .bpt { font-size:.92em; color:var(--muted); }
+    .bpo { display:flex; gap:.4em; flex-wrap:wrap; }
+    .bpc { padding:.45em .85em; border-radius:99px; font:inherit; color:var(--text); cursor:pointer; font-variant-numeric:tabular-nums; white-space:nowrap;
+      border:1px solid var(--border); background:color-mix(in srgb,var(--text) 6%,transparent); }
+    .bpc:hover { background:color-mix(in srgb,var(--text) 14%,transparent); }
+    .bpc.on { font-weight:600; background:color-mix(in srgb,var(--c-demand) 22%,transparent); border-color:color-mix(in srgb,var(--c-demand) 55%,transparent); }
+    .bps { font-size:.9em; color:var(--muted); font-variant-numeric:tabular-nums; }
+    .bpm { display:flex; gap:.55em; align-items:flex-start; line-height:1.35; max-width:19em; }
+    .bpm .ic { width:1.25em; height:1.25em; flex:none; color:var(--c-stale); margin-top:.05em; }
+    .bpill { display:inline-block; margin-top:.2em; padding:.05em .55em; border-radius:99px; font-style:normal; font-size:.78em; font-weight:600; line-height:1.5;
+      color:var(--c-demand); background:color-mix(in srgb,var(--c-demand) 16%,transparent); font-variant-numeric:tabular-nums; }
+    .rd .tg2 .bpill { margin:0 0 0 .5em; }
+    .ring svg .ghost { fill:none; stroke:var(--c-demand); stroke-width:1.6; stroke-dasharray:2.4 2.6; }
+    .chip.prc { max-width:100%; }
+    .pbox { display:flex; align-items:center; gap:.75em; flex:1 1 230px; min-width:0; padding:.6em .6em .6em .9em; border-radius:16px; font-size:.84rem;
+      background:color-mix(in srgb,var(--c) 10%,transparent); border:1px solid color-mix(in srgb,var(--c) 38%,transparent); }
+    .pbox > .ic { width:1.3em; height:1.3em; color:var(--c); flex:none; }
+    .pbt { display:flex; flex-direction:column; gap:1px; min-width:0; flex:1; }
+    .pbt b { font-weight:600; font-variant-numeric:tabular-nums; }
+    .pbt small, .pbt .pbs { color:var(--muted); font-size:.84em; }
+    .pskip { flex:none; padding:.4em .85em; border-radius:99px; font:inherit; font-size:.86em; color:var(--text); cursor:pointer;
+      border:1px solid var(--border); background:color-mix(in srgb,var(--text) 6%,transparent); }
+    .pskip:hover { background:color-mix(in srgb,var(--text) 14%,transparent); }
+    .sheet .ctrl { flex-wrap:wrap; }
+    .sheet .bpop.inl { margin-top:8px; }
+    .sheet .pbox { margin:12px 0 2px; flex:none; }
+    .stt .ratebars { display:grid; gap:7px; }
+    .ratebars .rb { display:grid; grid-template-columns:minmax(56px,.75fr) 1fr 8.8em; gap:10px; align-items:center; font-size:.82rem; }
+    .ratebars .rb .db { height:9px; border-radius:99px; background:var(--track); position:relative; overflow:hidden; }
+    .ratebars .rb .db i { position:absolute; inset:0 auto 0 0; border-radius:99px; background:var(--c-demand); }
+    .ratebars .rb span:last-child { color:var(--muted); text-align:right; font-variant-numeric:tabular-nums; }
+    .ratebars .rb span:last-child small { font-size:.85em; }
+    .ratebars .rb.dim .db i { opacity:.4; }
+    .stt .ratebars + .sm { margin-top:10px !important; }
+    .root.look-eink .bnb, .root.look-eink .bnl, .root.look-eink .bpc, .root.look-eink .pskip, .root.look-eink .bnx, .root.look-eink .cd .cdx, .root.look-eink .bpill { background:#fff; border:2px solid #111; color:#111; }
+    .root.look-eink .bpop, .root.look-eink .pbox { background:#fff !important; border:2px solid #111; box-shadow:none; }
+    .root.look-eink .cd, .root.look-eink .chip.prc, .root.look-eink .pbox { --c:#111 !important; }
+    .root.look-eink .bpc.on { background:#111; color:#fff; }
+    .root.look-eink .ring svg .ghost { stroke:#111; }
+    .root.look-eink .bnl.act, .root.look-eink .bnl.act b { color:#111; }
+    .root.look-neon .bnb, .root.look-neon .bnl, .root.look-neon .bpc.on { background:transparent; box-shadow:0 0 10px color-mix(in srgb,var(--c-demand) 35%,transparent); }
+    .root.look-neon .bpop, .root.look-neon .pbox { background:#05070d; border-color:color-mix(in srgb,var(--c) 60%,transparent); }
+    .root.look-neon .pbox { box-shadow:0 0 10px color-mix(in srgb,var(--c) 28%,transparent); }
   `;
   /* ===================================================================
    *  Közös ős: minden kártya ebből épül (shadow DOM, koppintás, gyorsgombok,
@@ -1256,14 +1410,22 @@
       this._raf = {};
       this._cdMax = {};           // visszaszámláló: a látott legnagyobb hátralévő idő (a gyűrű arányához)
       this._tick = null;
+      this._boostOpen = null;     // 2.9: melyik szoba "Fűts most" felugrója nyitott
+      this._bmsg = null;          // {room, text}: miért nem indítható / mi ment félre
+      this._boostTimer = null;
       this._onDoc = (ev) => {
-        if (this._open == null) return;
+        if (this._open == null && this._boostOpen == null) return;
         if (ev.type === "keydown" && ev.key !== "Escape") return;
         if (ev.type === "click") {
           const path = typeof ev.composedPath === "function" ? ev.composedPath() : [];
-          if (path.some((n) => n && n.classList && (n.classList.contains("menu") || n.classList.contains("pre")))) return;
+          if (path.some((n) => n && n.classList && ["menu", "pre", "bpop", "bnb", "bnl"].some((k) => n.classList.contains(k)))) return;
         }
         this._open = null;
+        if (this._boostOpen != null && !this._sheet) {
+          if (this._boostTimer) { clearTimeout(this._boostTimer); this._boostTimer = null; }
+          this._boostOpen = null;
+          this._bmsg = null;
+        }
         this._sig = null;
         this._render();
       };
@@ -1536,9 +1698,14 @@
     }
 
     /* ---------- visszaszámláló ---------- */
+    /** A "Fűts most" hátralévő ideje a csempe láblécében látszik? (a Szoba kártyán a gombsorban) */
+    _cdManualOn() { return !!this._config.show_boost; }
+
+    /** A visszaszámláló chip; a "Fűts most" hátralévő idejéhez lemondás (×) gomb is tartozik. */
     _cdHtml(r) {
-      if (!this._config.show_countdown) return "";
-      const now = Date.now(), cd = countdownOf(r, now);
+      const c = this._config;
+      if (!c.show_countdown) return "";
+      const now = Date.now(), cd = countdownOf(r, now, { manual: this._cdManualOn(), pre: !!c.show_preheat });
       if (!cd) return "";
       const remain = cd.end - now;
       const key = `${r.id}|${cd.kind}|${cd.end}`;
@@ -1546,7 +1713,18 @@
       if (!total) total = Math.max(this._cdMax[key] || 0, remain);
       this._cdMax[key] = total;
       const off = (1 - clamp(remain / total, 0, 1)) * 100;
-      return `<span class="cd" data-cd="${cd.end}" data-total="${total}"><svg class="cdr" viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="9"/><circle class="fg" pathLength="100" cx="12" cy="12" r="9" style="stroke-dashoffset:${off.toFixed(2)}"/></svg><span class="cdl">${esc(T(this._hass, "cd_" + cd.kind))}</span><b class="cdt">${esc(fmtRemain(remain, this._hass))}</b></span>`;
+      const h = this._hass;
+      const col = cd.kind === "manual" ? ' style="--c:var(--c-demand)"' : cd.kind === "pre" ? ' style="--c:var(--c-waiting)"' : "";
+      const x = cd.kind === "manual" ? `<button type="button" class="cdx" data-act="boostcancel" data-room="${esc(r.id)}" aria-label="${esc(T(h, "bn_stop"))}" title="${esc(T(h, "bn_stop"))}">${ic("close")}</button>` : "";
+      return `<span class="cd${x ? " cdc" : ""}"${col} data-cd="${cd.end}" data-total="${total}"><svg class="cdr" viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="9"/><circle class="fg" pathLength="100" cx="12" cy="12" r="9" style="stroke-dashoffset:${off.toFixed(2)}"/></svg><span class="cdl">${esc(T(h, "cd_" + cd.kind))}</span><b class="cdt">${esc(fmtRemain(remain, h))}</b>${x}</span>`;
+    }
+
+    /** Melyik fajta visszaszámláló látszik most (vagy null). */
+    _cdKind(r) {
+      const c = this._config;
+      if (!c.show_countdown) return null;
+      const cd = countdownOf(r, Date.now(), { manual: this._cdManualOn(), pre: !!c.show_preheat });
+      return cd ? cd.kind : null;
     }
 
     _startTick() {
@@ -1636,7 +1814,7 @@
       this._settle(data.rooms);
       const ui = [this._open, Object.keys(this._pending).map((k) => [k, this._pending[k].value]),
         Object.keys(this._pendingPreset).map((k) => [k, this._pendingPreset[k].value]),
-        this._pendingQuick && this._pendingQuick.value, this._toast && this._toast.text];
+        this._pendingQuick && this._pendingQuick.value, this._toast && this._toast.text, this._boostOpen, this._bmsg && this._bmsg.text];
       const sig = JSON.stringify([cfg, this._sigData(data), langOf(this._hass), ui]);
       if (sig === this._sig) return;
       this._sig = sig;
@@ -1800,6 +1978,18 @@
       }
       data.rooms.forEach((r) => {
         const nm = `<b>${esc(r.name)}</b>`, now = Date.now(), tt = r.times;
+        // 2.9: Fűts most és előfűtés
+        if (r.boost && r.boost.active && r.boost.until && r.boost.until > now) {
+          add("flame", "var(--c-demand)", `${nm}: ${F(h, "why_n_manual", { t: cdInline(h, r.boost.until, live), o: this._num(r.boost.offset != null ? r.boost.offset : r.boost.defOff, 1) })}`);
+        }
+        if (r.pre && r.pre.avail && r.pre.status) {
+          const p = r.pre, v = this._num(p.target, 1), rd = fmtClock(h, p.readyBy);
+          if (p.status === "scheduled") {
+            if (p.startAt && p.startAt - now <= 6 * 3600000) add("clock", "var(--c-waiting)", `${nm}: ${F(h, "why_n_pre_scheduled", { t: `<b>${esc(fmtClock(h, p.startAt))}</b>`, r: esc(rd) })}`);
+          } else if (p.status === "heating") add("clock", "var(--c-waiting)", `${nm}: ${F(h, "why_n_pre_heating", { r: esc(rd), v })}`);
+          else if (p.status === "ready") add("check", "var(--c-idle)", `${nm}: ${F(h, "why_n_pre_ready", { v })}`);
+          else add("alert", "var(--c-stale)", `${nm}: ${F(h, "why_n_pre_bad", { r: esc(rd), v })}`);
+        }
         if (r.status === "window") add("window", "var(--c-window)", `${nm}: ${esc(T(h, "why_n_window"))}${r.dev != null && r.dev > 0.05 ? ` (−${this._num(r.dev, 1)}° ${esc(T(h, "why_from_target"))})` : ""}`);
         else if (r.status === "windowpend" && tt.win) add("window", "var(--c-window)", `${nm}: ${F(h, "why_n_windowpend", { t: cdInline(h, tt.win, live) })}`);
         else if (r.status === "stale") add("alert", "var(--c-stale)", `${nm}: ${esc(T(h, "why_n_stale"))}`);
@@ -1881,6 +2071,10 @@
           const st = r.tempSensor ? states[r.tempSensor] : null, t = st ? Date.parse(st.last_reported || st.last_updated || "") : NaN;
           add(2, "alert", "var(--c-stale)", F(h, "al_stale", { room: r.name }),
             !isNaN(t) ? F(h, "al_stale_sub", { ago: fmtAgo(h, t) }) : T(h, "al_stale_sub0"), !isNaN(t) ? t : since(r.id), entity);
+        }
+        if (c.alert_preheat && r.pre && r.pre.avail && r.pre.status === "unreachable") {
+          add(3, "clock", "var(--c-waiting)", F(h, "al_preheat", { room: r.name }),
+            F(h, "al_preheat_sub", { v: this._num(r.pre.target, 1), t: fmtClock(h, r.pre.readyBy) }), null, entity);
         }
         if (c.alert_max_boost && r.status === "rest") {
           const mins = r.times.rest ? Math.max(1, Math.ceil((r.times.rest - now) / 60000)) : null;
@@ -2188,9 +2382,235 @@
     return s + "</svg>";
   }
   /* ===================================================================
+   *  2.9: "Fűts most" gomb és előfűtés-jelzés (a csempe és a Szoba kártya közös része)
+   * =================================================================== */
+  const BOOST_DOMAIN = "meross_boiler_sync";
+  const BOOST_CHOICES = [30, 60, 90, 120];
+  const BOOST_POP_MS = 12000;
+  const PRE_TILE_AHEAD = 6 * 3600000;   // csempén az ütemezett előfűtés csak ennyivel előtte látszik
+
+  /** Óra:perc a helyi időben; holnap / másik nap esetén a nap neve előtte. */
+  function fmtClock(hass, ms) {
+    if (ms == null || isNaN(ms)) return "–";
+    const d = new Date(ms), now = new Date();
+    const t = d.toLocaleTimeString(langOf(hass), { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+    const day0 = (x) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+    const diff = Math.round((day0(d) - day0(now)) / 86400000);
+    if (diff <= 0) return t;
+    if (diff === 1) return `${T(hass, "pre_day_tomorrow")} ${t}`;
+    return `${weekdayOf(hass, ms, "short")} ${t}`;
+  }
+
+  /** Az előfűtés állapota -> szín és ikon. */
+  const PRE_LOOK = {
+    scheduled: ["var(--c-waiting)", "clock"], heating: ["var(--c-waiting)", "clock"],
+    ready: ["var(--c-idle)", "check"], unreachable: ["var(--c-stale)", "alert"],
+  };
+
+  /** A szoba "Fűts most" gombja ki van kapcsolva az integrációban, vagy a szoba nem fűthető? */
+  function boostOffReason(r, data) {
+    if (data && data.summer && data.summer.state === "on") return "bn_no_summer";
+    if (r.a.window_open) return "bn_no_window";
+    if (r.a.temperature_sensor_stale) return "bn_no_stale";
+    if (r.a.valve_active === false) return "bn_no_off";
+    return "";
+  }
+
+  const withBoost = (Base) => class extends Base {
+    _boostOn() { return !!this._config.show_boost; }
+    _boostAvail(r) { return this._boostOn() && !!(r.boost && r.boost.avail); }
+    _preOn(r) { return !!(this._config.show_preheat && r.pre && r.pre.avail && r.pre.status); }
+
+    /** A tipp-sor alá kerülő felugró csak a csempén; a lap saját példányt rajzol. */
+    _boostArm() {
+      if (this._boostTimer) clearTimeout(this._boostTimer);
+      this._boostTimer = null;
+      if (this._boostOpen == null) return;
+      this._boostTimer = setTimeout(() => {
+        this._boostTimer = null;
+        this._boostOpen = null;
+        this._bmsg = null;
+        this._redraw();
+      }, BOOST_POP_MS);
+    }
+
+    _boostClose() {
+      if (this._boostTimer) { clearTimeout(this._boostTimer); this._boostTimer = null; }
+      this._boostOpen = null;
+      this._bmsg = null;
+    }
+
+    disconnectedCallback() {
+      super.disconnectedCallback();
+      if (this._boostTimer) { clearTimeout(this._boostTimer); this._boostTimer = null; }
+    }
+
+    /* ---------- a gomb ---------- */
+    /** Lángos gomb a csempe láblécében (ha aktív, a visszaszámláló áll a helyén). */
+    _boostBtn(r) {
+      if (!this._boostAvail(r)) return "";
+      const h = this._hass;
+      if (r.boost.active) {
+        // fut a megemelés: ha a visszaszámláló (×-szel) nem látszik, maga a kigyúlt láng a lemondás gombja
+        if (this._cdKind(r) === "manual") return "";
+        const t = T(h, "bn_stop");
+        return `<button type="button" class="bnb on" data-act="boostcancel" data-room="${esc(r.id)}" aria-label="${esc(t)}" title="${esc(t)}">${ic("flame")}</button>`;
+      }
+      const off = boostOffReason(r, this._data), open = this._boostOpen === r.id;
+      const t = T(h, "bn_title");
+      return `<button type="button" class="bnb${off ? " dis" : ""}${open ? " on" : ""}" data-act="boost" data-room="${esc(r.id)}" aria-label="${esc(t)}" title="${esc(t)}" aria-haspopup="true" aria-expanded="${open}">${ic("flame")}</button>`;
+    }
+
+    /** Felugró: mennyi ideig fűtsön (vagy miért nem indítható). */
+    _boostChoices(r, attr) {
+      const h = this._hass, b = r.boost, d = Number(this._config.decimals) || 0;
+      const opts = Array.from(new Set([...BOOST_CHOICES, Math.round(b.defMin)])).sort((x, y) => x - y).slice(0, 5);
+      const chips = opts.map((m) => `<button type="button" class="bpc${m === Math.round(b.defMin) ? " on" : ""}" ${attr}="boostgo" data-room="${esc(r.id)}" data-min="${m}">${esc(fmtMinutes(m, h))}</button>`).join("");
+      const to = r.target != null ? clamp(r.target + (b.defOff || 0), 0, Math.max(30, r.target)) : null;
+      const pick = r.target != null && to != null && b.defOff
+        ? `<div class="bps">${esc(T(h, "bn_raised"))}: ${esc(F(h, "bn_pick", { from: this._num(r.target, d), to: this._num(to, d) }))}</div>` : "";
+      return `<div class="bpt">${esc(T(h, "bn_ask"))}</div><div class="bpo">${chips}</div>${pick}`;
+    }
+
+    _boostPopInner(r, attr) {
+      const msg = this._bmsg && this._bmsg.room === r.id ? this._bmsg.text : "";
+      if (msg) return `<div class="bpm" role="status">${ic("alert")}<span>${esc(msg)}</span></div>`;
+      return this._boostChoices(r, attr);
+    }
+
+    _boostPop(r) {
+      if (this._sheet || this._boostOpen !== r.id || !this._boostAvail(r)) return "";
+      return `<div class="bpop" role="dialog" aria-label="${esc(T(this._hass, "bn_title"))}" data-act="none">${this._boostPopInner(r, "data-act")}</div>`;
+    }
+
+    /** A "+2,0°" kis címke a célhőmérséklet mellett, amíg a megemelés tart. */
+    _raisedPill(r) {
+      if (!this._boostOn() || !r.boost || !r.boost.active || r.effTarget == null || r.target == null) return "";
+      const diff = r.effTarget - r.target;
+      if (diff < 0.04) return "";
+      return `<i class="bpill">+${this._num(diff, 1)}°</i>`;
+    }
+
+    /** Szaggatott jelölő a gyűrűn: ide emelkedett a cél. */
+    _raisedMarker(r, min, span) {
+      if (!this._boostOn() || !r.boost || !r.boost.active || r.effTarget == null || r.target == null || r.effTarget - r.target < 0.04) return "";
+      const [x, y] = pointOn(60, 60, 50, clamp((r.effTarget - min) / span, 0, 1));
+      return `<circle class="ghost" cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="6.5"/>`;
+    }
+
+    /* ---------- előfűtés ---------- */
+    /** Egy soros leírás: "Indul 05:10 · Kész 06:30 · 21,0°". */
+    _preLine(r) {
+      const h = this._hass, p = r.pre, v = this._num(p.target, 1);
+      const ready = fmtClock(h, p.readyBy);
+      if (p.status === "scheduled") return F(h, "pre_line", { start: fmtClock(h, p.startAt), ready, v });
+      if (p.status === "heating") return F(h, "pre_line_heat", { ready, v });
+      if (p.status === "ready") return F(h, "pre_line_done", { v });
+      return F(h, "pre_line_bad", { ready, v });
+    }
+
+    /** Csempe-címke az előfűtésről (a láblécben). */
+    _preChip(r) {
+      if (!this._preOn(r)) return "";
+      const h = this._hass, p = r.pre, [col, icon] = PRE_LOOK[p.status] || PRE_LOOK.scheduled;
+      let txt;
+      if (p.status === "scheduled") {
+        if (!p.startAt || p.startAt - Date.now() > PRE_TILE_AHEAD) return "";
+        txt = F(h, "pre_scheduled", { t: fmtClock(h, p.startAt) });
+      } else if (p.status === "heating") txt = `${T(h, "pre_heating")} · ${F(h, "pre_ready", { t: fmtClock(h, p.readyBy) })} · ${this._num(p.target, 1)}°`;
+      else if (p.status === "ready") txt = T(h, "pre_done");
+      else txt = T(h, "pre_unreachable");
+      return `<span class="chip prc" style="--c:${col}" title="${esc(this._preLine(r))}">${ic(icon)}${esc(txt)}</span>`;
+    }
+
+    /** Kihagyás / mégse gomb (menetrendi előfűtésnél kihagyás, egyszerinél mégse). */
+    _preSkipBtn(r, attr) {
+      const h = this._hass, p = r.pre;
+      return `<button type="button" class="pskip" ${attr}="preskip" data-room="${esc(r.id)}">${esc(T(h, p.source === "service" ? "pre_cancel" : "pre_skip"))}</button>`;
+    }
+
+    /** A teljes előfűtés-doboz (Szoba kártya és lap). */
+    _preBox(r, attr) {
+      if (!this._preOn(r)) return "";
+      const h = this._hass, p = r.pre, [col, icon] = PRE_LOOK[p.status] || PRE_LOOK.scheduled;
+      const sub = p.status === "unreachable" ? `<small>${esc(F(h, "pre_unreachable_sub", { t: fmtClock(h, p.readyBy) }))}</small>` : "";
+      const rate = r.rate != null ? `<small>${esc(F(h, r.rateLearned ? "pre_rate" : "pre_rate_default", { r: this._num(r.rate, 1) }))}</small>` : "";
+      const src = p.source ? `<small>${esc(T(h, p.source === "service" ? "pre_from_service" : "pre_from_schedule"))}</small>` : "";
+      return `<div class="pbox" style="--c:${col}" data-st-pre="${esc(p.status)}">${ic(icon)}
+        <div class="pbt"><b>${esc(this._preLine(r))}</b>${sub}<span class="pbs">${[src, rate].filter(Boolean).join(" · ")}</span></div>${this._preSkipBtn(r, attr)}</div>`;
+    }
+
+    /* ---------- a Szoba kártya és a lap gombsora ---------- */
+    /** Teljes felirat-gomb, vagy (ha fut) a visszaszámláló chip lemondás gombbal. */
+    _boostRow(r, attr) {
+      if (!this._boostAvail(r)) return "";
+      const h = this._hass, b = r.boost;
+      if (b.active && b.until) {
+        const remain = Math.max(0, b.until - Date.now());
+        return `<span class="bnl act" style="--c:var(--c-demand)" data-cd="${b.until}" data-total="1">${ic("flame")}<span>${esc(T(h, "cd_manual"))}</span><b class="cdt">${esc(fmtRemain(remain, h))}</b><button type="button" class="bnx" ${attr}="boostcancel" data-room="${esc(r.id)}" aria-label="${esc(T(h, "bn_stop"))}" title="${esc(T(h, "bn_stop"))}">${ic("close")}</button></span>`;
+      }
+      const off = boostOffReason(r, this._data), open = this._boostOpen === r.id, t = T(h, "bn_title");
+      return `<button type="button" class="bnl${off ? " dis" : ""}${open ? " on" : ""}" ${attr}="boost" data-room="${esc(r.id)}" aria-expanded="${open}">${ic("flame")}<span>${esc(t)}</span></button>`;
+    }
+
+    /* ---------- akciók ---------- */
+    _boostToggle(rid) {
+      const r = this._room(rid);
+      if (!r) return;
+      if (this._boostOpen === rid) { this._boostClose(); this._redraw(); return; }
+      this._open = null;
+      this._boostOpen = rid;
+      const why = boostOffReason(r, this._data);
+      this._bmsg = why ? { room: rid, text: T(this._hass, why) } : null;
+      this._boostArm();
+      this._redraw();
+    }
+
+    _boostFire(rid, minutes) {
+      const r = this._room(rid);
+      if (!r || !(minutes > 0)) return;
+      this._boostClose();
+      this._redraw();
+      this._callService(BOOST_DOMAIN, "boost_now", { entity_id: r.id, minutes })
+        .catch((e) => this._boostFail(rid, e));
+    }
+
+    _boostStop(rid) {
+      const r = this._room(rid);
+      if (!r) return;
+      this._boostClose();
+      this._redraw();
+      this._callService(BOOST_DOMAIN, "cancel_boost_now", { entity_id: r.id })
+        .catch((e) => this._boostFail(rid, e));
+    }
+
+    _preSkip(rid) {
+      const r = this._room(rid);
+      if (!r) return;
+      this._callService(BOOST_DOMAIN, "cancel_preheat", { entity_id: r.id })
+        .catch((e) => this._boostFail(rid, e));
+    }
+
+    _boostFail(rid, e) {
+      const m = e && e.message ? String(e.message) : T(this._hass, "bn_failed");
+      this._boostOpen = rid;
+      this._bmsg = { room: rid, text: m };
+      this._boostArm();
+      this._redraw();
+    }
+
+    _act(ds) {
+      if (ds.act === "boost") this._boostToggle(ds.room);
+      else if (ds.act === "boostgo") this._boostFire(ds.room, Number(ds.min));
+      else if (ds.act === "boostcancel") this._boostStop(ds.room);
+      else if (ds.act === "preskip") this._preSkip(ds.room);
+      else super._act(ds);
+    }
+  };
+  /* ===================================================================
    *  Csempe kártya: glass, radiator, minimal, gradient, list
    * =================================================================== */
-  class MerossBoilerSyncCard extends withHistory(MbsBase) {
+  class MerossBoilerSyncCard extends withBoost(withHistory(MbsBase)) {
     static getConfigElement() { return document.createElement(EDITOR_TAG); }
     static getStubConfig() { return { design: "glass" }; }
 
@@ -2232,9 +2652,13 @@
     }
 
     _sigData(data) {
-      const base = super._sigData(data);
-      return this._sparkOn() || this._sheet ? [base, this._hver, this._hloading, Math.floor(Date.now() / 60000)] : base;
+      const base = super._sigData(data), c = this._config;
+      const tick = (c.show_preheat && data.rooms.some((r) => r.pre && r.pre.status === "scheduled")) || (c.show_boost && data.rooms.some((r) => r.boost && r.boost.active));
+      return this._sparkOn() || this._sheet || tick ? [base, this._hver, this._hloading, Math.floor(Date.now() / 60000)] : base;
     }
+
+    /** A csempe láblécében van-e helye a "Fűts most" gombnak és az előfűtés-címkének (a Szoba kártyán nincs: ott külön sor). */
+    _tileExtras() { return true; }
 
     getCardSize() {
       const n = this._data ? this._data.rooms.length : 4;
@@ -2332,7 +2756,7 @@
       if (rd) {
         visual = `<div class="rad">${this._radSvg(r)}</div>
           <div class="num">${btn(-1)}${big || "<span></span>"}${btn(1)}</div>
-          ${showTg ? `<div class="tg2">${esc(T(h, "target"))} <b>${this._num(target, d)}°</b></div>` : ""}`;
+          ${showTg ? `<div class="tg2">${esc(T(h, "target"))} <b>${this._num(target, d)}°</b>${this._raisedPill(r)}</div>` : ""}`;
       } else {
         let marker = "", defs = "", stroke = "var(--c)", knob = "";
         if (c.temp_gradient && r.cur != null) {
@@ -2345,10 +2769,10 @@
           marker = `<circle data-role="mk" cx="${mx.toFixed(2)}" cy="${my.toFixed(2)}" r="4.5" fill="var(--text)" stroke="var(--surface)" stroke-width="2"/>`;
           if (c.drag_target && canChange) knob = `<div class="knob" data-role="knob" style="left:${((mx / 120) * 100).toFixed(2)}%;top:${((my / 120) * 100).toFixed(2)}%"></div>`;
         }
-        const tg = showTg ? `<div class="tg">${esc(T(h, "target"))}<b>${this._num(target, d)}°</b></div>` : "<span></span>";
+        const tg = showTg ? `<div class="tg">${esc(T(h, "target"))}<b>${this._num(target, d)}°</b>${this._raisedPill(r)}</div>` : "<span></span>";
         visual = `<div class="ring">
             <svg viewBox="0 0 120 120">${defs}<path d="${arcPath(60, 60, 50, 1)}" fill="none" stroke="var(--track)" stroke-width="9" stroke-linecap="round"/>
-              ${r.cur != null ? `<path data-role="arc" d="${arcPath(60, 60, 50, Math.max(f, 0.001))}" fill="none" stroke="${stroke}" stroke-width="9" stroke-linecap="round"/>` : ""}${marker}</svg>
+              ${r.cur != null ? `<path data-role="arc" d="${arcPath(60, 60, 50, Math.max(f, 0.001))}" fill="none" stroke="${stroke}" stroke-width="9" stroke-linecap="round"/>` : ""}${this._raisedMarker(r, min, span)}${marker}</svg>
             <div class="mid">${big}</div>${knob}
             <div class="ctl">${btn(-1)}${tg}${btn(1)}</div>
           </div>`;
@@ -2369,7 +2793,9 @@
       }
 
       const info = [this._hum(r), this._dev(r), this._flags(r)].filter(Boolean).join("");
-      const status = this._cdHtml(r) || this._chip(r);
+      const ex = this._tileExtras(), ck = this._cdKind(r), cd = this._cdHtml(r);
+      const status = ck === "manual" || ck === "pre" || ck === "win" ? cd : (ex && this._preChip(r)) || cd || this._chip(r);
+      const bb = ex ? this._boostBtn(r) : "", bp = ex ? this._boostPop(r) : "";
       let fx = c.animation ? (rd ? FX_RADIATOR[r.status] : FX[r.status]) || "" : "";
       if (c.look === "eink") fx = '<div class="stripe"></div>';
       return `<div class="t glass${rd ? " rd" : ""}${rd && c.animation ? " anim" : ""} ${this._glowCls(r)}" data-st="${r.status}" data-room="${esc(r.id)}" ${this._tapAttr(r)}>
@@ -2380,7 +2806,7 @@
           <div class="info">${info}</div>
           ${this._trendRow(r)}
           ${this._sparkBlock(r)}
-          ${status || pre ? `<div class="foot">${status}${pre}${menu}</div>` : ""}
+          ${status || pre || bb ? `<div class="foot">${status}${bb}${pre}${menu}${bp}</div>` : ""}
         </div>
       </div>`;
     }
@@ -2613,6 +3039,11 @@
       document.body.appendChild(host);
       this._sheetHost = host;
       host.shadowRoot.addEventListener("click", (ev) => {
+        // a "Fűts most" felugró bezárul, ha mellé koppintanak
+        if (this._boostOpen != null && !(ev.target.closest && ev.target.closest(".bpop, [data-sact='boost']"))) {
+          this._boostClose();
+          if (this._sheet) { this._sheet.sig = null; this._renderSheet(); }
+        }
         const el = ev.target.closest && ev.target.closest("[data-sact]");
         if (!el) return;
         const a = el.dataset.sact, rid = this._sheet && this._sheet.id;
@@ -2620,6 +3051,7 @@
         else if (a === "inc") this._adjust(rid, 1);
         else if (a === "dec") this._adjust(rid, -1);
         else if (a === "preset") this._setPreset(rid, el.dataset.preset);
+        else if (a === "boost" || a === "boostgo" || a === "boostcancel" || a === "preskip") this._act({ act: a, room: rid, min: el.dataset.min });
         else if (a === "info") {
           const r = this._room(rid);
           this._closeSheet();
@@ -2644,6 +3076,7 @@
       this._sheet = null;
       this._sheetHost = null;
       document.removeEventListener("keydown", this._sheetKey, true);
+      if (this._boostOpen != null) { this._boostClose(); this._redraw(); }
       if (host) {
         const w = host.shadowRoot.querySelector(".sh-wrap");
         if (w) w.classList.remove("open");
@@ -2686,7 +3119,7 @@
       if (!r) { this._closeSheet(); return; }
       const pend = this._pending[r.id], pendP = this._pendingPreset[r.id], v = r.valve;
       const hist = this._hist, d = Number(c.decimals) || 0;
-      const sig = JSON.stringify([r.a, r.valve, r.valves, pend && pend.value, pendP && pendP.value, this._hver, Math.floor(Date.now() / 60000), langOf(h), c.look, sh.open]);
+      const sig = JSON.stringify([r.a, r.valve, r.valves, pend && pend.value, pendP && pendP.value, this._hver, Math.floor(Date.now() / 60000), langOf(h), c.look, sh.open, this._boostOpen, this._bmsg && this._bmsg.text, c.show_boost, c.show_preheat, this._data.summer && this._data.summer.state]);
       if (sig === sh.sig) return;
       sh.sig = sig;
       const old = host.shadowRoot.querySelector(".sheet"), scroll = old ? old.scrollTop : 0;
@@ -2719,7 +3152,7 @@
           <div class="ctrl"><button type="button" class="pm" data-sact="dec"${can && target > lo + 1e-9 ? "" : " disabled"} aria-label="${esc(T(h, "decrease"))}">${ic("minus")}</button>
             <div class="tv">${target != null ? this._num(target, d) + "°" : "–"}</div>
             <button type="button" class="pm" data-sact="inc"${can && target < hi - 1e-9 ? "" : " disabled"} aria-label="${esc(T(h, "increase"))}">${ic("plus")}</button><span style="flex:1"></span>${this._sheetExtra(r)}</div>
-          ${chips}
+          ${this._sheetBelow(r)}${chips}
           <div class="vl">${valves}</div>
         </div></div></div>`;
       host.shadowRoot.innerHTML = html;
@@ -2735,8 +3168,17 @@
       }
     }
 
-    /** A lap vezérlősorának jobb oldala (a 2.9-es "Fűts most" gomb ide kerül). */
-    _sheetExtra() { return ""; }
+    /** A lap vezérlősorának jobb oldala: a "Fűts most" gomb (vagy a visszaszámláló a lemondással). */
+    _sheetExtra(r) { return this._boostRow(r, "data-sact"); }
+
+    /** A vezérlősor alatt: a "Fűts most" időválasztó és az előfűtés doboza. */
+    _sheetBelow(r) {
+      const out = [];
+      if (this._boostAvail(r) && this._boostOpen === r.id) out.push(`<div class="bpop inl">${this._boostPopInner(r, "data-sact")}</div>`);
+      const box = this._preBox(r, "data-sact");
+      if (box) out.push(box);
+      return out.join("");
+    }
 
     /** A kártya újrarajzolása után a lap is frissül. */
     _render() {
@@ -2848,8 +3290,17 @@
       return `<div class="vl"><div class="sm">${esc(F(h, "rc_valves", { n: r.valves.length }))}</div>${rows}</div>`;
     }
 
-    /** Gombok a kártya alján (a 2.9-es "Fűts most" ide kerül). */
-    _actions() { return ""; }
+    /** A Szoba kártyán a "Fűts most" és az előfűtés külön sorban van, nem a csempe láblécében. */
+    _tileExtras() { return false; }
+    _cdManualOn() { return false; }
+
+    /** Gombok a kártya alján: Fűts most (vagy a visszaszámláló lemondással) + az előfűtés doboza. */
+    _actions(r) {
+      const btn = this._boostRow(r, "data-act"), box = this._preBox(r, "data-act");
+      if (!btn && !box) return "";
+      const pop = this._boostAvail(r) && this._boostOpen === r.id ? `<div class="bpop inl" data-act="none">${this._boostPopInner(r, "data-act")}</div>` : "";
+      return `<div class="actions">${btn}${box}</div>${pop}`;
+    }
 
     _build(data) {
       const c = this._config, h = this._hass;
@@ -3078,7 +3529,7 @@
     }
 
     _sigData(data) {
-      return [data.rooms.map((r) => [r.id, r.name]), data.boilerId, this._hver, this._days, this._hloading, this._herr, Math.floor(Date.now() / 60000),
+      return [data.rooms.map((r) => [r.id, r.name, this._config.show_rates ? [r.rate, r.rateLearned] : null]), data.boilerId, this._hver, this._days, this._hloading, this._herr, Math.floor(Date.now() / 60000),
         data.starts && [data.starts.state, data.starts.attributes], data.cycling && data.cycling.state];
     }
 
@@ -3122,6 +3573,19 @@
         if (n <= 16) s += pts.map((p) => `<circle cx="${f1(p[0])}" cy="${f1(p[1])}" r="3.2" fill="#64b5f6" stroke="var(--surface)" stroke-width="1.5"/>`).join("");
       }
       return { svg: s + "</svg>", hasOut: have.length > 0 };
+    }
+
+    /** Szobánként a tanult melegedési sebesség (°C/óra); amelyik még nem tanult, az alapértéket halványan mutatja. */
+    _rates(data) {
+      const h = this._hass, uh = T(h, "unit_cph");
+      const list = data.rooms.map((r) => ({ r, v: r.rate })).sort((a, b) => (b.v == null ? -1 : b.v) - (a.v == null ? -1 : a.v));
+      const mx = Math.max(0.1, ...list.map((x) => x.v || 0));
+      const rows = list.map(({ r, v }) => {
+        const learned = r.rateLearned && v != null;
+        const val = v == null ? esc(T(h, "stt_rates_learning")) : `${this._num(v, 1)} ${esc(uh)}${learned ? "" : ` <small>(${esc(T(h, "stt_rates_def"))})</small>`}`;
+        return `<div class="rb${learned ? "" : " dim"}" ${this._tapAttr(r)}><span>${esc(r.name)}</span><span class="db"><i style="width:${v == null ? 0 : ((v / mx) * 100).toFixed(1)}%"></i></span><span>${val}</span></div>`;
+      }).join("");
+      return `<h4>${esc(T(h, "stt_rates"))}</h4><div class="ratebars">${rows}</div><div class="sm" style="margin-top:6px">${esc(T(h, "stt_rates_note"))}</div>`;
     }
 
     _build(data) {
@@ -3172,8 +3636,9 @@
           `<div class="rk" ${this._tapAttr(r)}><span>${esc(r.name)}</span><span class="db"><i style="width:${((ms / mx) * 100).toFixed(1)}%"></i></span><span class="vv">${esc(fmtMinutes(ms / 60000, h))}</span></div>`).join("")}</div>`;
       }
       const cyc = c.show_cycles && data.starts ? `<div class="sub2">${cyclesHtml(h, data, (v, d) => this._num(v, d))}</div>` : "";
+      const rates = c.show_rates ? `<div class="sub2">${this._rates(data)}</div>` : "";
       return `<div class="zm"><div class="t pn stt" style="--c:var(--c-demand)">${head}${kp}
-        <div class="two${rank ? "" : " one"}"><div><h4>${esc(ch.hasOut ? T(h, "stt_daily_out") : T(h, "stt_daily"))}</h4>${ch.svg}${lgd}</div>${rank}</div>${cyc}</div></div>`;
+        <div class="two${rank ? "" : " one"}"><div><h4>${esc(ch.hasOut ? T(h, "stt_daily_out") : T(h, "stt_daily"))}</h4>${ch.svg}${lgd}</div>${rank}</div>${rates}${cyc}</div></div>`;
     }
   }
   /* ===================================================================
@@ -3765,7 +4230,7 @@
     helpers: { ...COMMON_HELPERS, columns: "h_columns", gauge_min: "h_gauge", gauge_max: "h_gauge", step: "h_step",
       show_sparkline: "h_show_sparkline", drag_target: "h_drag_target", hold_action: "h_hold_action", look: "h_look", night_mode: "h_night_mode", heat_min: "h_heat", heat_max: "h_heat",
       glow_states: "h_glow_states", animation: "h_animation", temp_gradient: "h_temp_gradient", show_trend: "h_show_trend",
-      show_countdown: "h_show_countdown" },
+      show_countdown: "h_show_countdown", show_boost: "h_show_boost", show_preheat: "h_show_preheat" },
     sections: (ed) => [
       { id: "sec_general", open: true, schema: [
         { name: "design", selector: { select: { mode: "dropdown", options: DESIGNS.map((d) => ({ value: d, label: ed._label("d_" + d) })) } } },
@@ -3788,6 +4253,7 @@
         { name: "look", selector: { select: { mode: "dropdown", options: LOOKS.map((x) => ({ value: x, label: ed._label("lk_" + x) })) } } },
         B("night_mode"), { name: "night_from", selector: { text: {} } }, { name: "night_to", selector: { text: {} } }, numSlider("night_dim", 30, 100, 5, "%"),
         numBox("heat_min", -20, 40, 0.5, "°C"), numBox("heat_max", -10, 60, 0.5, "°C"),
+        B("show_boost"), B("show_preheat"),
       ] },
       { id: "sec_show", schema: ["show_header", "show_boiler", "show_demand", "show_summer", "show_current", "show_target",
         "show_humidity", "show_deviation", "show_status", "show_flags"].map(B) },
@@ -3899,7 +4365,7 @@
       { id: "sec_general", open: true, schema: [
         { name: "title", selector: { text: {} } }, roomsField(ed), numSlider("size", 70, 160, 5, "%"), tapSelect(ed),
       ] },
-      { id: "sec_alerts", schema: [B("alert_stale"), B("alert_unavailable"), B("alert_window"), numBox("window_minutes", 1, 240, 1, "min"), B("alert_max_boost"), B("alert_cycling")] },
+      { id: "sec_alerts", schema: [B("alert_stale"), B("alert_unavailable"), B("alert_window"), numBox("window_minutes", 1, 240, 1, "min"), B("alert_max_boost"), B("alert_cycling"), B("alert_preheat")] },
       { id: "sec_show", schema: [B("compact"), B("show_when_ok"), B("show_cycles")] },
       { id: "sec_values", schema: look() },
       { id: "sec_colors", schema: colorFields(), reset: true },
@@ -3908,7 +4374,7 @@
 
   const MerossBoilerSyncRoomEditor = makeEditor({
     defaults: ROOM_DEFAULTS,
-    helpers: { ...COMMON_HELPERS, show_trend: "h_show_trend", show_countdown: "h_show_countdown", step: "h_step", gauge_min: "h_gauge", gauge_max: "h_gauge" },
+    helpers: { ...COMMON_HELPERS, show_trend: "h_show_trend", show_countdown: "h_show_countdown", step: "h_step", gauge_min: "h_gauge", gauge_max: "h_gauge", show_boost: "h_show_boost", show_preheat: "h_show_preheat" },
     sections: (ed) => [
       { id: "sec_general", open: true, schema: [
         { name: "room", selector: { select: { mode: "dropdown", options: ed._roomOptions() } } },
@@ -3916,7 +4382,7 @@
         hoursSelect(ed, [6, 12, 24]),
         numSlider("size", 70, 160, 5, "%"), tapSelect(ed),
       ] },
-      { id: "sec_show", schema: [B("show_chart"), B("show_valves"), B("show_trend"), B("show_eta"), B("show_countdown"), B("smooth")] },
+      { id: "sec_show", schema: [B("show_chart"), B("show_valves"), B("show_trend"), B("show_eta"), B("show_countdown"), B("show_boost"), B("show_preheat"), B("smooth")] },
       { id: "sec_controls", schema: [B("show_controls"), numBox("step", 0, 2, 0.1, "°C"), B("show_presets")] },
       { id: "sec_values", schema: [numBox("gauge_min", -20, 40, 0.5, "°C"), numBox("gauge_max", -10, 60, 0.5, "°C"), decimalsSelect(), ...look()] },
       { id: "sec_colors", schema: colorFields(), reset: true },
@@ -3940,13 +4406,13 @@
 
   const MerossBoilerSyncStatsEditor = makeEditor({
     defaults: STATS_DEFAULTS,
-    helpers: { ...COMMON_HELPERS, show_cost: "h_show_cost", gas_m3_per_hour: "h_gas", gas_price: "h_gas_price" },
+    helpers: { ...COMMON_HELPERS, show_cost: "h_show_cost", gas_m3_per_hour: "h_gas", gas_price: "h_gas_price", show_rates: "h_show_rates" },
     labelKeys: { show_outdoor: "show_outdoor_stat", show_rooms: "show_rooms_stat" },
     sections: (ed) => [
       { id: "sec_general", open: true, schema: [
         { name: "title", selector: { text: {} } }, daysSelect([7, 14, 30]), roomsField(ed), numSlider("size", 70, 160, 5, "%"),
       ] },
-      { id: "sec_show", schema: [B("show_outdoor"), B("show_rooms"), B("show_cycles")] },
+      { id: "sec_show", schema: [B("show_outdoor"), B("show_rooms"), B("show_rates"), B("show_cycles")] },
       { id: "sec_cost", schema: [B("show_cost"), numBox("gas_m3_per_hour", 0, 20, 0.1, "m³/h"), numBox("gas_price", 0, 100000, 1), { name: "currency", selector: { text: {} } }] },
       { id: "sec_values", schema: look() },
       { id: "sec_colors", schema: colorFields(), reset: true },

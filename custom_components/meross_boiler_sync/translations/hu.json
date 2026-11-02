@@ -25,7 +25,8 @@
           "settings": "Alapbeállítások",
           "summer": "Nyári mód",
           "done": "Mentés és kilépés",
-          "features": "Funkciók (események, kazán védelem)"
+          "features": "Funkciók (események, védelem, Fűts most, előfűtés)",
+          "preheat": "Előfűtés menetrend (szobánként)"
         }
       },
       "add_room": {
@@ -151,7 +152,7 @@
       },
       "features": {
         "title": "Funkciók",
-        "description": "Minden funkció külön ki- és bekapcsolható.\n\n**Események**: a plugin `meross_boiler_sync_event` eseményeket küld (szelepemelés, ablak, elavult szenzor, gyakori kapcsolgatás), amelyekre automatizációt építhetsz, és a HA naplóban is olvashatók.\n\n**Kazán ciklusok figyelése**: számolja a kazán indításait, és jelzi a gyakori kapcsolgatást.\n\n**Védelem**: ha be van kapcsolva, a kazán legalább a megadott ideig bekapcsolva / kikapcsolva marad, még akkor is, ha a szobák hőigénye közben változik. Ez késleltetheti a fűtést, ezért alapból ki van kapcsolva.",
+        "description": "Minden funkció külön ki- és bekapcsolható.\n\n**Események**: a plugin `meross_boiler_sync_event` eseményeket küld (szelepemelés, ablak, elavult szenzor, gyakori kapcsolgatás, Fűts most, előfűtés), amelyekre automatizációt építhetsz, és a HA naplóban is olvashatók.\n\n**Kazán ciklusok figyelése**: számolja a kazán indításait, és jelzi a gyakori kapcsolgatást.\n\n**Védelem**: ha be van kapcsolva, a kazán legalább a megadott ideig bekapcsolva / kikapcsolva marad, még akkor is, ha a szobák hőigénye közben változik. Ez késleltetheti a fűtést, ezért alapból ki van kapcsolva.\n\n**Fűts most**: a `meross_boiler_sync.boost_now` szolgáltatás (és a kártyák gombja) a szoba célhőmérsékletét ideiglenesen megemeli. Nyári módban, nyitott ablaknál és elavult szenzornál nem indul el.\n\n**Előfűtés**: a megadott időpontra felfűti a szobát, a tanult felfűtési sebesség alapján számolja ki, mikor kell kezdeni. A menetrendet a főmenü *Előfűtés menetrend* pontjában adhatod meg. Magától indul, ezért alapból ki van kapcsolva.",
         "data": {
           "events_enabled": "Események és naplóbejegyzések",
           "cycle_monitor_enabled": "Kazán ciklusok figyelése (szenzorok)",
@@ -159,12 +160,59 @@
           "cycle_min_avg_on_minutes": "Gyakori kapcsolgatás: átlagos bekapcsolt idő alsó határa (0 = nem figyeli)",
           "cycle_protection_enabled": "Kazán védelem (minimum be / ki idő)",
           "boiler_min_on_minutes": "Védelem: a kazán legalább ennyi ideig marad bekapcsolva",
-          "boiler_min_off_minutes": "Védelem: a kazán legalább ennyi ideig marad kikapcsolva"
+          "boiler_min_off_minutes": "Védelem: a kazán legalább ennyi ideig marad kikapcsolva",
+          "manual_boost_enabled": "Fűts most (megemelt cél)",
+          "manual_boost_minutes": "Fűts most: alap időtartam",
+          "manual_boost_offset": "Fűts most: a cél emelése",
+          "preheat_enabled": "Előfűtés (menetrend és szolgáltatás)",
+          "preheat_max_minutes": "Előfűtés: legkorábbi indulás a kész időpont előtt",
+          "preheat_hold_minutes": "Előfűtés: a cél tartása a kész időpont után",
+          "preheat_default_rate": "Előfűtés: alap felfűtési sebesség (amíg nem tanulta meg)",
+          "manual_boost_end_on_target": "Fűts most: véget ér, ha a szoba eléri a megemelt célt"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Ha a kazán ennyiszer vagy többször indult az elmúlt órában, a Gyakori kapcsolgatás szenzor bekapcsol.",
           "cycle_min_avg_on_minutes": "Ha az utolsó 2 óra átlagos bekapcsolt ideje (legalább 3 ciklusból) ennél rövidebb, szintén jelez.",
-          "cycle_protection_enabled": "A kazánt nem kapcsolja ki / vissza a megadott minimum idő letelte előtt. A 'Minimális kapcsolási idő' (Alapbeállítások) ettől függetlenül érvényes."
+          "cycle_protection_enabled": "A kazánt nem kapcsolja ki / vissza a megadott minimum idő letelte előtt. A 'Minimális kapcsolási idő' (Alapbeállítások) ettől függetlenül érvényes.",
+          "manual_boost_offset": "Ennyivel emeli meg a szoba célhőmérsékletét a Fűts most ideje alatt. A szelepet a szelep szabályzás (ha a szobában be van kapcsolva) azonnal kinyitja.",
+          "preheat_max_minutes": "Ennél korábban nem kezd előfűteni, akkor sem, ha a szoba nagyon kihűlt (alap: 240 perc).",
+          "preheat_default_rate": "A szoba felfűtési sebességét a plugin a fűtés közben méri; ennyi fokkal számol óránként, amíg elég mintát nem gyűjtött (kb. 20 perc fűtés).",
+          "manual_boost_end_on_target": "Ha ki van kapcsolva, a Fűts most a teljes időtartamig tart, és a megemelt célt tartja."
+        }
+      },
+      "preheat": {
+        "title": "Előfűtés menetrend",
+        "description": "Válaszd ki a szobát, amelynek a heti menetrendjét szerkeszted. Az előfűtés csak akkor fut, ha a Funkciók között be van kapcsolva.",
+        "data": {
+          "room": "Szoba"
+        }
+      },
+      "preheat_menu": {
+        "title": "Előfűtés: {room}",
+        "description": "A(z) **{room}** szoba menetrendje (az időpontra legyen kész a szoba):\n\n{entries}",
+        "menu_options": {
+          "preheat_add": "Új sor hozzáadása",
+          "preheat_remove": "Sor törlése",
+          "init": "Vissza a főmenübe"
+        }
+      },
+      "preheat_add": {
+        "title": "Új menetrendi sor: {room}",
+        "description": "Mely napokon és mikorra legyen a szoba a megadott hőmérsékleten. Az előfűtés ennél korábban indul, ennyivel számol, amennyi a felfűtéshez kell.",
+        "data": {
+          "days": "Napok",
+          "time": "Ekkorra legyen kész",
+          "temperature": "Célhőmérséklet"
+        },
+        "data_description": {
+          "temperature": "Erre a hőmérsékletre emeli a szoba célját az előfűtés alatt (a szelep saját célját nem módosítja, ha az magasabb)."
+        }
+      },
+      "preheat_remove": {
+        "title": "Menetrendi sor törlése: {room}",
+        "description": "Jelöld be a törlendő sorokat.",
+        "data": {
+          "entries_to_remove": "Törlendő sorok"
         }
       }
     },
@@ -176,7 +224,8 @@
       "valve_in_use": "Ez a szelep már egy másik szobához tartozik.",
       "control_needs_sensor": "A szelep szabályzáshoz meg kell adni a szoba hőmérséklet szenzorát.",
       "invalid_date": "Érvénytelen dátum, a formátum HH-NN (pl. 05-15).",
-      "release_ge_threshold": "A visszaengedésnek kisebbnek kell lennie, mint az emelés küszöbnek."
+      "release_ge_threshold": "A visszaengedésnek kisebbnek kell lennie, mint az emelés küszöbnek.",
+      "no_days": "Legalább egy napot válassz ki."
     }
   },
   "entity": {
@@ -284,6 +333,54 @@
           },
           "window_sensors": {
             "name": "Ablakérzékelők"
+          },
+          "manual_boost_available": {
+            "name": "Fűts most elérhető (be van kapcsolva)"
+          },
+          "manual_boost_active": {
+            "name": "Fűts most aktív"
+          },
+          "manual_boost_until": {
+            "name": "Fűts most eddig tart"
+          },
+          "manual_boost_offset": {
+            "name": "Fűts most: a cél emelése"
+          },
+          "manual_boost_default_minutes": {
+            "name": "Fűts most: alap időtartam (perc)"
+          },
+          "manual_boost_default_offset": {
+            "name": "Fűts most: alap emelés (°C)"
+          },
+          "preheat_available": {
+            "name": "Előfűtés be van kapcsolva"
+          },
+          "preheat_status": {
+            "name": "Előfűtés állapota",
+            "state": {
+              "scheduled": "Időzítve",
+              "heating": "Előfűt",
+              "ready": "Kész, tartja",
+              "unreachable": "Nem éri el időre"
+            }
+          },
+          "preheat_start_at": {
+            "name": "Előfűtés indulása"
+          },
+          "preheat_ready_by": {
+            "name": "Előfűtés: ekkorra kész"
+          },
+          "preheat_target": {
+            "name": "Előfűtés célhőmérséklete"
+          },
+          "preheat_source": {
+            "name": "Előfűtés forrása (menetrend / szolgáltatás)"
+          },
+          "heating_rate": {
+            "name": "Tanult felfűtési sebesség (°C/óra)"
+          },
+          "heating_rate_learned": {
+            "name": "A felfűtési sebesség már megtanulva"
           }
         }
       },
@@ -379,6 +476,90 @@
     "stale_outdoor": {
       "title": "A kinti hőmérséklet szenzor nem frissül",
       "description": "A(z) {sensor} kinti szenzor több mint {hours} órája nem jelentett (lehet, hogy lemerült az elem). A nyári mód addig ki van kapcsolva, így a fűtés engedélyezett marad. Az értesítés eltűnik, amint a szenzor újra jelent."
+    }
+  },
+  "selector": {
+    "preheat_days": {
+      "options": {
+        "0": "Hétfő",
+        "1": "Kedd",
+        "2": "Szerda",
+        "3": "Csütörtök",
+        "4": "Péntek",
+        "5": "Szombat",
+        "6": "Vasárnap"
+      }
+    }
+  },
+  "services": {
+    "boost_now": {
+      "name": "Fűts most",
+      "description": "A szoba célhőmérsékletét ideiglenesen megemeli (alap: +2,0 °C, 60 percre). Nyári módban, nyitott ablaknál és elavult szenzornál nem indul.",
+      "fields": {
+        "minutes": {
+          "name": "Időtartam",
+          "description": "Hány percig tartson (alap: a Funkciók beállítása)."
+        },
+        "offset": {
+          "name": "Emelés",
+          "description": "Hány °C-kal emelje meg a célt (alap: a Funkciók beállítása)."
+        }
+      }
+    },
+    "cancel_boost_now": {
+      "name": "Fűts most leállítása",
+      "description": "Idő előtt befejezi a Fűts most-ot."
+    },
+    "preheat": {
+      "name": "Előfűtés",
+      "description": "Egyszeri előfűtés: a szoba a megadott időpontra érje el a célhőmérsékletet.",
+      "fields": {
+        "ready_by": {
+          "name": "Ekkorra legyen kész",
+          "description": "Időpont (a következő ilyen időpontra) vagy dátum és idő."
+        },
+        "target_temperature": {
+          "name": "Célhőmérséklet",
+          "description": "Erre melegítse fel a szobát."
+        },
+        "hold_minutes": {
+          "name": "Tartás",
+          "description": "Hány percig tartsa a célt a kész időpont után (alap: a Funkciók beállítása)."
+        }
+      }
+    },
+    "cancel_preheat": {
+      "name": "Előfűtés törlése",
+      "description": "Törli az egyszeri kérést, és kihagyja a most futó vagy következő menetrendi előfűtést."
+    }
+  },
+  "exceptions": {
+    "boost_disabled": {
+      "message": "A Fűts most funkció ki van kapcsolva (Beállítások -> Funkciók)."
+    },
+    "boost_summer": {
+      "message": "Nyári módban nem indítható a Fűts most."
+    },
+    "boost_window": {
+      "message": "{room}: nyitott ablaknál nem indítható a Fűts most."
+    },
+    "boost_stale": {
+      "message": "{room}: a hőmérő elavult, ezért nem indítható a Fűts most."
+    },
+    "boost_inactive": {
+      "message": "{room}: nincs bekapcsolt, elérhető szelep a szobában."
+    },
+    "preheat_disabled": {
+      "message": "Az előfűtés ki van kapcsolva (Beállítások -> Funkciók)."
+    },
+    "preheat_past": {
+      "message": "{room}: az időpont már elmúlt."
+    },
+    "preheat_target": {
+      "message": "{room}: a célhőmérséklet 5 és 30 °C között lehet."
+    },
+    "not_a_room": {
+      "message": "{entity_id} nem a Meross Boiler Sync szoba hőigény szenzora."
     }
   }
 }

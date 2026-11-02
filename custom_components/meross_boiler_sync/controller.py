@@ -41,11 +41,20 @@ from .const import (
     CONF_EVENTS_ENABLED,
     CONF_HUMIDITY_MAX_BOOST,
     CONF_HYSTERESIS,
+    CONF_MANUAL_BOOST_ENABLED,
+    CONF_MANUAL_BOOST_END_ON_TARGET,
+    CONF_MANUAL_BOOST_MINUTES,
+    CONF_MANUAL_BOOST_OFFSET,
     CONF_MIN_SWITCH_TIME,
+    CONF_PREHEAT_DEFAULT_RATE,
+    CONF_PREHEAT_ENABLED,
+    CONF_PREHEAT_HOLD_MINUTES,
+    CONF_PREHEAT_MAX_MINUTES,
     CONF_OUTDOOR_SENSOR,
     CONF_ROOM_HUM,
     CONF_ROOM_ID,
     CONF_ROOM_NAME,
+    CONF_ROOM_PREHEAT,
     CONF_ROOM_TEMP,
     CONF_ROOM_VALVE_CONTROL,
     CONF_ROOM_VALVE_LINK,
@@ -75,7 +84,15 @@ from .const import (
     DEFAULT_EVENTS_ENABLED,
     DEFAULT_HUMIDITY_MAX_BOOST,
     DEFAULT_HYSTERESIS,
+    DEFAULT_MANUAL_BOOST_ENABLED,
+    DEFAULT_MANUAL_BOOST_END_ON_TARGET,
+    DEFAULT_MANUAL_BOOST_MINUTES,
+    DEFAULT_MANUAL_BOOST_OFFSET,
     DEFAULT_MIN_SWITCH_TIME,
+    DEFAULT_PREHEAT_ENABLED,
+    DEFAULT_PREHEAT_HOLD_MINUTES,
+    DEFAULT_PREHEAT_MAX_MINUTES,
+    DEFAULT_PREHEAT_RATE,
     DEFAULT_SUMMER_END,
     DEFAULT_SUMMER_START,
     DEFAULT_MAX_BOOST_ENABLED,
@@ -92,10 +109,23 @@ from .const import (
     DEFAULT_VALVE_RELEASE_MARGIN,
     DOMAIN,
     EVENT_TYPE,
+    HEATING_RATE_MAX,
+    HEATING_RATE_MIN,
+    HEATING_RATE_MIN_SAMPLES,
+    HEATING_RATE_MIN_TREND,
+    HEATING_RATE_WINDOW,
     HUMIDITY_FULL,
     HUMIDITY_START,
+    MANUAL_BOOST_MAX_MINUTES,
+    MANUAL_BOOST_MAX_OFFSET,
+    MANUAL_BOOST_MIN_MINUTES,
+    MANUAL_BOOST_MIN_OFFSET,
     MAX_EFFECTIVE_TARGET,
+    MAX_RAISED_TARGET,
     MIN_BOOST_GAIN,
+    PREHEAT_DONE_TOLERANCE,
+    PREHEAT_GRACE_SECONDS,
+    PREHEAT_SAFETY,
     RESTORE_RETRY_SECONDS,
     SAMPLE_INTERVAL_SECONDS,
     STORAGE_VERSION,
@@ -112,6 +142,35 @@ from .cycles import CycleLog
 _LOGGER = logging.getLogger(__name__)
 
 TICK = timedelta(seconds=60)
+PREHEAT_LOOKAHEAD_SECONDS = 24 * 3600  # ennyire előre mutatjuk a következő előfűtést
+RATE_SAMPLE_SECONDS = 55  # a felfűtési sebességet legfeljebb percenként mintázzuk
+
+
+class BoostError(Exception):
+    """A "Fűts most" / előfűtés kérés nem teljesíthető; a `code` a fordítás kulcsa."""
+
+    def __init__(self, code: str, **placeholders: Any) -> None:
+        super().__init__(code)
+        self.code = code
+        self.placeholders = placeholders
+
+
+def _clamp(value: float, low: float, high: float) -> float:
+    return max(low, min(high, value))
+
+
+def _parse_hhmm(value: Any) -> tuple[int, int] | None:
+    """'HH:MM' (vagy 'HH:MM:SS') -> (óra, perc); érvénytelen esetén None."""
+    if not isinstance(value, str):
+        return None
+    parts = value.strip().split(":")
+    try:
+        hour, minute = int(parts[0]), int(parts[1])
+    except (IndexError, ValueError):
+        return None
+    if not (0 <= hour <= 23 and 0 <= minute <= 59):
+        return None
+    return hour, minute
 
 
 async def _climate_call(
@@ -212,6 +271,24 @@ class RoomStatus:
     trend: float | None = None
     trend_source: str | None = None
     trend_samples: deque[tuple[float, float]] = field(default_factory=deque)
+    # 2.9: "Fűts most" (megemelt cél)
+    manual_until: float | None = None
+    manual_offset: float = 0.0
+    manual_started: float | None = None
+    # 2.9: előfűtés
+    preheat_status: str | None = None  # scheduled | heating | ready | unreachable
+    preheat_active: bool = False
+    preheat_start_at: float | None = None
+    preheat_ready_by: float | None = None
+    preheat_target: float | None = None
+    preheat_source: str | None = None  # schedule | service
+    preheat_req: dict[str, Any] | None = None  # egyszeri (szolgáltatás) kérés
+    preheat_latch: dict[str, Any] | None = None  # az éppen futó terv
+    preheat_skip: float | None = None  # az eddig kihagyott menetrendi időpontok (epoch)
+    # tanult felfűtési sebesség (°C/óra)
+    heating_rate: float | None = None
+    heating_samples: int = 0
+    rate_ts: float = 0.0
 
 
 def _slope_per_hour(samples: deque[tuple[float, float]]) -> float | None:
@@ -310,6 +387,33 @@ class BoilerController:
         self.boiler_min_off = timedelta(
             minutes=float(cfg.get(CONF_BOILER_MIN_OFF, DEFAULT_BOILER_MIN_OFF))
         )
+        # 2.9: "Fűts most" és előfűtés (külön kapcsolhatók)
+        self.manual_boost_enabled = bool(
+            cfg.get(CONF_MANUAL_BOOST_ENABLED, DEFAULT_MANUAL_BOOST_ENABLED)
+        )
+        self.manual_boost_minutes = _clamp(
+            float(cfg.get(CONF_MANUAL_BOOST_MINUTES, DEFAULT_MANUAL_BOOST_MINUTES)),
+            MANUAL_BOOST_MIN_MINUTES,
+            MANUAL_BOOST_MAX_MINUTES,
+        )
+        self.manual_boost_end_on_target = bool(
+            cfg.get(CONF_MANUAL_BOOST_END_ON_TARGET, DEFAULT_MANUAL_BOOST_END_ON_TARGET)
+        )
+        self.manual_boost_offset = _clamp(
+            float(cfg.get(CONF_MANUAL_BOOST_OFFSET, DEFAULT_MANUAL_BOOST_OFFSET)),
+            MANUAL_BOOST_MIN_OFFSET,
+            MANUAL_BOOST_MAX_OFFSET,
+        )
+        self.preheat_enabled = bool(cfg.get(CONF_PREHEAT_ENABLED, DEFAULT_PREHEAT_ENABLED))
+        self.preheat_max_s = (
+            float(cfg.get(CONF_PREHEAT_MAX_MINUTES, DEFAULT_PREHEAT_MAX_MINUTES)) * 60
+        )
+        self.preheat_hold_s = (
+            float(cfg.get(CONF_PREHEAT_HOLD_MINUTES, DEFAULT_PREHEAT_HOLD_MINUTES)) * 60
+        )
+        self.preheat_default_rate = max(
+            float(cfg.get(CONF_PREHEAT_DEFAULT_RATE, DEFAULT_PREHEAT_RATE)), HEATING_RATE_MIN
+        )
         self.cycles = CycleLog()
         self.cycle_info: dict[str, Any] = self.cycles.stats(0)
         self.short_cycling = False
@@ -397,6 +501,7 @@ class BoilerController:
                 }
             except (KeyError, TypeError, ValueError):
                 continue
+        self._load_2_9(data)
         # újraindítás előtt még emelt szobák: ne engedjük el és emeljük újra feleslegesen
         for st in self.status.values():
             live = [
@@ -407,6 +512,58 @@ class BoilerController:
             if live:
                 st.boost_wanted = True
                 st.boost_started = min(live)  # a maximális idő az eredeti kezdettől számít
+
+    def _load_2_9(self, data: dict[str, Any]) -> None:
+        """A "Fűts most", az előfűtés és a tanult felfűtési sebesség visszatöltése."""
+        now_ts = dt_util.utcnow().timestamp()
+        for room_id, rec in (data.get("rates") or {}).items():
+            st = self.status.get(room_id)
+            try:
+                rate, count = float(rec["rate"]), int(rec["n"])
+            except (KeyError, TypeError, ValueError):
+                continue
+            if st is not None and HEATING_RATE_MIN <= rate <= HEATING_RATE_MAX and count > 0:
+                st.heating_rate, st.heating_samples = rate, count
+        if self.manual_boost_enabled:
+            for room_id, rec in (data.get("manual") or {}).items():
+                st = self.status.get(room_id)
+                try:
+                    until, offset = float(rec["until"]), float(rec["offset"])
+                    started = float(rec.get("started") or now_ts)
+                except (KeyError, TypeError, ValueError):
+                    continue
+                if st is not None and until > now_ts:
+                    st.manual_until, st.manual_offset, st.manual_started = until, offset, started
+        if self.preheat_enabled:
+            for room_id, rec in (data.get("preheat") or {}).items():
+                st = self.status.get(room_id)
+                if st is None or not isinstance(rec, dict):
+                    continue
+                st.preheat_req = self._clean_plan(rec.get("req"), now_ts)
+                st.preheat_latch = self._clean_plan(rec.get("latch"), now_ts)
+                if st.preheat_latch is not None:
+                    st.preheat_latch["started"] = float(rec["latch"].get("started") or now_ts)
+                    st.preheat_latch["warned"] = bool(rec["latch"].get("warned"))
+                try:
+                    st.preheat_skip = float(rec["skip"]) if rec.get("skip") else None
+                except (TypeError, ValueError):
+                    st.preheat_skip = None
+
+    @staticmethod
+    def _clean_plan(plan: Any, now_ts: float) -> dict[str, Any] | None:
+        """Mentett előfűtési terv ellenőrzése; lejárt vagy hibás esetén None."""
+        if not isinstance(plan, dict):
+            return None
+        try:
+            clean = {
+                "ready": float(plan["ready"]),
+                "target": float(plan["target"]),
+                "hold": float(plan["hold"]),
+                "source": "schedule" if plan.get("source") == "schedule" else "service",
+            }
+        except (KeyError, TypeError, ValueError):
+            return None
+        return clean if clean["ready"] + clean["hold"] > now_ts else None
 
     async def async_start(self) -> None:
         if not self.rooms:
@@ -481,6 +638,318 @@ class BoilerController:
         self._retry_unsub = async_call_later(
             self.hass, delay + timedelta(seconds=1), self._handle_retry
         )
+
+    # ------------------------------------------------------------------ "Fűts most"
+    def _check_manual(self, st: RoomStatus, now_ts: float) -> None:
+        """A "Fűts most" lejárata, illetve leállítása (ablak, nyári mód, elavult szenzor)."""
+        if st.manual_until is None:
+            return
+        if now_ts >= st.manual_until:
+            self._end_manual(st, "expired", now_ts)
+        elif st.window_open:
+            self._end_manual(st, "window", now_ts)
+        elif self.summer_active:
+            self._end_manual(st, "summer", now_ts)
+        elif st.sensor_stale:
+            self._end_manual(st, "sensor", now_ts)
+
+    def _end_manual(self, st: RoomStatus, reason: str, now_ts: float) -> None:
+        if st.manual_until is None:
+            return
+        started = st.manual_started
+        st.manual_until = None
+        st.manual_offset = 0.0
+        st.manual_started = None
+        extra: dict[str, Any] = {"reason": reason}
+        if started is not None:
+            extra["duration_minutes"] = round((now_ts - started) / 60)
+        self._emit("manual_boost_ended", st, **extra)
+        self._store.async_delay_save(self._data_to_save, 30)
+
+    def room_by_entity(self, entity_id: str) -> RoomStatus | None:
+        """A szoba hőigény szenzorának entity_id-jából a szoba állapota."""
+        for st in self.status.values():
+            if self._room_entity_id(st.room_id) == entity_id:
+                return st
+        return None
+
+    def check_boost_allowed(self, st: RoomStatus) -> None:
+        """BoostError, ha a szobában most nem indítható a "Fűts most"."""
+        if not self.manual_boost_enabled:
+            raise BoostError("boost_disabled")
+        if self.summer_active:
+            raise BoostError("boost_summer", room=st.name)
+        if st.window_open:
+            raise BoostError("boost_window", room=st.name)
+        if st.sensor_stale:
+            raise BoostError("boost_stale", room=st.name)
+        if not st.active:
+            raise BoostError("boost_inactive", room=st.name)
+
+    def check_preheat_allowed(self, st: RoomStatus) -> None:
+        if not self.preheat_enabled:
+            raise BoostError("preheat_disabled")
+
+    async def async_boost_now(
+        self, room_id: str, minutes: float | None = None, offset: float | None = None
+    ) -> None:
+        """"Fűts most": a szoba célját ideiglenesen megemeli (alap +2,0 °C, 60 percre)."""
+        st = self.status[room_id]
+        self.check_boost_allowed(st)
+        now_ts = dt_util.utcnow().timestamp()
+        minutes = _clamp(
+            float(minutes if minutes is not None else self.manual_boost_minutes),
+            MANUAL_BOOST_MIN_MINUTES,
+            MANUAL_BOOST_MAX_MINUTES,
+        )
+        offset = _clamp(
+            float(offset if offset is not None else self.manual_boost_offset),
+            MANUAL_BOOST_MIN_OFFSET,
+            MANUAL_BOOST_MAX_OFFSET,
+        )
+        if st.manual_until is None:
+            st.manual_started = now_ts
+        st.manual_until = now_ts + minutes * 60
+        st.manual_offset = offset
+        _LOGGER.info("%s: Fűts most (+%s °C, %s percre)", st.name, f"{offset:g}", f"{minutes:g}")
+        self._emit("manual_boost_started", st, minutes=minutes, offset=offset)
+        await self._async_save()
+        await self.async_evaluate()
+
+    async def async_cancel_boost_now(self, room_id: str) -> bool:
+        st = self.status[room_id]
+        if st.manual_until is None:
+            return False
+        self._end_manual(st, "cancelled", dt_util.utcnow().timestamp())
+        await self._async_save()
+        await self.async_evaluate()
+        return True
+
+    # ------------------------------------------------------------------ előfűtés
+    def _reset_preheat_view(self, st: RoomStatus) -> None:
+        st.preheat_active = False
+        st.preheat_status = None
+        st.preheat_start_at = st.preheat_ready_by = None
+        st.preheat_target = st.preheat_source = None
+
+    def _rate_for(self, st: RoomStatus) -> float:
+        """A szoba felfűtési sebessége (°C/óra): a tanult érték, amíg nincs elég minta, az alapérték."""
+        if st.heating_rate is not None and st.heating_samples >= HEATING_RATE_MIN_SAMPLES:
+            return max(st.heating_rate, HEATING_RATE_MIN)
+        return self.preheat_default_rate
+
+    def _learn_rates(self, statuses: list[RoomStatus]) -> None:
+        """Amíg a kazán fűt és a szoba melegszik, a mért trendből tanulja a felfűtési sebességet."""
+        boiler = self.hass.states.get(self.boiler)
+        if boiler is None or boiler.state in (STATE_UNAVAILABLE, STATE_UNKNOWN, HVACMode.OFF):
+            return
+        now_ts = dt_util.utcnow().timestamp()
+        for st in statuses:
+            if not (
+                st.boiler_demand
+                and st.source == "sensor"
+                and not st.sensor_stale
+                and not st.window_open
+                and st.trend is not None
+                and st.trend >= HEATING_RATE_MIN_TREND
+                and now_ts - st.rate_ts >= RATE_SAMPLE_SECONDS
+            ):
+                continue
+            sample = _clamp(st.trend, HEATING_RATE_MIN, HEATING_RATE_MAX)
+            st.rate_ts = now_ts
+            if st.heating_rate is None:
+                st.heating_rate = sample
+            else:
+                st.heating_rate += (sample - st.heating_rate) / min(
+                    st.heating_samples + 1, HEATING_RATE_WINDOW
+                )
+            st.heating_samples += 1
+            if st.heating_samples % 10 == 0:
+                self._store.async_delay_save(self._data_to_save, 600)
+
+    def _preheat_plans(
+        self, st: RoomStatus, room: dict[str, Any], now_ts: float
+    ) -> list[dict[str, Any]]:
+        """Az egyszeri kérés és a heti menetrend következő időpontjai (ready szerint rendezve)."""
+        plans: list[dict[str, Any]] = []
+        if st.preheat_req:
+            plans.append({**st.preheat_req, "source": "service"})
+        local_now = dt_util.now()
+        tz = local_now.tzinfo
+        for entry in room.get(CONF_ROOM_PREHEAT) or []:
+            clock = _parse_hhmm(entry.get("time"))
+            try:
+                days = {int(d) for d in entry.get("days") or []}
+                target = float(entry["temperature"])
+            except (KeyError, TypeError, ValueError):
+                continue
+            if clock is None or not days:
+                continue
+            for add in range(-1, 8):  # tegnap is: a tartás átnyúlhat éjfélen
+                day = local_now.date() + timedelta(days=add)
+                if day.weekday() not in days:
+                    continue
+                ready = datetime(day.year, day.month, day.day, clock[0], clock[1], tzinfo=tz).timestamp()
+                if ready + self.preheat_hold_s <= now_ts:
+                    continue
+                if st.preheat_skip is not None and ready <= st.preheat_skip:
+                    continue
+                plans.append(
+                    {"ready": ready, "target": target, "hold": self.preheat_hold_s, "source": "schedule"}
+                )
+                break
+        plans.sort(key=lambda p: p["ready"])
+        return plans
+
+    @staticmethod
+    def _same_plan(a: dict[str, Any] | None, b: dict[str, Any]) -> bool:
+        return (
+            a is not None
+            and abs(a["ready"] - b["ready"]) < 1
+            and abs(a["target"] - b["target"]) < 0.05
+        )
+
+    def _local_hhmm(self, ts: float) -> str:
+        tz = dt_util.now().tzinfo
+        return datetime.fromtimestamp(ts, tz=tz).strftime("%H:%M")
+
+    def _update_preheat(
+        self, st: RoomStatus, room: dict[str, Any], current: float | None, now_ts: float
+    ) -> None:
+        """Előfűtés: a "kész" időpont elé időzítve megemeli a szoba célját.
+
+        Az indulást a tanult (vagy alap) felfűtési sebességből számolja: a hiányzó fokokat
+        elosztja a sebességgel, megszorozza a biztonsági tényezővel, de legfeljebb a beállított
+        maximumot (alap 4 óra) kezdi korábban. Ha elindult, a "kész" időpont + tartás végéig
+        fut, akkor is, ha közben a szoba már felmelegedett.
+        """
+        self._reset_preheat_view(st)
+        if not self.preheat_enabled:
+            st.preheat_latch = None
+            st.preheat_req = None
+            return
+        plans = self._preheat_plans(st, room, now_ts)
+        # lejárt egyszeri kérés / futó terv törlése
+        if st.preheat_req and st.preheat_req["ready"] + st.preheat_req["hold"] <= now_ts:
+            st.preheat_req = None
+        if st.preheat_latch and st.preheat_latch["ready"] + st.preheat_latch["hold"] <= now_ts:
+            st.preheat_latch = None
+        if (
+            current is None
+            or self.summer_active
+            or st.window_open
+            or st.sensor_stale
+        ):
+            return  # nem fűtünk előre, a terv megmarad (a latch is)
+
+        rate = self._rate_for(st)
+        best: tuple[dict[str, Any], float, float] | None = None  # (terv, indulás, szükséges idő)
+        upcoming: tuple[dict[str, Any], float] | None = None
+        for plan in plans:
+            ready, target = plan["ready"], plan["target"]
+            if now_ts >= ready + plan["hold"]:
+                continue
+            gap = target - current
+            need = gap / rate * 3600 * PREHEAT_SAFETY if gap > PREHEAT_DONE_TOLERANCE else 0.0
+            start_at = ready - min(need, self.preheat_max_s)
+            latched = self._same_plan(st.preheat_latch, plan)
+            # indulhat: elérte az indulási időt, és a "kész" időponthoz képest nem késett le (1 tick)
+            can_start = start_at <= now_ts < ready + TICK.total_seconds() * 1.5
+            if latched or can_start:
+                if best is None or target > best[0]["target"]:
+                    best = (plan, start_at, need)
+            elif upcoming is None and start_at - now_ts <= PREHEAT_LOOKAHEAD_SECONDS:
+                upcoming = (plan, start_at)
+
+        if best is not None:
+            plan, start_at, need = best
+            if not self._same_plan(st.preheat_latch, plan):
+                st.preheat_latch = {**plan, "started": now_ts, "warned": False}
+                self._emit(
+                    "preheat_started",
+                    st,
+                    target_temperature=plan["target"],
+                    ready_by=self._local_hhmm(plan["ready"]),
+                    minutes_to_ready=max(0, round((plan["ready"] - now_ts) / 60)),
+                    heating_rate=round(rate, 2),
+                    source=plan["source"],
+                )
+                self._store.async_delay_save(self._data_to_save, 30)
+            remaining = plan["ready"] - now_ts
+            late = remaining > 0 and need > remaining + PREHEAT_GRACE_SECONDS
+            if late and not st.preheat_latch.get("warned"):
+                st.preheat_latch["warned"] = True
+                self._emit(
+                    "preheat_unreachable",
+                    st,
+                    target_temperature=plan["target"],
+                    ready_by=self._local_hhmm(plan["ready"]),
+                    minutes_needed=round(need / 60),
+                    minutes_available=max(0, round(remaining / 60)),
+                )
+            st.preheat_active = True
+            st.preheat_target = plan["target"]
+            st.preheat_ready_by = plan["ready"]
+            st.preheat_source = plan["source"]
+            st.preheat_start_at = st.preheat_latch.get("started", start_at)
+            if current >= plan["target"] - PREHEAT_DONE_TOLERANCE:
+                st.preheat_status = "ready"
+            elif late:
+                st.preheat_status = "unreachable"
+            else:
+                st.preheat_status = "heating"
+        elif upcoming is not None:
+            plan, start_at = upcoming
+            st.preheat_status = "scheduled"
+            st.preheat_start_at = start_at
+            st.preheat_ready_by = plan["ready"]
+            st.preheat_target = plan["target"]
+            st.preheat_source = plan["source"]
+
+    async def async_preheat(
+        self,
+        room_id: str,
+        ready_ts: float,
+        target: float,
+        hold_minutes: float | None = None,
+    ) -> None:
+        """Egyszeri előfűtés: a szoba legyen `target` °C a `ready_ts` időpontra."""
+        st = self.status[room_id]
+        self.check_preheat_allowed(st)
+        now_ts = dt_util.utcnow().timestamp()
+        if ready_ts <= now_ts:
+            raise BoostError("preheat_past", room=st.name)
+        if not 5 <= target <= MAX_RAISED_TARGET:
+            raise BoostError("preheat_target", room=st.name)
+        hold = self.preheat_hold_s if hold_minutes is None else _clamp(float(hold_minutes), 0, 480) * 60
+        st.preheat_req = {"ready": ready_ts, "target": float(target), "hold": hold, "source": "service"}
+        if st.preheat_latch is not None and st.preheat_latch.get("source") == "service":
+            st.preheat_latch = None
+        _LOGGER.info(
+            "%s: előfűtés kérve: %s °C, kész: %s", st.name, f"{target:g}", self._local_hhmm(ready_ts)
+        )
+        await self._async_save()
+        await self.async_evaluate()
+
+    async def async_cancel_preheat(self, room_id: str) -> bool:
+        """Az egyszeri kérés törlése, és a most futó / következő menetrendi előfűtés kihagyása."""
+        st = self.status[room_id]
+        room = next(r for r in self.rooms if r[CONF_ROOM_ID] == room_id)
+        now_ts = dt_util.utcnow().timestamp()
+        changed = st.preheat_req is not None or st.preheat_latch is not None
+        st.preheat_req = None
+        if st.preheat_latch is not None:
+            if st.preheat_latch.get("source") == "schedule":
+                st.preheat_skip = max(st.preheat_skip or 0.0, st.preheat_latch["ready"])
+            st.preheat_latch = None
+        else:
+            sched = [p for p in self._preheat_plans(st, room, now_ts) if p["source"] == "schedule"]
+            if sched and st.preheat_status == "scheduled":
+                st.preheat_skip = max(st.preheat_skip or 0.0, sched[0]["ready"])
+                changed = True
+        await self._async_save()
+        await self.async_evaluate()
+        return changed
 
     # ------------------------------------------------------------------ események
     def _room_entity_id(self, room_id: str) -> str | None:
@@ -586,6 +1055,25 @@ class BoilerController:
             "samples": [[ts, val] for ts, val in self._samples],
             "boosts": self._boosts,
             "cycles": self.cycles.to_list(),
+            "manual": {
+                st.room_id: {
+                    "until": st.manual_until,
+                    "offset": st.manual_offset,
+                    "started": st.manual_started,
+                }
+                for st in self.status.values()
+                if st.manual_until is not None
+            },
+            "preheat": {
+                st.room_id: {"req": st.preheat_req, "latch": st.preheat_latch, "skip": st.preheat_skip}
+                for st in self.status.values()
+                if st.preheat_req or st.preheat_latch or st.preheat_skip
+            },
+            "rates": {
+                st.room_id: {"rate": round(st.heating_rate, 3), "n": st.heating_samples}
+                for st in self.status.values()
+                if st.heating_rate is not None
+            },
         }
 
     # ------------------------------------------------------------------ nyári mód
@@ -688,6 +1176,8 @@ class BoilerController:
             {"room": st.name, "sensor": temp_id or "", "hours": self._stale_hours_text()},
         )
         self._update_window(st)
+        now_ts = dt_util.utcnow().timestamp()
+        self._check_manual(st, now_ts)
 
         st.current = st.source = st.target = st.effective_target = None
         st.deviation = None
@@ -697,6 +1187,7 @@ class BoilerController:
         if not targets:
             st.calling = False
             st.valve_open = False
+            self._reset_preheat_view(st)
             self._update_trend(st)  # nincs aktuális érték: a trend törlődik
             return st
 
@@ -725,10 +1216,25 @@ class BoilerController:
             st.humidity_boost = round(
                 self.humidity_max_boost * min(max(frac, 0.0), 1.0), 2
             )
-        st.effective_target = round(
-            min(st.target + st.humidity_boost, max(MAX_EFFECTIVE_TARGET, st.target)),
-            2,
-        )
+        base = min(st.target + st.humidity_boost, max(MAX_EFFECTIVE_TARGET, st.target))
+        raised = base + st.manual_offset if st.manual_until is not None else base
+        self._update_preheat(st, room, current, now_ts)
+        if st.preheat_active and st.preheat_target is not None:
+            raised = max(raised, st.preheat_target)
+        if (
+            self.manual_boost_end_on_target
+            and st.manual_until is not None
+            and current is not None
+            and current >= raised
+        ):
+            # a szoba elérte a megemelt célt: a Fűts most véget ér (kapcsolható viselkedés)
+            self._end_manual(st, "target_reached", now_ts)
+            raised = base
+            if st.preheat_active and st.preheat_target is not None:
+                raised = max(raised, st.preheat_target)
+        if raised > base:  # "Fűts most" / előfűtés: megemelt cél, de nem a végtelenségig
+            raised = min(raised, max(MAX_RAISED_TARGET, base))
+        st.effective_target = round(raised, 2)
 
         if current is not None:
             st.deviation = round(st.effective_target - current, 2)
@@ -828,6 +1334,7 @@ class BoilerController:
         for st in statuses:
             st.boiler_demand = self._room_boiler_demand(st)
         self._observe_boiler()
+        self._learn_rates(statuses)
 
         if not statuses or not any(st.reachable for st in statuses):
             # nincs szoba, vagy egyik szelep sem elérhető: nem nyúlunk a kazánhoz
@@ -1059,7 +1566,9 @@ class BoilerController:
             if st.cold_since is None:
                 st.cold_since = now_ts
             big = dev >= st.boost_threshold + BOOST_IMMEDIATE_EXTRA
-            if big or now_ts - st.cold_since >= st.boost_delay_s:
+            # "Fűts most" és az előfűtés nem vár: a felhasználó (vagy a menetrend) azonnal meleget kér
+            urgent = st.manual_until is not None or st.preheat_active
+            if big or urgent or now_ts - st.cold_since >= st.boost_delay_s:
                 st.boost_wanted = True
                 st.boost_started = now_ts
         else:

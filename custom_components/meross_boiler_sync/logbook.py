@@ -10,6 +10,8 @@ from .const import DOMAIN, EVENT_TYPE
 
 _HU_REASON = {
     "target_reached": "cél elérve",
+    "expired": "az idő lejárt",
+    "cancelled": "lemondva",
     "max_time": "elérte a maximális időt",
     "window": "ablak nyitva",
     "summer": "nyári mód",
@@ -20,6 +22,8 @@ _HU_REASON = {
 }
 _EN_REASON = {
     "target_reached": "target reached",
+    "expired": "time ran out",
+    "cancelled": "cancelled",
     "max_time": "maximum time reached",
     "window": "window open",
     "summer": "summer mode",
@@ -47,7 +51,7 @@ def describe(language: str, data: dict[str, Any]) -> tuple[str, str]:
             "sensor_recovered": "a szenzor újra frissül",
             "short_cycling": f"a kazán gyakran kapcsolgat ({data.get('starts_last_hour')} indítás az elmúlt órában)",
             "manual_boost_started": "Fűts most elindult" + (f" ({data['minutes']:g} percre)" if data.get("minutes") is not None else ""),
-            "manual_boost_ended": "Fűts most véget ért",
+            "manual_boost_ended": "Fűts most véget ért: " + reasons.get(data.get("reason", ""), reasons["other"]),
             "preheat_started": "előfűtés elindult" + (f" (kész: {data['ready_by']})" if data.get("ready_by") else ""),
             "preheat_unreachable": "az előfűtés nem éri el a célt időre",
         }
@@ -61,7 +65,7 @@ def describe(language: str, data: dict[str, Any]) -> tuple[str, str]:
             "sensor_recovered": "sensor is updating again",
             "short_cycling": f"boiler is short-cycling ({data.get('starts_last_hour')} starts in the last hour)",
             "manual_boost_started": "Heat now started" + (f" ({data['minutes']:g} min)" if data.get("minutes") is not None else ""),
-            "manual_boost_ended": "Heat now ended",
+            "manual_boost_ended": "Heat now ended: " + reasons.get(data.get("reason", ""), reasons["other"]),
             "preheat_started": "preheat started" + (f" (ready by {data['ready_by']})" if data.get("ready_by") else ""),
             "preheat_unreachable": "preheat cannot reach the target in time",
         }

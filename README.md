@@ -206,4 +206,8 @@ Special thanks to @krahabb for creating and maintaining the foundational Meross_
 5.Navigate to Settings → Devices & Services → Add Integration, and search for Meross Boiler Sync.  
 6.Select your thermostat, valves, configure your preferences, and save.  
 
+## Important NOTE!  
+
+## If you have an issue after update for new version, please delete the old files manually from the custom_components in file editor, than download again from HACS. You've need also to refresh your browser (CTRL+F5)!
+
 

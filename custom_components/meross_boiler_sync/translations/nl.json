@@ -24,7 +24,9 @@
           "remove_room": "Kamer verwijderen",
           "settings": "Basisinstellingen",
           "summer": "Zomermodus",
-          "done": "Opslaan en afsluiten"
+          "done": "Opslaan en afsluiten",
+          "features": "Functies (gebeurtenissen, beveiliging, Nu verwarmen, Voorverwarmen)",
+          "preheat": "Voorverwarmschema (per kamer)"
         }
       },
       "add_room": {
@@ -131,7 +133,7 @@
           "max_boost_rest_minutes": "Hoe lang na het bereiken van de maximale duur geen nieuwe verhoging wordt gestart. Zodra de kamer het doel bereikt, wordt dit gereset.",
           "window_open_delay": "Standaard voor alle kamers: hoe lang een raam open moet staan voordat de verwarming van die kamer pauzeert. Korter luchten verandert niets.",
           "valve_dry_run": "Indien ingeschakeld logt de kraanregeling alleen wat ze zou doen (voorvoegsel [PRÓBAÜZEM]) en wijzigt ze niets aan de kranen. Aanbevolen voor de eerste livetest.",
-          "register_card": "Indien ingeschakeld laadt de integratie haar kaart zodat die in de lijst 'Kaart toevoegen' verschijnt (er wordt nooit zelf een kaart aan een dashboard toegevoegd). Uitschakelen werkt na een herstart van Home Assistant; daarna kun je de resource handmatig toevoegen (zie README)."
+          "register_card": "Indien ingeschakeld voegt de integratie het kaartbestand toe aan de dashboardresources (Instellingen → Dashboards → Resources) en houdt de versie actueel, zodat de kaart in de lijst 'Kaart toevoegen' verschijnt (er wordt nooit zelf een kaart aan een dashboard toegevoegd). Bij dashboards in YAML-modus moet je de resource handmatig toevoegen (zie README). Indien uitgeschakeld raakt de integratie de resources niet aan."
         }
       },
       "summer": {
@@ -147,6 +149,71 @@
           "summer_start": "Bijv. 05-15",
           "summer_end": "Bijv. 09-15"
         }
+      },
+      "features": {
+        "title": "Functies",
+        "description": "Elke functie kan afzonderlijk worden in- en uitgeschakeld.\n\n**Gebeurtenissen**: de plugin stuurt `meross_boiler_sync_event`-gebeurtenissen (kraanverhoging, raam, verouderde sensor, korte cycli, Nu verwarmen, voorverwarmen) die je in automatiseringen kunt gebruiken; ze zijn ook te lezen in het HA-logboek.\n\n**Ketelcycli bewaken**: telt de ketelstarts en meldt korte cycli.\n\n**Beveiliging**: indien ingeschakeld blijft de ketel minstens de opgegeven tijd aan of uit, ook als de warmtevraag van de kamers intussen verandert. Dit kan de verwarming vertragen, daarom staat het standaard uit.\n\n**Nu verwarmen**: de service `meross_boiler_sync.boost_now` (en de knop op de kaarten) verhoogt tijdelijk het doel van de kamer. Het start niet in zomermodus, bij een open raam of een verouderde sensor.\n\n**Voorverwarmen**: verwarmt de kamer op tegen een bepaald tijdstip en berekent aan de hand van de geleerde opwarmsnelheid wanneer het moet beginnen. Stel het weekschema in via *Voorverwarmschema* in het hoofdmenu. Het start vanzelf, daarom staat het standaard uit.",
+        "data": {
+          "events_enabled": "Gebeurtenissen en logboekregels",
+          "cycle_monitor_enabled": "Ketelcycli bewaken (sensoren)",
+          "cycle_max_starts_per_hour": "Korte cycli: starts per uur",
+          "cycle_min_avg_on_minutes": "Korte cycli: ondergrens van de gemiddelde aan-tijd (0 = niet bewaakt)",
+          "cycle_protection_enabled": "Ketelbeveiliging (minimale aan- / uit-tijd)",
+          "boiler_min_on_minutes": "Beveiliging: houd de ketel minstens zo lang aan",
+          "boiler_min_off_minutes": "Beveiliging: houd de ketel minstens zo lang uit",
+          "manual_boost_enabled": "Nu verwarmen (verhoogd doel)",
+          "manual_boost_minutes": "Nu verwarmen: standaardduur",
+          "manual_boost_offset": "Nu verwarmen: verhoging van het doel",
+          "preheat_enabled": "Voorverwarmen (schema en service)",
+          "preheat_max_minutes": "Voorverwarmen: vroegste start vóór de gereedtijd",
+          "preheat_hold_minutes": "Voorverwarmen: doel aanhouden na de gereedtijd",
+          "preheat_default_rate": "Voorverwarmen: standaard opwarmsnelheid (tot ze geleerd is)",
+          "manual_boost_end_on_target": "Nu verwarmen: stoppen als de kamer het verhoogde doel bereikt"
+        },
+        "data_description": {
+          "cycle_max_starts_per_hour": "Als de ketel het afgelopen uur zo vaak of vaker is gestart, gaat de sensor Korte cycli aan.",
+          "cycle_min_avg_on_minutes": "Als de gemiddelde aan-tijd van de laatste 2 uur (uit minstens 3 cycli) korter is, meldt hij ook.",
+          "cycle_protection_enabled": "De ketel wordt niet uit- of weer ingeschakeld voordat de minimale tijd verstreken is. De Minimale schakeltijd (Basisinstellingen) blijft ook gelden.",
+          "manual_boost_offset": "Hoeveel het doel van de kamer tijdens Nu verwarmen wordt verhoogd. De kraan wordt door de kraanregeling (indien voor de kamer ingeschakeld) meteen geopend.",
+          "preheat_max_minutes": "Voorverwarmen begint nooit eerder dan dit, ook niet als de kamer erg koud is (standaard: 240 min).",
+          "preheat_default_rate": "De plugin meet de opwarmsnelheid van elke kamer tijdens het verwarmen; tot er genoeg metingen zijn (ongeveer 20 minuten verwarmen) rekent hij met dit aantal graden per uur.",
+          "manual_boost_end_on_target": "Indien uit duurt Nu verwarmen de volledige duur en houdt het het verhoogde doel aan."
+        }
+      },
+      "preheat": {
+        "title": "Voorverwarmschema",
+        "description": "Kies de kamer waarvan je het weekschema wilt bewerken. Voorverwarmen werkt alleen als het onder Functies is ingeschakeld.",
+        "data": {
+          "room": "Kamer"
+        }
+      },
+      "preheat_menu": {
+        "title": "Voorverwarmen: {room}",
+        "description": "Schema van **{room}** (de kamer moet op het opgegeven tijdstip klaar zijn):\n\n{entries}",
+        "menu_options": {
+          "preheat_add": "Regel toevoegen",
+          "preheat_remove": "Regels verwijderen",
+          "init": "Terug naar het hoofdmenu"
+        }
+      },
+      "preheat_add": {
+        "title": "Nieuwe schemaregel: {room}",
+        "description": "Op welke dagen en tegen wanneer de kamer op de opgegeven temperatuur moet zijn. Voorverwarmen begint zoveel eerder als het opwarmen nodig heeft.",
+        "data": {
+          "days": "Dagen",
+          "time": "Klaar om",
+          "temperature": "Doeltemperatuur"
+        },
+        "data_description": {
+          "temperature": "Het doel van de kamer wordt tijdens het voorverwarmen hiertoe verhoogd (het eigen doel van de kraan blijft ongewijzigd als dat hoger is)."
+        }
+      },
+      "preheat_remove": {
+        "title": "Schemaregels verwijderen: {room}",
+        "description": "Vink de regels aan die je wilt verwijderen.",
+        "data": {
+          "entries_to_remove": "Te verwijderen regels"
+        }
       }
     },
     "error": {
@@ -157,7 +224,8 @@
       "valve_in_use": "Deze kraan hoort al bij een andere kamer.",
       "control_needs_sensor": "Kraanregeling vereist een kamertemperatuursensor.",
       "invalid_date": "Ongeldige datum, gebruik MM-DD (bijv. 05-15).",
-      "release_ge_threshold": "Het vrijgeven moet kleiner zijn dan de drempel voor kraanverhoging."
+      "release_ge_threshold": "Het vrijgeven moet kleiner zijn dan de drempel voor kraanverhoging.",
+      "no_days": "Selecteer minstens één dag."
     }
   },
   "entity": {
@@ -242,8 +310,77 @@
           "window_open_pending": {
             "name": "Raam open, wacht op de vertraging"
           },
+          "temperature_trend": {
+            "name": "Temperatuurverandering (°C/uur, over de laatste ~30 minuten)"
+          },
+          "valve_boost_starts_at": {
+            "name": "Kraanverhoging begint om (einde van de wachttijd)"
+          },
+          "valve_boost_rest_until": {
+            "name": "Rust eindigt om (tot dan geen nieuwe verhoging)"
+          },
+          "valve_boost_max_until": {
+            "name": "Verhoging duurt hoogstens tot"
+          },
+          "window_open_pending_until": {
+            "name": "Raam telt als open vanaf"
+          },
           "room_name": {
             "name": "Kamernaam"
+          },
+          "temperature_sensor": {
+            "name": "Kamertemperatuursensor"
+          },
+          "window_sensors": {
+            "name": "Raamsensoren"
+          },
+          "manual_boost_available": {
+            "name": "Nu verwarmen beschikbaar (ingeschakeld)"
+          },
+          "manual_boost_active": {
+            "name": "Nu verwarmen actief"
+          },
+          "manual_boost_until": {
+            "name": "Nu verwarmen duurt tot"
+          },
+          "manual_boost_offset": {
+            "name": "Nu verwarmen: verhoging van het doel"
+          },
+          "manual_boost_default_minutes": {
+            "name": "Nu verwarmen: standaardduur (min)"
+          },
+          "manual_boost_default_offset": {
+            "name": "Nu verwarmen: standaardverhoging (°C)"
+          },
+          "preheat_available": {
+            "name": "Voorverwarmen ingeschakeld"
+          },
+          "preheat_status": {
+            "name": "Status van voorverwarmen",
+            "state": {
+              "scheduled": "Gepland",
+              "heating": "Voorverwarmt",
+              "ready": "Klaar, houdt het doel aan",
+              "unreachable": "Haalt het niet op tijd"
+            }
+          },
+          "preheat_start_at": {
+            "name": "Start van het voorverwarmen"
+          },
+          "preheat_ready_by": {
+            "name": "Voorverwarmen: klaar om"
+          },
+          "preheat_target": {
+            "name": "Doeltemperatuur van het voorverwarmen"
+          },
+          "preheat_source": {
+            "name": "Bron van het voorverwarmen (schema / service)"
+          },
+          "heating_rate": {
+            "name": "Geleerde opwarmsnelheid (°C/u)"
+          },
+          "heating_rate_learned": {
+            "name": "Opwarmsnelheid is geleerd"
           }
         }
       },
@@ -282,6 +419,52 @@
             "name": "Ketelthermostaat"
           }
         }
+      },
+      "short_cycling": {
+        "name": "Korte cycli",
+        "state": {
+          "on": "De ketel schakelt te vaak",
+          "off": "OK"
+        },
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "Starts in het afgelopen uur"
+          },
+          "avg_on_minutes": {
+            "name": "Gemiddelde aan-tijd (min)"
+          },
+          "max_starts_per_hour": {
+            "name": "Limiet: starts per uur"
+          },
+          "min_avg_on_minutes": {
+            "name": "Limiet: gemiddelde aan-tijd (min)"
+          }
+        }
+      }
+    },
+    "sensor": {
+      "boiler_starts": {
+        "name": "Ketelstarts (24 u)",
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "Starts in het afgelopen uur"
+          },
+          "avg_on_minutes": {
+            "name": "Gemiddelde aan-tijd (min, laatste 2 u)"
+          },
+          "avg_off_minutes": {
+            "name": "Gemiddelde uit-tijd (min, laatste 2 u)"
+          },
+          "last_start": {
+            "name": "Laatste start"
+          },
+          "last_stop": {
+            "name": "Laatste stop"
+          },
+          "cycles": {
+            "name": "Cycli (laatste 12 u)"
+          }
+        }
       }
     }
   },
@@ -293,6 +476,90 @@
     "stale_outdoor": {
       "title": "Buitentemperatuursensor meldt niet meer",
       "description": "De buitensensor {sensor} heeft al meer dan {hours} uur niets gemeld (mogelijk is de batterij leeg). De zomermodus blijft uitgeschakeld tot hij weer meldt, dus verwarmen blijft toegestaan. Deze melding verdwijnt zodra de sensor weer meldt."
+    }
+  },
+  "selector": {
+    "preheat_days": {
+      "options": {
+        "0": "Maandag",
+        "1": "Dinsdag",
+        "2": "Woensdag",
+        "3": "Donderdag",
+        "4": "Vrijdag",
+        "5": "Zaterdag",
+        "6": "Zondag"
+      }
+    }
+  },
+  "services": {
+    "boost_now": {
+      "name": "Nu verwarmen",
+      "description": "Verhoogt tijdelijk het doel van de kamer (standaard: +2,0 °C gedurende 60 minuten). Het start niet in zomermodus, bij een open raam of een verouderde sensor.",
+      "fields": {
+        "minutes": {
+          "name": "Duur",
+          "description": "Hoeveel minuten het duurt (standaard: ingesteld onder Functies)."
+        },
+        "offset": {
+          "name": "Verhoging",
+          "description": "Met hoeveel °C het doel wordt verhoogd (standaard: ingesteld onder Functies)."
+        }
+      }
+    },
+    "cancel_boost_now": {
+      "name": "Nu verwarmen stoppen",
+      "description": "Beëindigt Nu verwarmen voortijdig."
+    },
+    "preheat": {
+      "name": "Voorverwarmen",
+      "description": "Eenmalig voorverwarmen: de kamer bereikt de doeltemperatuur tegen het opgegeven tijdstip.",
+      "fields": {
+        "ready_by": {
+          "name": "Klaar om",
+          "description": "Een tijdstip (de eerstvolgende keer dat het voorkomt) of een datum en tijd."
+        },
+        "target_temperature": {
+          "name": "Doeltemperatuur",
+          "description": "Tot zoveel wordt de kamer opgewarmd."
+        },
+        "hold_minutes": {
+          "name": "Aanhouden",
+          "description": "Hoeveel minuten het doel na de gereedtijd wordt aangehouden (standaard: ingesteld onder Functies)."
+        }
+      }
+    },
+    "cancel_preheat": {
+      "name": "Voorverwarmen annuleren",
+      "description": "Wist het eenmalige verzoek en slaat het lopende of volgende geplande voorverwarmen over."
+    }
+  },
+  "exceptions": {
+    "boost_disabled": {
+      "message": "Nu verwarmen is uitgeschakeld (Instellingen -> Functies)."
+    },
+    "boost_summer": {
+      "message": "Nu verwarmen kan niet starten in zomermodus."
+    },
+    "boost_window": {
+      "message": "{room}: Nu verwarmen kan niet starten bij een open raam."
+    },
+    "boost_stale": {
+      "message": "{room}: de thermometer is verouderd, daarom kan Nu verwarmen niet starten."
+    },
+    "boost_inactive": {
+      "message": "{room}: er is geen ingeschakelde, bereikbare kraan in de kamer."
+    },
+    "preheat_disabled": {
+      "message": "Voorverwarmen is uitgeschakeld (Instellingen -> Functies)."
+    },
+    "preheat_past": {
+      "message": "{room}: dat tijdstip is al voorbij."
+    },
+    "preheat_target": {
+      "message": "{room}: de doeltemperatuur moet tussen 5 en 30 °C liggen."
+    },
+    "not_a_room": {
+      "message": "{entity_id} is geen warmtevraagsensor van een kamer van Meross Boiler Sync."
     }
   }
 }

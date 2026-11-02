@@ -24,7 +24,9 @@
           "remove_room": "部屋を削除",
           "settings": "基本設定",
           "summer": "夏モード",
-          "done": "保存して終了"
+          "done": "保存して終了",
+          "features": "機能（イベント、保護、今すぐ暖房、予熱）",
+          "preheat": "予熱スケジュール（部屋ごと）"
         }
       },
       "add_room": {
@@ -131,7 +133,7 @@
           "max_boost_rest_minutes": "最大継続時間に達した後、新たな強制開放を開始しない時間です。部屋が目標に達するとリセットされます。",
           "window_open_delay": "すべての部屋の既定値です。その部屋の暖房を一時停止するまでに、窓が開いている必要がある時間です。それより短い換気では何も変わりません。",
           "valve_dry_run": "オンにすると、バルブ制御は実行する内容をログに記録するだけで（[PRÓBAÜZEM] 接頭辞）、バルブには何も変更を加えません。最初の実機テストにおすすめです。",
-          "register_card": "オンにすると、統合が独自のカードを読み込み、「カードを追加」の一覧に表示されます（ダッシュボードにカードを自動で追加することはありません）。オフにする設定は Home Assistant の再起動後に反映されます。その後、リソースを手動で追加できます（README を参照）。"
+          "register_card": "オンにすると、インテグレーションがカードのファイルをダッシュボードのリソース（設定 → ダッシュボード → リソース）に追加してバージョンを最新に保ち、「カードを追加」の一覧に表示されるようになります（ダッシュボードにカードを自動で追加することはありません）。YAML モードのダッシュボードでは、リソースを手動で追加する必要があります（README を参照）。オフにすると、インテグレーションはリソースに触れません。"
         }
       },
       "summer": {
@@ -147,6 +149,71 @@
           "summer_start": "例: 05-15",
           "summer_end": "例: 09-15"
         }
+      },
+      "features": {
+        "title": "機能",
+        "description": "各機能は個別にオン／オフできます。\n\n**イベント**: プラグインは、オートメーションで使える `meross_boiler_sync_event` イベント（バルブブースト、窓、古いセンサー、短サイクル、今すぐ暖房、予熱）を送信します。HA のログブックでも確認できます。\n\n**ボイラーのサイクル監視**: ボイラーの起動回数を数え、短サイクルを知らせます。\n\n**保護**: オンにすると、その間に部屋の熱需要が変わっても、ボイラーは指定した時間以上オン／オフの状態を保ちます。暖房が遅れることがあるため、既定ではオフです。\n\n**今すぐ暖房**: `meross_boiler_sync.boost_now` サービス（およびカードのボタン）が部屋の目標温度を一時的に上げます。夏モード、窓が開いているとき、センサーが古いときは開始しません。\n\n**予熱**: 指定した時刻に合わせて部屋を暖め、学習した暖房速度から開始時刻を計算します。週間スケジュールはメインメニューの*予熱スケジュール*で設定します。自動で開始されるため、既定ではオフです。",
+        "data": {
+          "events_enabled": "イベントとログブックの記録",
+          "cycle_monitor_enabled": "ボイラーのサイクル監視（センサー）",
+          "cycle_max_starts_per_hour": "短サイクル: 1時間あたりの起動回数",
+          "cycle_min_avg_on_minutes": "短サイクル: 平均オン時間の下限（0 = 監視しない）",
+          "cycle_protection_enabled": "ボイラー保護（最小オン／オフ時間）",
+          "boiler_min_on_minutes": "保護: ボイラーを最低この時間オンに保つ",
+          "boiler_min_off_minutes": "保護: ボイラーを最低この時間オフに保つ",
+          "manual_boost_enabled": "今すぐ暖房（目標の引き上げ）",
+          "manual_boost_minutes": "今すぐ暖房: 既定の継続時間",
+          "manual_boost_offset": "今すぐ暖房: 目標の引き上げ幅",
+          "preheat_enabled": "予熱（スケジュールとサービス）",
+          "preheat_max_minutes": "予熱: 完了時刻より前の最も早い開始",
+          "preheat_hold_minutes": "予熱: 完了時刻の後に目標を維持する時間",
+          "preheat_default_rate": "予熱: 既定の暖房速度（学習されるまで）",
+          "manual_boost_end_on_target": "今すぐ暖房: 部屋が引き上げた目標に達したら終了"
+        },
+        "data_description": {
+          "cycle_max_starts_per_hour": "直近1時間にボイラーがこの回数以上起動すると、「短サイクル」センサーがオンになります。",
+          "cycle_min_avg_on_minutes": "直近2時間（3サイクル以上）の平均オン時間がこれより短い場合も通知します。",
+          "cycle_protection_enabled": "最小時間が経過するまで、ボイラーはオフにも再オンにもされません。最小切り替え時間（基本設定）も引き続き適用されます。",
+          "manual_boost_offset": "今すぐ暖房の間、部屋の目標をどれだけ上げるかを設定します。バルブはバルブ制御（その部屋で有効な場合）によってすぐに開かれます。",
+          "preheat_max_minutes": "部屋がとても寒くても、予熱はこれより早く開始されません（既定: 240分）。",
+          "preheat_default_rate": "プラグインは暖房中に各部屋の暖房速度を測定します。十分なサンプル（約20分の暖房）が集まるまでは、1時間あたりこの度数を使用します。",
+          "manual_boost_end_on_target": "オフにすると、今すぐ暖房は全期間続き、引き上げた目標を維持します。"
+        }
+      },
+      "preheat": {
+        "title": "予熱スケジュール",
+        "description": "週間スケジュールを編集する部屋を選択してください。予熱は「機能」でオンにしている場合のみ動作します。",
+        "data": {
+          "room": "部屋"
+        }
+      },
+      "preheat_menu": {
+        "title": "予熱: {room}",
+        "description": "**{room}** のスケジュール（指定した時刻までに部屋を暖めておく）:\n\n{entries}",
+        "menu_options": {
+          "preheat_add": "行を追加",
+          "preheat_remove": "行を削除",
+          "init": "メインメニューに戻る"
+        }
+      },
+      "preheat_add": {
+        "title": "新しいスケジュール行: {room}",
+        "description": "部屋を指定した温度にしておく曜日と時刻です。予熱は暖めるのに必要な時間だけ早く始まります。",
+        "data": {
+          "days": "曜日",
+          "time": "完了時刻",
+          "temperature": "目標温度"
+        },
+        "data_description": {
+          "temperature": "予熱中、部屋の目標はこの値まで引き上げられます（バルブ自体の目標のほうが高い場合は変更されません）。"
+        }
+      },
+      "preheat_remove": {
+        "title": "スケジュール行の削除: {room}",
+        "description": "削除する行にチェックを入れてください。",
+        "data": {
+          "entries_to_remove": "削除する行"
+        }
       }
     },
     "error": {
@@ -157,7 +224,8 @@
       "valve_in_use": "このバルブはすでに別の部屋に属しています。",
       "control_needs_sensor": "バルブ制御には部屋の温度センサーが必要です。",
       "invalid_date": "日付が正しくありません。MM-DD 形式を使用してください（例: 05-15）。",
-      "release_ge_threshold": "解除値は強制開放のしきい値より小さくする必要があります。"
+      "release_ge_threshold": "解除値は強制開放のしきい値より小さくする必要があります。",
+      "no_days": "曜日を1つ以上選択してください。"
     }
   },
   "entity": {
@@ -242,8 +310,77 @@
           "window_open_pending": {
             "name": "窓が開いている、遅延を待機中"
           },
+          "temperature_trend": {
+            "name": "温度変化（°C/時、直近約30分）"
+          },
+          "valve_boost_starts_at": {
+            "name": "バルブブーストの開始時刻（待機時間の終了）"
+          },
+          "valve_boost_rest_until": {
+            "name": "休止の終了時刻（それまで新しいブーストなし）"
+          },
+          "valve_boost_max_until": {
+            "name": "ブーストの最長継続時刻"
+          },
+          "window_open_pending_until": {
+            "name": "窓が開いていると見なされる時刻"
+          },
           "room_name": {
             "name": "部屋の名前"
+          },
+          "temperature_sensor": {
+            "name": "部屋の温度センサー"
+          },
+          "window_sensors": {
+            "name": "窓センサー"
+          },
+          "manual_boost_available": {
+            "name": "今すぐ暖房が利用可能（オン）"
+          },
+          "manual_boost_active": {
+            "name": "今すぐ暖房が動作中"
+          },
+          "manual_boost_until": {
+            "name": "今すぐ暖房の継続時刻"
+          },
+          "manual_boost_offset": {
+            "name": "今すぐ暖房: 目標の引き上げ幅"
+          },
+          "manual_boost_default_minutes": {
+            "name": "今すぐ暖房: 既定の継続時間（分）"
+          },
+          "manual_boost_default_offset": {
+            "name": "今すぐ暖房: 既定の引き上げ幅（°C）"
+          },
+          "preheat_available": {
+            "name": "予熱がオン"
+          },
+          "preheat_status": {
+            "name": "予熱の状態",
+            "state": {
+              "scheduled": "予定済み",
+              "heating": "予熱中",
+              "ready": "完了、目標を維持中",
+              "unreachable": "間に合いません"
+            }
+          },
+          "preheat_start_at": {
+            "name": "予熱の開始"
+          },
+          "preheat_ready_by": {
+            "name": "予熱: 完了時刻"
+          },
+          "preheat_target": {
+            "name": "予熱の目標温度"
+          },
+          "preheat_source": {
+            "name": "予熱の要求元（スケジュール／サービス）"
+          },
+          "heating_rate": {
+            "name": "学習済みの暖房速度（°C/h）"
+          },
+          "heating_rate_learned": {
+            "name": "暖房速度が学習済み"
           }
         }
       },
@@ -282,6 +419,52 @@
             "name": "ボイラーのサーモスタット"
           }
         }
+      },
+      "short_cycling": {
+        "name": "短サイクル",
+        "state": {
+          "on": "ボイラーが短サイクルで動作中",
+          "off": "正常"
+        },
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "直近1時間の起動回数"
+          },
+          "avg_on_minutes": {
+            "name": "平均オン時間（分）"
+          },
+          "max_starts_per_hour": {
+            "name": "上限: 1時間あたりの起動回数"
+          },
+          "min_avg_on_minutes": {
+            "name": "上限: 平均オン時間（分）"
+          }
+        }
+      }
+    },
+    "sensor": {
+      "boiler_starts": {
+        "name": "ボイラー起動回数（24時間）",
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "直近1時間の起動回数"
+          },
+          "avg_on_minutes": {
+            "name": "平均オン時間（分、直近2時間）"
+          },
+          "avg_off_minutes": {
+            "name": "平均オフ時間（分、直近2時間）"
+          },
+          "last_start": {
+            "name": "最後の起動"
+          },
+          "last_stop": {
+            "name": "最後の停止"
+          },
+          "cycles": {
+            "name": "サイクル（直近12時間）"
+          }
+        }
       }
     }
   },
@@ -293,6 +476,90 @@
     "stale_outdoor": {
       "title": "外気温センサーが報告しなくなりました",
       "description": "外気温センサー {sensor} が {hours} 時間以上報告していません（電池切れの可能性があります）。再び報告するまで夏モードはオフのままとなり、暖房は許可されたままです。センサーが再び報告すると、この通知は消えます。"
+    }
+  },
+  "selector": {
+    "preheat_days": {
+      "options": {
+        "0": "月曜日",
+        "1": "火曜日",
+        "2": "水曜日",
+        "3": "木曜日",
+        "4": "金曜日",
+        "5": "土曜日",
+        "6": "日曜日"
+      }
+    }
+  },
+  "services": {
+    "boost_now": {
+      "name": "今すぐ暖房",
+      "description": "部屋の目標温度を一時的に上げます（既定: 60分間 +2.0 °C）。夏モード、窓が開いているとき、センサーが古いときは開始しません。",
+      "fields": {
+        "minutes": {
+          "name": "継続時間",
+          "description": "継続する分数です（既定: 「機能」で設定）。"
+        },
+        "offset": {
+          "name": "引き上げ幅",
+          "description": "目標を何 °C 上げるかです（既定: 「機能」で設定）。"
+        }
+      }
+    },
+    "cancel_boost_now": {
+      "name": "今すぐ暖房を停止",
+      "description": "今すぐ暖房を途中で終了します。"
+    },
+    "preheat": {
+      "name": "予熱",
+      "description": "1回限りの予熱: 指定した時刻までに部屋が目標温度に達します。",
+      "fields": {
+        "ready_by": {
+          "name": "完了時刻",
+          "description": "時刻（次にその時刻になるとき）、または日付と時刻です。"
+        },
+        "target_temperature": {
+          "name": "目標温度",
+          "description": "部屋をこの温度まで暖めます。"
+        },
+        "hold_minutes": {
+          "name": "維持時間",
+          "description": "完了時刻の後に目標を維持する分数です（既定: 「機能」で設定）。"
+        }
+      }
+    },
+    "cancel_preheat": {
+      "name": "予熱をキャンセル",
+      "description": "1回限りのリクエストを消去し、実行中または次に予定されている予熱をスキップします。"
+    }
+  },
+  "exceptions": {
+    "boost_disabled": {
+      "message": "今すぐ暖房はオフになっています（設定 -> 機能）。"
+    },
+    "boost_summer": {
+      "message": "夏モードでは今すぐ暖房を開始できません。"
+    },
+    "boost_window": {
+      "message": "{room}: 窓が開いているため、今すぐ暖房を開始できません。"
+    },
+    "boost_stale": {
+      "message": "{room}: 温度計のデータが古いため、今すぐ暖房を開始できません。"
+    },
+    "boost_inactive": {
+      "message": "{room}: 部屋に、オンで接続可能なバルブがありません。"
+    },
+    "preheat_disabled": {
+      "message": "予熱はオフになっています（設定 -> 機能）。"
+    },
+    "preheat_past": {
+      "message": "{room}: その時刻はすでに過ぎています。"
+    },
+    "preheat_target": {
+      "message": "{room}: 目標温度は 5〜30 °C の範囲で指定してください。"
+    },
+    "not_a_room": {
+      "message": "{entity_id} は Meross Boiler Sync の部屋の熱需要センサーではありません。"
     }
   }
 }

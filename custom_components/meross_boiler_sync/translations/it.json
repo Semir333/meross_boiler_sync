@@ -24,7 +24,9 @@
           "remove_room": "Rimuovi stanza",
           "settings": "Impostazioni di base",
           "summer": "Modalità estate",
-          "done": "Salva ed esci"
+          "done": "Salva ed esci",
+          "features": "Funzioni (eventi, protezione, Riscalda ora, preriscaldamento)",
+          "preheat": "Programma di preriscaldamento (per stanza)"
         }
       },
       "add_room": {
@@ -131,7 +133,7 @@
           "max_boost_rest_minutes": "Per quanto tempo non parte una nuova spinta dopo aver raggiunto la durata massima. Si azzera quando la stanza raggiunge il target.",
           "window_open_delay": "Predefinito per tutte le stanze: per quanto tempo una finestra deve restare aperta prima che il riscaldamento di quella stanza si metta in pausa. Un ricambio d’aria più breve non cambia nulla.",
           "valve_dry_run": "Se attivo, il controllo valvole scrive nel log solo ciò che farebbe (prefisso [PRÓBAÜZEM]) e non modifica nulla sulle valvole. Consigliato per il primo test reale.",
-          "register_card": "Se attivo, l’integrazione carica la propria scheda in modo che compaia nell’elenco 'Aggiungi scheda' (non aggiunge mai una scheda a una dashboard da sola). La disattivazione ha effetto dopo il riavvio di Home Assistant; poi puoi aggiungere la risorsa manualmente (vedi README)."
+          "register_card": "Se attivo, l'integrazione aggiunge il file della scheda alle risorse della dashboard (Impostazioni → Dashboard → Risorse) e ne mantiene aggiornata la versione, così compare nell'elenco «Aggiungi scheda» (non aggiunge mai una scheda a una dashboard da sola). Con le dashboard in modalità YAML devi aggiungere la risorsa manualmente (vedi README). Se disattivato, l'integrazione non tocca le risorse."
         }
       },
       "summer": {
@@ -147,6 +149,71 @@
           "summer_start": "Es. 05-15",
           "summer_end": "Es. 09-15"
         }
+      },
+      "features": {
+        "title": "Funzioni",
+        "description": "Ogni funzione può essere attivata e disattivata separatamente.\n\n**Eventi**: il plugin invia eventi `meross_boiler_sync_event` (spinta della valvola, finestra, sensore non aggiornato, cicli brevi, Riscalda ora, preriscaldamento) che puoi usare nelle automazioni; sono leggibili anche nel registro di HA.\n\n**Monitoraggio dei cicli della caldaia**: conta gli avvii della caldaia e segnala i cicli brevi.\n\n**Protezione**: se attiva, la caldaia resta accesa / spenta almeno per il tempo indicato, anche se nel frattempo cambia la richiesta delle stanze. Può ritardare il riscaldamento, quindi è disattivata per impostazione predefinita.\n\n**Riscalda ora**: il servizio `meross_boiler_sync.boost_now` (e il pulsante delle schede) alza temporaneamente l'obiettivo della stanza. Non parte in modalità estate, con una finestra aperta o con un sensore non aggiornato.\n\n**Preriscaldamento**: scalda la stanza per un orario stabilito e, in base alla velocità di riscaldamento appresa, calcola quando iniziare. Imposta il programma settimanale in *Programma di preriscaldamento* nel menu principale. Parte da solo, quindi è disattivato per impostazione predefinita.",
+        "data": {
+          "events_enabled": "Eventi e voci del registro",
+          "cycle_monitor_enabled": "Monitoraggio dei cicli della caldaia (sensori)",
+          "cycle_max_starts_per_hour": "Cicli brevi: avvii all'ora",
+          "cycle_min_avg_on_minutes": "Cicli brevi: limite inferiore del tempo medio di accensione (0 = non monitorato)",
+          "cycle_protection_enabled": "Protezione della caldaia (tempo minimo di accensione / spegnimento)",
+          "boiler_min_on_minutes": "Protezione: mantieni la caldaia accesa per almeno",
+          "boiler_min_off_minutes": "Protezione: mantieni la caldaia spenta per almeno",
+          "manual_boost_enabled": "Riscalda ora (obiettivo alzato)",
+          "manual_boost_minutes": "Riscalda ora: durata predefinita",
+          "manual_boost_offset": "Riscalda ora: aumento dell'obiettivo",
+          "preheat_enabled": "Preriscaldamento (programma e servizio)",
+          "preheat_max_minutes": "Preriscaldamento: avvio più anticipato prima dell'orario di fine",
+          "preheat_hold_minutes": "Preriscaldamento: mantieni l'obiettivo dopo l'orario di fine",
+          "preheat_default_rate": "Preriscaldamento: velocità di riscaldamento predefinita (finché non è appresa)",
+          "manual_boost_end_on_target": "Riscalda ora: termina quando la stanza raggiunge l'obiettivo alzato"
+        },
+        "data_description": {
+          "cycle_max_starts_per_hour": "Se la caldaia si è avviata così tante volte o più nell'ultima ora, il sensore Cicli brevi si attiva.",
+          "cycle_min_avg_on_minutes": "Se il tempo medio di accensione delle ultime 2 ore (da almeno 3 cicli) è più breve, segnala anche in questo caso.",
+          "cycle_protection_enabled": "La caldaia non viene spenta / riaccesa prima che sia trascorso il tempo minimo. Il Tempo minimo di commutazione (Impostazioni di base) continua ad applicarsi.",
+          "manual_boost_offset": "Di quanto viene alzato l'obiettivo della stanza durante Riscalda ora. La valvola viene aperta subito dal controllo valvole (se attivo per la stanza).",
+          "preheat_max_minutes": "Il preriscaldamento non parte mai prima di questo tempo, anche se la stanza è molto fredda (predefinito: 240 min).",
+          "preheat_default_rate": "Il plugin misura la velocità di riscaldamento di ogni stanza mentre scalda; finché non ha abbastanza campioni (circa 20 minuti di riscaldamento) usa questi gradi all'ora.",
+          "manual_boost_end_on_target": "Se disattivato, Riscalda ora dura per l'intera durata e mantiene l'obiettivo alzato."
+        }
+      },
+      "preheat": {
+        "title": "Programma di preriscaldamento",
+        "description": "Scegli la stanza di cui vuoi modificare il programma settimanale. Il preriscaldamento funziona solo se è attivato in Funzioni.",
+        "data": {
+          "room": "Stanza"
+        }
+      },
+      "preheat_menu": {
+        "title": "Preriscaldamento: {room}",
+        "description": "Programma di **{room}** (la stanza deve essere pronta per l'orario indicato):\n\n{entries}",
+        "menu_options": {
+          "preheat_add": "Aggiungi una riga",
+          "preheat_remove": "Rimuovi righe",
+          "init": "Torna al menu principale"
+        }
+      },
+      "preheat_add": {
+        "title": "Nuova riga del programma: {room}",
+        "description": "In quali giorni e per quando la stanza deve essere alla temperatura indicata. Il preriscaldamento parte con l'anticipo che serve per scaldare.",
+        "data": {
+          "days": "Giorni",
+          "time": "Pronta per le",
+          "temperature": "Temperatura obiettivo"
+        },
+        "data_description": {
+          "temperature": "L'obiettivo della stanza viene alzato a questo valore durante il preriscaldamento (l'obiettivo proprio della valvola non cambia se è più alto)."
+        }
+      },
+      "preheat_remove": {
+        "title": "Rimuovi righe del programma: {room}",
+        "description": "Spunta le righe da rimuovere.",
+        "data": {
+          "entries_to_remove": "Righe da rimuovere"
+        }
       }
     },
     "error": {
@@ -157,7 +224,8 @@
       "valve_in_use": "Questa valvola appartiene già a un’altra stanza.",
       "control_needs_sensor": "Il controllo valvole richiede un sensore di temperatura della stanza.",
       "invalid_date": "Data non valida, usa il formato MM-DD (es. 05-15).",
-      "release_ge_threshold": "Il rilascio deve essere inferiore alla soglia di spinta."
+      "release_ge_threshold": "Il rilascio deve essere inferiore alla soglia di spinta.",
+      "no_days": "Seleziona almeno un giorno."
     }
   },
   "entity": {
@@ -242,8 +310,77 @@
           "window_open_pending": {
             "name": "Finestra aperta, in attesa del ritardo"
           },
+          "temperature_trend": {
+            "name": "Variazione di temperatura (°C/ora, negli ultimi ~30 minuti)"
+          },
+          "valve_boost_starts_at": {
+            "name": "La spinta della valvola inizia alle (fine del tempo di attesa)"
+          },
+          "valve_boost_rest_until": {
+            "name": "La pausa termina alle (nessuna nuova spinta fino ad allora)"
+          },
+          "valve_boost_max_until": {
+            "name": "La spinta dura al massimo fino alle"
+          },
+          "window_open_pending_until": {
+            "name": "La finestra conta come aperta dalle"
+          },
           "room_name": {
             "name": "Nome della stanza"
+          },
+          "temperature_sensor": {
+            "name": "Sensore di temperatura della stanza"
+          },
+          "window_sensors": {
+            "name": "Sensori finestra"
+          },
+          "manual_boost_available": {
+            "name": "Riscalda ora disponibile (attivato)"
+          },
+          "manual_boost_active": {
+            "name": "Riscalda ora attivo"
+          },
+          "manual_boost_until": {
+            "name": "Riscalda ora dura fino alle"
+          },
+          "manual_boost_offset": {
+            "name": "Riscalda ora: aumento dell'obiettivo"
+          },
+          "manual_boost_default_minutes": {
+            "name": "Riscalda ora: durata predefinita (min)"
+          },
+          "manual_boost_default_offset": {
+            "name": "Riscalda ora: aumento predefinito (°C)"
+          },
+          "preheat_available": {
+            "name": "Preriscaldamento attivato"
+          },
+          "preheat_status": {
+            "name": "Stato del preriscaldamento",
+            "state": {
+              "scheduled": "Programmato",
+              "heating": "In preriscaldamento",
+              "ready": "Pronto, mantiene l'obiettivo",
+              "unreachable": "Non fa in tempo"
+            }
+          },
+          "preheat_start_at": {
+            "name": "Inizio del preriscaldamento"
+          },
+          "preheat_ready_by": {
+            "name": "Preriscaldamento: pronto per le"
+          },
+          "preheat_target": {
+            "name": "Temperatura obiettivo del preriscaldamento"
+          },
+          "preheat_source": {
+            "name": "Origine del preriscaldamento (programma / servizio)"
+          },
+          "heating_rate": {
+            "name": "Velocità di riscaldamento appresa (°C/h)"
+          },
+          "heating_rate_learned": {
+            "name": "La velocità di riscaldamento è stata appresa"
           }
         }
       },
@@ -282,6 +419,52 @@
             "name": "Termostato della caldaia"
           }
         }
+      },
+      "short_cycling": {
+        "name": "Cicli brevi",
+        "state": {
+          "on": "La caldaia fa cicli brevi",
+          "off": "OK"
+        },
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "Avvii nell'ultima ora"
+          },
+          "avg_on_minutes": {
+            "name": "Tempo medio di accensione (min)"
+          },
+          "max_starts_per_hour": {
+            "name": "Limite: avvii all'ora"
+          },
+          "min_avg_on_minutes": {
+            "name": "Limite: tempo medio di accensione (min)"
+          }
+        }
+      }
+    },
+    "sensor": {
+      "boiler_starts": {
+        "name": "Avvii della caldaia (24 h)",
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "Avvii nell'ultima ora"
+          },
+          "avg_on_minutes": {
+            "name": "Tempo medio di accensione (min, ultime 2 h)"
+          },
+          "avg_off_minutes": {
+            "name": "Tempo medio di spegnimento (min, ultime 2 h)"
+          },
+          "last_start": {
+            "name": "Ultimo avvio"
+          },
+          "last_stop": {
+            "name": "Ultimo arresto"
+          },
+          "cycles": {
+            "name": "Cicli (ultime 12 h)"
+          }
+        }
       }
     }
   },
@@ -293,6 +476,90 @@
     "stale_outdoor": {
       "title": "Il sensore di temperatura esterna non si aggiorna",
       "description": "Il sensore esterno {sensor} non comunica da oltre {hours} ore (la batteria potrebbe essere scarica). La modalità estate resta disattivata finché non torna a comunicare, quindi il riscaldamento resta consentito. Questa notifica scompare appena il sensore torna a comunicare."
+    }
+  },
+  "selector": {
+    "preheat_days": {
+      "options": {
+        "0": "Lunedì",
+        "1": "Martedì",
+        "2": "Mercoledì",
+        "3": "Giovedì",
+        "4": "Venerdì",
+        "5": "Sabato",
+        "6": "Domenica"
+      }
+    }
+  },
+  "services": {
+    "boost_now": {
+      "name": "Riscalda ora",
+      "description": "Alza temporaneamente l'obiettivo della stanza (predefinito: +2,0 °C per 60 minuti). Non parte in modalità estate, con una finestra aperta o con un sensore non aggiornato.",
+      "fields": {
+        "minutes": {
+          "name": "Durata",
+          "description": "Quanti minuti dura (predefinito: impostato in Funzioni)."
+        },
+        "offset": {
+          "name": "Aumento",
+          "description": "Di quanti °C alzare l'obiettivo (predefinito: impostato in Funzioni)."
+        }
+      }
+    },
+    "cancel_boost_now": {
+      "name": "Interrompi Riscalda ora",
+      "description": "Termina Riscalda ora in anticipo."
+    },
+    "preheat": {
+      "name": "Preriscaldamento",
+      "description": "Preriscaldamento singolo: la stanza raggiunge la temperatura obiettivo per l'orario indicato.",
+      "fields": {
+        "ready_by": {
+          "name": "Pronta per le",
+          "description": "Un orario (la prossima volta che si presenta) oppure una data e un orario."
+        },
+        "target_temperature": {
+          "name": "Temperatura obiettivo",
+          "description": "Scalda la stanza fino a questo valore."
+        },
+        "hold_minutes": {
+          "name": "Mantenimento",
+          "description": "Per quanti minuti mantenere l'obiettivo dopo l'orario di fine (predefinito: impostato in Funzioni)."
+        }
+      }
+    },
+    "cancel_preheat": {
+      "name": "Annulla preriscaldamento",
+      "description": "Cancella la richiesta singola e salta il preriscaldamento programmato in corso o successivo."
+    }
+  },
+  "exceptions": {
+    "boost_disabled": {
+      "message": "Riscalda ora è disattivato (Impostazioni -> Funzioni)."
+    },
+    "boost_summer": {
+      "message": "Riscalda ora non può partire in modalità estate."
+    },
+    "boost_window": {
+      "message": "{room}: Riscalda ora non può partire con una finestra aperta."
+    },
+    "boost_stale": {
+      "message": "{room}: il termometro non è aggiornato, quindi Riscalda ora non può partire."
+    },
+    "boost_inactive": {
+      "message": "{room}: nella stanza non c'è nessuna valvola attivata e raggiungibile."
+    },
+    "preheat_disabled": {
+      "message": "Il preriscaldamento è disattivato (Impostazioni -> Funzioni)."
+    },
+    "preheat_past": {
+      "message": "{room}: quell'orario è già passato."
+    },
+    "preheat_target": {
+      "message": "{room}: la temperatura obiettivo deve essere compresa tra 5 e 30 °C."
+    },
+    "not_a_room": {
+      "message": "{entity_id} non è un sensore di richiesta di calore di una stanza di Meross Boiler Sync."
     }
   }
 }

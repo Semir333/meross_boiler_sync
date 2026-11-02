@@ -24,7 +24,9 @@
           "remove_room": "Raum entfernen",
           "settings": "Grundeinstellungen",
           "summer": "Sommermodus",
-          "done": "Speichern und beenden"
+          "done": "Speichern und beenden",
+          "features": "Funktionen (Ereignisse, Schutz, Jetzt heizen, Vorheizen)",
+          "preheat": "Vorheiz-Zeitplan (pro Raum)"
         }
       },
       "add_room": {
@@ -131,7 +133,7 @@
           "max_boost_rest_minutes": "Wie lange nach Erreichen der Höchstdauer keine neue Anhebung gestartet wird. Erreicht der Raum sein Ziel, wird dies zurückgesetzt.",
           "window_open_delay": "Standard für alle Räume: wie lange ein Fenster offen sein muss, bevor die Heizung für diesen Raum pausiert. Kürzeres Lüften ändert nichts.",
           "valve_dry_run": "Wenn aktiv, protokolliert die Ventilregelung nur, was sie tun würde (Präfix [PRÓBAÜZEM]), und ändert nichts an den Ventilen. Empfohlen für den ersten Live-Test.",
-          "register_card": "Wenn aktiv, lädt die Integration ihre Karte, damit sie in der Liste „Karte hinzufügen“ erscheint (sie fügt nie selbstständig eine Karte zu einem Dashboard hinzu). Das Ausschalten wirkt nach einem Neustart von Home Assistant; dann kannst du die Ressource manuell hinzufügen (siehe README)."
+          "register_card": "Wenn aktiv, trägt die Integration die Kartendatei in die Dashboard-Ressourcen ein (Einstellungen → Dashboards → Ressourcen) und hält deren Version aktuell, sodass sie in der Liste „Karte hinzufügen“ erscheint (sie fügt nie selbstständig eine Karte zu einem Dashboard hinzu). Bei Dashboards im YAML-Modus musst du die Ressource manuell hinzufügen (siehe README). Wenn deaktiviert, rührt die Integration die Ressourcen nicht an."
         }
       },
       "summer": {
@@ -147,6 +149,71 @@
           "summer_start": "Z. B. 05-15",
           "summer_end": "Z. B. 09-15"
         }
+      },
+      "features": {
+        "title": "Funktionen",
+        "description": "Jede Funktion lässt sich einzeln ein- und ausschalten.\n\n**Ereignisse**: Das Plugin sendet `meross_boiler_sync_event`-Ereignisse (Ventilanhebung, Fenster, veralteter Sensor, Kurzzyklen, Jetzt heizen, Vorheizen), die du in Automationen nutzen kannst; sie sind auch im HA-Logbuch zu lesen.\n\n**Kesselzyklen überwachen**: zählt die Kesselstarts und meldet Kurzzyklen.\n\n**Schutz**: Wenn aktiv, bleibt der Kessel mindestens die angegebene Zeit ein- bzw. ausgeschaltet, auch wenn sich der Wärmebedarf der Räume in der Zwischenzeit ändert. Das kann die Heizung verzögern, daher ist es standardmäßig aus.\n\n**Jetzt heizen**: Der Dienst `meross_boiler_sync.boost_now` (und die Schaltfläche der Karten) hebt das Ziel des Raums vorübergehend an. Er startet nicht im Sommermodus, bei offenem Fenster oder veraltetem Sensor.\n\n**Vorheizen**: Heizt den Raum zu einer bestimmten Zeit auf und berechnet anhand der gelernten Aufheizrate, wann es beginnen muss. Den Wochenplan stellst du im Hauptmenü unter *Vorheiz-Zeitplan* ein. Es startet von selbst, daher ist es standardmäßig aus.",
+        "data": {
+          "events_enabled": "Ereignisse und Logbucheinträge",
+          "cycle_monitor_enabled": "Kesselzyklen überwachen (Sensoren)",
+          "cycle_max_starts_per_hour": "Kurzzyklen: Starts pro Stunde",
+          "cycle_min_avg_on_minutes": "Kurzzyklen: Untergrenze der mittleren Einschaltdauer (0 = nicht überwacht)",
+          "cycle_protection_enabled": "Kesselschutz (minimale Ein- / Ausschaltzeit)",
+          "boiler_min_on_minutes": "Schutz: Kessel mindestens so lange eingeschaltet lassen",
+          "boiler_min_off_minutes": "Schutz: Kessel mindestens so lange ausgeschaltet lassen",
+          "manual_boost_enabled": "Jetzt heizen (angehobenes Ziel)",
+          "manual_boost_minutes": "Jetzt heizen: Standarddauer",
+          "manual_boost_offset": "Jetzt heizen: Anhebung des Ziels",
+          "preheat_enabled": "Vorheizen (Zeitplan und Dienst)",
+          "preheat_max_minutes": "Vorheizen: frühester Start vor der Fertigzeit",
+          "preheat_hold_minutes": "Vorheizen: Ziel nach der Fertigzeit halten",
+          "preheat_default_rate": "Vorheizen: Standard-Aufheizrate (bis sie gelernt ist)",
+          "manual_boost_end_on_target": "Jetzt heizen: beenden, wenn der Raum das angehobene Ziel erreicht"
+        },
+        "data_description": {
+          "cycle_max_starts_per_hour": "Wenn der Kessel in der letzten Stunde so oft oder öfter gestartet ist, schaltet sich der Sensor „Kurzzyklen“ ein.",
+          "cycle_min_avg_on_minutes": "Ist die mittlere Einschaltdauer der letzten 2 Stunden (aus mindestens 3 Zyklen) kürzer, meldet er ebenfalls.",
+          "cycle_protection_enabled": "Der Kessel wird nicht vor Ablauf der Mindestzeit aus- bzw. wieder eingeschaltet. Die Mindestschaltzeit (Grundeinstellungen) gilt weiterhin.",
+          "manual_boost_offset": "Um wie viel das Ziel des Raums während „Jetzt heizen“ angehoben wird. Das Ventil wird von der Ventilsteuerung (falls für den Raum aktiv) sofort geöffnet.",
+          "preheat_max_minutes": "Das Vorheizen beginnt nie früher als das, auch wenn der Raum sehr kalt ist (Standard: 240 Min.).",
+          "preheat_default_rate": "Das Plugin misst die Aufheizrate jedes Raums beim Heizen; bis genug Messwerte vorliegen (etwa 20 Minuten Heizen), rechnet es mit dieser Zahl an Grad pro Stunde.",
+          "manual_boost_end_on_target": "Wenn aus, dauert „Jetzt heizen“ die volle Dauer und hält das angehobene Ziel."
+        }
+      },
+      "preheat": {
+        "title": "Vorheiz-Zeitplan",
+        "description": "Wähle den Raum, dessen Wochenplan du bearbeiten möchtest. Das Vorheizen läuft nur, wenn es unter „Funktionen“ eingeschaltet ist.",
+        "data": {
+          "room": "Raum"
+        }
+      },
+      "preheat_menu": {
+        "title": "Vorheizen: {room}",
+        "description": "Zeitplan von **{room}** (der Raum soll zur angegebenen Zeit fertig sein):\n\n{entries}",
+        "menu_options": {
+          "preheat_add": "Zeile hinzufügen",
+          "preheat_remove": "Zeilen entfernen",
+          "init": "Zurück zum Hauptmenü"
+        }
+      },
+      "preheat_add": {
+        "title": "Neue Zeitplanzeile: {room}",
+        "description": "An welchen Tagen und bis wann der Raum die angegebene Temperatur haben soll. Das Vorheizen beginnt entsprechend früher, so lange das Aufheizen dauert.",
+        "data": {
+          "days": "Tage",
+          "time": "Fertig bis",
+          "temperature": "Zieltemperatur"
+        },
+        "data_description": {
+          "temperature": "Das Ziel des Raums wird beim Vorheizen auf diesen Wert angehoben (das eigene Ziel des Ventils bleibt unverändert, wenn es höher ist)."
+        }
+      },
+      "preheat_remove": {
+        "title": "Zeitplanzeilen entfernen: {room}",
+        "description": "Wähle die Zeilen aus, die entfernt werden sollen.",
+        "data": {
+          "entries_to_remove": "Zu entfernende Zeilen"
+        }
       }
     },
     "error": {
@@ -157,7 +224,8 @@
       "valve_in_use": "Dieses Ventil gehört bereits zu einem anderen Raum.",
       "control_needs_sensor": "Die Ventilregelung erfordert einen Raum-Temperatursensor.",
       "invalid_date": "Ungültiges Datum, Format MM-DD verwenden (z. B. 05-15).",
-      "release_ge_threshold": "Die Freigabe muss kleiner als die Schwelle für die Anhebung sein."
+      "release_ge_threshold": "Die Freigabe muss kleiner als die Schwelle für die Anhebung sein.",
+      "no_days": "Wähle mindestens einen Tag aus."
     }
   },
   "entity": {
@@ -242,8 +310,77 @@
           "window_open_pending": {
             "name": "Fenster offen, wartet auf die Verzögerung"
           },
+          "temperature_trend": {
+            "name": "Temperaturänderung (°C/Stunde, aus den letzten ca. 30 Minuten)"
+          },
+          "valve_boost_starts_at": {
+            "name": "Ventilanhebung beginnt um (Ende der Wartezeit)"
+          },
+          "valve_boost_rest_until": {
+            "name": "Pause endet um (bis dahin keine neue Anhebung)"
+          },
+          "valve_boost_max_until": {
+            "name": "Anhebung dauert höchstens bis"
+          },
+          "window_open_pending_until": {
+            "name": "Fenster gilt als offen ab"
+          },
           "room_name": {
             "name": "Raumname"
+          },
+          "temperature_sensor": {
+            "name": "Raum-Temperatursensor"
+          },
+          "window_sensors": {
+            "name": "Fenstersensoren"
+          },
+          "manual_boost_available": {
+            "name": "Jetzt heizen verfügbar (eingeschaltet)"
+          },
+          "manual_boost_active": {
+            "name": "Jetzt heizen aktiv"
+          },
+          "manual_boost_until": {
+            "name": "Jetzt heizen dauert bis"
+          },
+          "manual_boost_offset": {
+            "name": "Jetzt heizen: Anhebung des Ziels"
+          },
+          "manual_boost_default_minutes": {
+            "name": "Jetzt heizen: Standarddauer (Min.)"
+          },
+          "manual_boost_default_offset": {
+            "name": "Jetzt heizen: Standardanhebung (°C)"
+          },
+          "preheat_available": {
+            "name": "Vorheizen eingeschaltet"
+          },
+          "preheat_status": {
+            "name": "Status des Vorheizens",
+            "state": {
+              "scheduled": "Geplant",
+              "heating": "Heizt vor",
+              "ready": "Fertig, hält das Ziel",
+              "unreachable": "Schafft es nicht rechtzeitig"
+            }
+          },
+          "preheat_start_at": {
+            "name": "Beginn des Vorheizens"
+          },
+          "preheat_ready_by": {
+            "name": "Vorheizen: fertig bis"
+          },
+          "preheat_target": {
+            "name": "Zieltemperatur des Vorheizens"
+          },
+          "preheat_source": {
+            "name": "Quelle des Vorheizens (Zeitplan / Dienst)"
+          },
+          "heating_rate": {
+            "name": "Gelernte Aufheizrate (°C/h)"
+          },
+          "heating_rate_learned": {
+            "name": "Aufheizrate wurde gelernt"
           }
         }
       },
@@ -282,6 +419,52 @@
             "name": "Kessel-Thermostat"
           }
         }
+      },
+      "short_cycling": {
+        "name": "Kurzzyklen",
+        "state": {
+          "on": "Der Kessel taktet",
+          "off": "OK"
+        },
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "Starts in der letzten Stunde"
+          },
+          "avg_on_minutes": {
+            "name": "Mittlere Einschaltdauer (Min.)"
+          },
+          "max_starts_per_hour": {
+            "name": "Grenzwert: Starts pro Stunde"
+          },
+          "min_avg_on_minutes": {
+            "name": "Grenzwert: mittlere Einschaltdauer (Min.)"
+          }
+        }
+      }
+    },
+    "sensor": {
+      "boiler_starts": {
+        "name": "Kesselstarts (24 h)",
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "Starts in der letzten Stunde"
+          },
+          "avg_on_minutes": {
+            "name": "Mittlere Einschaltdauer (Min., letzte 2 h)"
+          },
+          "avg_off_minutes": {
+            "name": "Mittlere Ausschaltdauer (Min., letzte 2 h)"
+          },
+          "last_start": {
+            "name": "Letzter Start"
+          },
+          "last_stop": {
+            "name": "Letzter Stopp"
+          },
+          "cycles": {
+            "name": "Zyklen (letzte 12 h)"
+          }
+        }
       }
     }
   },
@@ -293,6 +476,90 @@
     "stale_outdoor": {
       "title": "Außentemperatursensor meldet nicht mehr",
       "description": "Der Außensensor {sensor} hat seit über {hours} Stunden nichts gemeldet (möglicherweise ist die Batterie leer). Der Sommermodus bleibt ausgeschaltet, bis er wieder meldet, daher bleibt das Heizen erlaubt. Dieser Hinweis verschwindet, sobald der Sensor wieder meldet."
+    }
+  },
+  "selector": {
+    "preheat_days": {
+      "options": {
+        "0": "Montag",
+        "1": "Dienstag",
+        "2": "Mittwoch",
+        "3": "Donnerstag",
+        "4": "Freitag",
+        "5": "Samstag",
+        "6": "Sonntag"
+      }
+    }
+  },
+  "services": {
+    "boost_now": {
+      "name": "Jetzt heizen",
+      "description": "Hebt das Ziel des Raums vorübergehend an (Standard: +2,0 °C für 60 Minuten). Es startet nicht im Sommermodus, bei offenem Fenster oder veraltetem Sensor.",
+      "fields": {
+        "minutes": {
+          "name": "Dauer",
+          "description": "Wie viele Minuten es dauert (Standard: unter „Funktionen“ eingestellt)."
+        },
+        "offset": {
+          "name": "Anhebung",
+          "description": "Um wie viel °C das Ziel angehoben wird (Standard: unter „Funktionen“ eingestellt)."
+        }
+      }
+    },
+    "cancel_boost_now": {
+      "name": "Jetzt heizen beenden",
+      "description": "Beendet „Jetzt heizen“ vorzeitig."
+    },
+    "preheat": {
+      "name": "Vorheizen",
+      "description": "Einmaliges Vorheizen: Der Raum erreicht die Zieltemperatur bis zur angegebenen Zeit.",
+      "fields": {
+        "ready_by": {
+          "name": "Fertig bis",
+          "description": "Eine Uhrzeit (das nächste Mal, wenn sie eintritt) oder Datum und Uhrzeit."
+        },
+        "target_temperature": {
+          "name": "Zieltemperatur",
+          "description": "Auf diesen Wert wird der Raum aufgeheizt."
+        },
+        "hold_minutes": {
+          "name": "Halten",
+          "description": "Wie viele Minuten das Ziel nach der Fertigzeit gehalten wird (Standard: unter „Funktionen“ eingestellt)."
+        }
+      }
+    },
+    "cancel_preheat": {
+      "name": "Vorheizen abbrechen",
+      "description": "Löscht die einmalige Anfrage und überspringt das laufende oder nächste geplante Vorheizen."
+    }
+  },
+  "exceptions": {
+    "boost_disabled": {
+      "message": "Jetzt heizen ist ausgeschaltet (Einstellungen -> Funktionen)."
+    },
+    "boost_summer": {
+      "message": "Jetzt heizen kann im Sommermodus nicht starten."
+    },
+    "boost_window": {
+      "message": "{room}: Jetzt heizen kann bei offenem Fenster nicht starten."
+    },
+    "boost_stale": {
+      "message": "{room}: Das Thermometer ist veraltet, daher kann Jetzt heizen nicht starten."
+    },
+    "boost_inactive": {
+      "message": "{room}: Im Raum gibt es kein eingeschaltetes, erreichbares Ventil."
+    },
+    "preheat_disabled": {
+      "message": "Vorheizen ist ausgeschaltet (Einstellungen -> Funktionen)."
+    },
+    "preheat_past": {
+      "message": "{room}: Dieser Zeitpunkt ist bereits vorbei."
+    },
+    "preheat_target": {
+      "message": "{room}: Die Zieltemperatur muss zwischen 5 und 30 °C liegen."
+    },
+    "not_a_room": {
+      "message": "{entity_id} ist kein Wärmebedarfssensor eines Raums von Meross Boiler Sync."
     }
   }
 }

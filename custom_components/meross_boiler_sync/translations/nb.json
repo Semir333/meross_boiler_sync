@@ -24,7 +24,9 @@
           "remove_room": "Fjern rom",
           "settings": "Grunninnstillinger",
           "summer": "Sommermodus",
-          "done": "Lagre og avslutt"
+          "done": "Lagre og avslutt",
+          "features": "Funksjoner (hendelser, beskyttelse, Varm nå, forvarming)",
+          "preheat": "Forvarmingsplan (per rom)"
         }
       },
       "add_room": {
@@ -131,7 +133,7 @@
           "max_boost_rest_minutes": "Hvor lenge ingen nytt løft startes etter at maksimal varighet er nådd. Nullstilles når rommet når målet.",
           "window_open_delay": "Standard for alle rom: hvor lenge et vindu må stå åpent før oppvarmingen i det rommet settes på pause. Kortere lufting endrer ingenting.",
           "valve_dry_run": "Når dette er på, logger ventilstyringen bare hva den ville gjort (prefiks [PRÓBAÜZEM]) og endrer ingenting på ventilene. Anbefalt for den første ekte testen.",
-          "register_card": "Når dette er på, laster integrasjonen inn kortet sitt slik at det vises i listen «Legg til kort» (den legger aldri selv til et kort på et dashbord). Å slå det av trer i kraft etter en omstart av Home Assistant; deretter kan du legge til ressursen manuelt (se README)."
+          "register_card": "Når dette er på, legger integrasjonen kortfilen til i dashbordressursene (Innstillinger → Dashbord → Ressurser) og holder versjonen oppdatert, slik at kortet vises i listen «Legg til kort» (den legger aldri selv til et kort på et dashbord). Med dashbord i YAML-modus må du legge til ressursen manuelt (se README). Når det er av, rører ikke integrasjonen ressursene."
         }
       },
       "summer": {
@@ -147,6 +149,71 @@
           "summer_start": "F.eks. 05-15",
           "summer_end": "F.eks. 09-15"
         }
+      },
+      "features": {
+        "title": "Funksjoner",
+        "description": "Hver funksjon kan slås av og på separat.\n\n**Hendelser**: pluginen sender `meross_boiler_sync_event`-hendelser (ventilboost, vindu, utdatert sensor, korte sykluser, Varm nå, forvarming) som du kan bruke i automatiseringer; de kan også leses i HA-loggboken.\n\n**Overvåking av kjelesykluser**: teller kjelestarter og varsler om korte sykluser.\n\n**Beskyttelse**: når den er på, forblir kjelen på / av i minst den oppgitte tiden, selv om varmebehovet i rommene endrer seg i mellomtiden. Dette kan forsinke oppvarmingen, derfor er den av som standard.\n\n**Varm nå**: tjenesten `meross_boiler_sync.boost_now` (og knappen på kortene) hever midlertidig målet for rommet. Den starter ikke i sommermodus, med åpent vindu eller utdatert sensor.\n\n**Forvarming**: varmer opp rommet til et gitt tidspunkt og regner ut fra den lærte oppvarmingshastigheten ut når den må starte. Sett opp ukeplanen under *Forvarmingsplan* i hovedmenyen. Den starter av seg selv, derfor er den av som standard.",
+        "data": {
+          "events_enabled": "Hendelser og loggbokoppføringer",
+          "cycle_monitor_enabled": "Overvåking av kjelesykluser (sensorer)",
+          "cycle_max_starts_per_hour": "Korte sykluser: starter per time",
+          "cycle_min_avg_on_minutes": "Korte sykluser: nedre grense for gjennomsnittlig på-tid (0 = ikke overvåket)",
+          "cycle_protection_enabled": "Kjelebeskyttelse (minimum på- / av-tid)",
+          "boiler_min_on_minutes": "Beskyttelse: hold kjelen på i minst",
+          "boiler_min_off_minutes": "Beskyttelse: hold kjelen av i minst",
+          "manual_boost_enabled": "Varm nå (hevet mål)",
+          "manual_boost_minutes": "Varm nå: standard varighet",
+          "manual_boost_offset": "Varm nå: heving av målet",
+          "preheat_enabled": "Forvarming (plan og tjeneste)",
+          "preheat_max_minutes": "Forvarming: tidligste start før klartidspunktet",
+          "preheat_hold_minutes": "Forvarming: hold målet etter klartidspunktet",
+          "preheat_default_rate": "Forvarming: standard oppvarmingshastighet (til den er lært)",
+          "manual_boost_end_on_target": "Varm nå: avslutt når rommet når det hevede målet"
+        },
+        "data_description": {
+          "cycle_max_starts_per_hour": "Hvis kjelen har startet så mange ganger eller flere den siste timen, slår sensoren Korte sykluser seg på.",
+          "cycle_min_avg_on_minutes": "Hvis gjennomsnittlig på-tid de siste 2 timene (fra minst 3 sykluser) er kortere, varsler den også.",
+          "cycle_protection_enabled": "Kjelen slås ikke av / på igjen før minimumstiden er gått. Minimum koblingstid (Grunninnstillinger) gjelder fortsatt.",
+          "manual_boost_offset": "Hvor mye målet for rommet heves under Varm nå. Ventilen åpnes straks av ventilstyringen (hvis den er slått på for rommet).",
+          "preheat_max_minutes": "Forvarmingen starter aldri tidligere enn dette, selv om rommet er veldig kaldt (standard: 240 min).",
+          "preheat_default_rate": "Pluginen måler oppvarmingshastigheten til hvert rom mens det varmes; til den har nok målinger (omtrent 20 minutters oppvarming) bruker den dette antallet grader per time.",
+          "manual_boost_end_on_target": "Når den er av, varer Varm nå hele varigheten og holder det hevede målet."
+        }
+      },
+      "preheat": {
+        "title": "Forvarmingsplan",
+        "description": "Velg rommet du vil redigere ukeplanen for. Forvarming fungerer bare når den er slått på under Funksjoner.",
+        "data": {
+          "room": "Rom"
+        }
+      },
+      "preheat_menu": {
+        "title": "Forvarming: {room}",
+        "description": "Plan for **{room}** (rommet skal være klart til det oppgitte tidspunktet):\n\n{entries}",
+        "menu_options": {
+          "preheat_add": "Legg til en rad",
+          "preheat_remove": "Fjern rader",
+          "init": "Tilbake til hovedmenyen"
+        }
+      },
+      "preheat_add": {
+        "title": "Ny planrad: {room}",
+        "description": "Hvilke dager og til når rommet skal ha den oppgitte temperaturen. Forvarmingen starter så mye tidligere som oppvarmingen krever.",
+        "data": {
+          "days": "Dager",
+          "time": "Klart til",
+          "temperature": "Måltemperatur"
+        },
+        "data_description": {
+          "temperature": "Målet for rommet heves til dette under forvarming (ventilens eget mål endres ikke hvis det er høyere)."
+        }
+      },
+      "preheat_remove": {
+        "title": "Fjern planrader: {room}",
+        "description": "Kryss av for radene som skal fjernes.",
+        "data": {
+          "entries_to_remove": "Rader som skal fjernes"
+        }
       }
     },
     "error": {
@@ -157,7 +224,8 @@
       "valve_in_use": "Denne ventilen tilhører allerede et annet rom.",
       "control_needs_sensor": "Ventilstyring krever en romtemperatursensor.",
       "invalid_date": "Ugyldig dato, bruk MM-DD (f.eks. 05-15).",
-      "release_ge_threshold": "Frigjøringen må være mindre enn terskelen for ventilløft."
+      "release_ge_threshold": "Frigjøringen må være mindre enn terskelen for ventilløft.",
+      "no_days": "Velg minst én dag."
     }
   },
   "entity": {
@@ -242,8 +310,77 @@
           "window_open_pending": {
             "name": "Vindu åpent, venter på forsinkelsen"
           },
+          "temperature_trend": {
+            "name": "Temperaturendring (°C/time, fra de siste ~30 minuttene)"
+          },
+          "valve_boost_starts_at": {
+            "name": "Ventilboost starter kl. (slutt på ventetiden)"
+          },
+          "valve_boost_rest_until": {
+            "name": "Hvilen slutter kl. (ingen ny boost før da)"
+          },
+          "valve_boost_max_until": {
+            "name": "Boosten varer høyst til"
+          },
+          "window_open_pending_until": {
+            "name": "Vinduet regnes som åpent fra"
+          },
           "room_name": {
             "name": "Romnavn"
+          },
+          "temperature_sensor": {
+            "name": "Romtemperatursensor"
+          },
+          "window_sensors": {
+            "name": "Vindussensorer"
+          },
+          "manual_boost_available": {
+            "name": "Varm nå tilgjengelig (slått på)"
+          },
+          "manual_boost_active": {
+            "name": "Varm nå aktiv"
+          },
+          "manual_boost_until": {
+            "name": "Varm nå varer til"
+          },
+          "manual_boost_offset": {
+            "name": "Varm nå: heving av målet"
+          },
+          "manual_boost_default_minutes": {
+            "name": "Varm nå: standard varighet (min)"
+          },
+          "manual_boost_default_offset": {
+            "name": "Varm nå: standard heving (°C)"
+          },
+          "preheat_available": {
+            "name": "Forvarming slått på"
+          },
+          "preheat_status": {
+            "name": "Forvarmingsstatus",
+            "state": {
+              "scheduled": "Planlagt",
+              "heating": "Forvarmer",
+              "ready": "Klart, holder målet",
+              "unreachable": "Rekker det ikke i tide"
+            }
+          },
+          "preheat_start_at": {
+            "name": "Start for forvarming"
+          },
+          "preheat_ready_by": {
+            "name": "Forvarming: klart til"
+          },
+          "preheat_target": {
+            "name": "Måltemperatur for forvarming"
+          },
+          "preheat_source": {
+            "name": "Kilde for forvarming (plan / tjeneste)"
+          },
+          "heating_rate": {
+            "name": "Lært oppvarmingshastighet (°C/t)"
+          },
+          "heating_rate_learned": {
+            "name": "Oppvarmingshastigheten er lært"
           }
         }
       },
@@ -282,6 +419,52 @@
             "name": "Kjeletermostat"
           }
         }
+      },
+      "short_cycling": {
+        "name": "Korte sykluser",
+        "state": {
+          "on": "Kjelen går i korte sykluser",
+          "off": "OK"
+        },
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "Starter den siste timen"
+          },
+          "avg_on_minutes": {
+            "name": "Gjennomsnittlig på-tid (min)"
+          },
+          "max_starts_per_hour": {
+            "name": "Grense: starter per time"
+          },
+          "min_avg_on_minutes": {
+            "name": "Grense: gjennomsnittlig på-tid (min)"
+          }
+        }
+      }
+    },
+    "sensor": {
+      "boiler_starts": {
+        "name": "Kjelestarter (24 t)",
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "Starter den siste timen"
+          },
+          "avg_on_minutes": {
+            "name": "Gjennomsnittlig på-tid (min, siste 2 t)"
+          },
+          "avg_off_minutes": {
+            "name": "Gjennomsnittlig av-tid (min, siste 2 t)"
+          },
+          "last_start": {
+            "name": "Siste start"
+          },
+          "last_stop": {
+            "name": "Siste stopp"
+          },
+          "cycles": {
+            "name": "Sykluser (siste 12 t)"
+          }
+        }
       }
     }
   },
@@ -293,6 +476,90 @@
     "stale_outdoor": {
       "title": "Utetemperatursensoren rapporterer ikke lenger",
       "description": "Utesensoren {sensor} har ikke rapportert på over {hours} timer (batteriet kan være tomt). Sommermodus forblir av til den rapporterer igjen, så oppvarming er fortsatt tillatt. Dette varselet forsvinner når sensoren rapporterer igjen."
+    }
+  },
+  "selector": {
+    "preheat_days": {
+      "options": {
+        "0": "Mandag",
+        "1": "Tirsdag",
+        "2": "Onsdag",
+        "3": "Torsdag",
+        "4": "Fredag",
+        "5": "Lørdag",
+        "6": "Søndag"
+      }
+    }
+  },
+  "services": {
+    "boost_now": {
+      "name": "Varm nå",
+      "description": "Hever midlertidig målet for rommet (standard: +2,0 °C i 60 minutter). Den starter ikke i sommermodus, med åpent vindu eller utdatert sensor.",
+      "fields": {
+        "minutes": {
+          "name": "Varighet",
+          "description": "Hvor mange minutter det varer (standard: settes under Funksjoner)."
+        },
+        "offset": {
+          "name": "Heving",
+          "description": "Hvor mange °C målet heves med (standard: settes under Funksjoner)."
+        }
+      }
+    },
+    "cancel_boost_now": {
+      "name": "Stopp Varm nå",
+      "description": "Avslutter Varm nå tidlig."
+    },
+    "preheat": {
+      "name": "Forvarming",
+      "description": "Engangsforvarming: rommet når måltemperaturen til det oppgitte tidspunktet.",
+      "fields": {
+        "ready_by": {
+          "name": "Klart til",
+          "description": "Et klokkeslett (neste gang det inntreffer) eller en dato og et klokkeslett."
+        },
+        "target_temperature": {
+          "name": "Måltemperatur",
+          "description": "Varm opp rommet til dette."
+        },
+        "hold_minutes": {
+          "name": "Holding",
+          "description": "Hvor mange minutter målet holdes etter klartidspunktet (standard: settes under Funksjoner)."
+        }
+      }
+    },
+    "cancel_preheat": {
+      "name": "Avbryt forvarming",
+      "description": "Fjerner engangsforespørselen og hopper over den pågående eller neste planlagte forvarmingen."
+    }
+  },
+  "exceptions": {
+    "boost_disabled": {
+      "message": "Varm nå er slått av (Innstillinger -> Funksjoner)."
+    },
+    "boost_summer": {
+      "message": "Varm nå kan ikke starte i sommermodus."
+    },
+    "boost_window": {
+      "message": "{room}: Varm nå kan ikke starte med åpent vindu."
+    },
+    "boost_stale": {
+      "message": "{room}: termometeret er utdatert, så Varm nå kan ikke starte."
+    },
+    "boost_inactive": {
+      "message": "{room}: det finnes ingen påslått, nåbar ventil i rommet."
+    },
+    "preheat_disabled": {
+      "message": "Forvarming er slått av (Innstillinger -> Funksjoner)."
+    },
+    "preheat_past": {
+      "message": "{room}: det tidspunktet har allerede passert."
+    },
+    "preheat_target": {
+      "message": "{room}: måltemperaturen må være mellom 5 og 30 °C."
+    },
+    "not_a_room": {
+      "message": "{entity_id} er ikke en sensor for varmebehov i et rom i Meross Boiler Sync."
     }
   }
 }

@@ -24,7 +24,9 @@
           "remove_room": "Eliminar habitación",
           "settings": "Ajustes básicos",
           "summer": "Modo verano",
-          "done": "Guardar y salir"
+          "done": "Guardar y salir",
+          "features": "Funciones (eventos, protección, Calentar ahora, precalentamiento)",
+          "preheat": "Programa de precalentamiento (por habitación)"
         }
       },
       "add_room": {
@@ -131,7 +133,7 @@
           "max_boost_rest_minutes": "Cuánto tiempo no se inicia un nuevo refuerzo tras alcanzar la duración máxima. Se reinicia cuando la habitación alcanza su objetivo.",
           "window_open_delay": "Predeterminado para todas las habitaciones: cuánto tiempo debe estar abierta una ventana antes de pausar la calefacción de esa habitación. Una ventilación más corta no cambia nada.",
           "valve_dry_run": "Si está activado, el control de válvulas solo registra lo que haría (prefijo [PRÓBAÜZEM]) y no modifica nada en las válvulas. Recomendado para la primera prueba real.",
-          "register_card": "Si está activado, la integración carga su tarjeta para que aparezca en la lista «Añadir tarjeta» (nunca añade una tarjeta a un panel por sí sola). Desactivarlo surte efecto tras reiniciar Home Assistant; después puedes añadir el recurso manualmente (consulta el README)."
+          "register_card": "Si está activado, la integración añade el archivo de la tarjeta a los recursos del panel (Ajustes → Paneles → Recursos) y mantiene su versión actualizada, para que aparezca en la lista «Añadir tarjeta» (nunca añade una tarjeta a un panel por sí misma). Con paneles en modo YAML tienes que añadir el recurso manualmente (consulta el README). Si está desactivado, la integración no toca los recursos."
         }
       },
       "summer": {
@@ -147,6 +149,71 @@
           "summer_start": "Ej. 05-15",
           "summer_end": "Ej. 09-15"
         }
+      },
+      "features": {
+        "title": "Funciones",
+        "description": "Cada función se puede activar y desactivar por separado.\n\n**Eventos**: el plugin envía eventos `meross_boiler_sync_event` (refuerzo de válvula, ventana, sensor desactualizado, ciclos cortos, Calentar ahora, precalentamiento) que puedes usar en automatizaciones; también se pueden leer en el registro de HA.\n\n**Supervisión de ciclos de la caldera**: cuenta los arranques de la caldera y avisa de los ciclos cortos.\n\n**Protección**: si está activada, la caldera permanece encendida / apagada al menos el tiempo indicado aunque la demanda de las habitaciones cambie entretanto. Puede retrasar la calefacción, por eso está desactivada por defecto.\n\n**Calentar ahora**: el servicio `meross_boiler_sync.boost_now` (y el botón de las tarjetas) sube temporalmente el objetivo de la habitación. No arranca en modo verano, con una ventana abierta ni con un sensor desactualizado.\n\n**Precalentamiento**: calienta la habitación para una hora determinada y, según la velocidad de calentamiento aprendida, calcula cuándo debe empezar. Configura el programa semanal en *Programa de precalentamiento* en el menú principal. Arranca por sí solo, por eso está desactivado por defecto.",
+        "data": {
+          "events_enabled": "Eventos y entradas del registro",
+          "cycle_monitor_enabled": "Supervisión de ciclos de la caldera (sensores)",
+          "cycle_max_starts_per_hour": "Ciclos cortos: arranques por hora",
+          "cycle_min_avg_on_minutes": "Ciclos cortos: límite inferior del tiempo medio de encendido (0 = sin supervisar)",
+          "cycle_protection_enabled": "Protección de la caldera (tiempo mínimo de encendido / apagado)",
+          "boiler_min_on_minutes": "Protección: mantener la caldera encendida al menos",
+          "boiler_min_off_minutes": "Protección: mantener la caldera apagada al menos",
+          "manual_boost_enabled": "Calentar ahora (objetivo elevado)",
+          "manual_boost_minutes": "Calentar ahora: duración predeterminada",
+          "manual_boost_offset": "Calentar ahora: aumento del objetivo",
+          "preheat_enabled": "Precalentamiento (programa y servicio)",
+          "preheat_max_minutes": "Precalentamiento: inicio más temprano antes de la hora de finalización",
+          "preheat_hold_minutes": "Precalentamiento: mantener el objetivo después de la hora de finalización",
+          "preheat_default_rate": "Precalentamiento: velocidad de calentamiento predeterminada (hasta que se aprenda)",
+          "manual_boost_end_on_target": "Calentar ahora: terminar cuando la habitación alcance el objetivo elevado"
+        },
+        "data_description": {
+          "cycle_max_starts_per_hour": "Si la caldera ha arrancado tantas veces o más en la última hora, el sensor de Ciclos cortos se activa.",
+          "cycle_min_avg_on_minutes": "Si el tiempo medio de encendido de las últimas 2 horas (de al menos 3 ciclos) es más corto, también avisa.",
+          "cycle_protection_enabled": "La caldera no se apaga ni se vuelve a encender antes de que pase el tiempo mínimo. El Tiempo mínimo de conmutación (Ajustes básicos) sigue aplicándose.",
+          "manual_boost_offset": "Cuánto se sube el objetivo de la habitación durante Calentar ahora. El control de válvulas abre la válvula de inmediato (si está activado para la habitación).",
+          "preheat_max_minutes": "El precalentamiento nunca empieza antes de este tiempo, aunque la habitación esté muy fría (predeterminado: 240 min).",
+          "preheat_default_rate": "El plugin mide la velocidad de calentamiento de cada habitación mientras calienta; hasta que tiene suficientes muestras (unos 20 minutos de calefacción) usa estos grados por hora.",
+          "manual_boost_end_on_target": "Si está desactivado, Calentar ahora dura el tiempo completo y mantiene el objetivo elevado."
+        }
+      },
+      "preheat": {
+        "title": "Programa de precalentamiento",
+        "description": "Elige la habitación cuyo programa semanal quieres editar. El precalentamiento solo funciona si está activado en Funciones.",
+        "data": {
+          "room": "Habitación"
+        }
+      },
+      "preheat_menu": {
+        "title": "Precalentamiento: {room}",
+        "description": "Programa de **{room}** (la habitación debe estar lista a la hora indicada):\n\n{entries}",
+        "menu_options": {
+          "preheat_add": "Añadir una fila",
+          "preheat_remove": "Eliminar filas",
+          "init": "Volver al menú principal"
+        }
+      },
+      "preheat_add": {
+        "title": "Nueva fila del programa: {room}",
+        "description": "En qué días y para qué hora debe estar la habitación a la temperatura indicada. El precalentamiento empieza con la antelación que necesite el calentamiento.",
+        "data": {
+          "days": "Días",
+          "time": "Lista a las",
+          "temperature": "Temperatura objetivo"
+        },
+        "data_description": {
+          "temperature": "El objetivo de la habitación se eleva a este valor durante el precalentamiento (el objetivo propio de la válvula no cambia si es más alto)."
+        }
+      },
+      "preheat_remove": {
+        "title": "Eliminar filas del programa: {room}",
+        "description": "Marca las filas que quieres eliminar.",
+        "data": {
+          "entries_to_remove": "Filas que eliminar"
+        }
       }
     },
     "error": {
@@ -157,7 +224,8 @@
       "valve_in_use": "Esta válvula ya pertenece a otra habitación.",
       "control_needs_sensor": "El control de válvulas requiere un sensor de temperatura de la habitación.",
       "invalid_date": "Fecha no válida, usa el formato MM-DD (ej. 05-15).",
-      "release_ge_threshold": "La liberación debe ser menor que el umbral de refuerzo."
+      "release_ge_threshold": "La liberación debe ser menor que el umbral de refuerzo.",
+      "no_days": "Selecciona al menos un día."
     }
   },
   "entity": {
@@ -242,8 +310,77 @@
           "window_open_pending": {
             "name": "Ventana abierta, esperando el retardo"
           },
+          "temperature_trend": {
+            "name": "Variación de temperatura (°C/hora, de los últimos ~30 minutos)"
+          },
+          "valve_boost_starts_at": {
+            "name": "El refuerzo de válvula empieza a las (fin del tiempo de espera)"
+          },
+          "valve_boost_rest_until": {
+            "name": "El descanso termina a las (sin nuevo refuerzo hasta entonces)"
+          },
+          "valve_boost_max_until": {
+            "name": "El refuerzo dura como máximo hasta las"
+          },
+          "window_open_pending_until": {
+            "name": "La ventana cuenta como abierta desde las"
+          },
           "room_name": {
             "name": "Nombre de la habitación"
+          },
+          "temperature_sensor": {
+            "name": "Sensor de temperatura de la habitación"
+          },
+          "window_sensors": {
+            "name": "Sensores de ventana"
+          },
+          "manual_boost_available": {
+            "name": "Calentar ahora disponible (activado)"
+          },
+          "manual_boost_active": {
+            "name": "Calentar ahora activo"
+          },
+          "manual_boost_until": {
+            "name": "Calentar ahora dura hasta las"
+          },
+          "manual_boost_offset": {
+            "name": "Calentar ahora: aumento del objetivo"
+          },
+          "manual_boost_default_minutes": {
+            "name": "Calentar ahora: duración predeterminada (min)"
+          },
+          "manual_boost_default_offset": {
+            "name": "Calentar ahora: aumento predeterminado (°C)"
+          },
+          "preheat_available": {
+            "name": "Precalentamiento activado"
+          },
+          "preheat_status": {
+            "name": "Estado del precalentamiento",
+            "state": {
+              "scheduled": "Programado",
+              "heating": "Precalentando",
+              "ready": "Listo, mantiene el objetivo",
+              "unreachable": "No llega a tiempo"
+            }
+          },
+          "preheat_start_at": {
+            "name": "Inicio del precalentamiento"
+          },
+          "preheat_ready_by": {
+            "name": "Precalentamiento: listo a las"
+          },
+          "preheat_target": {
+            "name": "Temperatura objetivo del precalentamiento"
+          },
+          "preheat_source": {
+            "name": "Origen del precalentamiento (programa / servicio)"
+          },
+          "heating_rate": {
+            "name": "Velocidad de calentamiento aprendida (°C/h)"
+          },
+          "heating_rate_learned": {
+            "name": "Se ha aprendido la velocidad de calentamiento"
           }
         }
       },
@@ -282,6 +419,52 @@
             "name": "Termostato de la caldera"
           }
         }
+      },
+      "short_cycling": {
+        "name": "Ciclos cortos",
+        "state": {
+          "on": "La caldera hace ciclos cortos",
+          "off": "OK"
+        },
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "Arranques en la última hora"
+          },
+          "avg_on_minutes": {
+            "name": "Tiempo medio de encendido (min)"
+          },
+          "max_starts_per_hour": {
+            "name": "Límite: arranques por hora"
+          },
+          "min_avg_on_minutes": {
+            "name": "Límite: tiempo medio de encendido (min)"
+          }
+        }
+      }
+    },
+    "sensor": {
+      "boiler_starts": {
+        "name": "Arranques de la caldera (24 h)",
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "Arranques en la última hora"
+          },
+          "avg_on_minutes": {
+            "name": "Tiempo medio de encendido (min, últimas 2 h)"
+          },
+          "avg_off_minutes": {
+            "name": "Tiempo medio de apagado (min, últimas 2 h)"
+          },
+          "last_start": {
+            "name": "Último arranque"
+          },
+          "last_stop": {
+            "name": "Última parada"
+          },
+          "cycles": {
+            "name": "Ciclos (últimas 12 h)"
+          }
+        }
       }
     }
   },
@@ -293,6 +476,90 @@
     "stale_outdoor": {
       "title": "El sensor de temperatura exterior no se actualiza",
       "description": "El sensor exterior {sensor} no ha informado desde hace más de {hours} horas (puede que la batería esté agotada). El modo verano permanece desactivado hasta que vuelva a informar, por lo que la calefacción sigue permitida. Este aviso desaparece en cuanto el sensor vuelva a informar."
+    }
+  },
+  "selector": {
+    "preheat_days": {
+      "options": {
+        "0": "Lunes",
+        "1": "Martes",
+        "2": "Miércoles",
+        "3": "Jueves",
+        "4": "Viernes",
+        "5": "Sábado",
+        "6": "Domingo"
+      }
+    }
+  },
+  "services": {
+    "boost_now": {
+      "name": "Calentar ahora",
+      "description": "Sube temporalmente el objetivo de la habitación (predeterminado: +2,0 °C durante 60 minutos). No arranca en modo verano, con una ventana abierta ni con un sensor desactualizado.",
+      "fields": {
+        "minutes": {
+          "name": "Duración",
+          "description": "Cuántos minutos dura (predeterminado: definido en Funciones)."
+        },
+        "offset": {
+          "name": "Aumento",
+          "description": "Cuántos °C se sube el objetivo (predeterminado: definido en Funciones)."
+        }
+      }
+    },
+    "cancel_boost_now": {
+      "name": "Detener Calentar ahora",
+      "description": "Termina Calentar ahora antes de tiempo."
+    },
+    "preheat": {
+      "name": "Precalentamiento",
+      "description": "Precalentamiento puntual: la habitación alcanza la temperatura objetivo para la hora indicada.",
+      "fields": {
+        "ready_by": {
+          "name": "Lista a las",
+          "description": "Una hora (la próxima vez que llegue) o una fecha y hora."
+        },
+        "target_temperature": {
+          "name": "Temperatura objetivo",
+          "description": "Calienta la habitación hasta este valor."
+        },
+        "hold_minutes": {
+          "name": "Mantenimiento",
+          "description": "Cuántos minutos se mantiene el objetivo después de la hora de finalización (predeterminado: definido en Funciones)."
+        }
+      }
+    },
+    "cancel_preheat": {
+      "name": "Cancelar precalentamiento",
+      "description": "Borra la solicitud puntual y omite el precalentamiento programado en curso o el siguiente."
+    }
+  },
+  "exceptions": {
+    "boost_disabled": {
+      "message": "Calentar ahora está desactivado (Ajustes -> Funciones)."
+    },
+    "boost_summer": {
+      "message": "Calentar ahora no puede arrancar en modo verano."
+    },
+    "boost_window": {
+      "message": "{room}: Calentar ahora no puede arrancar con una ventana abierta."
+    },
+    "boost_stale": {
+      "message": "{room}: el termómetro está desactualizado, por lo que Calentar ahora no puede arrancar."
+    },
+    "boost_inactive": {
+      "message": "{room}: no hay ninguna válvula activada y accesible en la habitación."
+    },
+    "preheat_disabled": {
+      "message": "El precalentamiento está desactivado (Ajustes -> Funciones)."
+    },
+    "preheat_past": {
+      "message": "{room}: esa hora ya ha pasado."
+    },
+    "preheat_target": {
+      "message": "{room}: la temperatura objetivo debe estar entre 5 y 30 °C."
+    },
+    "not_a_room": {
+      "message": "{entity_id} no es un sensor de demanda de calor de una habitación de Meross Boiler Sync."
     }
   }
 }

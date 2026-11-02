@@ -24,7 +24,9 @@
           "remove_room": "Usuń pomieszczenie",
           "settings": "Ustawienia podstawowe",
           "summer": "Tryb letni",
-          "done": "Zapisz i zakończ"
+          "done": "Zapisz i zakończ",
+          "features": "Funkcje (zdarzenia, ochrona, Ogrzej teraz, wstępne ogrzewanie)",
+          "preheat": "Harmonogram wstępnego ogrzewania (dla pomieszczenia)"
         }
       },
       "add_room": {
@@ -131,7 +133,7 @@
           "max_boost_rest_minutes": "Jak długo po osiągnięciu maksymalnego czasu nie rozpoczyna się nowe wymuszanie. Gdy pomieszczenie osiągnie cel, odliczanie jest zerowane.",
           "window_open_delay": "Wartość domyślna dla wszystkich pomieszczeń: jak długo okno musi być otwarte, zanim ogrzewanie tego pomieszczenia zostanie wstrzymane. Krótsze wietrzenie niczego nie zmienia.",
           "valve_dry_run": "Gdy włączone, regulacja zaworów tylko zapisuje w dzienniku, co by zrobiła (prefiks [PRÓBAÜZEM]), i niczego nie zmienia na zaworach. Zalecane przy pierwszym teście na żywo.",
-          "register_card": "Gdy włączone, integracja wczytuje swoją kartę, aby pojawiła się na liście „Dodaj kartę” (nigdy sama nie dodaje karty do pulpitu). Wyłączenie zadziała po ponownym uruchomieniu Home Assistanta; wtedy możesz dodać zasób ręcznie (zobacz README)."
+          "register_card": "Po włączeniu integracja dodaje plik karty do zasobów pulpitu (Ustawienia → Pulpity → Zasoby) i dba o aktualność jego wersji, dzięki czemu karta pojawia się na liście „Dodaj kartę” (integracja nigdy sama nie dodaje karty do pulpitu). W pulpitach w trybie YAML zasób trzeba dodać ręcznie (zobacz README). Po wyłączeniu integracja nie dotyka zasobów."
         }
       },
       "summer": {
@@ -147,6 +149,71 @@
           "summer_start": "Np. 05-15",
           "summer_end": "Np. 09-15"
         }
+      },
+      "features": {
+        "title": "Funkcje",
+        "description": "Każdą funkcję można włączać i wyłączać osobno.\n\n**Zdarzenia**: wtyczka wysyła zdarzenia `meross_boiler_sync_event` (dopalanie zaworu, okno, nieaktualny czujnik, krótkie cykle, Ogrzej teraz, wstępne ogrzewanie), których możesz używać w automatyzacjach; można je też odczytać w dzienniku HA.\n\n**Monitorowanie cykli kotła**: zlicza uruchomienia kotła i sygnalizuje krótkie cykle.\n\n**Ochrona**: po włączeniu kocioł pozostaje włączony / wyłączony co najmniej przez podany czas, nawet jeśli zapotrzebowanie pomieszczeń w międzyczasie się zmieni. Może to opóźnić ogrzewanie, dlatego domyślnie jest wyłączona.\n\n**Ogrzej teraz**: usługa `meross_boiler_sync.boost_now` (i przycisk na kartach) tymczasowo podnosi temperaturę docelową pomieszczenia. Nie uruchamia się w trybie letnim, przy otwartym oknie ani przy nieaktualnym czujniku.\n\n**Wstępne ogrzewanie**: nagrzewa pomieszczenie na określoną godzinę i na podstawie wyuczonej szybkości ogrzewania oblicza, kiedy zacząć. Tygodniowy harmonogram ustawisz w *Harmonogram wstępnego ogrzewania* w menu głównym. Uruchamia się samo, dlatego domyślnie jest wyłączone.",
+        "data": {
+          "events_enabled": "Zdarzenia i wpisy w dzienniku",
+          "cycle_monitor_enabled": "Monitorowanie cykli kotła (czujniki)",
+          "cycle_max_starts_per_hour": "Krótkie cykle: uruchomienia na godzinę",
+          "cycle_min_avg_on_minutes": "Krótkie cykle: dolny limit średniego czasu pracy (0 = nie monitorowane)",
+          "cycle_protection_enabled": "Ochrona kotła (minimalny czas pracy / przerwy)",
+          "boiler_min_on_minutes": "Ochrona: utrzymuj kocioł włączony co najmniej przez",
+          "boiler_min_off_minutes": "Ochrona: utrzymuj kocioł wyłączony co najmniej przez",
+          "manual_boost_enabled": "Ogrzej teraz (podniesiona temperatura docelowa)",
+          "manual_boost_minutes": "Ogrzej teraz: domyślny czas trwania",
+          "manual_boost_offset": "Ogrzej teraz: podniesienie temperatury docelowej",
+          "preheat_enabled": "Wstępne ogrzewanie (harmonogram i usługa)",
+          "preheat_max_minutes": "Wstępne ogrzewanie: najwcześniejszy start przed godziną gotowości",
+          "preheat_hold_minutes": "Wstępne ogrzewanie: utrzymuj cel po godzinie gotowości",
+          "preheat_default_rate": "Wstępne ogrzewanie: domyślna szybkość ogrzewania (do czasu nauczenia)",
+          "manual_boost_end_on_target": "Ogrzej teraz: zakończ, gdy pomieszczenie osiągnie podniesioną temperaturę docelową"
+        },
+        "data_description": {
+          "cycle_max_starts_per_hour": "Jeśli kocioł uruchomił się tyle razy lub więcej w ciągu ostatniej godziny, czujnik Krótkie cykle zostaje włączony.",
+          "cycle_min_avg_on_minutes": "Jeśli średni czas pracy z ostatnich 2 godzin (z co najmniej 3 cykli) jest krótszy, również to zgłasza.",
+          "cycle_protection_enabled": "Kocioł nie jest wyłączany ani ponownie włączany, zanim upłynie minimalny czas. Minimalny czas przełączania (Ustawienia podstawowe) nadal obowiązuje.",
+          "manual_boost_offset": "O ile podnoszona jest temperatura docelowa pomieszczenia podczas Ogrzej teraz. Zawór jest od razu otwierany przez sterowanie zaworami (jeśli jest włączone dla pomieszczenia).",
+          "preheat_max_minutes": "Wstępne ogrzewanie nigdy nie zaczyna się wcześniej niż po tym czasie, nawet gdy pomieszczenie jest bardzo zimne (domyślnie: 240 min).",
+          "preheat_default_rate": "Wtyczka mierzy szybkość ogrzewania każdego pomieszczenia podczas grzania; dopóki nie ma wystarczającej liczby próbek (około 20 minut grzania), używa tej liczby stopni na godzinę.",
+          "manual_boost_end_on_target": "Po wyłączeniu Ogrzej teraz trwa przez cały podany czas i utrzymuje podniesioną temperaturę docelową."
+        }
+      },
+      "preheat": {
+        "title": "Harmonogram wstępnego ogrzewania",
+        "description": "Wybierz pomieszczenie, którego tygodniowy harmonogram chcesz edytować. Wstępne ogrzewanie działa tylko wtedy, gdy jest włączone w Funkcjach.",
+        "data": {
+          "room": "Pomieszczenie"
+        }
+      },
+      "preheat_menu": {
+        "title": "Wstępne ogrzewanie: {room}",
+        "description": "Harmonogram pomieszczenia **{room}** (pomieszczenie ma być gotowe na podaną godzinę):\n\n{entries}",
+        "menu_options": {
+          "preheat_add": "Dodaj wiersz",
+          "preheat_remove": "Usuń wiersze",
+          "init": "Wróć do menu głównego"
+        }
+      },
+      "preheat_add": {
+        "title": "Nowy wiersz harmonogramu: {room}",
+        "description": "W które dni i na którą godzinę pomieszczenie ma mieć podaną temperaturę. Wstępne ogrzewanie zaczyna się wcześniej o tyle, ile potrzeba na nagrzanie.",
+        "data": {
+          "days": "Dni",
+          "time": "Gotowe na",
+          "temperature": "Temperatura docelowa"
+        },
+        "data_description": {
+          "temperature": "Temperatura docelowa pomieszczenia jest podnoszona do tej wartości podczas wstępnego ogrzewania (własna temperatura docelowa zaworu nie zmienia się, jeśli jest wyższa)."
+        }
+      },
+      "preheat_remove": {
+        "title": "Usuwanie wierszy harmonogramu: {room}",
+        "description": "Zaznacz wiersze do usunięcia.",
+        "data": {
+          "entries_to_remove": "Wiersze do usunięcia"
+        }
       }
     },
     "error": {
@@ -157,7 +224,8 @@
       "valve_in_use": "Ten zawór należy już do innego pomieszczenia.",
       "control_needs_sensor": "Regulacja zaworów wymaga czujnika temperatury pomieszczenia.",
       "invalid_date": "Nieprawidłowa data, użyj formatu MM-DD (np. 05-15).",
-      "release_ge_threshold": "Zwolnienie musi być mniejsze niż próg wymuszenia."
+      "release_ge_threshold": "Zwolnienie musi być mniejsze niż próg wymuszenia.",
+      "no_days": "Wybierz co najmniej jeden dzień."
     }
   },
   "entity": {
@@ -242,8 +310,77 @@
           "window_open_pending": {
             "name": "Okno otwarte, oczekiwanie na opóźnienie"
           },
+          "temperature_trend": {
+            "name": "Zmiana temperatury (°C/godz., z ostatnich ~30 minut)"
+          },
+          "valve_boost_starts_at": {
+            "name": "Dopalanie zaworu zaczyna się o (koniec czasu oczekiwania)"
+          },
+          "valve_boost_rest_until": {
+            "name": "Przerwa kończy się o (do tego czasu brak nowego dopalania)"
+          },
+          "valve_boost_max_until": {
+            "name": "Dopalanie trwa najdłużej do"
+          },
+          "window_open_pending_until": {
+            "name": "Okno liczy się jako otwarte od"
+          },
           "room_name": {
             "name": "Nazwa pomieszczenia"
+          },
+          "temperature_sensor": {
+            "name": "Czujnik temperatury pomieszczenia"
+          },
+          "window_sensors": {
+            "name": "Czujniki okien"
+          },
+          "manual_boost_available": {
+            "name": "Ogrzej teraz dostępne (włączone)"
+          },
+          "manual_boost_active": {
+            "name": "Ogrzej teraz aktywne"
+          },
+          "manual_boost_until": {
+            "name": "Ogrzej teraz trwa do"
+          },
+          "manual_boost_offset": {
+            "name": "Ogrzej teraz: podniesienie temperatury docelowej"
+          },
+          "manual_boost_default_minutes": {
+            "name": "Ogrzej teraz: domyślny czas trwania (min)"
+          },
+          "manual_boost_default_offset": {
+            "name": "Ogrzej teraz: domyślne podniesienie (°C)"
+          },
+          "preheat_available": {
+            "name": "Wstępne ogrzewanie włączone"
+          },
+          "preheat_status": {
+            "name": "Stan wstępnego ogrzewania",
+            "state": {
+              "scheduled": "Zaplanowane",
+              "heating": "Trwa wstępne ogrzewanie",
+              "ready": "Gotowe, utrzymuje temperaturę docelową",
+              "unreachable": "Nie zdąży na czas"
+            }
+          },
+          "preheat_start_at": {
+            "name": "Początek wstępnego ogrzewania"
+          },
+          "preheat_ready_by": {
+            "name": "Wstępne ogrzewanie: gotowe na"
+          },
+          "preheat_target": {
+            "name": "Temperatura docelowa wstępnego ogrzewania"
+          },
+          "preheat_source": {
+            "name": "Źródło wstępnego ogrzewania (harmonogram / usługa)"
+          },
+          "heating_rate": {
+            "name": "Wyuczona szybkość ogrzewania (°C/h)"
+          },
+          "heating_rate_learned": {
+            "name": "Szybkość ogrzewania została wyuczona"
           }
         }
       },
@@ -282,6 +419,52 @@
             "name": "Termostat kotła"
           }
         }
+      },
+      "short_cycling": {
+        "name": "Krótkie cykle",
+        "state": {
+          "on": "Kocioł pracuje krótkimi cyklami",
+          "off": "OK"
+        },
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "Uruchomienia w ostatniej godzinie"
+          },
+          "avg_on_minutes": {
+            "name": "Średni czas pracy (min)"
+          },
+          "max_starts_per_hour": {
+            "name": "Limit: uruchomienia na godzinę"
+          },
+          "min_avg_on_minutes": {
+            "name": "Limit: średni czas pracy (min)"
+          }
+        }
+      }
+    },
+    "sensor": {
+      "boiler_starts": {
+        "name": "Uruchomienia kotła (24 godz.)",
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "Uruchomienia w ostatniej godzinie"
+          },
+          "avg_on_minutes": {
+            "name": "Średni czas pracy (min, ostatnie 2 godz.)"
+          },
+          "avg_off_minutes": {
+            "name": "Średni czas przerwy (min, ostatnie 2 godz.)"
+          },
+          "last_start": {
+            "name": "Ostatnie uruchomienie"
+          },
+          "last_stop": {
+            "name": "Ostatnie zatrzymanie"
+          },
+          "cycles": {
+            "name": "Cykle (ostatnie 12 godz.)"
+          }
+        }
       }
     }
   },
@@ -293,6 +476,90 @@
     "stale_outdoor": {
       "title": "Czujnik temperatury zewnętrznej przestał raportować",
       "description": "Czujnik zewnętrzny {sensor} nie raportował od ponad {hours} godz. (bateria może być rozładowana). Tryb letni pozostaje wyłączony, dopóki czujnik nie zacznie znów raportować, więc ogrzewanie pozostaje dozwolone. To powiadomienie zniknie, gdy czujnik znów zacznie raportować."
+    }
+  },
+  "selector": {
+    "preheat_days": {
+      "options": {
+        "0": "Poniedziałek",
+        "1": "Wtorek",
+        "2": "Środa",
+        "3": "Czwartek",
+        "4": "Piątek",
+        "5": "Sobota",
+        "6": "Niedziela"
+      }
+    }
+  },
+  "services": {
+    "boost_now": {
+      "name": "Ogrzej teraz",
+      "description": "Tymczasowo podnosi temperaturę docelową pomieszczenia (domyślnie: +2,0 °C na 60 minut). Nie uruchamia się w trybie letnim, przy otwartym oknie ani przy nieaktualnym czujniku.",
+      "fields": {
+        "minutes": {
+          "name": "Czas trwania",
+          "description": "Ile minut trwa (domyślnie: ustawiane w Funkcjach)."
+        },
+        "offset": {
+          "name": "Podniesienie",
+          "description": "O ile °C podnieść temperaturę docelową (domyślnie: ustawiane w Funkcjach)."
+        }
+      }
+    },
+    "cancel_boost_now": {
+      "name": "Zatrzymaj Ogrzej teraz",
+      "description": "Kończy Ogrzej teraz przed czasem."
+    },
+    "preheat": {
+      "name": "Wstępne ogrzewanie",
+      "description": "Jednorazowe wstępne ogrzewanie: pomieszczenie osiąga temperaturę docelową na podaną godzinę.",
+      "fields": {
+        "ready_by": {
+          "name": "Gotowe na",
+          "description": "Godzina (najbliższa taka godzina) albo data i godzina."
+        },
+        "target_temperature": {
+          "name": "Temperatura docelowa",
+          "description": "Do jakiej temperatury nagrzać pomieszczenie."
+        },
+        "hold_minutes": {
+          "name": "Utrzymanie",
+          "description": "Przez ile minut utrzymywać temperaturę docelową po godzinie gotowości (domyślnie: ustawiane w Funkcjach)."
+        }
+      }
+    },
+    "cancel_preheat": {
+      "name": "Anuluj wstępne ogrzewanie",
+      "description": "Czyści jednorazowe żądanie i pomija trwające lub następne zaplanowane wstępne ogrzewanie."
+    }
+  },
+  "exceptions": {
+    "boost_disabled": {
+      "message": "Ogrzej teraz jest wyłączone (Ustawienia -> Funkcje)."
+    },
+    "boost_summer": {
+      "message": "Ogrzej teraz nie może się uruchomić w trybie letnim."
+    },
+    "boost_window": {
+      "message": "{room}: Ogrzej teraz nie może się uruchomić przy otwartym oknie."
+    },
+    "boost_stale": {
+      "message": "{room}: termometr jest nieaktualny, więc Ogrzej teraz nie może się uruchomić."
+    },
+    "boost_inactive": {
+      "message": "{room}: w pomieszczeniu nie ma włączonego i osiągalnego zaworu."
+    },
+    "preheat_disabled": {
+      "message": "Wstępne ogrzewanie jest wyłączone (Ustawienia -> Funkcje)."
+    },
+    "preheat_past": {
+      "message": "{room}: ta godzina już minęła."
+    },
+    "preheat_target": {
+      "message": "{room}: temperatura docelowa musi mieścić się w zakresie od 5 do 30 °C."
+    },
+    "not_a_room": {
+      "message": "{entity_id} nie jest czujnikiem zapotrzebowania na ciepło pomieszczenia Meross Boiler Sync."
     }
   }
 }

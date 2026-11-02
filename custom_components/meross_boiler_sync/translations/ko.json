@@ -24,7 +24,9 @@
           "remove_room": "방 삭제",
           "settings": "기본 설정",
           "summer": "여름 모드",
-          "done": "저장 후 종료"
+          "done": "저장 후 종료",
+          "features": "기능 (이벤트, 보호, 지금 난방, 예열)",
+          "preheat": "예열 일정 (방별)"
         }
       },
       "add_room": {
@@ -131,7 +133,7 @@
           "max_boost_rest_minutes": "최대 지속 시간에 도달한 후 새로운 강제 개방을 시작하지 않는 시간입니다. 방이 목표에 도달하면 초기화됩니다.",
           "window_open_delay": "모든 방의 기본값입니다. 해당 방의 난방이 일시 중지되기 전에 창문이 열려 있어야 하는 시간입니다. 더 짧은 환기는 아무것도 바꾸지 않습니다.",
           "valve_dry_run": "켜면 밸브 제어는 수행할 동작을 로그에만 기록하고([PRÓBAÜZEM] 접두사) 밸브는 전혀 변경하지 않습니다. 첫 실제 테스트에 권장합니다.",
-          "register_card": "켜면 통합 구성요소가 자체 카드를 불러와 '카드 추가' 목록에 나타납니다(대시보드에 카드를 스스로 추가하지는 않습니다). 끄는 것은 Home Assistant를 다시 시작한 후에 적용되며, 그 뒤에는 리소스를 수동으로 추가할 수 있습니다(README 참조)."
+          "register_card": "켜면 통합 구성요소가 카드 파일을 대시보드 리소스(설정 → 대시보드 → 리소스)에 추가하고 버전을 최신으로 유지하여 '카드 추가' 목록에 표시되게 합니다(대시보드에 카드를 직접 추가하지는 않습니다). YAML 모드 대시보드에서는 리소스를 수동으로 추가해야 합니다(README 참조). 끄면 통합 구성요소는 리소스를 건드리지 않습니다."
         }
       },
       "summer": {
@@ -147,6 +149,71 @@
           "summer_start": "예: 05-15",
           "summer_end": "예: 09-15"
         }
+      },
+      "features": {
+        "title": "기능",
+        "description": "각 기능을 개별적으로 켜고 끌 수 있습니다.\n\n**이벤트**: 플러그인이 자동화에서 사용할 수 있는 `meross_boiler_sync_event` 이벤트(밸브 부스트, 창문, 오래된 센서, 짧은 사이클, 지금 난방, 예열)를 보냅니다. HA 로그북에서도 확인할 수 있습니다.\n\n**보일러 사이클 모니터링**: 보일러 시동 횟수를 세고 짧은 사이클을 알려 줍니다.\n\n**보호**: 켜면 그동안 방의 열 수요가 바뀌더라도 보일러가 지정한 시간 이상 켜짐 / 꺼짐 상태를 유지합니다. 난방이 지연될 수 있으므로 기본값은 꺼짐입니다.\n\n**지금 난방**: `meross_boiler_sync.boost_now` 서비스(및 카드의 버튼)가 방의 목표 온도를 일시적으로 높입니다. 여름 모드, 창문이 열려 있을 때, 센서가 오래된 경우에는 시작되지 않습니다.\n\n**예열**: 지정한 시간에 맞춰 방을 데우며, 학습된 난방 속도로 언제 시작해야 하는지 계산합니다. 주간 일정은 메인 메뉴의 *예열 일정*에서 설정하세요. 저절로 시작되므로 기본값은 꺼짐입니다.",
+        "data": {
+          "events_enabled": "이벤트 및 로그북 항목",
+          "cycle_monitor_enabled": "보일러 사이클 모니터링 (센서)",
+          "cycle_max_starts_per_hour": "짧은 사이클: 시간당 시동 횟수",
+          "cycle_min_avg_on_minutes": "짧은 사이클: 평균 켜짐 시간 하한 (0 = 모니터링 안 함)",
+          "cycle_protection_enabled": "보일러 보호 (최소 켜짐 / 꺼짐 시간)",
+          "boiler_min_on_minutes": "보호: 보일러를 최소한 이 시간 동안 켜 둠",
+          "boiler_min_off_minutes": "보호: 보일러를 최소한 이 시간 동안 꺼 둠",
+          "manual_boost_enabled": "지금 난방 (목표 상향)",
+          "manual_boost_minutes": "지금 난방: 기본 지속 시간",
+          "manual_boost_offset": "지금 난방: 목표 상향 폭",
+          "preheat_enabled": "예열 (일정 및 서비스)",
+          "preheat_max_minutes": "예열: 준비 시각보다 가장 일찍 시작할 수 있는 시간",
+          "preheat_hold_minutes": "예열: 준비 시각 이후 목표 유지 시간",
+          "preheat_default_rate": "예열: 기본 난방 속도 (학습되기 전까지)",
+          "manual_boost_end_on_target": "지금 난방: 방이 상향된 목표에 도달하면 종료"
+        },
+        "data_description": {
+          "cycle_max_starts_per_hour": "지난 1시간 동안 보일러가 이 횟수 이상 시동되면 '짧은 사이클' 센서가 켜집니다.",
+          "cycle_min_avg_on_minutes": "최근 2시간(최소 3사이클)의 평균 켜짐 시간이 이보다 짧으면 마찬가지로 알립니다.",
+          "cycle_protection_enabled": "최소 시간이 지나기 전에는 보일러를 끄거나 다시 켜지 않습니다. 최소 전환 시간(기본 설정)도 계속 적용됩니다.",
+          "manual_boost_offset": "지금 난방 동안 방의 목표 온도를 얼마나 높일지 설정합니다. 밸브는 밸브 제어(해당 방에서 켜져 있는 경우)가 즉시 엽니다.",
+          "preheat_max_minutes": "방이 매우 춥더라도 예열은 이보다 일찍 시작하지 않습니다 (기본값: 240분).",
+          "preheat_default_rate": "플러그인은 난방하는 동안 각 방의 난방 속도를 측정합니다. 충분한 샘플(약 20분의 난방)이 모일 때까지는 시간당 이 정도의 온도 상승을 사용합니다.",
+          "manual_boost_end_on_target": "끄면 지금 난방은 전체 지속 시간 동안 이어지며 상향된 목표를 유지합니다."
+        }
+      },
+      "preheat": {
+        "title": "예열 일정",
+        "description": "주간 일정을 편집할 방을 선택하세요. 예열은 기능에서 켜져 있어야 작동합니다.",
+        "data": {
+          "room": "방"
+        }
+      },
+      "preheat_menu": {
+        "title": "예열: {room}",
+        "description": "**{room}**의 일정 (지정한 시각까지 방이 준비되어야 함):\n\n{entries}",
+        "menu_options": {
+          "preheat_add": "행 추가",
+          "preheat_remove": "행 삭제",
+          "init": "메인 메뉴로 돌아가기"
+        }
+      },
+      "preheat_add": {
+        "title": "새 일정 행: {room}",
+        "description": "방이 지정한 온도가 되어야 하는 요일과 시각입니다. 예열은 가열에 필요한 만큼 일찍 시작됩니다.",
+        "data": {
+          "days": "요일",
+          "time": "준비 시각",
+          "temperature": "목표 온도"
+        },
+        "data_description": {
+          "temperature": "예열 동안 방의 목표가 이 값으로 높아집니다 (밸브 자체의 목표가 더 높으면 변경되지 않습니다)."
+        }
+      },
+      "preheat_remove": {
+        "title": "일정 행 삭제: {room}",
+        "description": "삭제할 행을 선택하세요.",
+        "data": {
+          "entries_to_remove": "삭제할 행"
+        }
       }
     },
     "error": {
@@ -157,7 +224,8 @@
       "valve_in_use": "이 밸브는 이미 다른 방에 속해 있습니다.",
       "control_needs_sensor": "밸브 제어에는 방 온도 센서가 필요합니다.",
       "invalid_date": "잘못된 날짜입니다. MM-DD 형식을 사용하세요 (예: 05-15).",
-      "release_ge_threshold": "해제 값은 강제 개방 기준보다 작아야 합니다."
+      "release_ge_threshold": "해제 값은 강제 개방 기준보다 작아야 합니다.",
+      "no_days": "요일을 하나 이상 선택하세요."
     }
   },
   "entity": {
@@ -242,8 +310,77 @@
           "window_open_pending": {
             "name": "창문 열림, 지연 시간 대기 중"
           },
+          "temperature_trend": {
+            "name": "온도 변화 (°C/시간, 최근 약 30분 기준)"
+          },
+          "valve_boost_starts_at": {
+            "name": "밸브 부스트 시작 시각 (대기 시간 종료)"
+          },
+          "valve_boost_rest_until": {
+            "name": "휴지 종료 시각 (그때까지 새 부스트 없음)"
+          },
+          "valve_boost_max_until": {
+            "name": "부스트 최대 지속 시각"
+          },
+          "window_open_pending_until": {
+            "name": "창문이 열린 것으로 간주되는 시점"
+          },
           "room_name": {
             "name": "방 이름"
+          },
+          "temperature_sensor": {
+            "name": "방 온도 센서"
+          },
+          "window_sensors": {
+            "name": "창문 센서"
+          },
+          "manual_boost_available": {
+            "name": "지금 난방 사용 가능 (켜짐)"
+          },
+          "manual_boost_active": {
+            "name": "지금 난방 작동 중"
+          },
+          "manual_boost_until": {
+            "name": "지금 난방 지속 시각"
+          },
+          "manual_boost_offset": {
+            "name": "지금 난방: 목표 상향 폭"
+          },
+          "manual_boost_default_minutes": {
+            "name": "지금 난방: 기본 지속 시간 (분)"
+          },
+          "manual_boost_default_offset": {
+            "name": "지금 난방: 기본 상향 폭 (°C)"
+          },
+          "preheat_available": {
+            "name": "예열 켜짐"
+          },
+          "preheat_status": {
+            "name": "예열 상태",
+            "state": {
+              "scheduled": "예약됨",
+              "heating": "예열 중",
+              "ready": "준비 완료, 목표 유지 중",
+              "unreachable": "시간 내에 도달 불가"
+            }
+          },
+          "preheat_start_at": {
+            "name": "예열 시작"
+          },
+          "preheat_ready_by": {
+            "name": "예열: 준비 시각"
+          },
+          "preheat_target": {
+            "name": "예열 목표 온도"
+          },
+          "preheat_source": {
+            "name": "예열 출처 (일정 / 서비스)"
+          },
+          "heating_rate": {
+            "name": "학습된 난방 속도 (°C/h)"
+          },
+          "heating_rate_learned": {
+            "name": "난방 속도 학습 완료"
           }
         }
       },
@@ -282,6 +419,52 @@
             "name": "보일러 온도조절기"
           }
         }
+      },
+      "short_cycling": {
+        "name": "짧은 사이클",
+        "state": {
+          "on": "보일러가 짧은 사이클로 작동 중",
+          "off": "정상"
+        },
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "지난 1시간 동안의 시동 횟수"
+          },
+          "avg_on_minutes": {
+            "name": "평균 켜짐 시간 (분)"
+          },
+          "max_starts_per_hour": {
+            "name": "한도: 시간당 시동 횟수"
+          },
+          "min_avg_on_minutes": {
+            "name": "한도: 평균 켜짐 시간 (분)"
+          }
+        }
+      }
+    },
+    "sensor": {
+      "boiler_starts": {
+        "name": "보일러 시동 횟수 (24시간)",
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "지난 1시간 동안의 시동 횟수"
+          },
+          "avg_on_minutes": {
+            "name": "평균 켜짐 시간 (분, 최근 2시간)"
+          },
+          "avg_off_minutes": {
+            "name": "평균 꺼짐 시간 (분, 최근 2시간)"
+          },
+          "last_start": {
+            "name": "마지막 시동"
+          },
+          "last_stop": {
+            "name": "마지막 정지"
+          },
+          "cycles": {
+            "name": "사이클 (최근 12시간)"
+          }
+        }
       }
     }
   },
@@ -293,6 +476,90 @@
     "stale_outdoor": {
       "title": "외부 온도 센서가 더 이상 보고하지 않습니다",
       "description": "외부 센서 {sensor}가 {hours}시간 넘게 보고하지 않았습니다(배터리가 방전되었을 수 있음). 센서가 다시 보고할 때까지 여름 모드는 꺼진 상태로 유지되어 난방이 허용됩니다. 센서가 다시 보고하면 이 알림은 사라집니다."
+    }
+  },
+  "selector": {
+    "preheat_days": {
+      "options": {
+        "0": "월요일",
+        "1": "화요일",
+        "2": "수요일",
+        "3": "목요일",
+        "4": "금요일",
+        "5": "토요일",
+        "6": "일요일"
+      }
+    }
+  },
+  "services": {
+    "boost_now": {
+      "name": "지금 난방",
+      "description": "방의 목표 온도를 일시적으로 높입니다 (기본값: 60분 동안 +2.0 °C). 여름 모드, 창문이 열려 있을 때, 센서가 오래된 경우에는 시작되지 않습니다.",
+      "fields": {
+        "minutes": {
+          "name": "지속 시간",
+          "description": "지속 시간(분)입니다 (기본값: 기능에서 설정)."
+        },
+        "offset": {
+          "name": "상향 폭",
+          "description": "목표를 몇 °C 높일지 설정합니다 (기본값: 기능에서 설정)."
+        }
+      }
+    },
+    "cancel_boost_now": {
+      "name": "지금 난방 중지",
+      "description": "지금 난방을 조기에 종료합니다."
+    },
+    "preheat": {
+      "name": "예열",
+      "description": "1회성 예열: 지정한 시각까지 방이 목표 온도에 도달합니다.",
+      "fields": {
+        "ready_by": {
+          "name": "준비 시각",
+          "description": "시각(다음에 해당하는 시각) 또는 날짜와 시각입니다."
+        },
+        "target_temperature": {
+          "name": "목표 온도",
+          "description": "방을 이 온도까지 데웁니다."
+        },
+        "hold_minutes": {
+          "name": "유지",
+          "description": "준비 시각 이후 목표를 몇 분 동안 유지할지 설정합니다 (기본값: 기능에서 설정)."
+        }
+      }
+    },
+    "cancel_preheat": {
+      "name": "예열 취소",
+      "description": "1회성 요청을 지우고 진행 중이거나 다음에 예정된 예열을 건너뜁니다."
+    }
+  },
+  "exceptions": {
+    "boost_disabled": {
+      "message": "지금 난방이 꺼져 있습니다 (설정 -> 기능)."
+    },
+    "boost_summer": {
+      "message": "여름 모드에서는 지금 난방을 시작할 수 없습니다."
+    },
+    "boost_window": {
+      "message": "{room}: 창문이 열려 있어 지금 난방을 시작할 수 없습니다."
+    },
+    "boost_stale": {
+      "message": "{room}: 온도계 데이터가 오래되어 지금 난방을 시작할 수 없습니다."
+    },
+    "boost_inactive": {
+      "message": "{room}: 방에 켜져 있고 연결 가능한 밸브가 없습니다."
+    },
+    "preheat_disabled": {
+      "message": "예열이 꺼져 있습니다 (설정 -> 기능)."
+    },
+    "preheat_past": {
+      "message": "{room}: 해당 시각은 이미 지났습니다."
+    },
+    "preheat_target": {
+      "message": "{room}: 목표 온도는 5~30 °C 사이여야 합니다."
+    },
+    "not_a_room": {
+      "message": "{entity_id}은(는) Meross Boiler Sync 방 열 수요 센서가 아닙니다."
     }
   }
 }

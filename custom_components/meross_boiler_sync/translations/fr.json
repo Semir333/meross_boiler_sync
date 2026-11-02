@@ -24,7 +24,9 @@
           "remove_room": "Supprimer une pièce",
           "settings": "Paramètres de base",
           "summer": "Mode été",
-          "done": "Enregistrer et quitter"
+          "done": "Enregistrer et quitter",
+          "features": "Fonctionnalités (événements, protection, Chauffer maintenant, préchauffage)",
+          "preheat": "Programme de préchauffage (par pièce)"
         }
       },
       "add_room": {
@@ -131,7 +133,7 @@
           "max_boost_rest_minutes": "Durée pendant laquelle aucune nouvelle relance n’est lancée après avoir atteint la durée maximale. Elle est réinitialisée quand la pièce atteint sa consigne.",
           "window_open_delay": "Valeur par défaut pour toutes les pièces : durée pendant laquelle une fenêtre doit rester ouverte avant que le chauffage de cette pièce soit mis en pause. Une aération plus courte ne change rien.",
           "valve_dry_run": "Si activé, la régulation des vannes se contente d’indiquer dans le journal ce qu’elle ferait (préfixe [PRÓBAÜZEM]) et ne modifie rien sur les vannes. Recommandé pour le premier essai réel.",
-          "register_card": "Si activé, l’intégration charge sa carte pour qu’elle apparaisse dans la liste « Ajouter une carte » (elle n’ajoute jamais de carte à un tableau de bord d’elle-même). La désactivation prend effet après un redémarrage de Home Assistant ; vous pouvez alors ajouter la ressource manuellement (voir README)."
+          "register_card": "Si activé, l’intégration ajoute le fichier de la carte aux ressources du tableau de bord (Paramètres → Tableaux de bord → Ressources) et tient sa version à jour, pour qu’elle apparaisse dans la liste « Ajouter une carte » (elle n’ajoute jamais de carte à un tableau de bord d’elle-même). Avec les tableaux de bord en mode YAML, vous devez ajouter la ressource manuellement (voir README). Si désactivé, l’intégration ne touche pas aux ressources."
         }
       },
       "summer": {
@@ -147,6 +149,71 @@
           "summer_start": "Ex. 05-15",
           "summer_end": "Ex. 09-15"
         }
+      },
+      "features": {
+        "title": "Fonctionnalités",
+        "description": "Chaque fonctionnalité peut être activée et désactivée séparément.\n\n**Événements** : le plugin envoie des événements `meross_boiler_sync_event` (relance de vanne, fenêtre, capteur obsolète, cycles courts, Chauffer maintenant, préchauffage) utilisables dans des automatisations ; ils sont aussi lisibles dans le journal de HA.\n\n**Surveillance des cycles de la chaudière** : compte les démarrages de la chaudière et signale les cycles courts.\n\n**Protection** : si activée, la chaudière reste allumée / éteinte au moins la durée indiquée, même si la demande des pièces change entre-temps. Cela peut retarder le chauffage ; elle est donc désactivée par défaut.\n\n**Chauffer maintenant** : le service `meross_boiler_sync.boost_now` (et le bouton des cartes) relève temporairement la consigne de la pièce. Il ne démarre pas en mode été, avec une fenêtre ouverte ou un capteur obsolète.\n\n**Préchauffage** : chauffe la pièce pour une heure donnée et calcule, à partir de la vitesse de chauffe apprise, quand il faut commencer. Réglez le programme hebdomadaire sous *Programme de préchauffage* dans le menu principal. Il démarre tout seul ; il est donc désactivé par défaut.",
+        "data": {
+          "events_enabled": "Événements et entrées du journal",
+          "cycle_monitor_enabled": "Surveillance des cycles de la chaudière (capteurs)",
+          "cycle_max_starts_per_hour": "Cycles courts : démarrages par heure",
+          "cycle_min_avg_on_minutes": "Cycles courts : limite basse de la durée moyenne de marche (0 = non surveillé)",
+          "cycle_protection_enabled": "Protection de la chaudière (durée minimale de marche / d’arrêt)",
+          "boiler_min_on_minutes": "Protection : garder la chaudière allumée au moins",
+          "boiler_min_off_minutes": "Protection : garder la chaudière éteinte au moins",
+          "manual_boost_enabled": "Chauffer maintenant (consigne relevée)",
+          "manual_boost_minutes": "Chauffer maintenant : durée par défaut",
+          "manual_boost_offset": "Chauffer maintenant : relèvement de la consigne",
+          "preheat_enabled": "Préchauffage (programme et service)",
+          "preheat_max_minutes": "Préchauffage : démarrage au plus tôt avant l’heure de fin",
+          "preheat_hold_minutes": "Préchauffage : maintenir la consigne après l’heure de fin",
+          "preheat_default_rate": "Préchauffage : vitesse de chauffe par défaut (tant qu’elle n’est pas apprise)",
+          "manual_boost_end_on_target": "Chauffer maintenant : s’arrêter quand la pièce atteint la consigne relevée"
+        },
+        "data_description": {
+          "cycle_max_starts_per_hour": "Si la chaudière a démarré autant de fois ou plus au cours de la dernière heure, le capteur Cycles courts s’active.",
+          "cycle_min_avg_on_minutes": "Si la durée moyenne de marche des 2 dernières heures (sur au moins 3 cycles) est plus courte, il signale aussi.",
+          "cycle_protection_enabled": "La chaudière n’est ni éteinte ni rallumée avant l’écoulement de la durée minimale. La Durée minimale de commutation (Paramètres de base) reste applicable.",
+          "manual_boost_offset": "De combien la consigne de la pièce est relevée pendant Chauffer maintenant. La vanne est ouverte immédiatement par la commande de vanne (si elle est activée pour la pièce).",
+          "preheat_max_minutes": "Le préchauffage ne démarre jamais plus tôt que cela, même si la pièce est très froide (par défaut : 240 min).",
+          "preheat_default_rate": "Le plugin mesure la vitesse de chauffe de chaque pièce pendant le chauffage ; tant qu’il n’a pas assez de mesures (environ 20 minutes de chauffage), il calcule avec ce nombre de degrés par heure.",
+          "manual_boost_end_on_target": "Si désactivé, Chauffer maintenant dure toute la durée et maintient la consigne relevée."
+        }
+      },
+      "preheat": {
+        "title": "Programme de préchauffage",
+        "description": "Choisissez la pièce dont vous voulez modifier le programme hebdomadaire. Le préchauffage ne fonctionne que s’il est activé sous Fonctionnalités.",
+        "data": {
+          "room": "Pièce"
+        }
+      },
+      "preheat_menu": {
+        "title": "Préchauffage : {room}",
+        "description": "Programme de **{room}** (la pièce doit être prête à l’heure indiquée) :\n\n{entries}",
+        "menu_options": {
+          "preheat_add": "Ajouter une ligne",
+          "preheat_remove": "Supprimer des lignes",
+          "init": "Retour au menu principal"
+        }
+      },
+      "preheat_add": {
+        "title": "Nouvelle ligne du programme : {room}",
+        "description": "Quels jours et pour quelle heure la pièce doit être à la température indiquée. Le préchauffage démarre plus tôt, autant que la montée en température l’exige.",
+        "data": {
+          "days": "Jours",
+          "time": "Prête pour",
+          "temperature": "Température de consigne"
+        },
+        "data_description": {
+          "temperature": "La consigne de la pièce est relevée à cette valeur pendant le préchauffage (la consigne propre de la vanne n’est pas modifiée si elle est plus élevée)."
+        }
+      },
+      "preheat_remove": {
+        "title": "Supprimer des lignes du programme : {room}",
+        "description": "Cochez les lignes à supprimer.",
+        "data": {
+          "entries_to_remove": "Lignes à supprimer"
+        }
       }
     },
     "error": {
@@ -157,7 +224,8 @@
       "valve_in_use": "Cette vanne appartient déjà à une autre pièce.",
       "control_needs_sensor": "La régulation des vannes nécessite un capteur de température de la pièce.",
       "invalid_date": "Date invalide, utilisez le format MM-DD (ex. 05-15).",
-      "release_ge_threshold": "Le relâchement doit être inférieur au seuil de relance."
+      "release_ge_threshold": "Le relâchement doit être inférieur au seuil de relance.",
+      "no_days": "Sélectionnez au moins un jour."
     }
   },
   "entity": {
@@ -242,8 +310,77 @@
           "window_open_pending": {
             "name": "Fenêtre ouverte, en attente du délai"
           },
+          "temperature_trend": {
+            "name": "Variation de température (°C/heure, sur les ~30 dernières minutes)"
+          },
+          "valve_boost_starts_at": {
+            "name": "La relance de la vanne commence à (fin du délai d’attente)"
+          },
+          "valve_boost_rest_until": {
+            "name": "Le repos se termine à (pas de nouvelle relance d’ici là)"
+          },
+          "valve_boost_max_until": {
+            "name": "La relance dure au plus jusqu’à"
+          },
+          "window_open_pending_until": {
+            "name": "La fenêtre compte comme ouverte à partir de"
+          },
           "room_name": {
             "name": "Nom de la pièce"
+          },
+          "temperature_sensor": {
+            "name": "Capteur de température de la pièce"
+          },
+          "window_sensors": {
+            "name": "Capteurs de fenêtre"
+          },
+          "manual_boost_available": {
+            "name": "Chauffer maintenant disponible (activé)"
+          },
+          "manual_boost_active": {
+            "name": "Chauffer maintenant actif"
+          },
+          "manual_boost_until": {
+            "name": "Chauffer maintenant dure jusqu’à"
+          },
+          "manual_boost_offset": {
+            "name": "Chauffer maintenant : relèvement de la consigne"
+          },
+          "manual_boost_default_minutes": {
+            "name": "Chauffer maintenant : durée par défaut (min)"
+          },
+          "manual_boost_default_offset": {
+            "name": "Chauffer maintenant : relèvement par défaut (°C)"
+          },
+          "preheat_available": {
+            "name": "Préchauffage activé"
+          },
+          "preheat_status": {
+            "name": "État du préchauffage",
+            "state": {
+              "scheduled": "Planifié",
+              "heating": "Préchauffage en cours",
+              "ready": "Prêt, maintient la consigne",
+              "unreachable": "Ne sera pas prêt à temps"
+            }
+          },
+          "preheat_start_at": {
+            "name": "Début du préchauffage"
+          },
+          "preheat_ready_by": {
+            "name": "Préchauffage : prêt pour"
+          },
+          "preheat_target": {
+            "name": "Température de consigne du préchauffage"
+          },
+          "preheat_source": {
+            "name": "Origine du préchauffage (programme / service)"
+          },
+          "heating_rate": {
+            "name": "Vitesse de chauffe apprise (°C/h)"
+          },
+          "heating_rate_learned": {
+            "name": "La vitesse de chauffe a été apprise"
           }
         }
       },
@@ -282,6 +419,52 @@
             "name": "Thermostat de chaudière"
           }
         }
+      },
+      "short_cycling": {
+        "name": "Cycles courts",
+        "state": {
+          "on": "La chaudière fait des cycles courts",
+          "off": "OK"
+        },
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "Démarrages au cours de la dernière heure"
+          },
+          "avg_on_minutes": {
+            "name": "Durée moyenne de marche (min)"
+          },
+          "max_starts_per_hour": {
+            "name": "Limite : démarrages par heure"
+          },
+          "min_avg_on_minutes": {
+            "name": "Limite : durée moyenne de marche (min)"
+          }
+        }
+      }
+    },
+    "sensor": {
+      "boiler_starts": {
+        "name": "Démarrages de la chaudière (24 h)",
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "Démarrages au cours de la dernière heure"
+          },
+          "avg_on_minutes": {
+            "name": "Durée moyenne de marche (min, 2 dernières h)"
+          },
+          "avg_off_minutes": {
+            "name": "Durée moyenne d’arrêt (min, 2 dernières h)"
+          },
+          "last_start": {
+            "name": "Dernier démarrage"
+          },
+          "last_stop": {
+            "name": "Dernier arrêt"
+          },
+          "cycles": {
+            "name": "Cycles (12 dernières h)"
+          }
+        }
       }
     }
   },
@@ -293,6 +476,90 @@
     "stale_outdoor": {
       "title": "Le capteur de température extérieure ne transmet plus",
       "description": "Le capteur extérieur {sensor} n’a rien transmis depuis plus de {hours} heures (la pile est peut-être vide). Le mode été reste désactivé jusqu’à ce qu’il transmette à nouveau, le chauffage reste donc autorisé. Cette notification disparaît dès que le capteur transmet à nouveau."
+    }
+  },
+  "selector": {
+    "preheat_days": {
+      "options": {
+        "0": "Lundi",
+        "1": "Mardi",
+        "2": "Mercredi",
+        "3": "Jeudi",
+        "4": "Vendredi",
+        "5": "Samedi",
+        "6": "Dimanche"
+      }
+    }
+  },
+  "services": {
+    "boost_now": {
+      "name": "Chauffer maintenant",
+      "description": "Relève temporairement la consigne de la pièce (par défaut : +2,0 °C pendant 60 minutes). Il ne démarre pas en mode été, avec une fenêtre ouverte ou un capteur obsolète.",
+      "fields": {
+        "minutes": {
+          "name": "Durée",
+          "description": "Combien de minutes cela dure (par défaut : réglé sous Fonctionnalités)."
+        },
+        "offset": {
+          "name": "Relèvement",
+          "description": "De combien de °C relever la consigne (par défaut : réglé sous Fonctionnalités)."
+        }
+      }
+    },
+    "cancel_boost_now": {
+      "name": "Arrêter Chauffer maintenant",
+      "description": "Met fin à Chauffer maintenant plus tôt que prévu."
+    },
+    "preheat": {
+      "name": "Préchauffage",
+      "description": "Préchauffage ponctuel : la pièce atteint la température de consigne à l’heure indiquée.",
+      "fields": {
+        "ready_by": {
+          "name": "Prête pour",
+          "description": "Une heure (la prochaine occurrence) ou une date et une heure."
+        },
+        "target_temperature": {
+          "name": "Température de consigne",
+          "description": "Chauffer la pièce jusqu’à cette valeur."
+        },
+        "hold_minutes": {
+          "name": "Maintien",
+          "description": "Pendant combien de minutes maintenir la consigne après l’heure de fin (par défaut : réglé sous Fonctionnalités)."
+        }
+      }
+    },
+    "cancel_preheat": {
+      "name": "Annuler le préchauffage",
+      "description": "Efface la demande ponctuelle et ignore le préchauffage programmé en cours ou suivant."
+    }
+  },
+  "exceptions": {
+    "boost_disabled": {
+      "message": "Chauffer maintenant est désactivé (Paramètres -> Fonctionnalités)."
+    },
+    "boost_summer": {
+      "message": "Chauffer maintenant ne peut pas démarrer en mode été."
+    },
+    "boost_window": {
+      "message": "{room} : Chauffer maintenant ne peut pas démarrer avec une fenêtre ouverte."
+    },
+    "boost_stale": {
+      "message": "{room} : le thermomètre est obsolète, Chauffer maintenant ne peut donc pas démarrer."
+    },
+    "boost_inactive": {
+      "message": "{room} : il n’y a aucune vanne activée et joignable dans la pièce."
+    },
+    "preheat_disabled": {
+      "message": "Le préchauffage est désactivé (Paramètres -> Fonctionnalités)."
+    },
+    "preheat_past": {
+      "message": "{room} : cette heure est déjà passée."
+    },
+    "preheat_target": {
+      "message": "{room} : la température de consigne doit être comprise entre 5 et 30 °C."
+    },
+    "not_a_room": {
+      "message": "{entity_id} n’est pas un capteur de demande de chaleur d’une pièce de Meross Boiler Sync."
     }
   }
 }

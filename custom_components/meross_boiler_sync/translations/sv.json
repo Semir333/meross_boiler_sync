@@ -24,7 +24,9 @@
           "remove_room": "Ta bort rum",
           "settings": "Grundinställningar",
           "summer": "Sommarläge",
-          "done": "Spara och avsluta"
+          "done": "Spara och avsluta",
+          "features": "Funktioner (händelser, skydd, Värm nu, förvärmning)",
+          "preheat": "Förvärmningsschema (per rum)"
         }
       },
       "add_room": {
@@ -131,7 +133,7 @@
           "max_boost_rest_minutes": "Hur länge ingen ny höjning startas efter att maxtiden nåtts. Återställs när rummet når sitt mål.",
           "window_open_delay": "Standard för alla rum: hur länge ett fönster måste vara öppet innan värmen för det rummet pausas. Kortare vädring ändrar ingenting.",
           "valve_dry_run": "När detta är på loggar ventilregleringen bara vad den skulle göra (prefix [PRÓBAÜZEM]) och ändrar ingenting på ventilerna. Rekommenderas för det första skarpa testet.",
-          "register_card": "När detta är på läser integrationen in sitt kort så att det visas i listan ”Lägg till kort” (den lägger aldrig själv till ett kort på en instrumentpanel). Att stänga av det gäller efter en omstart av Home Assistant; därefter kan du lägga till resursen manuellt (se README)."
+          "register_card": "När detta är på lägger integrationen till kortfilen i instrumentpanelens resurser (Inställningar → Instrumentpaneler → Resurser) och håller dess version aktuell, så att kortet visas i listan ”Lägg till kort” (den lägger aldrig själv till ett kort på en instrumentpanel). Med instrumentpaneler i YAML-läge måste du lägga till resursen manuellt (se README). När det är av rör integrationen inte resurserna."
         }
       },
       "summer": {
@@ -147,6 +149,71 @@
           "summer_start": "T.ex. 05-15",
           "summer_end": "T.ex. 09-15"
         }
+      },
+      "features": {
+        "title": "Funktioner",
+        "description": "Varje funktion kan slås på och av separat.\n\n**Händelser**: pluginet skickar `meross_boiler_sync_event`-händelser (ventilboost, fönster, föråldrad sensor, korta cykler, Värm nu, förvärmning) som du kan använda i automationer; de kan också läsas i HA:s loggbok.\n\n**Övervakning av pannans cykler**: räknar pannans starter och varnar för korta cykler.\n\n**Skydd**: när det är på förblir pannan på / av i minst den angivna tiden, även om rummens värmebehov ändras under tiden. Det kan försena uppvärmningen, därför är det av som standard.\n\n**Värm nu**: tjänsten `meross_boiler_sync.boost_now` (och knappen på korten) höjer tillfälligt rummets mål. Den startar inte i sommarläge, med öppet fönster eller föråldrad sensor.\n\n**Förvärmning**: värmer upp rummet till en given tid och räknar utifrån den inlärda uppvärmningshastigheten ut när det måste starta. Ställ in veckoschemat under *Förvärmningsschema* i huvudmenyn. Den startar av sig själv, därför är den av som standard.",
+        "data": {
+          "events_enabled": "Händelser och loggboksposter",
+          "cycle_monitor_enabled": "Övervakning av pannans cykler (sensorer)",
+          "cycle_max_starts_per_hour": "Korta cykler: starter per timme",
+          "cycle_min_avg_on_minutes": "Korta cykler: nedre gräns för genomsnittlig på-tid (0 = ingen övervakning)",
+          "cycle_protection_enabled": "Pannskydd (minsta på- / av-tid)",
+          "boiler_min_on_minutes": "Skydd: håll pannan på i minst",
+          "boiler_min_off_minutes": "Skydd: håll pannan av i minst",
+          "manual_boost_enabled": "Värm nu (höjt mål)",
+          "manual_boost_minutes": "Värm nu: standardlängd",
+          "manual_boost_offset": "Värm nu: höjning av målet",
+          "preheat_enabled": "Förvärmning (schema och tjänst)",
+          "preheat_max_minutes": "Förvärmning: tidigaste start före klartiden",
+          "preheat_hold_minutes": "Förvärmning: håll målet efter klartiden",
+          "preheat_default_rate": "Förvärmning: standardhastighet för uppvärmning (tills den har lärts in)",
+          "manual_boost_end_on_target": "Värm nu: avsluta när rummet når det höjda målet"
+        },
+        "data_description": {
+          "cycle_max_starts_per_hour": "Om pannan har startat så många gånger eller fler den senaste timmen slås sensorn Korta cykler på.",
+          "cycle_min_avg_on_minutes": "Om den genomsnittliga på-tiden de senaste 2 timmarna (från minst 3 cykler) är kortare rapporterar den också.",
+          "cycle_protection_enabled": "Pannan stängs inte av / startas inte om förrän minimitiden har gått. Minsta kopplingstid (Grundinställningar) gäller fortfarande.",
+          "manual_boost_offset": "Hur mycket rummets mål höjs under Värm nu. Ventilen öppnas direkt av ventilstyrningen (om den är på för rummet).",
+          "preheat_max_minutes": "Förvärmningen startar aldrig tidigare än detta, inte ens om rummet är mycket kallt (standard: 240 min).",
+          "preheat_default_rate": "Pluginet mäter varje rums uppvärmningshastighet medan det värms; tills det har tillräckligt med mätningar (cirka 20 minuters uppvärmning) använder det detta antal grader per timme.",
+          "manual_boost_end_on_target": "När den är av varar Värm nu hela tiden och håller det höjda målet."
+        }
+      },
+      "preheat": {
+        "title": "Förvärmningsschema",
+        "description": "Välj det rum vars veckoschema du vill redigera. Förvärmning fungerar bara när den är påslagen under Funktioner.",
+        "data": {
+          "room": "Rum"
+        }
+      },
+      "preheat_menu": {
+        "title": "Förvärmning: {room}",
+        "description": "Schema för **{room}** (rummet ska vara klart till den angivna tiden):\n\n{entries}",
+        "menu_options": {
+          "preheat_add": "Lägg till en rad",
+          "preheat_remove": "Ta bort rader",
+          "init": "Tillbaka till huvudmenyn"
+        }
+      },
+      "preheat_add": {
+        "title": "Ny schemarad: {room}",
+        "description": "Vilka dagar och till när rummet ska ha den angivna temperaturen. Förvärmningen startar så mycket tidigare som uppvärmningen kräver.",
+        "data": {
+          "days": "Dagar",
+          "time": "Klart till",
+          "temperature": "Måltemperatur"
+        },
+        "data_description": {
+          "temperature": "Rummets mål höjs till detta under förvärmningen (ventilens eget mål ändras inte om det är högre)."
+        }
+      },
+      "preheat_remove": {
+        "title": "Ta bort schemarader: {room}",
+        "description": "Bocka för raderna som ska tas bort.",
+        "data": {
+          "entries_to_remove": "Rader som ska tas bort"
+        }
       }
     },
     "error": {
@@ -157,7 +224,8 @@
       "valve_in_use": "Den här ventilen tillhör redan ett annat rum.",
       "control_needs_sensor": "Ventilreglering kräver en rumstemperatursensor.",
       "invalid_date": "Ogiltigt datum, använd MM-DD (t.ex. 05-15).",
-      "release_ge_threshold": "Frigöringen måste vara mindre än tröskeln för ventilhöjning."
+      "release_ge_threshold": "Frigöringen måste vara mindre än tröskeln för ventilhöjning.",
+      "no_days": "Välj minst en dag."
     }
   },
   "entity": {
@@ -242,8 +310,77 @@
           "window_open_pending": {
             "name": "Fönster öppet, väntar på fördröjningen"
           },
+          "temperature_trend": {
+            "name": "Temperaturförändring (°C/timme, under de senaste ~30 minuterna)"
+          },
+          "valve_boost_starts_at": {
+            "name": "Ventilboosten startar kl. (slut på väntetiden)"
+          },
+          "valve_boost_rest_until": {
+            "name": "Vilan slutar kl. (ingen ny boost före dess)"
+          },
+          "valve_boost_max_until": {
+            "name": "Boosten varar högst till"
+          },
+          "window_open_pending_until": {
+            "name": "Fönstret räknas som öppet från"
+          },
           "room_name": {
             "name": "Rumsnamn"
+          },
+          "temperature_sensor": {
+            "name": "Rummets temperatursensor"
+          },
+          "window_sensors": {
+            "name": "Fönstersensorer"
+          },
+          "manual_boost_available": {
+            "name": "Värm nu tillgängligt (påslaget)"
+          },
+          "manual_boost_active": {
+            "name": "Värm nu aktivt"
+          },
+          "manual_boost_until": {
+            "name": "Värm nu varar till"
+          },
+          "manual_boost_offset": {
+            "name": "Värm nu: höjning av målet"
+          },
+          "manual_boost_default_minutes": {
+            "name": "Värm nu: standardlängd (min)"
+          },
+          "manual_boost_default_offset": {
+            "name": "Värm nu: standardhöjning (°C)"
+          },
+          "preheat_available": {
+            "name": "Förvärmning påslagen"
+          },
+          "preheat_status": {
+            "name": "Förvärmningens status",
+            "state": {
+              "scheduled": "Planerad",
+              "heating": "Förvärmer",
+              "ready": "Klart, håller målet",
+              "unreachable": "Hinner inte i tid"
+            }
+          },
+          "preheat_start_at": {
+            "name": "Förvärmningens start"
+          },
+          "preheat_ready_by": {
+            "name": "Förvärmning: klart till"
+          },
+          "preheat_target": {
+            "name": "Förvärmningens måltemperatur"
+          },
+          "preheat_source": {
+            "name": "Förvärmningens källa (schema / tjänst)"
+          },
+          "heating_rate": {
+            "name": "Inlärd uppvärmningshastighet (°C/h)"
+          },
+          "heating_rate_learned": {
+            "name": "Uppvärmningshastigheten har lärts in"
           }
         }
       },
@@ -282,6 +419,52 @@
             "name": "Panntermostat"
           }
         }
+      },
+      "short_cycling": {
+        "name": "Korta cykler",
+        "state": {
+          "on": "Pannan går i korta cykler",
+          "off": "OK"
+        },
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "Starter den senaste timmen"
+          },
+          "avg_on_minutes": {
+            "name": "Genomsnittlig på-tid (min)"
+          },
+          "max_starts_per_hour": {
+            "name": "Gräns: starter per timme"
+          },
+          "min_avg_on_minutes": {
+            "name": "Gräns: genomsnittlig på-tid (min)"
+          }
+        }
+      }
+    },
+    "sensor": {
+      "boiler_starts": {
+        "name": "Pannstarter (24 h)",
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "Starter den senaste timmen"
+          },
+          "avg_on_minutes": {
+            "name": "Genomsnittlig på-tid (min, senaste 2 h)"
+          },
+          "avg_off_minutes": {
+            "name": "Genomsnittlig av-tid (min, senaste 2 h)"
+          },
+          "last_start": {
+            "name": "Senaste start"
+          },
+          "last_stop": {
+            "name": "Senaste stopp"
+          },
+          "cycles": {
+            "name": "Cykler (senaste 12 h)"
+          }
+        }
       }
     }
   },
@@ -293,6 +476,90 @@
     "stale_outdoor": {
       "title": "Utomhustemperatursensorn rapporterar inte längre",
       "description": "Utomhussensorn {sensor} har inte rapporterat på över {hours} timmar (batteriet kan vara slut). Sommarläget förblir avstängt tills den rapporterar igen, så uppvärmning är fortsatt tillåten. Den här aviseringen försvinner när sensorn rapporterar igen."
+    }
+  },
+  "selector": {
+    "preheat_days": {
+      "options": {
+        "0": "Måndag",
+        "1": "Tisdag",
+        "2": "Onsdag",
+        "3": "Torsdag",
+        "4": "Fredag",
+        "5": "Lördag",
+        "6": "Söndag"
+      }
+    }
+  },
+  "services": {
+    "boost_now": {
+      "name": "Värm nu",
+      "description": "Höjer tillfälligt rummets mål (standard: +2,0 °C i 60 minuter). Den startar inte i sommarläge, med öppet fönster eller föråldrad sensor.",
+      "fields": {
+        "minutes": {
+          "name": "Längd",
+          "description": "Hur många minuter det varar (standard: ställs in under Funktioner)."
+        },
+        "offset": {
+          "name": "Höjning",
+          "description": "Hur många °C målet höjs med (standard: ställs in under Funktioner)."
+        }
+      }
+    },
+    "cancel_boost_now": {
+      "name": "Stoppa Värm nu",
+      "description": "Avslutar Värm nu i förtid."
+    },
+    "preheat": {
+      "name": "Förvärmning",
+      "description": "Engångsförvärmning: rummet når måltemperaturen till den angivna tiden.",
+      "fields": {
+        "ready_by": {
+          "name": "Klart till",
+          "description": "En tid (nästa gång den inträffar) eller ett datum och en tid."
+        },
+        "target_temperature": {
+          "name": "Måltemperatur",
+          "description": "Värm upp rummet till detta."
+        },
+        "hold_minutes": {
+          "name": "Hållning",
+          "description": "Hur många minuter målet hålls efter klartiden (standard: ställs in under Funktioner)."
+        }
+      }
+    },
+    "cancel_preheat": {
+      "name": "Avbryt förvärmning",
+      "description": "Rensar engångsbegäran och hoppar över den pågående eller nästa schemalagda förvärmningen."
+    }
+  },
+  "exceptions": {
+    "boost_disabled": {
+      "message": "Värm nu är avstängt (Inställningar -> Funktioner)."
+    },
+    "boost_summer": {
+      "message": "Värm nu kan inte starta i sommarläge."
+    },
+    "boost_window": {
+      "message": "{room}: Värm nu kan inte starta med öppet fönster."
+    },
+    "boost_stale": {
+      "message": "{room}: termometern är föråldrad, så Värm nu kan inte starta."
+    },
+    "boost_inactive": {
+      "message": "{room}: det finns ingen påslagen, nåbar ventil i rummet."
+    },
+    "preheat_disabled": {
+      "message": "Förvärmning är avstängd (Inställningar -> Funktioner)."
+    },
+    "preheat_past": {
+      "message": "{room}: den tiden har redan passerat."
+    },
+    "preheat_target": {
+      "message": "{room}: måltemperaturen måste vara mellan 5 och 30 °C."
+    },
+    "not_a_room": {
+      "message": "{entity_id} är inte en sensor för värmebehov i ett rum i Meross Boiler Sync."
     }
   }
 }

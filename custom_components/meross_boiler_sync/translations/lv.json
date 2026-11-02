@@ -24,7 +24,9 @@
           "remove_room": "Noņemt telpu",
           "settings": "Pamatiestatījumi",
           "summer": "Vasaras režīms",
-          "done": "Saglabāt un iziet"
+          "done": "Saglabāt un iziet",
+          "features": "Funkcijas (notikumi, aizsardzība, Sildīt tagad, priekšsildīšana)",
+          "preheat": "Priekšsildīšanas grafiks (katrai telpai)"
         }
       },
       "add_room": {
@@ -131,7 +133,7 @@
           "max_boost_rest_minutes": "Cik ilgi pēc maksimālā ilguma sasniegšanas netiek sākta jauna pacelšana. Tiek atiestatīts, kad telpa sasniedz savu mērķi.",
           "window_open_delay": "Noklusējums visām telpām: cik ilgi logam jābūt atvērtam, pirms šīs telpas apkure tiek apturēta. Īsāka vēdināšana neko nemaina.",
           "valve_dry_run": "Ja ieslēgts, vārstu vadība tikai ieraksta žurnālā, ko tā darītu (priedēklis [PRÓBAÜZEM]), un neko nemaina vārstos. Ieteicams pirmajam darbības testam.",
-          "register_card": "Ja ieslēgts, integrācija ielādē savu karti, lai tā parādītos sarakstā “Pievienot karti” (tā nekad pati nepievieno karti nevienam informācijas panelim). Izslēgšana stājas spēkā pēc Home Assistant restartēšanas; pēc tam resursu var pievienot manuāli (skatiet README)."
+          "register_card": "Ja ieslēgts, integrācija pievieno kartes failu informācijas paneļa resursiem (Iestatījumi → Informācijas paneļi → Resursi) un uztur tā versiju aktuālu, lai tā parādītos sarakstā “Pievienot karti” (tā nekad pati nepievieno karti informācijas panelim). Informācijas paneļiem YAML režīmā resurss jāpievieno manuāli (skatiet README). Ja izslēgts, integrācija resursiem nepieskaras."
         }
       },
       "summer": {
@@ -147,6 +149,71 @@
           "summer_start": "Piem., 05-15",
           "summer_end": "Piem., 09-15"
         }
+      },
+      "features": {
+        "title": "Funkcijas",
+        "description": "Katru funkciju var ieslēgt un izslēgt atsevišķi.\n\n**Notikumi**: spraudnis sūta `meross_boiler_sync_event` notikumus (vārsta pastiprināšana, logs, novecojis sensors, īsi cikli, Sildīt tagad, priekšsildīšana), ko var izmantot automatizācijās; tos var arī izlasīt HA žurnālā.\n\n**Katla ciklu uzraudzība**: skaita katla ieslēgšanās reizes un norāda uz īsiem cikliem.\n\n**Aizsardzība**: ja ieslēgta, katls paliek ieslēgts / izslēgts vismaz norādīto laiku, pat ja telpu siltuma pieprasījums starplaikā mainās. Tas var aizkavēt apkuri, tāpēc pēc noklusējuma tā ir izslēgta.\n\n**Sildīt tagad**: pakalpojums `meross_boiler_sync.boost_now` (un kartes poga) uz laiku paaugstina telpas mērķi. Tas netiek startēts vasaras režīmā, pie atvērta loga vai novecojuša sensora.\n\n**Priekšsildīšana**: uzsilda telpu līdz noteiktam laikam un pēc apgūtā sildīšanas ātruma aprēķina, kad jāsāk. Nedēļas grafiku iestatiet sadaļā *Priekšsildīšanas grafiks* galvenajā izvēlnē. Tā sākas pati, tāpēc pēc noklusējuma ir izslēgta.",
+        "data": {
+          "events_enabled": "Notikumi un žurnāla ieraksti",
+          "cycle_monitor_enabled": "Katla ciklu uzraudzība (sensori)",
+          "cycle_max_starts_per_hour": "Īsi cikli: ieslēgšanās reizes stundā",
+          "cycle_min_avg_on_minutes": "Īsi cikli: vidējā darbības laika apakšējā robeža (0 = netiek uzraudzīts)",
+          "cycle_protection_enabled": "Katla aizsardzība (minimālais darbības / dīkstāves laiks)",
+          "boiler_min_on_minutes": "Aizsardzība: turēt katlu ieslēgtu vismaz",
+          "boiler_min_off_minutes": "Aizsardzība: turēt katlu izslēgtu vismaz",
+          "manual_boost_enabled": "Sildīt tagad (paaugstināts mērķis)",
+          "manual_boost_minutes": "Sildīt tagad: noklusējuma ilgums",
+          "manual_boost_offset": "Sildīt tagad: mērķa paaugstinājums",
+          "preheat_enabled": "Priekšsildīšana (grafiks un pakalpojums)",
+          "preheat_max_minutes": "Priekšsildīšana: agrākā sākšana pirms gatavības laika",
+          "preheat_hold_minutes": "Priekšsildīšana: turēt mērķi pēc gatavības laika",
+          "preheat_default_rate": "Priekšsildīšana: noklusējuma sildīšanas ātrums (līdz tas ir apgūts)",
+          "manual_boost_end_on_target": "Sildīt tagad: beigt, kad telpa sasniedz paaugstināto mērķi"
+        },
+        "data_description": {
+          "cycle_max_starts_per_hour": "Ja katls pēdējās stundas laikā ir ieslēdzies tik reižu vai vairāk, sensors Īsi cikli ieslēdzas.",
+          "cycle_min_avg_on_minutes": "Ja pēdējo 2 stundu vidējais darbības laiks (vismaz no 3 cikliem) ir īsāks, tas arī ziņo.",
+          "cycle_protection_enabled": "Katls netiek izslēgts / atkal ieslēgts, kamēr nav pagājis minimālais laiks. Minimālais pārslēgšanās laiks (Pamatiestatījumi) joprojām ir spēkā.",
+          "manual_boost_offset": "Par cik tiek paaugstināts telpas mērķis Sildīt tagad laikā. Vārstu uzreiz atver vārstu vadība (ja tā ir ieslēgta šai telpai).",
+          "preheat_max_minutes": "Priekšsildīšana nekad nesākas agrāk par šo laiku, pat ja telpa ir ļoti auksta (noklusējums: 240 min).",
+          "preheat_default_rate": "Spraudnis mēra katras telpas sildīšanas ātrumu sildīšanas laikā; kamēr nav pietiekami daudz mērījumu (apmēram 20 minūšu sildīšana), tas izmanto šo grādu skaitu stundā.",
+          "manual_boost_end_on_target": "Ja izslēgts, Sildīt tagad ilgst visu norādīto laiku un tur paaugstināto mērķi."
+        }
+      },
+      "preheat": {
+        "title": "Priekšsildīšanas grafiks",
+        "description": "Izvēlieties telpu, kuras nedēļas grafiku vēlaties rediģēt. Priekšsildīšana darbojas tikai tad, ja tā ir ieslēgta sadaļā Funkcijas.",
+        "data": {
+          "room": "Telpa"
+        }
+      },
+      "preheat_menu": {
+        "title": "Priekšsildīšana: {room}",
+        "description": "Telpas **{room}** grafiks (telpai jābūt gatavai līdz norādītajam laikam):\n\n{entries}",
+        "menu_options": {
+          "preheat_add": "Pievienot rindu",
+          "preheat_remove": "Noņemt rindas",
+          "init": "Atpakaļ uz galveno izvēlni"
+        }
+      },
+      "preheat_add": {
+        "title": "Jauna grafika rinda: {room}",
+        "description": "Kurās dienās un līdz cikos telpai jābūt norādītajā temperatūrā. Priekšsildīšana sākas tik daudz agrāk, cik nepieciešams uzsilšanai.",
+        "data": {
+          "days": "Dienas",
+          "time": "Gatava līdz",
+          "temperature": "Mērķa temperatūra"
+        },
+        "data_description": {
+          "temperature": "Priekšsildīšanas laikā telpas mērķis tiek paaugstināts līdz šai vērtībai (paša vārsta mērķis nemainās, ja tas ir augstāks)."
+        }
+      },
+      "preheat_remove": {
+        "title": "Noņemt grafika rindas: {room}",
+        "description": "Atzīmējiet rindas, kuras noņemt.",
+        "data": {
+          "entries_to_remove": "Noņemamās rindas"
+        }
       }
     },
     "error": {
@@ -157,7 +224,8 @@
       "valve_in_use": "Šis vārsts jau pieder citai telpai.",
       "control_needs_sensor": "Vārstu vadībai nepieciešams telpas temperatūras sensors.",
       "invalid_date": "Nederīgs datums, izmantojiet formātu MM-DD (piem., 05-15).",
-      "release_ge_threshold": "Atbrīvošanai jābūt mazākai par pacelšanas slieksni."
+      "release_ge_threshold": "Atbrīvošanai jābūt mazākai par pacelšanas slieksni.",
+      "no_days": "Atlasiet vismaz vienu dienu."
     }
   },
   "entity": {
@@ -242,8 +310,77 @@
           "window_open_pending": {
             "name": "Logs atvērts, gaida aizkavi"
           },
+          "temperature_trend": {
+            "name": "Temperatūras izmaiņas (°C/stundā, par pēdējām ~30 minūtēm)"
+          },
+          "valve_boost_starts_at": {
+            "name": "Vārsta pastiprināšana sākas plkst. (gaidīšanas laika beigas)"
+          },
+          "valve_boost_rest_until": {
+            "name": "Atpūta beidzas plkst. (līdz tam jaunas pastiprināšanas nebūs)"
+          },
+          "valve_boost_max_until": {
+            "name": "Pastiprināšana ilgst ne ilgāk kā līdz"
+          },
+          "window_open_pending_until": {
+            "name": "Logs tiek uzskatīts par atvērtu no"
+          },
           "room_name": {
             "name": "Telpas nosaukums"
+          },
+          "temperature_sensor": {
+            "name": "Telpas temperatūras sensors"
+          },
+          "window_sensors": {
+            "name": "Logu sensori"
+          },
+          "manual_boost_available": {
+            "name": "Sildīt tagad pieejams (ieslēgts)"
+          },
+          "manual_boost_active": {
+            "name": "Sildīt tagad aktīvs"
+          },
+          "manual_boost_until": {
+            "name": "Sildīt tagad ilgst līdz"
+          },
+          "manual_boost_offset": {
+            "name": "Sildīt tagad: mērķa paaugstinājums"
+          },
+          "manual_boost_default_minutes": {
+            "name": "Sildīt tagad: noklusējuma ilgums (min)"
+          },
+          "manual_boost_default_offset": {
+            "name": "Sildīt tagad: noklusējuma paaugstinājums (°C)"
+          },
+          "preheat_available": {
+            "name": "Priekšsildīšana ieslēgta"
+          },
+          "preheat_status": {
+            "name": "Priekšsildīšanas stāvoklis",
+            "state": {
+              "scheduled": "Ieplānota",
+              "heating": "Notiek priekšsildīšana",
+              "ready": "Gatava, tur mērķi",
+              "unreachable": "Nepaspēs laikā"
+            }
+          },
+          "preheat_start_at": {
+            "name": "Priekšsildīšanas sākums"
+          },
+          "preheat_ready_by": {
+            "name": "Priekšsildīšana: gatava līdz"
+          },
+          "preheat_target": {
+            "name": "Priekšsildīšanas mērķa temperatūra"
+          },
+          "preheat_source": {
+            "name": "Priekšsildīšanas avots (grafiks / pakalpojums)"
+          },
+          "heating_rate": {
+            "name": "Apgūtais sildīšanas ātrums (°C/h)"
+          },
+          "heating_rate_learned": {
+            "name": "Sildīšanas ātrums ir apgūts"
           }
         }
       },
@@ -282,6 +419,52 @@
             "name": "Katla termostats"
           }
         }
+      },
+      "short_cycling": {
+        "name": "Īsi cikli",
+        "state": {
+          "on": "Katls darbojas īsos ciklos",
+          "off": "OK"
+        },
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "Ieslēgšanās reizes pēdējā stundā"
+          },
+          "avg_on_minutes": {
+            "name": "Vidējais darbības laiks (min)"
+          },
+          "max_starts_per_hour": {
+            "name": "Robeža: ieslēgšanās reizes stundā"
+          },
+          "min_avg_on_minutes": {
+            "name": "Robeža: vidējais darbības laiks (min)"
+          }
+        }
+      }
+    },
+    "sensor": {
+      "boiler_starts": {
+        "name": "Katla ieslēgšanās reizes (24 h)",
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "Ieslēgšanās reizes pēdējā stundā"
+          },
+          "avg_on_minutes": {
+            "name": "Vidējais darbības laiks (min, pēdējās 2 h)"
+          },
+          "avg_off_minutes": {
+            "name": "Vidējais dīkstāves laiks (min, pēdējās 2 h)"
+          },
+          "last_start": {
+            "name": "Pēdējā ieslēgšanās"
+          },
+          "last_stop": {
+            "name": "Pēdējā apstāšanās"
+          },
+          "cycles": {
+            "name": "Cikli (pēdējās 12 h)"
+          }
+        }
       }
     }
   },
@@ -293,6 +476,90 @@
     "stale_outdoor": {
       "title": "Ārā temperatūras sensors vairs nesūta datus",
       "description": "Ārējais sensors {sensor} nav sūtījis datus vairāk nekā {hours} stundas (iespējams, baterija ir tukša). Vasaras režīms paliek izslēgts, kamēr sensors atkal sūta datus, tāpēc apkure ir atļauta. Šis paziņojums pazudīs, tiklīdz sensors atkal sūtīs datus."
+    }
+  },
+  "selector": {
+    "preheat_days": {
+      "options": {
+        "0": "Pirmdiena",
+        "1": "Otrdiena",
+        "2": "Trešdiena",
+        "3": "Ceturtdiena",
+        "4": "Piektdiena",
+        "5": "Sestdiena",
+        "6": "Svētdiena"
+      }
+    }
+  },
+  "services": {
+    "boost_now": {
+      "name": "Sildīt tagad",
+      "description": "Uz laiku paaugstina telpas mērķi (noklusējums: +2,0 °C uz 60 minūtēm). Tas netiek startēts vasaras režīmā, pie atvērta loga vai novecojuša sensora.",
+      "fields": {
+        "minutes": {
+          "name": "Ilgums",
+          "description": "Cik minūtes tas ilgst (noklusējums: iestatīts sadaļā Funkcijas)."
+        },
+        "offset": {
+          "name": "Paaugstinājums",
+          "description": "Par cik °C paaugstināt mērķi (noklusējums: iestatīts sadaļā Funkcijas)."
+        }
+      }
+    },
+    "cancel_boost_now": {
+      "name": "Apturēt Sildīt tagad",
+      "description": "Pirms laika beidz Sildīt tagad."
+    },
+    "preheat": {
+      "name": "Priekšsildīšana",
+      "description": "Vienreizēja priekšsildīšana: telpa sasniedz mērķa temperatūru līdz norādītajam laikam.",
+      "fields": {
+        "ready_by": {
+          "name": "Gatava līdz",
+          "description": "Laiks (tuvākais šāds laiks) vai datums un laiks."
+        },
+        "target_temperature": {
+          "name": "Mērķa temperatūra",
+          "description": "Līdz kādai temperatūrai uzsildīt telpu."
+        },
+        "hold_minutes": {
+          "name": "Turēšana",
+          "description": "Cik minūtes turēt mērķi pēc gatavības laika (noklusējums: iestatīts sadaļā Funkcijas)."
+        }
+      }
+    },
+    "cancel_preheat": {
+      "name": "Atcelt priekšsildīšanu",
+      "description": "Dzēš vienreizējo pieprasījumu un izlaiž notiekošo vai nākamo ieplānoto priekšsildīšanu."
+    }
+  },
+  "exceptions": {
+    "boost_disabled": {
+      "message": "Sildīt tagad ir izslēgts (Iestatījumi -> Funkcijas)."
+    },
+    "boost_summer": {
+      "message": "Sildīt tagad nevar startēt vasaras režīmā."
+    },
+    "boost_window": {
+      "message": "{room}: Sildīt tagad nevar startēt pie atvērta loga."
+    },
+    "boost_stale": {
+      "message": "{room}: termometrs ir novecojis, tāpēc Sildīt tagad nevar startēt."
+    },
+    "boost_inactive": {
+      "message": "{room}: telpā nav ieslēgta un sasniedzama vārsta."
+    },
+    "preheat_disabled": {
+      "message": "Priekšsildīšana ir izslēgta (Iestatījumi -> Funkcijas)."
+    },
+    "preheat_past": {
+      "message": "{room}: šis laiks jau ir pagājis."
+    },
+    "preheat_target": {
+      "message": "{room}: mērķa temperatūrai jābūt no 5 līdz 30 °C."
+    },
+    "not_a_room": {
+      "message": "{entity_id} nav Meross Boiler Sync telpas siltuma pieprasījuma sensors."
     }
   }
 }

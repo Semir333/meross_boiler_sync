@@ -24,7 +24,9 @@
           "remove_room": "删除房间",
           "settings": "基本设置",
           "summer": "夏季模式",
-          "done": "保存并退出"
+          "done": "保存并退出",
+          "features": "功能（事件、保护、立即供暖、预热）",
+          "preheat": "预热计划（按房间）"
         }
       },
       "add_room": {
@@ -131,7 +133,7 @@
           "max_boost_rest_minutes": "达到最长时长后，在这段时间内不会开始新的强制开启。房间达到目标后会重置。",
           "window_open_delay": "所有房间的默认值：窗户需要打开多久，该房间的供暖才会暂停。更短的通风不会改变任何东西。",
           "valve_dry_run": "开启后，阀门控制只在日志中记录它将执行的操作（前缀 [PRÓBAÜZEM]），不会更改阀门上的任何内容。建议用于首次实际测试。",
-          "register_card": "开启后，集成会加载自己的卡片，使其出现在“添加卡片”列表中（它不会自行把卡片添加到任何仪表盘）。关闭后需重启 Home Assistant 才会生效；之后可手动添加资源（参见 README）。"
+          "register_card": "开启后，集成会将卡片文件添加到仪表板资源（设置 → 仪表板 → 资源）并保持其版本最新，使其出现在“添加卡片”列表中（它绝不会自行向仪表板添加卡片）。YAML 模式的仪表板需要手动添加资源（参见 README）。关闭后，集成不会改动资源。"
         }
       },
       "summer": {
@@ -147,6 +149,71 @@
           "summer_start": "例如 05-15",
           "summer_end": "例如 09-15"
         }
+      },
+      "features": {
+        "title": "功能",
+        "description": "每项功能都可以单独开启或关闭。\n\n**事件**：插件会发送可用于自动化的 `meross_boiler_sync_event` 事件（阀门增强、窗户、传感器过期、短循环、立即供暖、预热）；也可以在 HA 日志簿中查看。\n\n**锅炉循环监测**：统计锅炉启动次数并提示短循环。\n\n**保护**：开启后，即使期间房间的热需求发生变化，锅炉也会至少保持开启 / 关闭所设定的时间。这可能会延迟供暖，因此默认关闭。\n\n**立即供暖**：服务 `meross_boiler_sync.boost_now`（以及卡片上的按钮）会临时提高房间的目标温度。在夏季模式、窗户打开或传感器过期时不会启动。\n\n**预热**：在指定时间前将房间加热到位，并根据学习到的升温速度计算何时开始。每周计划请在主菜单的*预热计划*中设置。它会自动启动，因此默认关闭。",
+        "data": {
+          "events_enabled": "事件和日志簿记录",
+          "cycle_monitor_enabled": "锅炉循环监测（传感器）",
+          "cycle_max_starts_per_hour": "短循环：每小时启动次数",
+          "cycle_min_avg_on_minutes": "短循环：平均开启时间下限（0 = 不监测）",
+          "cycle_protection_enabled": "锅炉保护（最短开启 / 关闭时间）",
+          "boiler_min_on_minutes": "保护：锅炉至少保持开启",
+          "boiler_min_off_minutes": "保护：锅炉至少保持关闭",
+          "manual_boost_enabled": "立即供暖（提高目标）",
+          "manual_boost_minutes": "立即供暖：默认持续时间",
+          "manual_boost_offset": "立即供暖：目标提高幅度",
+          "preheat_enabled": "预热（计划和服务）",
+          "preheat_max_minutes": "预热：最早在完成时间前多久开始",
+          "preheat_hold_minutes": "预热：完成时间后保持目标的时长",
+          "preheat_default_rate": "预热：默认升温速度（学习完成前）",
+          "manual_boost_end_on_target": "立即供暖：房间达到提高后的目标时结束"
+        },
+        "data_description": {
+          "cycle_max_starts_per_hour": "如果锅炉在过去一小时内启动了这么多次或更多次，“短循环”传感器将开启。",
+          "cycle_min_avg_on_minutes": "如果最近 2 小时（至少 3 个循环）的平均开启时间更短，也会报告。",
+          "cycle_protection_enabled": "在最短时间过去之前，锅炉不会被关闭或再次开启。最短切换时间（基本设置）仍然有效。",
+          "manual_boost_offset": "立即供暖期间房间目标提高多少。阀门会立即由阀门控制打开（如果该房间已启用）。",
+          "preheat_max_minutes": "即使房间非常冷，预热也不会早于此时间开始（默认：240 分钟）。",
+          "preheat_default_rate": "插件会在供暖时测量每个房间的升温速度；在收集到足够样本（约 20 分钟的供暖）之前，它使用每小时这么多度的值。",
+          "manual_boost_end_on_target": "关闭时，立即供暖会持续整个时长并保持提高后的目标。"
+        }
+      },
+      "preheat": {
+        "title": "预热计划",
+        "description": "选择要编辑每周计划的房间。只有在“功能”中开启预热后它才会运行。",
+        "data": {
+          "room": "房间"
+        }
+      },
+      "preheat_menu": {
+        "title": "预热：{room}",
+        "description": "**{room}** 的计划（房间应在指定时间前准备就绪）：\n\n{entries}",
+        "menu_options": {
+          "preheat_add": "添加一行",
+          "preheat_remove": "删除行",
+          "init": "返回主菜单"
+        }
+      },
+      "preheat_add": {
+        "title": "新增计划行：{room}",
+        "description": "房间在哪些日子、到几点应达到指定温度。预热会按加热所需的时间提前开始。",
+        "data": {
+          "days": "日期",
+          "time": "就绪时间",
+          "temperature": "目标温度"
+        },
+        "data_description": {
+          "temperature": "预热期间房间目标会提高到此值（如果阀门自身的目标更高，则不会改变）。"
+        }
+      },
+      "preheat_remove": {
+        "title": "删除计划行：{room}",
+        "description": "勾选要删除的行。",
+        "data": {
+          "entries_to_remove": "要删除的行"
+        }
       }
     },
     "error": {
@@ -157,7 +224,8 @@
       "valve_in_use": "此阀门已属于另一个房间。",
       "control_needs_sensor": "阀门控制需要房间温度传感器。",
       "invalid_date": "日期无效，请使用 MM-DD 格式（例如 05-15）。",
-      "release_ge_threshold": "释放值必须小于强制开启阈值。"
+      "release_ge_threshold": "释放值必须小于强制开启阈值。",
+      "no_days": "请至少选择一天。"
     }
   },
   "entity": {
@@ -242,8 +310,77 @@
           "window_open_pending": {
             "name": "窗户已打开，等待延迟时间"
           },
+          "temperature_trend": {
+            "name": "温度变化（°C/小时，基于最近约 30 分钟）"
+          },
+          "valve_boost_starts_at": {
+            "name": "阀门增强开始时间（等待时间结束）"
+          },
+          "valve_boost_rest_until": {
+            "name": "休息结束时间（在此之前不会再次增强）"
+          },
+          "valve_boost_max_until": {
+            "name": "增强最迟持续到"
+          },
+          "window_open_pending_until": {
+            "name": "窗户视为打开的起始时间"
+          },
           "room_name": {
             "name": "房间名称"
+          },
+          "temperature_sensor": {
+            "name": "房间温度传感器"
+          },
+          "window_sensors": {
+            "name": "窗户传感器"
+          },
+          "manual_boost_available": {
+            "name": "立即供暖可用（已开启）"
+          },
+          "manual_boost_active": {
+            "name": "立即供暖已激活"
+          },
+          "manual_boost_until": {
+            "name": "立即供暖持续到"
+          },
+          "manual_boost_offset": {
+            "name": "立即供暖：目标提高幅度"
+          },
+          "manual_boost_default_minutes": {
+            "name": "立即供暖：默认持续时间（分钟）"
+          },
+          "manual_boost_default_offset": {
+            "name": "立即供暖：默认提高幅度（°C）"
+          },
+          "preheat_available": {
+            "name": "预热已开启"
+          },
+          "preheat_status": {
+            "name": "预热状态",
+            "state": {
+              "scheduled": "已计划",
+              "heating": "预热中",
+              "ready": "已就绪，保持目标",
+              "unreachable": "无法按时达到"
+            }
+          },
+          "preheat_start_at": {
+            "name": "预热开始"
+          },
+          "preheat_ready_by": {
+            "name": "预热：就绪时间"
+          },
+          "preheat_target": {
+            "name": "预热目标温度"
+          },
+          "preheat_source": {
+            "name": "预热来源（计划 / 服务）"
+          },
+          "heating_rate": {
+            "name": "已学习的升温速度（°C/h）"
+          },
+          "heating_rate_learned": {
+            "name": "升温速度已学习"
           }
         }
       },
@@ -282,6 +419,52 @@
             "name": "锅炉温控器"
           }
         }
+      },
+      "short_cycling": {
+        "name": "短循环",
+        "state": {
+          "on": "锅炉正在短循环",
+          "off": "正常"
+        },
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "过去一小时内的启动次数"
+          },
+          "avg_on_minutes": {
+            "name": "平均开启时间（分钟）"
+          },
+          "max_starts_per_hour": {
+            "name": "上限：每小时启动次数"
+          },
+          "min_avg_on_minutes": {
+            "name": "上限：平均开启时间（分钟）"
+          }
+        }
+      }
+    },
+    "sensor": {
+      "boiler_starts": {
+        "name": "锅炉启动次数（24 小时）",
+        "state_attributes": {
+          "starts_last_hour": {
+            "name": "过去一小时内的启动次数"
+          },
+          "avg_on_minutes": {
+            "name": "平均开启时间（分钟，最近 2 小时）"
+          },
+          "avg_off_minutes": {
+            "name": "平均关闭时间（分钟，最近 2 小时）"
+          },
+          "last_start": {
+            "name": "上次启动"
+          },
+          "last_stop": {
+            "name": "上次停止"
+          },
+          "cycles": {
+            "name": "循环（最近 12 小时）"
+          }
+        }
       }
     }
   },
@@ -293,6 +476,90 @@
     "stale_outdoor": {
       "title": "室外温度传感器不再上报",
       "description": "室外传感器 {sensor} 已超过 {hours} 小时没有上报（可能电池耗尽）。在其恢复上报前，夏季模式保持关闭，因此仍允许供暖。传感器恢复上报后，此通知将自动消失。"
+    }
+  },
+  "selector": {
+    "preheat_days": {
+      "options": {
+        "0": "星期一",
+        "1": "星期二",
+        "2": "星期三",
+        "3": "星期四",
+        "4": "星期五",
+        "5": "星期六",
+        "6": "星期日"
+      }
+    }
+  },
+  "services": {
+    "boost_now": {
+      "name": "立即供暖",
+      "description": "临时提高房间的目标温度（默认：60 分钟内 +2.0 °C）。在夏季模式、窗户打开或传感器过期时不会启动。",
+      "fields": {
+        "minutes": {
+          "name": "持续时间",
+          "description": "持续多少分钟（默认：在“功能”中设置）。"
+        },
+        "offset": {
+          "name": "提高幅度",
+          "description": "将目标提高多少 °C（默认：在“功能”中设置）。"
+        }
+      }
+    },
+    "cancel_boost_now": {
+      "name": "停止立即供暖",
+      "description": "提前结束立即供暖。"
+    },
+    "preheat": {
+      "name": "预热",
+      "description": "一次性预热：房间在指定时间前达到目标温度。",
+      "fields": {
+        "ready_by": {
+          "name": "就绪时间",
+          "description": "一个时间（下一次出现该时间时）或日期加时间。"
+        },
+        "target_temperature": {
+          "name": "目标温度",
+          "description": "将房间加热到此温度。"
+        },
+        "hold_minutes": {
+          "name": "保持",
+          "description": "就绪时间后保持目标多少分钟（默认：在“功能”中设置）。"
+        }
+      }
+    },
+    "cancel_preheat": {
+      "name": "取消预热",
+      "description": "清除一次性请求，并跳过正在进行或下一次计划的预热。"
+    }
+  },
+  "exceptions": {
+    "boost_disabled": {
+      "message": "立即供暖已关闭（设置 -> 功能）。"
+    },
+    "boost_summer": {
+      "message": "夏季模式下无法启动立即供暖。"
+    },
+    "boost_window": {
+      "message": "{room}：窗户打开时无法启动立即供暖。"
+    },
+    "boost_stale": {
+      "message": "{room}：温度计数据已过期，因此无法启动立即供暖。"
+    },
+    "boost_inactive": {
+      "message": "{room}：房间内没有已开启且可连接的阀门。"
+    },
+    "preheat_disabled": {
+      "message": "预热已关闭（设置 -> 功能）。"
+    },
+    "preheat_past": {
+      "message": "{room}：该时间已经过去。"
+    },
+    "preheat_target": {
+      "message": "{room}：目标温度必须在 5 到 30 °C 之间。"
+    },
+    "not_a_room": {
+      "message": "{entity_id} 不是 Meross Boiler Sync 的房间热需求传感器。"
     }
   }
 }

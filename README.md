@@ -31,9 +31,13 @@ Fully localized in over 15 languages (including English, Hungarian, German, Fren
 
 ## 📋 Version History
 
-### Version 1.8
+### Version 1.9
 
 Javascript update
+
+### Version 1.8
+
+Add icon due to HACS regulations
 
 ### Version 1.7
 

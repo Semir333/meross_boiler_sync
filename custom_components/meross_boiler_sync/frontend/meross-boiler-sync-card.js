@@ -1866,7 +1866,7 @@
       this._sig = sig;
       const sz = clamp(Number(cfg.size) || 100, 70, 160) / 100;
       this._gn = 0;
-      this.shadowRoot.innerHTML = `<style>${CSS}${CSS3}</style><div class="root${this._rootCls()}" style="${this._vars(cfg)};--sz:${sz}">${this._build(data)}</div>`;
+      this.shadowRoot.innerHTML = `<style>${CSS}${CSS3}</style><div class="root${this._rootCls()}" style="${esc(this._vars(cfg))};--sz:${sz}">${this._build(data)}</div>`;
       this._applyNight();
       this._wire();
       this._after(data);
@@ -3187,7 +3187,7 @@
         return `<div class="vr" style="--c:${col}">${ic("valve")}<span class="vn">${esc(x.name)}</span><span class="a">${x.cur != null ? `<b>${this._num(x.cur, d)}°</b>` : "–"}${x.target != null ? ` → ${this._num(x.target, d)}°` : ""}</span></div>`;
       }).join("");
       const big = this._bigInner(r.cur, d);
-      const html = `<style>${CSS}${CSS3}</style><div class="root sheetroot${this._rootCls()}" style="${this._vars(c)};--sz:1">
+      const html = `<style>${CSS}${CSS3}</style><div class="root sheetroot${this._rootCls()}" style="${esc(this._vars(c))};--sz:1">
         <div class="sh-wrap${sh.open ? " open" : ""}"><div class="sh-dim" data-sact="close"></div>
         <div class="sheet" data-st="${r.status}" role="dialog" aria-modal="true" aria-label="${esc(r.name)}">
           <div class="grab" aria-hidden="true"><i></i></div>

@@ -31,6 +31,10 @@ Fully localized in over 15 languages (including English, Hungarian, German, Fren
 
 ## 📋 Version History
 
+### Version 1.8
+
+Javascript update
+
 ### Version 1.7
 
 Add heat off to profile choose
@@ -205,8 +209,15 @@ Maximum temperature setpoint feature for high ambient heat rooms (e.g., rooms wi
 ## 🙏 Acknowledgments
 Special thanks to @krahabb for creating and maintaining the foundational Meross_LAN integration (https://github.com/krahabb/meross_lan).
 
+## 🚀 Normal HACS Installation
 
-## 🚀 Installation  
+1.Open HACS
+2.Search for Meross_Lan plugin and Meross Boiler Sync
+3.Download both plugins
+4.Set up and configure Meross_LAN according to its instructions. 
+5.Restart your Home Assistant
+
+## 🚀 Manual Installation if neccessary
 1.Download and install the Meross_LAN plugin via HACS.  
 2.Set up and configure Meross_LAN according to its instructions.  
 3.Download or unzip the repository files into your Home Assistant /config folder, ensuring the directory path matches: `/config/custom_components/meross_boiler_sync/`  

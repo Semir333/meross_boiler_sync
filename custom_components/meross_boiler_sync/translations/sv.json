@@ -25,7 +25,7 @@
           "settings": "Grundinställningar",
           "summer": "Sommarläge",
           "done": "Spara och avsluta",
-          "features": "Funktioner (händelser, skydd, Värm nu, förvärmning, gasuppskattning)",
+          "features": "Funktioner (händelser, skydd, Värm nu, förvärmning, gasuppskattning, ventilkalibrering)",
           "preheat": "Förvärmningsschema (per rum)"
         }
       },
@@ -42,7 +42,8 @@
           "valve_demand_link": "Koppla pannans värmebehov till ventilens tillstånd",
           "humidity_sensor": "Rummets fuktsensor (valfri)",
           "window_sensors": "Fönster-/dörrsensor(er) (valfri)",
-          "window_open_delay": "Fördröjning för öppet fönster – det här rummet, minuter (tomt = globalt värde)"
+          "window_open_delay": "Fördröjning för öppet fönster – det här rummet, minuter (tomt = globalt värde)",
+          "calibrate_valves": "Automatisk ventilkalibrering (om påslagen under Funktioner)"
         },
         "data_description": {
           "name": "T.ex. Vardagsrum",
@@ -55,7 +56,8 @@
           "valve_demand_link": "När detta är på begär rummet bara värme från pannan när ventilen är öppen (ventilens egen mätning ligger under dess mål) eller när insticksprogrammet tvingar upp den. Då eldar pannan inte mot stängda ventiler vid små avvikelser. Blockerar inte värmen om ventildata saknas.",
           "humidity_sensor": "Vid hög luftfuktighet höjs rummets måltemperatur något (se Grundinställningar).",
           "window_sensors": "Så länge ett fönster eller en dörr står öppen längre än fördröjningen begär rummet ingen värme och ventilhöjningen släpps. Med flera sensorer räcker det att en är öppen.",
-          "window_open_delay": "Hur länge fönstret måste vara öppet innan rummet reagerar, så att kort vädring inte ändrar något. 0 = direkt. Om tomt gäller det globala värdet."
+          "window_open_delay": "Hur länge fönstret måste vara öppet innan rummet reagerar, så att kort vädring inte ändrar något. 0 = direkt. Om tomt gäller det globala värdet.",
+          "calibrate_valves": "Korrigerar ventilernas temperaturmätning med rumstermometern. Fungerar bara med en rumstemperatursensor. När den är av lämnas ventilerna i det här rummet orörda."
         }
       },
       "edit_room": {
@@ -77,7 +79,8 @@
           "valve_demand_link": "Koppla pannans värmebehov till ventilens tillstånd",
           "humidity_sensor": "Rummets fuktsensor (valfri)",
           "window_sensors": "Fönster-/dörrsensor(er) (valfri)",
-          "window_open_delay": "Fördröjning för öppet fönster – det här rummet, minuter (tomt = globalt värde)"
+          "window_open_delay": "Fördröjning för öppet fönster – det här rummet, minuter (tomt = globalt värde)",
+          "calibrate_valves": "Automatisk ventilkalibrering (om påslagen under Funktioner)"
         },
         "data_description": {
           "name": "T.ex. Vardagsrum",
@@ -90,7 +93,8 @@
           "valve_demand_link": "När detta är på begär rummet bara värme från pannan när ventilen är öppen (ventilens egen mätning ligger under dess mål) eller när insticksprogrammet tvingar upp den. Då eldar pannan inte mot stängda ventiler vid små avvikelser. Blockerar inte värmen om ventildata saknas.",
           "humidity_sensor": "Vid hög luftfuktighet höjs rummets måltemperatur något (se Grundinställningar).",
           "window_sensors": "Så länge ett fönster eller en dörr står öppen längre än fördröjningen begär rummet ingen värme och ventilhöjningen släpps. Med flera sensorer räcker det att en är öppen.",
-          "window_open_delay": "Hur länge fönstret måste vara öppet innan rummet reagerar, så att kort vädring inte ändrar något. 0 = direkt. Om tomt gäller det globala värdet."
+          "window_open_delay": "Hur länge fönstret måste vara öppet innan rummet reagerar, så att kort vädring inte ändrar något. 0 = direkt. Om tomt gäller det globala värdet.",
+          "calibrate_valves": "Korrigerar ventilernas temperaturmätning med rumstermometern. Fungerar bara med en rumstemperatursensor. När den är av lämnas ventilerna i det här rummet orörda."
         }
       },
       "remove_room": {
@@ -152,7 +156,7 @@
       },
       "features": {
         "title": "Funktioner",
-        "description": "Varje funktion kan slås på och av separat.\n\n**Händelser**: pluginet skickar `meross_boiler_sync_event`-händelser (ventilboost, fönster, föråldrad sensor, korta cykler, Värm nu, förvärmning) som du kan använda i automationer; de kan också läsas i HA:s loggbok.\n\n**Övervakning av pannans cykler**: räknar pannans starter och varnar för korta cykler.\n\n**Skydd**: när det är på förblir pannan på / av i minst den angivna tiden, även om rummens värmebehov ändras under tiden. Det kan försena uppvärmningen, därför är det av som standard.\n\n**Värm nu**: tjänsten `meross_boiler_sync.boost_now` (och knappen på korten) höjer tillfälligt rummets mål. Den startar inte i sommarläge, med öppet fönster eller föråldrad sensor.\n\n**Förvärmning**: värmer upp rummet till en given tid och räknar utifrån den inlärda uppvärmningshastigheten ut när det måste starta. Ställ in veckoschemat under *Förvärmningsschema* i huvudmenyn. Den startar av sig själv, därför är den av som standard.\n\n**Gasuppskattning**: skapar en sensor för uppskattad gasförbrukning (m³) som du kan välja under *Gasförbrukning* i Energi-instrumentpanelen. Den multiplicerar pannans på-tid med gasförbrukningen som anges nedan. Det är en uppskattning, inte en mätning, och är av som standard.",
+        "description": "Varje funktion kan slås på och av separat.\n\n**Händelser**: pluginet skickar `meross_boiler_sync_event`-händelser (ventilboost, fönster, föråldrad sensor, korta cykler, Värm nu, förvärmning) som du kan använda i automationer; de kan också läsas i HA:s loggbok.\n\n**Övervakning av pannans cykler**: räknar pannans starter och varnar för korta cykler.\n\n**Skydd**: när det är på förblir pannan på / av i minst den angivna tiden, även om rummens värmebehov ändras under tiden. Det kan försena uppvärmningen, därför är det av som standard.\n\n**Värm nu**: tjänsten `meross_boiler_sync.boost_now` (och knappen på korten) höjer tillfälligt rummets mål. Den startar inte i sommarläge, med öppet fönster eller föråldrad sensor.\n\n**Förvärmning**: värmer upp rummet till en given tid och räknar utifrån den inlärda uppvärmningshastigheten ut när det måste starta. Ställ in veckoschemat under *Förvärmningsschema* i huvudmenyn. Den startar av sig själv, därför är den av som standard.\n\n**Gasuppskattning**: skapar en sensor för uppskattad gasförbrukning (m³) som du kan välja under *Gasförbrukning* i Energi-instrumentpanelen. Den multiplicerar pannans på-tid med gasförbrukningen som anges nedan. Det är en uppskattning, inte en mätning, och är av som standard.\n\n**Ventilkalibrering** (experimentell): justerar radiatorventilernas temperaturmätning efter rumstermometern via ventilens sifferentitet *Kalibrering*. Mäter bara när elementet har svalnat (pannan eller ventilen har inte värmt på minst 90 minuter), vid stabil rumstemperatur och stängda fönster, och ändrar bara värdet om avvikelsen är minst 0,8 °C. Varje ändring kontrolleras och återställs om den inte hjälpte; efter två misslyckade försök pausas ventilen i en vecka (avisering under Reparationer). Pannans termostat rörs aldrig. *Testläge* loggar bara vad som skulle ändras. Funktionen skriver en bestående inställning i ventilen och är därför avstängd som standard; när den stängs av behålls värdena som redan är inställda.",
         "data": {
           "events_enabled": "Händelser och loggboksposter",
           "cycle_monitor_enabled": "Övervakning av pannans cykler (sensorer)",
@@ -170,7 +174,9 @@
           "preheat_default_rate": "Förvärmning: standardhastighet för uppvärmning (tills den har lärts in)",
           "manual_boost_end_on_target": "Värm nu: avsluta när rummet når det höjda målet",
           "gas_estimate_enabled": "Gasuppskattning (för Energi-instrumentpanelen)",
-          "gas_m3_per_hour": "Gasuppskattning: gasförbrukning när pannan är på"
+          "gas_m3_per_hour": "Gasuppskattning: gasförbrukning när pannan är på",
+          "calibration_enabled": "Ventilkalibrering (automatisk, experimentell)",
+          "calibration_dry_run": "Ventilkalibrering: testläge (endast logg)"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Om pannan har startat så många gånger eller fler den senaste timmen slås sensorn Korta cykler på.",
@@ -181,7 +187,9 @@
           "preheat_default_rate": "Pluginet mäter varje rums uppvärmningshastighet medan det värms; tills det har tillräckligt med mätningar (cirka 20 minuters uppvärmning) använder det detta antal grader per timme.",
           "manual_boost_end_on_target": "När den är av varar Värm nu hela tiden och håller det höjda målet.",
           "gas_estimate_enabled": "Lägger till sensorn för uppskattad gasförbrukning. Den räknar pannans på-tid; tid då Home Assistant inte körs räknas inte.",
-          "gas_m3_per_hour": "Hur många m³ gas pannan förbrukar per timme medan den är på (se typskylten eller fakturan). Jämför sensorn med avläsningen på gasmätaren och justera värdet tills de stämmer överens."
+          "gas_m3_per_hour": "Hur många m³ gas pannan förbrukar per timme medan den är på (se typskylten eller fakturan). Jämför sensorn med avläsningen på gasmätaren och justera värdet tills de stämmer överens.",
+          "calibration_enabled": "När den är på justerar pluginet automatiskt ventilernas kalibreringsvärde utifrån rumstermometern (Meross LAN: talet *Kalibrering*). Enskilda rum kan stängas av när du redigerar rummet. Funktionen skriver en bestående inställning i ventilen, så testa den först i testläge.",
+          "calibration_dry_run": "Loggar bara och skickar en händelse om vad som skulle ställas in, men skriver inget till ventilen. Ändringar som redan pågår fortsätter inte i testläge."
         }
       },
       "preheat": {
@@ -305,6 +313,9 @@
           "temperature_sensor_stale": {
             "name": "Rummets temperatursensor rapporterar inte (inaktuell)"
           },
+          "temperature_sensor_unreliable": {
+            "name": "Rummets temperatursensor är opålitlig (omöjliga eller ryckiga värden)"
+          },
           "valve_boost_resting": {
             "name": "Ventilhöjning på paus efter maxtiden"
           },
@@ -385,6 +396,18 @@
           },
           "heating_rate_learned": {
             "name": "Uppvärmningshastigheten har lärts in"
+          },
+          "calibration_enabled": {
+            "name": "Ventilkalibrering är på"
+          },
+          "calibration_dry_run": {
+            "name": "Ventilkalibrering i testläge"
+          },
+          "calibration_room": {
+            "name": "Det här rummet deltar i ventilkalibreringen"
+          },
+          "valve_calibration": {
+            "name": "Ventilkalibrering (status per ventil)"
           }
         }
       },
@@ -488,9 +511,17 @@
       "title": "Rummets temperatursensor rapporterar inte längre",
       "description": "Temperatursensorn {sensor} i rummet {room} har inte rapporterat på över {hours} timmar (batteriet kan vara slut eller anslutningen bruten). Rummet använder nu ventilernas egen mätning och den automatiska ventilregleringen är pausad. Den här aviseringen försvinner när sensorn rapporterar igen."
     },
+    "unreliable_room_temp": {
+      "title": "Rummets temperatursensor är inte pålitlig",
+      "description": "Temperatursensorn {sensor} i rummet {room} rapporterade ett omöjligt eller ryckigt värde (till exempel ett felvärde eller snabba hopp upp och ner) och ignoreras därför i {minutes} minuter. Rummet använder nu ventilernas egen mätning, och den automatiska ventilregleringen och ventilkalibreringen är pausade. Den här aviseringen försvinner när sensorn åter ger rimliga värden."
+    },
     "stale_outdoor": {
       "title": "Utomhustemperatursensorn rapporterar inte längre",
       "description": "Utomhussensorn {sensor} har inte rapporterat på över {hours} timmar (batteriet kan vara slut). Sommarläget förblir avstängt tills den rapporterar igen, så uppvärmning är fortsatt tillåten. Den här aviseringen försvinner när sensorn rapporterar igen."
+    },
+    "calibration_suspended": {
+      "title": "Ventilkalibrering pausad",
+      "description": "På ventilen {valve} i {room} gjorde två kalibreringsändringar i rad inte att ventilens mätning kom närmare rumstermometern. Därför är den automatiska kalibreringen pausad för den här ventilen i {days} dagar, och det tidigare värdet har återställts. Kontrollera ventilens tal *Kalibrering* och om ventilen verkligen använder det. Aviseringen försvinner när pausen är slut eller funktionen stängs av."
     }
   },
   "selector": {
@@ -560,6 +591,9 @@
     },
     "boost_stale": {
       "message": "{room}: termometern är föråldrad, så Värm nu kan inte starta."
+    },
+    "boost_unreliable": {
+      "message": "{room}: termometern är inte pålitlig (omöjliga eller ryckiga värden), så Värm nu kan inte starta."
     },
     "boost_inactive": {
       "message": "{room}: det finns ingen påslagen, nåbar ventil i rummet."

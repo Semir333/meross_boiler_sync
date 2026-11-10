@@ -25,7 +25,7 @@
           "settings": "Ustawienia podstawowe",
           "summer": "Tryb letni",
           "done": "Zapisz i zakończ",
-          "features": "Funkcje (zdarzenia, ochrona, Ogrzej teraz, wstępne ogrzewanie, szacowanie gazu)",
+          "features": "Funkcje (zdarzenia, ochrona, Ogrzej teraz, wstępne ogrzewanie, szacowanie gazu, kalibracja zaworów)",
           "preheat": "Harmonogram wstępnego ogrzewania (dla pomieszczenia)"
         }
       },
@@ -42,7 +42,8 @@
           "valve_demand_link": "Powiąż zapotrzebowanie kotła ze stanem zaworu",
           "humidity_sensor": "Czujnik wilgotności pomieszczenia (opcjonalnie)",
           "window_sensors": "Czujnik(i) okna / drzwi (opcjonalnie)",
-          "window_open_delay": "Opóźnienie otwartego okna – to pomieszczenie, minuty (puste = wartość globalna)"
+          "window_open_delay": "Opóźnienie otwartego okna – to pomieszczenie, minuty (puste = wartość globalna)",
+          "calibrate_valves": "Automatyczna kalibracja zaworów (jeśli włączona w Funkcjach)"
         },
         "data_description": {
           "name": "Np. Salon",
@@ -55,7 +56,8 @@
           "valve_demand_link": "Gdy włączone, pomieszczenie zgłasza zapotrzebowanie na ciepło do kotła tylko wtedy, gdy jego zawór jest otwarty (własny pomiar zaworu jest poniżej jego celu) lub gdy wtyczka właśnie go wymusza. Dzięki temu kocioł nie pracuje na zamknięte zawory przy małych odchyłkach. Nie blokuje ogrzewania, gdy brakuje danych zaworu.",
           "humidity_sensor": "Przy wysokiej wilgotności temperatura docelowa pomieszczenia jest lekko podnoszona (patrz Ustawienia podstawowe).",
           "window_sensors": "Dopóki okno lub drzwi są otwarte dłużej niż opóźnienie, pomieszczenie nie zgłasza zapotrzebowania na ciepło, a wymuszanie zaworu jest zwalniane. Przy kilku czujnikach liczy się każdy otwarty.",
-          "window_open_delay": "Jak długo okno musi być otwarte, zanim pomieszczenie zareaguje, aby krótkie wietrzenie niczego nie przełączało. 0 = natychmiast. Jeśli puste, obowiązuje wartość globalna."
+          "window_open_delay": "Jak długo okno musi być otwarte, zanim pomieszczenie zareaguje, aby krótkie wietrzenie niczego nie przełączało. 0 = natychmiast. Jeśli puste, obowiązuje wartość globalna.",
+          "calibrate_valves": "Koryguje pomiar temperatury zaworów za pomocą termometru w pomieszczeniu. Działa tylko z czujnikiem temperatury pomieszczenia. Po wyłączeniu zawory tego pomieszczenia pozostają nietknięte."
         }
       },
       "edit_room": {
@@ -77,7 +79,8 @@
           "valve_demand_link": "Powiąż zapotrzebowanie kotła ze stanem zaworu",
           "humidity_sensor": "Czujnik wilgotności pomieszczenia (opcjonalnie)",
           "window_sensors": "Czujnik(i) okna / drzwi (opcjonalnie)",
-          "window_open_delay": "Opóźnienie otwartego okna – to pomieszczenie, minuty (puste = wartość globalna)"
+          "window_open_delay": "Opóźnienie otwartego okna – to pomieszczenie, minuty (puste = wartość globalna)",
+          "calibrate_valves": "Automatyczna kalibracja zaworów (jeśli włączona w Funkcjach)"
         },
         "data_description": {
           "name": "Np. Salon",
@@ -90,7 +93,8 @@
           "valve_demand_link": "Gdy włączone, pomieszczenie zgłasza zapotrzebowanie na ciepło do kotła tylko wtedy, gdy jego zawór jest otwarty (własny pomiar zaworu jest poniżej jego celu) lub gdy wtyczka właśnie go wymusza. Dzięki temu kocioł nie pracuje na zamknięte zawory przy małych odchyłkach. Nie blokuje ogrzewania, gdy brakuje danych zaworu.",
           "humidity_sensor": "Przy wysokiej wilgotności temperatura docelowa pomieszczenia jest lekko podnoszona (patrz Ustawienia podstawowe).",
           "window_sensors": "Dopóki okno lub drzwi są otwarte dłużej niż opóźnienie, pomieszczenie nie zgłasza zapotrzebowania na ciepło, a wymuszanie zaworu jest zwalniane. Przy kilku czujnikach liczy się każdy otwarty.",
-          "window_open_delay": "Jak długo okno musi być otwarte, zanim pomieszczenie zareaguje, aby krótkie wietrzenie niczego nie przełączało. 0 = natychmiast. Jeśli puste, obowiązuje wartość globalna."
+          "window_open_delay": "Jak długo okno musi być otwarte, zanim pomieszczenie zareaguje, aby krótkie wietrzenie niczego nie przełączało. 0 = natychmiast. Jeśli puste, obowiązuje wartość globalna.",
+          "calibrate_valves": "Koryguje pomiar temperatury zaworów za pomocą termometru w pomieszczeniu. Działa tylko z czujnikiem temperatury pomieszczenia. Po wyłączeniu zawory tego pomieszczenia pozostają nietknięte."
         }
       },
       "remove_room": {
@@ -152,7 +156,7 @@
       },
       "features": {
         "title": "Funkcje",
-        "description": "Każdą funkcję można włączać i wyłączać osobno.\n\n**Zdarzenia**: wtyczka wysyła zdarzenia `meross_boiler_sync_event` (dopalanie zaworu, okno, nieaktualny czujnik, krótkie cykle, Ogrzej teraz, wstępne ogrzewanie), których możesz używać w automatyzacjach; można je też odczytać w dzienniku HA.\n\n**Monitorowanie cykli kotła**: zlicza uruchomienia kotła i sygnalizuje krótkie cykle.\n\n**Ochrona**: po włączeniu kocioł pozostaje włączony / wyłączony co najmniej przez podany czas, nawet jeśli zapotrzebowanie pomieszczeń w międzyczasie się zmieni. Może to opóźnić ogrzewanie, dlatego domyślnie jest wyłączona.\n\n**Ogrzej teraz**: usługa `meross_boiler_sync.boost_now` (i przycisk na kartach) tymczasowo podnosi temperaturę docelową pomieszczenia. Nie uruchamia się w trybie letnim, przy otwartym oknie ani przy nieaktualnym czujniku.\n\n**Wstępne ogrzewanie**: nagrzewa pomieszczenie na określoną godzinę i na podstawie wyuczonej szybkości ogrzewania oblicza, kiedy zacząć. Tygodniowy harmonogram ustawisz w *Harmonogram wstępnego ogrzewania* w menu głównym. Uruchamia się samo, dlatego domyślnie jest wyłączone.\n\n**Szacowanie gazu**: tworzy czujnik szacowanego zużycia gazu (m³), który możesz wybrać w sekcji *Zużycie gazu* pulpitu Energia. Mnoży czas pracy kotła przez podane niżej zużycie gazu. To szacunek, nie pomiar, i domyślnie jest wyłączone.",
+        "description": "Każdą funkcję można włączać i wyłączać osobno.\n\n**Zdarzenia**: wtyczka wysyła zdarzenia `meross_boiler_sync_event` (dopalanie zaworu, okno, nieaktualny czujnik, krótkie cykle, Ogrzej teraz, wstępne ogrzewanie), których możesz używać w automatyzacjach; można je też odczytać w dzienniku HA.\n\n**Monitorowanie cykli kotła**: zlicza uruchomienia kotła i sygnalizuje krótkie cykle.\n\n**Ochrona**: po włączeniu kocioł pozostaje włączony / wyłączony co najmniej przez podany czas, nawet jeśli zapotrzebowanie pomieszczeń w międzyczasie się zmieni. Może to opóźnić ogrzewanie, dlatego domyślnie jest wyłączona.\n\n**Ogrzej teraz**: usługa `meross_boiler_sync.boost_now` (i przycisk na kartach) tymczasowo podnosi temperaturę docelową pomieszczenia. Nie uruchamia się w trybie letnim, przy otwartym oknie ani przy nieaktualnym czujniku.\n\n**Wstępne ogrzewanie**: nagrzewa pomieszczenie na określoną godzinę i na podstawie wyuczonej szybkości ogrzewania oblicza, kiedy zacząć. Tygodniowy harmonogram ustawisz w *Harmonogram wstępnego ogrzewania* w menu głównym. Uruchamia się samo, dlatego domyślnie jest wyłączone.\n\n**Szacowanie gazu**: tworzy czujnik szacowanego zużycia gazu (m³), który możesz wybrać w sekcji *Zużycie gazu* pulpitu Energia. Mnoży czas pracy kotła przez podane niżej zużycie gazu. To szacunek, nie pomiar, i domyślnie jest wyłączone.\n\n**Kalibracja zaworów** (eksperymentalna): dopasowuje pomiar temperatury zaworów grzejnikowych do termometru w pomieszczeniu za pomocą encji liczbowej zaworu *Kalibracja*. Mierzy tylko wtedy, gdy grzejnik ostygł (kocioł lub zawór nie grzeją od co najmniej 90 minut), przy stabilnej temperaturze w pomieszczeniu i zamkniętych oknach, a wartość zmienia tylko wtedy, gdy różnica wynosi co najmniej 0,8 °C. Każda zmiana jest sprawdzana i cofana, jeśli nie pomogła; po dwóch nieudanych próbach zawór jest zawieszany na tydzień (powiadomienie w Naprawach). Termostat kotła nigdy nie jest ruszany. *Tryb próbny* tylko zapisuje w dzienniku, co zostałoby zmienione. Funkcja zapisuje w zaworze trwałe ustawienie, dlatego jest domyślnie wyłączona; po wyłączeniu już ustawione wartości zostają.",
         "data": {
           "events_enabled": "Zdarzenia i wpisy w dzienniku",
           "cycle_monitor_enabled": "Monitorowanie cykli kotła (czujniki)",
@@ -170,7 +174,9 @@
           "preheat_default_rate": "Wstępne ogrzewanie: domyślna szybkość ogrzewania (do czasu nauczenia)",
           "manual_boost_end_on_target": "Ogrzej teraz: zakończ, gdy pomieszczenie osiągnie podniesioną temperaturę docelową",
           "gas_estimate_enabled": "Szacowanie gazu (dla pulpitu Energia)",
-          "gas_m3_per_hour": "Szacowanie gazu: zużycie przy włączonym kotle"
+          "gas_m3_per_hour": "Szacowanie gazu: zużycie przy włączonym kotle",
+          "calibration_enabled": "Kalibracja zaworów (automatyczna, eksperymentalna)",
+          "calibration_dry_run": "Kalibracja zaworów: tryb próbny (tylko dziennik)"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Jeśli kocioł uruchomił się tyle razy lub więcej w ciągu ostatniej godziny, czujnik Krótkie cykle zostaje włączony.",
@@ -181,7 +187,9 @@
           "preheat_default_rate": "Wtyczka mierzy szybkość ogrzewania każdego pomieszczenia podczas grzania; dopóki nie ma wystarczającej liczby próbek (około 20 minut grzania), używa tej liczby stopni na godzinę.",
           "manual_boost_end_on_target": "Po wyłączeniu Ogrzej teraz trwa przez cały podany czas i utrzymuje podniesioną temperaturę docelową.",
           "gas_estimate_enabled": "Dodaje czujnik szacowanego zużycia gazu. Liczy czas pracy kotła; czas, gdy Home Assistant nie działa, nie jest wliczany.",
-          "gas_m3_per_hour": "Ile m³ gazu kocioł zużywa na godzinę podczas pracy (zobacz tabliczkę znamionową lub rachunek). Porównaj czujnik ze wskazaniem gazomierza i dostosuj tę wartość, aż się zgodzą."
+          "gas_m3_per_hour": "Ile m³ gazu kocioł zużywa na godzinę podczas pracy (zobacz tabliczkę znamionową lub rachunek). Porównaj czujnik ze wskazaniem gazomierza i dostosuj tę wartość, aż się zgodzą.",
+          "calibration_enabled": "Po włączeniu wtyczka automatycznie dostosowuje wartość kalibracji zaworów na podstawie termometru w pomieszczeniu (Meross LAN: liczba *Kalibracja*). Pojedyncze pomieszczenia można wyłączyć podczas ich edycji. Funkcja zapisuje w zaworze trwałe ustawienie, więc najpierw wypróbuj tryb próbny.",
+          "calibration_dry_run": "Tylko zapisuje w dzienniku i wysyła zdarzenie o tym, co zostałoby ustawione, ale nic nie zapisuje w zaworze. Zmiany już rozpoczęte nie są kontynuowane w trybie próbnym."
         }
       },
       "preheat": {
@@ -305,6 +313,9 @@
           "temperature_sensor_stale": {
             "name": "Czujnik temperatury pomieszczenia nie raportuje (nieaktualny)"
           },
+          "temperature_sensor_unreliable": {
+            "name": "Czujnik temperatury pomieszczenia niewiarygodny (niemożliwe lub skaczące wartości)"
+          },
           "valve_boost_resting": {
             "name": "Wymuszanie zaworu wstrzymane po maksymalnym czasie"
           },
@@ -385,6 +396,18 @@
           },
           "heating_rate_learned": {
             "name": "Szybkość ogrzewania została wyuczona"
+          },
+          "calibration_enabled": {
+            "name": "Kalibracja zaworów jest włączona"
+          },
+          "calibration_dry_run": {
+            "name": "Kalibracja zaworów w trybie próbnym"
+          },
+          "calibration_room": {
+            "name": "To pomieszczenie bierze udział w kalibracji zaworów"
+          },
+          "valve_calibration": {
+            "name": "Kalibracja zaworów (stan każdego zaworu)"
           }
         }
       },
@@ -488,9 +511,17 @@
       "title": "Czujnik temperatury pomieszczenia przestał raportować",
       "description": "Czujnik temperatury {sensor} w pomieszczeniu {room} nie raportował od ponad {hours} godz. (bateria może być rozładowana lub utracono połączenie). Pomieszczenie używa teraz własnego pomiaru zaworów, a automatyczna regulacja zaworów jest wstrzymana. To powiadomienie zniknie, gdy czujnik znów zacznie raportować."
     },
+    "unreliable_room_temp": {
+      "title": "Czujnik temperatury pomieszczenia jest niewiarygodny",
+      "description": "Czujnik temperatury {sensor} w pomieszczeniu {room} podał niemożliwą lub skaczącą wartość (na przykład wartość błędu albo szybkie skoki w górę i w dół), dlatego jest ignorowany przez {minutes} min. Pomieszczenie używa teraz własnego pomiaru zaworów, a automatyczna regulacja i kalibracja zaworów są wstrzymane. To powiadomienie zniknie, gdy czujnik znów zacznie podawać wiarygodne wartości."
+    },
     "stale_outdoor": {
       "title": "Czujnik temperatury zewnętrznej przestał raportować",
       "description": "Czujnik zewnętrzny {sensor} nie raportował od ponad {hours} godz. (bateria może być rozładowana). Tryb letni pozostaje wyłączony, dopóki czujnik nie zacznie znów raportować, więc ogrzewanie pozostaje dozwolone. To powiadomienie zniknie, gdy czujnik znów zacznie raportować."
+    },
+    "calibration_suspended": {
+      "title": "Kalibracja zaworu zawieszona",
+      "description": "Na zaworze {valve} w pomieszczeniu {room} dwie kolejne zmiany kalibracji nie przybliżyły pomiaru zaworu do termometru w pomieszczeniu. Dlatego automatyczna kalibracja tego zaworu jest zawieszona na {days} dni; przywrócono poprzednią wartość. Sprawdź liczbę *Kalibracja* zaworu i czy zawór faktycznie ją stosuje. Powiadomienie zniknie po zakończeniu zawieszenia lub po wyłączeniu funkcji."
     }
   },
   "selector": {
@@ -560,6 +591,9 @@
     },
     "boost_stale": {
       "message": "{room}: termometr jest nieaktualny, więc Ogrzej teraz nie może się uruchomić."
+    },
+    "boost_unreliable": {
+      "message": "{room}: termometr jest niewiarygodny (niemożliwe lub skaczące wartości), więc Ogrzej teraz nie może się uruchomić."
     },
     "boost_inactive": {
       "message": "{room}: w pomieszczeniu nie ma włączonego i osiągalnego zaworu."

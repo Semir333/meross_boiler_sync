@@ -80,7 +80,12 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unload_ok:
         async_cancel_retry(hass)
         controller: BoilerController = hass.data[DOMAIN].pop(entry.entry_id)
-        controller.async_stop()
+        if getattr(entry, "disabled_by", None) is not None:
+            # letiltott integráció: később senki nem állítaná vissza az emelt szelepeket
+            await controller.async_release_all()
+        # leállít, megvárja a futó kiértékelést, és azonnal menti az állapotot: újratöltés
+        # (beállítás módosítása) után az új példány pontosan onnan folytatja
+        await controller.async_shutdown()
         if not hass.data[DOMAIN]:
             async_unload_services(hass)
     return unload_ok

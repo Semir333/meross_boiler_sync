@@ -25,7 +25,7 @@
           "settings": "Ajustes básicos",
           "summer": "Modo verano",
           "done": "Guardar y salir",
-          "features": "Funciones (eventos, protección, Calentar ahora, precalentamiento, estimación de gas)",
+          "features": "Funciones (eventos, protección, Calentar ahora, precalentamiento, estimación de gas, calibración de válvulas)",
           "preheat": "Programa de precalentamiento (por habitación)"
         }
       },
@@ -42,7 +42,8 @@
           "valve_demand_link": "Vincular la demanda de la caldera al estado de la válvula",
           "humidity_sensor": "Sensor de humedad de la habitación (opcional)",
           "window_sensors": "Sensor(es) de ventana / puerta (opcional)",
-          "window_open_delay": "Retardo de ventana abierta – esta habitación, minutos (vacío = valor global)"
+          "window_open_delay": "Retardo de ventana abierta – esta habitación, minutos (vacío = valor global)",
+          "calibrate_valves": "Calibración automática de válvulas (si está activada en Funciones)"
         },
         "data_description": {
           "name": "Ej. Salón",
@@ -55,7 +56,8 @@
           "valve_demand_link": "Si está activado, la habitación solo pide calor a la caldera cuando su válvula está abierta (la medición propia de la válvula está por debajo de su objetivo) o cuando el plugin la está forzando a abrir. Así la caldera no quema contra válvulas cerradas ante pequeñas desviaciones. No bloquea la calefacción si faltan datos de la válvula.",
           "humidity_sensor": "Con humedad alta, la temperatura objetivo de la habitación se eleva ligeramente (ver Ajustes básicos).",
           "window_sensors": "Mientras una ventana o puerta permanezca abierta más tiempo que el retardo, la habitación deja de pedir calor y se libera el refuerzo de la válvula. Con varios sensores basta con uno abierto.",
-          "window_open_delay": "Cuánto tiempo debe estar abierta la ventana antes de que la habitación reaccione, para que una ventilación breve no cambie nada. 0 = inmediato. Si está vacío, se aplica el valor global."
+          "window_open_delay": "Cuánto tiempo debe estar abierta la ventana antes de que la habitación reaccione, para que una ventilación breve no cambie nada. 0 = inmediato. Si está vacío, se aplica el valor global.",
+          "calibrate_valves": "Corrige la lectura de temperatura de las válvulas con el termómetro de la habitación. Solo funciona con un sensor de temperatura de la habitación. Desactivada, las válvulas de esta habitación no se tocan."
         }
       },
       "edit_room": {
@@ -77,7 +79,8 @@
           "valve_demand_link": "Vincular la demanda de la caldera al estado de la válvula",
           "humidity_sensor": "Sensor de humedad de la habitación (opcional)",
           "window_sensors": "Sensor(es) de ventana / puerta (opcional)",
-          "window_open_delay": "Retardo de ventana abierta – esta habitación, minutos (vacío = valor global)"
+          "window_open_delay": "Retardo de ventana abierta – esta habitación, minutos (vacío = valor global)",
+          "calibrate_valves": "Calibración automática de válvulas (si está activada en Funciones)"
         },
         "data_description": {
           "name": "Ej. Salón",
@@ -90,7 +93,8 @@
           "valve_demand_link": "Si está activado, la habitación solo pide calor a la caldera cuando su válvula está abierta (la medición propia de la válvula está por debajo de su objetivo) o cuando el plugin la está forzando a abrir. Así la caldera no quema contra válvulas cerradas ante pequeñas desviaciones. No bloquea la calefacción si faltan datos de la válvula.",
           "humidity_sensor": "Con humedad alta, la temperatura objetivo de la habitación se eleva ligeramente (ver Ajustes básicos).",
           "window_sensors": "Mientras una ventana o puerta permanezca abierta más tiempo que el retardo, la habitación deja de pedir calor y se libera el refuerzo de la válvula. Con varios sensores basta con uno abierto.",
-          "window_open_delay": "Cuánto tiempo debe estar abierta la ventana antes de que la habitación reaccione, para que una ventilación breve no cambie nada. 0 = inmediato. Si está vacío, se aplica el valor global."
+          "window_open_delay": "Cuánto tiempo debe estar abierta la ventana antes de que la habitación reaccione, para que una ventilación breve no cambie nada. 0 = inmediato. Si está vacío, se aplica el valor global.",
+          "calibrate_valves": "Corrige la lectura de temperatura de las válvulas con el termómetro de la habitación. Solo funciona con un sensor de temperatura de la habitación. Desactivada, las válvulas de esta habitación no se tocan."
         }
       },
       "remove_room": {
@@ -152,7 +156,7 @@
       },
       "features": {
         "title": "Funciones",
-        "description": "Cada función se puede activar y desactivar por separado.\n\n**Eventos**: el plugin envía eventos `meross_boiler_sync_event` (refuerzo de válvula, ventana, sensor desactualizado, ciclos cortos, Calentar ahora, precalentamiento) que puedes usar en automatizaciones; también se pueden leer en el registro de HA.\n\n**Supervisión de ciclos de la caldera**: cuenta los arranques de la caldera y avisa de los ciclos cortos.\n\n**Protección**: si está activada, la caldera permanece encendida / apagada al menos el tiempo indicado aunque la demanda de las habitaciones cambie entretanto. Puede retrasar la calefacción, por eso está desactivada por defecto.\n\n**Calentar ahora**: el servicio `meross_boiler_sync.boost_now` (y el botón de las tarjetas) sube temporalmente el objetivo de la habitación. No arranca en modo verano, con una ventana abierta ni con un sensor desactualizado.\n\n**Precalentamiento**: calienta la habitación para una hora determinada y, según la velocidad de calentamiento aprendida, calcula cuándo debe empezar. Configura el programa semanal en *Programa de precalentamiento* en el menú principal. Arranca por sí solo, por eso está desactivado por defecto.\n\n**Estimación de gas**: crea un sensor de consumo de gas estimado (m³) que puedes elegir en *Consumo de gas* del panel Energía. Multiplica el tiempo de encendido de la caldera por el consumo de gas indicado abajo. Es una estimación, no una medición, y está desactivada por defecto.",
+        "description": "Cada función se puede activar y desactivar por separado.\n\n**Eventos**: el plugin envía eventos `meross_boiler_sync_event` (refuerzo de válvula, ventana, sensor desactualizado, ciclos cortos, Calentar ahora, precalentamiento) que puedes usar en automatizaciones; también se pueden leer en el registro de HA.\n\n**Supervisión de ciclos de la caldera**: cuenta los arranques de la caldera y avisa de los ciclos cortos.\n\n**Protección**: si está activada, la caldera permanece encendida / apagada al menos el tiempo indicado aunque la demanda de las habitaciones cambie entretanto. Puede retrasar la calefacción, por eso está desactivada por defecto.\n\n**Calentar ahora**: el servicio `meross_boiler_sync.boost_now` (y el botón de las tarjetas) sube temporalmente el objetivo de la habitación. No arranca en modo verano, con una ventana abierta ni con un sensor desactualizado.\n\n**Precalentamiento**: calienta la habitación para una hora determinada y, según la velocidad de calentamiento aprendida, calcula cuándo debe empezar. Configura el programa semanal en *Programa de precalentamiento* en el menú principal. Arranca por sí solo, por eso está desactivado por defecto.\n\n**Estimación de gas**: crea un sensor de consumo de gas estimado (m³) que puedes elegir en *Consumo de gas* del panel Energía. Multiplica el tiempo de encendido de la caldera por el consumo de gas indicado abajo. Es una estimación, no una medición, y está desactivada por defecto.\n\n**Calibración de válvulas** (experimental): ajusta la lectura de temperatura de las válvulas de los radiadores al termómetro de la habitación, mediante la entidad numérica *Calibración* de la válvula. Solo mide cuando el radiador se ha enfriado (la caldera o la válvula llevan al menos 90 minutos sin calentar), con la temperatura de la habitación estable y las ventanas cerradas, y solo cambia el valor si la diferencia es de al menos 0,8 °C. Cada cambio se comprueba y se revierte si no sirvió; tras dos intentos fallidos la válvula se suspende durante una semana (aviso en Reparaciones). El termostato de la caldera nunca se toca. El *modo de prueba* solo registra qué cambiaría. La función escribe un ajuste permanente en la válvula, por eso está desactivada por defecto; al desactivarla se conservan los valores ya establecidos.",
         "data": {
           "events_enabled": "Eventos y entradas del registro",
           "cycle_monitor_enabled": "Supervisión de ciclos de la caldera (sensores)",
@@ -170,7 +174,9 @@
           "preheat_default_rate": "Precalentamiento: velocidad de calentamiento predeterminada (hasta que se aprenda)",
           "manual_boost_end_on_target": "Calentar ahora: terminar cuando la habitación alcance el objetivo elevado",
           "gas_estimate_enabled": "Estimación de gas (para el panel Energía)",
-          "gas_m3_per_hour": "Estimación de gas: consumo con la caldera encendida"
+          "gas_m3_per_hour": "Estimación de gas: consumo con la caldera encendida",
+          "calibration_enabled": "Calibración de válvulas (automática, experimental)",
+          "calibration_dry_run": "Calibración de válvulas: modo de prueba (solo registro)"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Si la caldera ha arrancado tantas veces o más en la última hora, el sensor de Ciclos cortos se activa.",
@@ -181,7 +187,9 @@
           "preheat_default_rate": "El plugin mide la velocidad de calentamiento de cada habitación mientras calienta; hasta que tiene suficientes muestras (unos 20 minutos de calefacción) usa estos grados por hora.",
           "manual_boost_end_on_target": "Si está desactivado, Calentar ahora dura el tiempo completo y mantiene el objetivo elevado.",
           "gas_estimate_enabled": "Añade el sensor de consumo de gas estimado. Cuenta el tiempo de encendido de la caldera; el tiempo en que Home Assistant no está en funcionamiento no se cuenta.",
-          "gas_m3_per_hour": "Cuántos m³ de gas consume la caldera por hora mientras está encendida (consulta la placa de características o tu factura). Compara el sensor con la lectura de tu contador de gas y ajusta este valor hasta que coincidan."
+          "gas_m3_per_hour": "Cuántos m³ de gas consume la caldera por hora mientras está encendida (consulta la placa de características o tu factura). Compara el sensor con la lectura de tu contador de gas y ajusta este valor hasta que coincidan.",
+          "calibration_enabled": "Si está activada, el plugin ajusta automáticamente el valor de calibración de las válvulas según el termómetro de la habitación (Meross LAN: el número *Calibración*). Cada habitación se puede excluir al editarla. La función escribe un ajuste permanente en la válvula: pruébala primero en modo de prueba.",
+          "calibration_dry_run": "Solo registra y envía un evento sobre lo que ajustaría, pero no escribe en la válvula. Los cambios ya en curso no continúan en modo de prueba."
         }
       },
       "preheat": {
@@ -305,6 +313,9 @@
           "temperature_sensor_stale": {
             "name": "Sensor de temperatura de la habitación sin actualizar (obsoleto)"
           },
+          "temperature_sensor_unreliable": {
+            "name": "Sensor de temperatura de la habitación poco fiable (valores imposibles o inestables)"
+          },
           "valve_boost_resting": {
             "name": "Refuerzo de la válvula en pausa tras la duración máxima"
           },
@@ -385,6 +396,18 @@
           },
           "heating_rate_learned": {
             "name": "Se ha aprendido la velocidad de calentamiento"
+          },
+          "calibration_enabled": {
+            "name": "La calibración de válvulas está activada"
+          },
+          "calibration_dry_run": {
+            "name": "Calibración de válvulas en modo de prueba"
+          },
+          "calibration_room": {
+            "name": "Esta habitación participa en la calibración de válvulas"
+          },
+          "valve_calibration": {
+            "name": "Calibración de válvulas (estado por válvula)"
           }
         }
       },
@@ -488,9 +511,17 @@
       "title": "El sensor de temperatura de la habitación no se actualiza",
       "description": "El sensor de temperatura {sensor} de la habitación {room} no ha informado desde hace más de {hours} horas (puede que la batería esté agotada o que se haya perdido la conexión). La habitación usa ahora la medición propia de las válvulas y el control automático de válvulas está en pausa. Este aviso desaparece en cuanto el sensor vuelva a informar."
     },
+    "unreliable_room_temp": {
+      "title": "El sensor de temperatura de la habitación no es fiable",
+      "description": "El sensor de temperatura {sensor} de la habitación {room} informó de un valor imposible o inestable (por ejemplo un valor de error o saltos rápidos arriba y abajo), por lo que se ignora durante {minutes} minutos. La habitación usa ahora la medición propia de las válvulas; el control automático y la calibración de las válvulas están en pausa. Este aviso desaparece en cuanto el sensor vuelva a dar valores creíbles."
+    },
     "stale_outdoor": {
       "title": "El sensor de temperatura exterior no se actualiza",
       "description": "El sensor exterior {sensor} no ha informado desde hace más de {hours} horas (puede que la batería esté agotada). El modo verano permanece desactivado hasta que vuelva a informar, por lo que la calefacción sigue permitida. Este aviso desaparece en cuanto el sensor vuelva a informar."
+    },
+    "calibration_suspended": {
+      "title": "Calibración de válvulas suspendida",
+      "description": "En la válvula {valve} de {room}, dos cambios de calibración seguidos no acercaron la lectura de la válvula al termómetro de la habitación. Por eso la calibración automática está suspendida para esta válvula durante {days} días; se restauró el valor anterior. Revisa el número *Calibración* de la válvula y si la válvula realmente lo aplica. El aviso desaparece cuando termina la suspensión o se desactiva la función."
     }
   },
   "selector": {
@@ -560,6 +591,9 @@
     },
     "boost_stale": {
       "message": "{room}: el termómetro está desactualizado, por lo que Calentar ahora no puede arrancar."
+    },
+    "boost_unreliable": {
+      "message": "{room}: el termómetro no es fiable (valores imposibles o inestables), por lo que Calentar ahora no puede arrancar."
     },
     "boost_inactive": {
       "message": "{room}: no hay ninguna válvula activada y accesible en la habitación."

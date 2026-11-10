@@ -25,7 +25,7 @@
           "settings": "Grundeinstellungen",
           "summer": "Sommermodus",
           "done": "Speichern und beenden",
-          "features": "Funktionen (Ereignisse, Schutz, Jetzt heizen, Vorheizen, Gasschätzung)",
+          "features": "Funktionen (Ereignisse, Schutz, Jetzt heizen, Vorheizen, Gasschätzung, Ventilkalibrierung)",
           "preheat": "Vorheiz-Zeitplan (pro Raum)"
         }
       },
@@ -42,7 +42,8 @@
           "valve_demand_link": "Kesselanforderung an den Ventilzustand koppeln",
           "humidity_sensor": "Raum-Feuchtesensor (optional)",
           "window_sensors": "Fenster-/Türsensor(en) (optional)",
-          "window_open_delay": "Verzögerung bei offenem Fenster – dieser Raum, Minuten (leer = globaler Wert)"
+          "window_open_delay": "Verzögerung bei offenem Fenster – dieser Raum, Minuten (leer = globaler Wert)",
+          "calibrate_valves": "Automatische Ventilkalibrierung (wenn unter Funktionen aktiv)"
         },
         "data_description": {
           "name": "Z. B. Wohnzimmer",
@@ -55,7 +56,8 @@
           "valve_demand_link": "Wenn aktiv, fordert der Raum den Kessel nur an, wenn sein Ventil offen ist (die eigene Messung des Ventils liegt unter seinem Ziel) oder wenn das Plugin es gerade öffnet. So feuert der Kessel bei kleinen Abweichungen nicht gegen geschlossene Ventile. Blockiert die Heizung nicht, wenn Ventildaten fehlen.",
           "humidity_sensor": "Bei hoher Luftfeuchtigkeit wird die Zieltemperatur des Raums leicht angehoben (siehe Grundeinstellungen).",
           "window_sensors": "Solange ein Fenster oder eine Tür länger als die Verzögerung offen ist, fordert der Raum keine Wärme an und die Ventil-Anhebung wird beendet. Bei mehreren Sensoren zählt jeder offene.",
-          "window_open_delay": "Wie lange das Fenster offen sein muss, bevor der Raum reagiert, damit kurzes Lüften nichts schaltet. 0 = sofort. Wenn leer, gilt der globale Wert."
+          "window_open_delay": "Wie lange das Fenster offen sein muss, bevor der Raum reagiert, damit kurzes Lüften nichts schaltet. 0 = sofort. Wenn leer, gilt der globale Wert.",
+          "calibrate_valves": "Korrigiert die Temperaturmessung der Ventile anhand des Raumthermometers. Funktioniert nur mit einem Raumtemperatursensor. Ausgeschaltet bleiben die Ventile dieses Raums unangetastet."
         }
       },
       "edit_room": {
@@ -77,7 +79,8 @@
           "valve_demand_link": "Kesselanforderung an den Ventilzustand koppeln",
           "humidity_sensor": "Raum-Feuchtesensor (optional)",
           "window_sensors": "Fenster-/Türsensor(en) (optional)",
-          "window_open_delay": "Verzögerung bei offenem Fenster – dieser Raum, Minuten (leer = globaler Wert)"
+          "window_open_delay": "Verzögerung bei offenem Fenster – dieser Raum, Minuten (leer = globaler Wert)",
+          "calibrate_valves": "Automatische Ventilkalibrierung (wenn unter Funktionen aktiv)"
         },
         "data_description": {
           "name": "Z. B. Wohnzimmer",
@@ -90,7 +93,8 @@
           "valve_demand_link": "Wenn aktiv, fordert der Raum den Kessel nur an, wenn sein Ventil offen ist (die eigene Messung des Ventils liegt unter seinem Ziel) oder wenn das Plugin es gerade öffnet. So feuert der Kessel bei kleinen Abweichungen nicht gegen geschlossene Ventile. Blockiert die Heizung nicht, wenn Ventildaten fehlen.",
           "humidity_sensor": "Bei hoher Luftfeuchtigkeit wird die Zieltemperatur des Raums leicht angehoben (siehe Grundeinstellungen).",
           "window_sensors": "Solange ein Fenster oder eine Tür länger als die Verzögerung offen ist, fordert der Raum keine Wärme an und die Ventil-Anhebung wird beendet. Bei mehreren Sensoren zählt jeder offene.",
-          "window_open_delay": "Wie lange das Fenster offen sein muss, bevor der Raum reagiert, damit kurzes Lüften nichts schaltet. 0 = sofort. Wenn leer, gilt der globale Wert."
+          "window_open_delay": "Wie lange das Fenster offen sein muss, bevor der Raum reagiert, damit kurzes Lüften nichts schaltet. 0 = sofort. Wenn leer, gilt der globale Wert.",
+          "calibrate_valves": "Korrigiert die Temperaturmessung der Ventile anhand des Raumthermometers. Funktioniert nur mit einem Raumtemperatursensor. Ausgeschaltet bleiben die Ventile dieses Raums unangetastet."
         }
       },
       "remove_room": {
@@ -152,7 +156,7 @@
       },
       "features": {
         "title": "Funktionen",
-        "description": "Jede Funktion lässt sich einzeln ein- und ausschalten.\n\n**Ereignisse**: Das Plugin sendet `meross_boiler_sync_event`-Ereignisse (Ventilanhebung, Fenster, veralteter Sensor, Kurzzyklen, Jetzt heizen, Vorheizen), die du in Automationen nutzen kannst; sie sind auch im HA-Logbuch zu lesen.\n\n**Kesselzyklen überwachen**: zählt die Kesselstarts und meldet Kurzzyklen.\n\n**Schutz**: Wenn aktiv, bleibt der Kessel mindestens die angegebene Zeit ein- bzw. ausgeschaltet, auch wenn sich der Wärmebedarf der Räume in der Zwischenzeit ändert. Das kann die Heizung verzögern, daher ist es standardmäßig aus.\n\n**Jetzt heizen**: Der Dienst `meross_boiler_sync.boost_now` (und die Schaltfläche der Karten) hebt das Ziel des Raums vorübergehend an. Er startet nicht im Sommermodus, bei offenem Fenster oder veraltetem Sensor.\n\n**Vorheizen**: Heizt den Raum zu einer bestimmten Zeit auf und berechnet anhand der gelernten Aufheizrate, wann es beginnen muss. Den Wochenplan stellst du im Hauptmenü unter *Vorheiz-Zeitplan* ein. Es startet von selbst, daher ist es standardmäßig aus.\n\n**Gasschätzung**: erstellt einen Sensor für den geschätzten Gasverbrauch (m³), den du im Energie-Dashboard unter *Gasverbrauch* auswählen kannst. Er multipliziert die Einschaltzeit des Kessels mit dem unten eingestellten Gasverbrauch. Es ist eine Schätzung, keine Messung, und standardmäßig ausgeschaltet.",
+        "description": "Jede Funktion lässt sich einzeln ein- und ausschalten.\n\n**Ereignisse**: Das Plugin sendet `meross_boiler_sync_event`-Ereignisse (Ventilanhebung, Fenster, veralteter Sensor, Kurzzyklen, Jetzt heizen, Vorheizen), die du in Automationen nutzen kannst; sie sind auch im HA-Logbuch zu lesen.\n\n**Kesselzyklen überwachen**: zählt die Kesselstarts und meldet Kurzzyklen.\n\n**Schutz**: Wenn aktiv, bleibt der Kessel mindestens die angegebene Zeit ein- bzw. ausgeschaltet, auch wenn sich der Wärmebedarf der Räume in der Zwischenzeit ändert. Das kann die Heizung verzögern, daher ist es standardmäßig aus.\n\n**Jetzt heizen**: Der Dienst `meross_boiler_sync.boost_now` (und die Schaltfläche der Karten) hebt das Ziel des Raums vorübergehend an. Er startet nicht im Sommermodus, bei offenem Fenster oder veraltetem Sensor.\n\n**Vorheizen**: Heizt den Raum zu einer bestimmten Zeit auf und berechnet anhand der gelernten Aufheizrate, wann es beginnen muss. Den Wochenplan stellst du im Hauptmenü unter *Vorheiz-Zeitplan* ein. Es startet von selbst, daher ist es standardmäßig aus.\n\n**Gasschätzung**: erstellt einen Sensor für den geschätzten Gasverbrauch (m³), den du im Energie-Dashboard unter *Gasverbrauch* auswählen kannst. Er multipliziert die Einschaltzeit des Kessels mit dem unten eingestellten Gasverbrauch. Es ist eine Schätzung, keine Messung, und standardmäßig ausgeschaltet.\n\n**Ventilkalibrierung** (experimentell): gleicht die Temperaturmessung der Heizkörperventile über die Zahlen-Entität *Kalibrierung* des Ventils an das Raumthermometer an. Gemessen wird nur, wenn der Heizkörper abgekühlt ist (Kessel oder Ventil heizen seit mindestens 90 Minuten nicht), bei stabiler Raumtemperatur und geschlossenen Fenstern; geändert wird nur, wenn die Abweichung mindestens 0,8 °C beträgt. Jede Änderung wird überprüft und zurückgesetzt, wenn sie nichts gebracht hat; nach zwei erfolglosen Versuchen wird das Ventil für eine Woche pausiert (Hinweis unter Reparaturen). Der Kessel-Thermostat wird nie angefasst. Der *Testbetrieb* protokolliert nur, was geändert würde. Die Funktion schreibt eine dauerhafte Einstellung ins Ventil und ist daher standardmäßig aus; beim Ausschalten bleiben bereits gesetzte Werte erhalten.",
         "data": {
           "events_enabled": "Ereignisse und Logbucheinträge",
           "cycle_monitor_enabled": "Kesselzyklen überwachen (Sensoren)",
@@ -170,7 +174,9 @@
           "preheat_default_rate": "Vorheizen: Standard-Aufheizrate (bis sie gelernt ist)",
           "manual_boost_end_on_target": "Jetzt heizen: beenden, wenn der Raum das angehobene Ziel erreicht",
           "gas_estimate_enabled": "Gasschätzung (für das Energie-Dashboard)",
-          "gas_m3_per_hour": "Gasschätzung: Gasverbrauch bei eingeschaltetem Kessel"
+          "gas_m3_per_hour": "Gasschätzung: Gasverbrauch bei eingeschaltetem Kessel",
+          "calibration_enabled": "Ventilkalibrierung (automatisch, experimentell)",
+          "calibration_dry_run": "Ventilkalibrierung: Testbetrieb (nur protokollieren)"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Wenn der Kessel in der letzten Stunde so oft oder öfter gestartet ist, schaltet sich der Sensor „Kurzzyklen“ ein.",
@@ -181,7 +187,9 @@
           "preheat_default_rate": "Das Plugin misst die Aufheizrate jedes Raums beim Heizen; bis genug Messwerte vorliegen (etwa 20 Minuten Heizen), rechnet es mit dieser Zahl an Grad pro Stunde.",
           "manual_boost_end_on_target": "Wenn aus, dauert „Jetzt heizen“ die volle Dauer und hält das angehobene Ziel.",
           "gas_estimate_enabled": "Fügt den Sensor für den geschätzten Gasverbrauch hinzu. Er zählt die Einschaltzeit des Kessels; Zeiten, in denen Home Assistant nicht läuft, werden nicht gezählt.",
-          "gas_m3_per_hour": "Wie viele m³ Gas der Kessel pro Stunde im eingeschalteten Zustand verbraucht (siehe Typenschild oder Rechnung). Vergleiche den Sensor mit dem Stand deines Gaszählers und passe den Wert an, bis beide übereinstimmen."
+          "gas_m3_per_hour": "Wie viele m³ Gas der Kessel pro Stunde im eingeschalteten Zustand verbraucht (siehe Typenschild oder Rechnung). Vergleiche den Sensor mit dem Stand deines Gaszählers und passe den Wert an, bis beide übereinstimmen.",
+          "calibration_enabled": "Wenn aktiv, passt das Plugin den Kalibrierwert der Ventile automatisch anhand des Raumthermometers an (Meross LAN: die Zahl *Kalibrierung*). Einzelne Räume lassen sich beim Bearbeiten des Raums ausschalten. Die Funktion schreibt eine dauerhafte Einstellung ins Ventil – probiere sie zuerst im Testbetrieb aus.",
+          "calibration_dry_run": "Protokolliert nur und sendet ein Ereignis, was eingestellt würde, schreibt aber nichts ins Ventil. Bereits laufende Änderungen werden im Testbetrieb nicht fortgesetzt."
         }
       },
       "preheat": {
@@ -305,6 +313,9 @@
           "temperature_sensor_stale": {
             "name": "Raum-Temperatursensor meldet nicht (veraltet)"
           },
+          "temperature_sensor_unreliable": {
+            "name": "Raum-Temperatursensor unzuverlässig (unmögliche oder sprunghafte Werte)"
+          },
           "valve_boost_resting": {
             "name": "Ventil-Anhebung pausiert nach Höchstdauer"
           },
@@ -385,6 +396,18 @@
           },
           "heating_rate_learned": {
             "name": "Aufheizrate wurde gelernt"
+          },
+          "calibration_enabled": {
+            "name": "Ventilkalibrierung ist aktiv"
+          },
+          "calibration_dry_run": {
+            "name": "Ventilkalibrierung im Testbetrieb"
+          },
+          "calibration_room": {
+            "name": "Dieser Raum nimmt an der Ventilkalibrierung teil"
+          },
+          "valve_calibration": {
+            "name": "Ventilkalibrierung (Status je Ventil)"
           }
         }
       },
@@ -488,9 +511,17 @@
       "title": "Raum-Temperatursensor meldet nicht mehr",
       "description": "Der Temperatursensor {sensor} von Raum {room} hat seit über {hours} Stunden nichts gemeldet (möglicherweise ist die Batterie leer oder die Verbindung weg). Der Raum nutzt jetzt die Eigenmessung der Ventile, die automatische Ventilregelung ist pausiert. Dieser Hinweis verschwindet, sobald der Sensor wieder meldet."
     },
+    "unreliable_room_temp": {
+      "title": "Raum-Temperatursensor ist nicht zuverlässig",
+      "description": "Der Temperatursensor {sensor} von Raum {room} hat einen unmöglichen oder sprunghaften Wert gemeldet (zum Beispiel einen Fehlerwert oder schnelles Auf und Ab) und wird deshalb {minutes} Minuten lang ignoriert. Der Raum nutzt jetzt die Eigenmessung der Ventile, die automatische Ventilregelung und die Ventilkalibrierung sind pausiert. Dieser Hinweis verschwindet, sobald der Sensor wieder plausible Werte liefert."
+    },
     "stale_outdoor": {
       "title": "Außentemperatursensor meldet nicht mehr",
       "description": "Der Außensensor {sensor} hat seit über {hours} Stunden nichts gemeldet (möglicherweise ist die Batterie leer). Der Sommermodus bleibt ausgeschaltet, bis er wieder meldet, daher bleibt das Heizen erlaubt. Dieser Hinweis verschwindet, sobald der Sensor wieder meldet."
+    },
+    "calibration_suspended": {
+      "title": "Ventilkalibrierung pausiert",
+      "description": "Beim Ventil {valve} im Raum {room} haben zwei Kalibrierungsänderungen nacheinander die Messung des Ventils nicht näher an das Raumthermometer gebracht. Die automatische Kalibrierung ist für dieses Ventil daher {days} Tage pausiert, der vorherige Wert wurde wiederhergestellt. Prüfe die Zahl *Kalibrierung* des Ventils und ob das Ventil sie wirklich anwendet. Der Hinweis verschwindet, wenn die Pause endet oder die Funktion ausgeschaltet wird."
     }
   },
   "selector": {
@@ -560,6 +591,9 @@
     },
     "boost_stale": {
       "message": "{room}: Das Thermometer ist veraltet, daher kann Jetzt heizen nicht starten."
+    },
+    "boost_unreliable": {
+      "message": "{room}: Das Thermometer ist nicht zuverlässig (unmögliche oder sprunghafte Werte), daher kann Jetzt heizen nicht starten."
     },
     "boost_inactive": {
       "message": "{room}: Im Raum gibt es kein eingeschaltetes, erreichbares Ventil."

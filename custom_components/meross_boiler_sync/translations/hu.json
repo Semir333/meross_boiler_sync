@@ -25,7 +25,7 @@
           "settings": "Alapbeállítások",
           "summer": "Nyári mód",
           "done": "Mentés és kilépés",
-          "features": "Funkciók (események, védelem, Fűts most, előfűtés, gázbecslés)",
+          "features": "Funkciók (események, védelem, Fűts most, előfűtés, gázbecslés, szelep kalibráció)",
           "preheat": "Előfűtés menetrend (szobánként)"
         }
       },
@@ -42,7 +42,8 @@
           "valve_demand_link": "Kazán hőigény a szelep állapotához kötve",
           "humidity_sensor": "Szoba páratartalom szenzor (opcionális)",
           "window_sensors": "Ablak- / ajtóérzékelő(k) (opcionális)",
-          "window_open_delay": "Ablak nyitva késleltetés – ennél a szobánál, perc (üres = általános érték)"
+          "window_open_delay": "Ablak nyitva késleltetés – ennél a szobánál, perc (üres = általános érték)",
+          "calibrate_valves": "Szelepek automata kalibrációja (ha a Funkciókban be van kapcsolva)"
         },
         "data_description": {
           "name": "Pl. Nappali",
@@ -55,7 +56,8 @@
           "valve_demand_link": "Bekapcsolva a szoba csak akkor kér hőt a kazántól, ha a szelep nyitva van (a szelep saját mérése a cél alatt van), vagy ha a plugin éppen kinyitotta. Így kis eltérésnél a kazán nem tüzel zárt szelepekbe. Szelep adat hiányában nem blokkolja a fűtést.",
           "humidity_sensor": "Magas páratartalomnál enyhén megemeli a szoba célhőmérsékletét (lásd Alapbeállítások).",
           "window_sensors": "Amíg egy ablak vagy ajtó a késleltetésnél tovább nyitva van, a szoba nem kér hőt, és a szelep emelés leáll. Több érzékelőnél bármelyik nyitott elég.",
-          "window_open_delay": "Mennyi ideig kell nyitva lennie az ablaknak, mielőtt a szoba reagál, így a rövid szellőztetés nem kapcsol semmit. 0 = azonnal. Üresen az általános érték érvényes."
+          "window_open_delay": "Mennyi ideig kell nyitva lennie az ablaknak, mielőtt a szoba reagál, így a rövid szellőztetés nem kapcsol semmit. 0 = azonnal. Üresen az általános érték érvényes.",
+          "calibrate_valves": "A szoba hőmérője alapján korrigálja a szelepek hőmérőjét. Csak megadott szoba hőmérővel működik. Kikapcsolva ennek a szobának a szelepeihez nem nyúl."
         }
       },
       "edit_room": {
@@ -77,7 +79,8 @@
           "valve_demand_link": "Kazán hőigény a szelep állapotához kötve",
           "humidity_sensor": "Szoba páratartalom szenzor (opcionális)",
           "window_sensors": "Ablak- / ajtóérzékelő(k) (opcionális)",
-          "window_open_delay": "Ablak nyitva késleltetés – ennél a szobánál, perc (üres = általános érték)"
+          "window_open_delay": "Ablak nyitva késleltetés – ennél a szobánál, perc (üres = általános érték)",
+          "calibrate_valves": "Szelepek automata kalibrációja (ha a Funkciókban be van kapcsolva)"
         },
         "data_description": {
           "name": "Pl. Nappali",
@@ -90,7 +93,8 @@
           "valve_demand_link": "Bekapcsolva a szoba csak akkor kér hőt a kazántól, ha a szelep nyitva van (a szelep saját mérése a cél alatt van), vagy ha a plugin éppen kinyitotta. Így kis eltérésnél a kazán nem tüzel zárt szelepekbe. Szelep adat hiányában nem blokkolja a fűtést.",
           "humidity_sensor": "Magas páratartalomnál enyhén megemeli a szoba célhőmérsékletét (lásd Alapbeállítások).",
           "window_sensors": "Amíg egy ablak vagy ajtó a késleltetésnél tovább nyitva van, a szoba nem kér hőt, és a szelep emelés leáll. Több érzékelőnél bármelyik nyitott elég.",
-          "window_open_delay": "Mennyi ideig kell nyitva lennie az ablaknak, mielőtt a szoba reagál, így a rövid szellőztetés nem kapcsol semmit. 0 = azonnal. Üresen az általános érték érvényes."
+          "window_open_delay": "Mennyi ideig kell nyitva lennie az ablaknak, mielőtt a szoba reagál, így a rövid szellőztetés nem kapcsol semmit. 0 = azonnal. Üresen az általános érték érvényes.",
+          "calibrate_valves": "A szoba hőmérője alapján korrigálja a szelepek hőmérőjét. Csak megadott szoba hőmérővel működik. Kikapcsolva ennek a szobának a szelepeihez nem nyúl."
         }
       },
       "remove_room": {
@@ -152,7 +156,7 @@
       },
       "features": {
         "title": "Funkciók",
-        "description": "Minden funkció külön ki- és bekapcsolható.\n\n**Események**: a plugin `meross_boiler_sync_event` eseményeket küld (szelepemelés, ablak, elavult szenzor, gyakori kapcsolgatás, Fűts most, előfűtés), amelyekre automatizációt építhetsz, és a HA naplóban is olvashatók.\n\n**Kazán ciklusok figyelése**: számolja a kazán indításait, és jelzi a gyakori kapcsolgatást.\n\n**Védelem**: ha be van kapcsolva, a kazán legalább a megadott ideig bekapcsolva / kikapcsolva marad, még akkor is, ha a szobák hőigénye közben változik. Ez késleltetheti a fűtést, ezért alapból ki van kapcsolva.\n\n**Fűts most**: a `meross_boiler_sync.boost_now` szolgáltatás (és a kártyák gombja) a szoba célhőmérsékletét ideiglenesen megemeli. Nyári módban, nyitott ablaknál és elavult szenzornál nem indul el.\n\n**Előfűtés**: a megadott időpontra felfűti a szobát, a tanult felfűtési sebesség alapján számolja ki, mikor kell kezdeni. A menetrendet a főmenü *Előfűtés menetrend* pontjában adhatod meg. Magától indul, ezért alapból ki van kapcsolva.\n\n**Gázbecslés**: becsült gázfogyasztás szenzort (m³) hoz létre, amit az Energia fülön a *Gázfogyasztás* alatt választhatsz ki. A kazán bekapcsolt idejét szorozza a lent megadott gázfogyasztással. Becslés, nem mérés, ezért alapból ki van kapcsolva.",
+        "description": "Minden funkció külön ki- és bekapcsolható.\n\n**Események**: a plugin `meross_boiler_sync_event` eseményeket küld (szelepemelés, ablak, elavult szenzor, gyakori kapcsolgatás, Fűts most, előfűtés), amelyekre automatizációt építhetsz, és a HA naplóban is olvashatók.\n\n**Kazán ciklusok figyelése**: számolja a kazán indításait, és jelzi a gyakori kapcsolgatást.\n\n**Védelem**: ha be van kapcsolva, a kazán legalább a megadott ideig bekapcsolva / kikapcsolva marad, még akkor is, ha a szobák hőigénye közben változik. Ez késleltetheti a fűtést, ezért alapból ki van kapcsolva.\n\n**Fűts most**: a `meross_boiler_sync.boost_now` szolgáltatás (és a kártyák gombja) a szoba célhőmérsékletét ideiglenesen megemeli. Nyári módban, nyitott ablaknál és elavult szenzornál nem indul el.\n\n**Előfűtés**: a megadott időpontra felfűti a szobát, a tanult felfűtési sebesség alapján számolja ki, mikor kell kezdeni. A menetrendet a főmenü *Előfűtés menetrend* pontjában adhatod meg. Magától indul, ezért alapból ki van kapcsolva.\n\n**Gázbecslés**: becsült gázfogyasztás szenzort (m³) hoz létre, amit az Energia fülön a *Gázfogyasztás* alatt választhatsz ki. A kazán bekapcsolt idejét szorozza a lent megadott gázfogyasztással. Becslés, nem mérés, ezért alapból ki van kapcsolva.\n\n**Szelep kalibráció** (kísérleti): a radiátor szelepek hőmérőjét a szoba hőmérőjéhez igazítja a szelep *Calibration* (kalibráció) szám-entitásán keresztül. Csak akkor mér, ha a radiátor már kihűlt (a kazán vagy a szelep legalább 90 perce nem fűt), stabil szobahőmérsékletnél és zárt ablaknál, és csak akkor módosít, ha az eltérés legalább 0,8 °C. Minden módosítást ellenőriz, és ha nem segített, visszaállítja; két sikertelen próba után a szelepet egy hétre felfüggeszti (Javítások üzenet). A kazán termosztátot nem érinti. A *Próbaüzem* csak naplózza, mit módosítana. Tartós beállítást ír a szelepbe, ezért alapból ki van kapcsolva; kikapcsoláskor a már beállított értékek megmaradnak.",
         "data": {
           "events_enabled": "Események és naplóbejegyzések",
           "cycle_monitor_enabled": "Kazán ciklusok figyelése (szenzorok)",
@@ -170,7 +174,9 @@
           "preheat_default_rate": "Előfűtés: alap felfűtési sebesség (amíg nem tanulta meg)",
           "manual_boost_end_on_target": "Fűts most: véget ér, ha a szoba eléri a megemelt célt",
           "gas_estimate_enabled": "Gázbecslés (az Energia fülhöz)",
-          "gas_m3_per_hour": "Gázbecslés: gázfogyasztás bekapcsolt kazánnál"
+          "gas_m3_per_hour": "Gázbecslés: gázfogyasztás bekapcsolt kazánnál",
+          "calibration_enabled": "Szelep kalibráció (automata, kísérleti)",
+          "calibration_dry_run": "Szelep kalibráció: próbaüzem (csak naplóz)"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Ha a kazán ennyiszer vagy többször indult az elmúlt órában, a Gyakori kapcsolgatás szenzor bekapcsol.",
@@ -181,7 +187,9 @@
           "preheat_default_rate": "A szoba felfűtési sebességét a plugin a fűtés közben méri; ennyi fokkal számol óránként, amíg elég mintát nem gyűjtött (kb. 20 perc fűtés).",
           "manual_boost_end_on_target": "Ha ki van kapcsolva, a Fűts most a teljes időtartamig tart, és a megemelt célt tartja.",
           "gas_estimate_enabled": "Létrehozza a becsült gázfogyasztás szenzort. A kazán bekapcsolt idejét számolja; azt az időt, amíg a Home Assistant nem fut, nem számolja.",
-          "gas_m3_per_hour": "Hány m³ gázt fogyaszt a kazán óránként, amíg be van kapcsolva (a típustáblán vagy a számlán megtalálod). Hasonlítsd össze a szenzort a gázóra állásával, és ahhoz igazítsd az értéket."
+          "gas_m3_per_hour": "Hány m³ gázt fogyaszt a kazán óránként, amíg be van kapcsolva (a típustáblán vagy a számlán megtalálod). Hasonlítsd össze a szenzort a gázóra állásával, és ahhoz igazítsd az értéket.",
+          "calibration_enabled": "Bekapcsolva a plugin a szoba hőmérője alapján automatikusan állítja a szelepek kalibrációs értékét (Meross LAN: a *Calibration* szám). A szobák külön is kikapcsolhatók a szoba szerkesztésénél. Tartós beállítást ír a szelepbe, ezért először próbaüzemben érdemes kipróbálni.",
+          "calibration_dry_run": "Csak a naplóba és eseményként jelzi, mire állítaná a kalibrációt, de nem ír a szelepbe. A már folyamatban lévő módosítások ilyenkor sem futnak tovább."
         }
       },
       "preheat": {
@@ -305,6 +313,9 @@
           "temperature_sensor_stale": {
             "name": "A szoba hőmérő nem frissül (elavult)"
           },
+          "temperature_sensor_unreliable": {
+            "name": "A szoba hőmérő nem megbízható (képtelen vagy ugráló érték)"
+          },
           "valve_boost_resting": {
             "name": "Szelep emelés pihenőn a max. idő után"
           },
@@ -385,6 +396,18 @@
           },
           "heating_rate_learned": {
             "name": "A felfűtési sebesség már megtanulva"
+          },
+          "calibration_enabled": {
+            "name": "Szelep kalibráció be van kapcsolva"
+          },
+          "calibration_dry_run": {
+            "name": "Szelep kalibráció próbaüzem"
+          },
+          "calibration_room": {
+            "name": "Ez a szoba részt vesz a szelep kalibrációban"
+          },
+          "valve_calibration": {
+            "name": "Szelepek kalibrációja (állapot szelepenként)"
           }
         }
       },
@@ -488,9 +511,17 @@
       "title": "A szoba hőmérő nem frissül",
       "description": "A(z) {room} szoba {sensor} hőmérője több mint {hours} órája nem jelentett (lehet, hogy lemerült az elem vagy megszakadt a kapcsolat). A szoba most a szelepek saját mérését használja, az automata szelep szabályzás szünetel. Az értesítés eltűnik, amint a szenzor újra jelent."
     },
+    "unreliable_room_temp": {
+      "title": "A szoba hőmérő nem megbízható",
+      "description": "A(z) {room} szoba {sensor} hőmérője képtelen vagy összevissza ugráló értéket adott (például hibaértéket vagy gyors fel-le ingadozást), ezért {minutes} percig nem használom. A szoba most a szelepek saját mérését használja, az automata szelep szabályzás és a szelep kalibráció szünetel. Az értesítés eltűnik, amint a szenzor újra hihető értékeket ad."
+    },
     "stale_outdoor": {
       "title": "A kinti hőmérséklet szenzor nem frissül",
       "description": "A(z) {sensor} kinti szenzor több mint {hours} órája nem jelentett (lehet, hogy lemerült az elem). A nyári mód addig ki van kapcsolva, így a fűtés engedélyezett marad. Az értesítés eltűnik, amint a szenzor újra jelent."
+    },
+    "calibration_suspended": {
+      "title": "A szelep kalibráció felfüggesztve",
+      "description": "A(z) {room} szoba {valve} szelepén a kalibráció két egymás utáni módosítása sem hozta közelebb a szelep mérését a szoba hőmérőjéhez, ezért az automata kalibráció ennél a szelepnél {days} napra fel van függesztve. A plugin visszaállította az előző értéket. Ellenőrizd a szelep *Calibration* számát, és hogy a szelep valóban figyelembe veszi-e. Az értesítés eltűnik, amint a felfüggesztés lejár vagy a funkciót kikapcsolod."
     }
   },
   "selector": {
@@ -560,6 +591,9 @@
     },
     "boost_stale": {
       "message": "{room}: a hőmérő elavult, ezért nem indítható a Fűts most."
+    },
+    "boost_unreliable": {
+      "message": "{room}: a hőmérő nem megbízható (képtelen vagy ugráló értéket ad), ezért nem indítható a Fűts most."
     },
     "boost_inactive": {
       "message": "{room}: nincs bekapcsolt, elérhető szelep a szobában."

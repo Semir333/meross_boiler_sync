@@ -25,7 +25,7 @@
           "settings": "Basisinstellingen",
           "summer": "Zomermodus",
           "done": "Opslaan en afsluiten",
-          "features": "Functies (gebeurtenissen, beveiliging, Nu verwarmen, Voorverwarmen, gasschatting)",
+          "features": "Functies (gebeurtenissen, beveiliging, Nu verwarmen, Voorverwarmen, gasschatting, kraankalibratie)",
           "preheat": "Voorverwarmschema (per kamer)"
         }
       },
@@ -42,7 +42,8 @@
           "valve_demand_link": "Ketelvraag koppelen aan de kraanstatus",
           "humidity_sensor": "Kamervochtigheidssensor (optioneel)",
           "window_sensors": "Raam-/deursensor(en) (optioneel)",
-          "window_open_delay": "Vertraging open raam – deze kamer, minuten (leeg = algemene waarde)"
+          "window_open_delay": "Vertraging open raam – deze kamer, minuten (leeg = algemene waarde)",
+          "calibrate_valves": "Automatische kraankalibratie (indien ingeschakeld bij Functies)"
         },
         "data_description": {
           "name": "Bijv. Woonkamer",
@@ -55,7 +56,8 @@
           "valve_demand_link": "Indien ingeschakeld vraagt de kamer alleen warmte aan de ketel als de kraan open is (de eigen meting van de kraan ligt onder zijn doel) of als de plugin hem openzet. Zo stookt de ketel bij kleine afwijkingen niet tegen gesloten kranen. Blokkeert het verwarmen niet als kraangegevens ontbreken.",
           "humidity_sensor": "Bij hoge luchtvochtigheid wordt de doeltemperatuur van de kamer licht verhoogd (zie Basisinstellingen).",
           "window_sensors": "Zolang een raam of deur langer dan de vertraging open staat, vraagt de kamer geen warmte meer en stopt de kraanverhoging. Bij meerdere sensoren telt elke open sensor.",
-          "window_open_delay": "Hoe lang het raam open moet staan voordat de kamer reageert, zodat kort luchten niets schakelt. 0 = direct. Indien leeg geldt de algemene waarde."
+          "window_open_delay": "Hoe lang het raam open moet staan voordat de kamer reageert, zodat kort luchten niets schakelt. 0 = direct. Indien leeg geldt de algemene waarde.",
+          "calibrate_valves": "Corrigeert de temperatuurmeting van de kranen met de kamerthermometer. Werkt alleen met een kamertemperatuursensor. Uitgeschakeld blijven de kranen van deze kamer ongemoeid."
         }
       },
       "edit_room": {
@@ -77,7 +79,8 @@
           "valve_demand_link": "Ketelvraag koppelen aan de kraanstatus",
           "humidity_sensor": "Kamervochtigheidssensor (optioneel)",
           "window_sensors": "Raam-/deursensor(en) (optioneel)",
-          "window_open_delay": "Vertraging open raam – deze kamer, minuten (leeg = algemene waarde)"
+          "window_open_delay": "Vertraging open raam – deze kamer, minuten (leeg = algemene waarde)",
+          "calibrate_valves": "Automatische kraankalibratie (indien ingeschakeld bij Functies)"
         },
         "data_description": {
           "name": "Bijv. Woonkamer",
@@ -90,7 +93,8 @@
           "valve_demand_link": "Indien ingeschakeld vraagt de kamer alleen warmte aan de ketel als de kraan open is (de eigen meting van de kraan ligt onder zijn doel) of als de plugin hem openzet. Zo stookt de ketel bij kleine afwijkingen niet tegen gesloten kranen. Blokkeert het verwarmen niet als kraangegevens ontbreken.",
           "humidity_sensor": "Bij hoge luchtvochtigheid wordt de doeltemperatuur van de kamer licht verhoogd (zie Basisinstellingen).",
           "window_sensors": "Zolang een raam of deur langer dan de vertraging open staat, vraagt de kamer geen warmte meer en stopt de kraanverhoging. Bij meerdere sensoren telt elke open sensor.",
-          "window_open_delay": "Hoe lang het raam open moet staan voordat de kamer reageert, zodat kort luchten niets schakelt. 0 = direct. Indien leeg geldt de algemene waarde."
+          "window_open_delay": "Hoe lang het raam open moet staan voordat de kamer reageert, zodat kort luchten niets schakelt. 0 = direct. Indien leeg geldt de algemene waarde.",
+          "calibrate_valves": "Corrigeert de temperatuurmeting van de kranen met de kamerthermometer. Werkt alleen met een kamertemperatuursensor. Uitgeschakeld blijven de kranen van deze kamer ongemoeid."
         }
       },
       "remove_room": {
@@ -152,7 +156,7 @@
       },
       "features": {
         "title": "Functies",
-        "description": "Elke functie kan afzonderlijk worden in- en uitgeschakeld.\n\n**Gebeurtenissen**: de plugin stuurt `meross_boiler_sync_event`-gebeurtenissen (kraanverhoging, raam, verouderde sensor, korte cycli, Nu verwarmen, voorverwarmen) die je in automatiseringen kunt gebruiken; ze zijn ook te lezen in het HA-logboek.\n\n**Ketelcycli bewaken**: telt de ketelstarts en meldt korte cycli.\n\n**Beveiliging**: indien ingeschakeld blijft de ketel minstens de opgegeven tijd aan of uit, ook als de warmtevraag van de kamers intussen verandert. Dit kan de verwarming vertragen, daarom staat het standaard uit.\n\n**Nu verwarmen**: de service `meross_boiler_sync.boost_now` (en de knop op de kaarten) verhoogt tijdelijk het doel van de kamer. Het start niet in zomermodus, bij een open raam of een verouderde sensor.\n\n**Voorverwarmen**: verwarmt de kamer op tegen een bepaald tijdstip en berekent aan de hand van de geleerde opwarmsnelheid wanneer het moet beginnen. Stel het weekschema in via *Voorverwarmschema* in het hoofdmenu. Het start vanzelf, daarom staat het standaard uit.\n\n**Gasschatting**: maakt een sensor voor het geschatte gasverbruik (m³) die je op het Energiedashboard onder *Gasverbruik* kunt kiezen. Hij vermenigvuldigt de aan-tijd van de ketel met het hieronder ingestelde gasverbruik. Het is een schatting, geen meting, en staat standaard uit.",
+        "description": "Elke functie kan afzonderlijk worden in- en uitgeschakeld.\n\n**Gebeurtenissen**: de plugin stuurt `meross_boiler_sync_event`-gebeurtenissen (kraanverhoging, raam, verouderde sensor, korte cycli, Nu verwarmen, voorverwarmen) die je in automatiseringen kunt gebruiken; ze zijn ook te lezen in het HA-logboek.\n\n**Ketelcycli bewaken**: telt de ketelstarts en meldt korte cycli.\n\n**Beveiliging**: indien ingeschakeld blijft de ketel minstens de opgegeven tijd aan of uit, ook als de warmtevraag van de kamers intussen verandert. Dit kan de verwarming vertragen, daarom staat het standaard uit.\n\n**Nu verwarmen**: de service `meross_boiler_sync.boost_now` (en de knop op de kaarten) verhoogt tijdelijk het doel van de kamer. Het start niet in zomermodus, bij een open raam of een verouderde sensor.\n\n**Voorverwarmen**: verwarmt de kamer op tegen een bepaald tijdstip en berekent aan de hand van de geleerde opwarmsnelheid wanneer het moet beginnen. Stel het weekschema in via *Voorverwarmschema* in het hoofdmenu. Het start vanzelf, daarom staat het standaard uit.\n\n**Gasschatting**: maakt een sensor voor het geschatte gasverbruik (m³) die je op het Energiedashboard onder *Gasverbruik* kunt kiezen. Hij vermenigvuldigt de aan-tijd van de ketel met het hieronder ingestelde gasverbruik. Het is een schatting, geen meting, en staat standaard uit.\n\n**Kraankalibratie** (experimenteel): stemt de temperatuurmeting van de radiatorkranen af op de kamerthermometer via de getal-entiteit *Kalibratie* van de kraan. Er wordt alleen gemeten als de radiator is afgekoeld (ketel of kraan hebben minstens 90 minuten niet gestookt), bij een stabiele kamertemperatuur en gesloten ramen, en de waarde wordt alleen aangepast als het verschil minstens 0,8 °C is. Elke wijziging wordt gecontroleerd en teruggezet als ze niets hielp; na twee mislukte pogingen wordt de kraan een week onderbroken (melding bij Reparaties). De ketelthermostaat wordt nooit aangeraakt. *Proefmodus* logt alleen wat er zou veranderen. De functie schrijft een blijvende instelling in de kraan en staat daarom standaard uit; bij uitschakelen blijven de al ingestelde waarden staan.",
         "data": {
           "events_enabled": "Gebeurtenissen en logboekregels",
           "cycle_monitor_enabled": "Ketelcycli bewaken (sensoren)",
@@ -170,7 +174,9 @@
           "preheat_default_rate": "Voorverwarmen: standaard opwarmsnelheid (tot ze geleerd is)",
           "manual_boost_end_on_target": "Nu verwarmen: stoppen als de kamer het verhoogde doel bereikt",
           "gas_estimate_enabled": "Gasschatting (voor het Energiedashboard)",
-          "gas_m3_per_hour": "Gasschatting: gasverbruik als de ketel aan staat"
+          "gas_m3_per_hour": "Gasschatting: gasverbruik als de ketel aan staat",
+          "calibration_enabled": "Kraankalibratie (automatisch, experimenteel)",
+          "calibration_dry_run": "Kraankalibratie: proefmodus (alleen loggen)"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Als de ketel het afgelopen uur zo vaak of vaker is gestart, gaat de sensor Korte cycli aan.",
@@ -181,7 +187,9 @@
           "preheat_default_rate": "De plugin meet de opwarmsnelheid van elke kamer tijdens het verwarmen; tot er genoeg metingen zijn (ongeveer 20 minuten verwarmen) rekent hij met dit aantal graden per uur.",
           "manual_boost_end_on_target": "Indien uit duurt Nu verwarmen de volledige duur en houdt het het verhoogde doel aan.",
           "gas_estimate_enabled": "Voegt de sensor voor het geschatte gasverbruik toe. Hij telt de aan-tijd van de ketel; tijd waarin Home Assistant niet draait, wordt niet meegeteld.",
-          "gas_m3_per_hour": "Hoeveel m³ gas de ketel per uur verbruikt als hij aan staat (zie het typeplaatje of je rekening). Vergelijk de sensor met de stand van je gasmeter en pas deze waarde aan tot ze overeenkomen."
+          "gas_m3_per_hour": "Hoeveel m³ gas de ketel per uur verbruikt als hij aan staat (zie het typeplaatje of je rekening). Vergelijk de sensor met de stand van je gasmeter en pas deze waarde aan tot ze overeenkomen.",
+          "calibration_enabled": "Indien aan stelt de plugin de kalibratiewaarde van de kranen automatisch bij op basis van de kamerthermometer (Meross LAN: het getal *Kalibratie*). Afzonderlijke kamers kun je uitschakelen bij het bewerken van de kamer. De functie schrijft een blijvende instelling in de kraan, probeer haar daarom eerst in proefmodus.",
+          "calibration_dry_run": "Logt alleen en stuurt een gebeurtenis over wat er zou worden ingesteld, maar schrijft niets naar de kraan. Wijzigingen die al bezig zijn, worden in proefmodus niet voortgezet."
         }
       },
       "preheat": {
@@ -305,6 +313,9 @@
           "temperature_sensor_stale": {
             "name": "Kamertemperatuursensor meldt niet (verouderd)"
           },
+          "temperature_sensor_unreliable": {
+            "name": "Kamertemperatuursensor onbetrouwbaar (onmogelijke of springerige waarden)"
+          },
           "valve_boost_resting": {
             "name": "Kraanverhoging rust na maximale duur"
           },
@@ -385,6 +396,18 @@
           },
           "heating_rate_learned": {
             "name": "Opwarmsnelheid is geleerd"
+          },
+          "calibration_enabled": {
+            "name": "Kraankalibratie is aan"
+          },
+          "calibration_dry_run": {
+            "name": "Kraankalibratie in proefmodus"
+          },
+          "calibration_room": {
+            "name": "Deze kamer doet mee aan de kraankalibratie"
+          },
+          "valve_calibration": {
+            "name": "Kraankalibratie (status per kraan)"
           }
         }
       },
@@ -488,9 +511,17 @@
       "title": "Kamertemperatuursensor meldt niet meer",
       "description": "De temperatuursensor {sensor} van kamer {room} heeft al meer dan {hours} uur niets gemeld (mogelijk is de batterij leeg of is de verbinding weg). De kamer gebruikt nu de eigen meting van de kranen en de automatische kraanregeling is gepauzeerd. Deze melding verdwijnt zodra de sensor weer meldt."
     },
+    "unreliable_room_temp": {
+      "title": "Kamertemperatuursensor is niet betrouwbaar",
+      "description": "De temperatuursensor {sensor} van kamer {room} meldde een onmogelijke of springerige waarde (bijvoorbeeld een foutwaarde of snel op en neer gaan) en wordt daarom {minutes} minuten genegeerd. De kamer gebruikt nu de eigen meting van de kranen; de automatische kraanregeling en de kraankalibratie zijn gepauzeerd. Deze melding verdwijnt zodra de sensor weer geloofwaardige waarden geeft."
+    },
     "stale_outdoor": {
       "title": "Buitentemperatuursensor meldt niet meer",
       "description": "De buitensensor {sensor} heeft al meer dan {hours} uur niets gemeld (mogelijk is de batterij leeg). De zomermodus blijft uitgeschakeld tot hij weer meldt, dus verwarmen blijft toegestaan. Deze melding verdwijnt zodra de sensor weer meldt."
+    },
+    "calibration_suspended": {
+      "title": "Kraankalibratie onderbroken",
+      "description": "Bij kraan {valve} in {room} brachten twee kalibratiewijzigingen na elkaar de meting van de kraan niet dichter bij de kamerthermometer. De automatische kalibratie is voor deze kraan daarom {days} dagen onderbroken; de vorige waarde is hersteld. Controleer het getal *Kalibratie* van de kraan en of de kraan het echt toepast. De melding verdwijnt als de onderbreking afloopt of de functie wordt uitgeschakeld."
     }
   },
   "selector": {
@@ -560,6 +591,9 @@
     },
     "boost_stale": {
       "message": "{room}: de thermometer is verouderd, daarom kan Nu verwarmen niet starten."
+    },
+    "boost_unreliable": {
+      "message": "{room}: de thermometer is niet betrouwbaar (onmogelijke of springerige waarden), daarom kan Nu verwarmen niet starten."
     },
     "boost_inactive": {
       "message": "{room}: er is geen ingeschakelde, bereikbare kraan in de kamer."

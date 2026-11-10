@@ -48,6 +48,9 @@ CONF_PREHEAT_DEFAULT_RATE = "preheat_default_rate"
 # 2.10: becsült gázfogyasztás az Energia fülhöz (külön kapcsolható)
 CONF_GAS_ESTIMATE = "gas_estimate_enabled"
 CONF_GAS_M3_PER_HOUR = "gas_m3_per_hour"
+# 2.11: a radiátor szelepek hőmérőjének automata kalibrációja (külön kapcsolható, alapból ki)
+CONF_CALIBRATION_ENABLED = "calibration_enabled"
+CONF_CALIBRATION_DRY_RUN = "calibration_dry_run"
 
 # --- szoba kulcsok
 CONF_ROOM_ID = "id"
@@ -59,6 +62,7 @@ CONF_ROOM_VALVE_CONTROL = "valve_control"
 CONF_ROOM_VALVE_LINK = "valve_demand_link"
 CONF_ROOM_WINDOWS = "window_sensors"
 CONF_ROOM_PREHEAT = "preheat_schedule"  # [{"days": [0..6], "time": "HH:MM", "temperature": 22.0}]
+CONF_ROOM_CALIBRATE = "calibrate_valves"  # a szoba szelepeinek kalibrálása (a globális kapcsoló mellett)
 
 # --- alapértékek
 DEFAULT_HYSTERESIS = 0.3  # °C
@@ -94,6 +98,9 @@ DEFAULT_PREHEAT_HOLD_MINUTES = 30  # perc: a "kész" időpont után ennyi ideig 
 DEFAULT_PREHEAT_RATE = 1.0  # °C/óra: ennyivel számol, amíg nem tanulta meg a szoba felfűtési sebességét
 DEFAULT_GAS_ESTIMATE = False  # a becslés új szenzort hoz létre, ezért alapból ki van kapcsolva
 DEFAULT_GAS_M3_PER_HOUR = 1.6  # m³/óra: a kazán gázfogyasztása bekapcsolt állapotban (a kártyán is ez az alap)
+DEFAULT_CALIBRATION_ENABLED = False  # a kalibráció tartós beállítást ír a szelepbe, ezért alapból ki van kapcsolva
+DEFAULT_CALIBRATION_DRY_RUN = False
+DEFAULT_ROOM_CALIBRATE = True  # a globális kapcsoló bekapcsolása után minden hőmérős szoba részt vesz
 DEFAULT_SUMMER_START = "05-15"
 DEFAULT_SUMMER_END = "09-15"
 
@@ -147,6 +154,59 @@ MIN_BOOST_GAIN = 1.0  # °C: ennél kisebb emelésnek nincs értelme
 BOOST_TOLERANCE = 0.5  # °C: ennyi eltérésen belül a szelep célja = a mi emelésünk
 BOOST_GRACE_SECONDS = 120  # írás után ennyi ideig várjuk meg a szelep visszajelzését
 RESTORE_RETRY_SECONDS = 300  # visszaállítás ismétlése, ha a szelep nem reagál
+# 2.10.2: a szelepnek küldött célhőmérséklet kemény határai (a Meross vezérlő a határon kívüli
+# értéket elutasítja, a folyamatos újrapróbálás pedig lefagyaszthatja)
+VALVE_TARGET_MIN = 6.0  # °C: ennél kisebb célt soha nem küldünk a szelepnek
+VALVE_TARGET_MAX = 34.0  # °C: ennél nagyobbat sem
+# sikertelen parancs után egyre ritkábban próbálkozunk újra (másodperc)
+VALVE_RETRY_STEPS = (120, 300, 900, 1800, 3600)
+
+# --- szelep hőmérő automata kalibráció (2.11)
+# A szelep a radiátor mellett méri a hőmérsékletet, ezért fűtés közben melegebbnek látja a szobát.
+# Mérni csak akkor érdemes, ha a radiátor már kihűlt, ezért a kalibráció csak csendes időben dolgozik.
+CAL_QUIET_SECONDS = 90 * 60  # ennyi ideje nem fűt a kazán / nem nyitott a szelep, mielőtt mér
+CAL_SAMPLE_SECONDS = 150  # két minta között legalább ennyi idő (a hub kb. 3 percenként jelent)
+CAL_MIN_SAMPLES = 6  # ennyi egymás utáni, stabil minta kell a döntéshez (kb. 12 perc)
+CAL_MAX_SAMPLES = 12
+CAL_SAMPLE_MAX_AGE = 40 * 60  # ennél régebbi minta nem számít
+CAL_MAX_SPREAD = 0.8  # °C: a minták eltérései ennyin belül legyenek (stabil mérés)
+CAL_MAX_ROOM_SPREAD = 0.6  # °C: a szoba hőmérője a mintavétel alatt ennyinél jobban nem ingadozhat
+CAL_MAX_TREND = 0.6  # °C/óra: a szoba hőmérője ennél gyorsabban nem változhat mérés közben
+CAL_THRESHOLD = 0.8  # °C: ennél kisebb eltérést nem korrigál
+CAL_JUDGE_MIN = 1.0  # °C: ennél kisebb módosítás hatását nem ítéli meg (a mérési zajtól nem különböztethető meg)
+CAL_MAX_DIFF = 3.0  # °C: ennél nagyobb eltérés rossz hőmérő-elhelyezésre utal, ahhoz nem nyúl
+CAL_MAX_TOTAL = 4.0  # °C: az eredeti kalibrációtól legfeljebb ennyit mozdul el
+CAL_MIN_INTERVAL = 2 * 3600  # két módosítás között legalább ennyi idő telik el szelepenként
+CAL_MAX_PER_DAY = 4  # szelepenként legfeljebb ennyi módosítás 24 óra alatt
+CAL_GLOBAL_SPACING = 300  # másodperc két szelep módosítása között (a Meross hub kímélése)
+CAL_SETTLE_SECONDS = 600  # módosítás után ennyit vár az új mérésre (a hub ritkán jelent)
+CAL_CONFIRM_SECONDS = 60  # ennyi idő után nézi meg, hogy a szám-entitás megtartotta-e az új értéket
+CAL_REVERT_TRIES = 3  # a visszaállítást ennyiszer próbálja, mielőtt feladja és felfüggeszt
+CAL_MAX_RANGE = 30.0  # °C: ennél nagyobb tartományú szám-entitás nem kalibráció (nem nyúl hozzá)
+CAL_MAX_STRIKES = 2  # ennyi egymás utáni hatástalan módosítás után felfüggeszti a szelepet
+CAL_SUSPEND_SECONDS = 7 * 24 * 3600  # a felfüggesztés ideje
+CAL_RECHECK_SECONDS = 6 * 3600  # rendben lévő szelepet ennyi időnként mér újra
+CAL_DISCOVERY_RETRY = 600  # hiányzó kalibráció-entitást ennyi időnként keres újra
+CAL_READING_MIN = 5.0  # °C: ezen kívüli szelepmérést nem használ
+CAL_READING_MAX = 40.0
+
+# --- újraindítás-biztonság (2.11)
+STARTUP_SETTLE_SECONDS = 90  # a HA indulása után ennyi ideig a vezérlő csak olvas (az entitások még töltődnek)
+RESUME_WINDOW_SECONDS = 600  # indulás után ennyi ideig folytatja a fűtés hiszterézisét a kazán állapotából
+SAMPLE_TEMP_MIN = -60.0  # °C: a tárolt kinti minták ésszerű tartománya
+SAMPLE_TEMP_MAX = 60.0
+
+# --- szenzor hihetőségi ellenőrzés (2.11.1)
+# Egy hibás szenzor (kimerülő elem, hibaérték, ugráló mérés) hideget vagy meleget hazudna, és a kazánt
+# feleslegesen járatná vagy leállítaná. A képtelen vagy ugráló értékre a plugin nem épít.
+SENSOR_TEMP_MIN = 1.0  # °C: ennél hidegebb / melegebb szobamérés nem hihető (pl. 0, -127 vagy 85 °C hibaérték)
+SENSOR_TEMP_MAX = 45.0
+SENSOR_PATH_WINDOW = 20 * 60  # másodperc: ennyi idő alatt vizsgáljuk a mérés ingadozását
+SENSOR_PATH_MAX = 6.0  # °C: ennyinél többet ennyi idő alatt (fel-le) ugráló szenzor nem megbízható
+SENSOR_STEP_MIN = 1.0  # °C: ennél kisebb lépés mérési zajnak számít, az ingadozásba nem számít bele
+SENSOR_HOLD_SECONDS = 30 * 60  # gyanús érték után ennyi ideig nem bízunk a szenzorban
+HUMIDITY_MIN = 0.0  # %: a páramérő hihető tartománya
+HUMIDITY_MAX = 100.0
 
 
 def parse_month_day(value: str | None) -> tuple[int, int] | None:

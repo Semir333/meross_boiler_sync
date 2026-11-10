@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import asyncio
+import copy
 import logging
+import math
 from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -31,6 +33,8 @@ from .const import (
     BOOST_TOLERANCE,
     COMFORT_MIN_TARGET,
     CONF_BOILER,
+    CONF_CALIBRATION_DRY_RUN,
+    CONF_CALIBRATION_ENABLED,
     CONF_BOILER_MIN_OFF,
     CONF_BOILER_MIN_ON,
     CONF_BOILER_ON_TEMP,
@@ -53,6 +57,7 @@ from .const import (
     CONF_PREHEAT_HOLD_MINUTES,
     CONF_PREHEAT_MAX_MINUTES,
     CONF_OUTDOOR_SENSOR,
+    CONF_ROOM_CALIBRATE,
     CONF_ROOM_HUM,
     CONF_ROOM_ID,
     CONF_ROOM_NAME,
@@ -79,6 +84,8 @@ from .const import (
     DEFAULT_BOILER_MIN_OFF,
     DEFAULT_BOILER_MIN_ON,
     DEFAULT_BOILER_ON_TEMP,
+    DEFAULT_CALIBRATION_DRY_RUN,
+    DEFAULT_CALIBRATION_ENABLED,
     DEFAULT_CYCLE_MAX_STARTS,
     DEFAULT_CYCLE_MIN_AVG_ON,
     DEFAULT_CYCLE_MONITOR,
@@ -92,6 +99,7 @@ from .const import (
     DEFAULT_MANUAL_BOOST_OFFSET,
     DEFAULT_MIN_SWITCH_TIME,
     DEFAULT_PREHEAT_ENABLED,
+    DEFAULT_ROOM_CALIBRATE,
     DEFAULT_PREHEAT_HOLD_MINUTES,
     DEFAULT_PREHEAT_MAX_MINUTES,
     DEFAULT_GAS_ESTIMATE,
@@ -123,6 +131,8 @@ from .const import (
     HEATING_RATE_MIN_TREND,
     HEATING_RATE_WINDOW,
     HUMIDITY_FULL,
+    HUMIDITY_MAX,
+    HUMIDITY_MIN,
     HUMIDITY_START,
     MANUAL_BOOST_MAX_MINUTES,
     MANUAL_BOOST_MAX_OFFSET,
@@ -135,9 +145,22 @@ from .const import (
     PREHEAT_GRACE_SECONDS,
     PREHEAT_SAFETY,
     RESTORE_RETRY_SECONDS,
+    RESUME_WINDOW_SECONDS,
     SAMPLE_INTERVAL_SECONDS,
+    SAMPLE_TEMP_MAX,
+    SAMPLE_TEMP_MIN,
+    SENSOR_HOLD_SECONDS,
+    SENSOR_PATH_MAX,
+    SENSOR_PATH_WINDOW,
+    SENSOR_STEP_MIN,
+    SENSOR_TEMP_MAX,
+    SENSOR_TEMP_MIN,
+    STARTUP_SETTLE_SECONDS,
     STORAGE_VERSION,
     SUMMER_HYSTERESIS,
+    VALVE_RETRY_STEPS,
+    VALVE_TARGET_MAX,
+    VALVE_TARGET_MIN,
     TREND_HYSTERESIS,
     TREND_MIN_SPAN_SECONDS,
     TREND_SAMPLE_SECONDS,
@@ -145,6 +168,7 @@ from .const import (
     parse_month_day,
 )
 
+from .calibration import Calibrator
 from .cycles import CycleLog
 
 _LOGGER = logging.getLogger(__name__)
@@ -181,24 +205,80 @@ def _parse_hhmm(value: Any) -> tuple[int, int] | None:
     return hour, minute
 
 
-async def _climate_call(
-    hass: HomeAssistant, entity_id: str, service: str, **data: Any
+def clamp_valve_target(value: float, state: State | None = None) -> float:
+    """A szelepnek küldhető célhőmérséklet: 6-34 °C, és a szelep saját min/max értékén belül."""
+    lo, hi = VALVE_TARGET_MIN, VALVE_TARGET_MAX
+    if state is not None:
+        try:
+            lo = max(lo, float(state.attributes["min_temp"]))
+        except (KeyError, TypeError, ValueError):
+            pass
+        try:
+            hi = min(hi, float(state.attributes["max_temp"]))
+        except (KeyError, TypeError, ValueError):
+            pass
+    if hi < lo:  # értelmetlen szelep-határok: a kemény határokra esünk vissza
+        lo, hi = VALVE_TARGET_MIN, VALVE_TARGET_MAX
+    return min(max(float(value), lo), hi)
+
+
+async def _service_call(
+    hass: HomeAssistant,
+    domain: str,
+    entity_id: str,
+    service: str,
+    *,
+    _warn: bool = True,
+    **data: Any,
 ) -> bool:
+    """Szolgáltatáshívás egy entitásra; a hibát (és az időtúllépést) jelzi, nem dobja tovább."""
     try:
         await hass.services.async_call(
-            "climate",
+            domain,
             service,
             {"entity_id": entity_id, **data},
             blocking=True,
         )
-    except HomeAssistantError as err:
-        _LOGGER.warning("climate.%s hiba a(z) %s-en: %s", service, entity_id, err)
+    except (HomeAssistantError, TimeoutError) as err:
+        if _warn:
+            _LOGGER.warning("%s.%s hiba a(z) %s-en: %s", domain, service, entity_id, err)
+        else:
+            _LOGGER.debug("%s.%s hiba a(z) %s-en: %s", domain, service, entity_id, err)
         return False
     return True
 
 
+async def _climate_call(
+    hass: HomeAssistant,
+    entity_id: str,
+    service: str,
+    *,
+    _warn: bool = True,
+    **data: Any,
+) -> bool:
+    return await _service_call(hass, "climate", entity_id, service, _warn=_warn, **data)
+
+
+def _as_dict(value: Any) -> dict[str, Any]:
+    """A tárolt adat dict-je; bármi más (sérült fájl) esetén üres."""
+    return value if isinstance(value, dict) else {}
+
+
+def _finite(value: Any) -> float | None:
+    """Szám (véges) vagy None; a tárolt adatok ellenőrzéséhez."""
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    return number if math.isfinite(number) else None
+
+
 async def _async_restore_valve(
-    hass: HomeAssistant, valve_id: str, state: State, rec: dict[str, Any]
+    hass: HomeAssistant,
+    valve_id: str,
+    state: State,
+    rec: dict[str, Any],
+    _warn: bool = True,
 ) -> bool:
     """Visszaállítja a szelep eredeti célját (vagy az eredeti presetet, ha az változott)."""
     preset = state.attributes.get("preset_mode")
@@ -206,10 +286,18 @@ async def _async_restore_valve(
     original_preset = rec.get("preset")
     if original_preset and preset != original_preset and original_preset in presets:
         return await _climate_call(
-            hass, valve_id, "set_preset_mode", preset_mode=original_preset
+            hass,
+            valve_id,
+            "set_preset_mode",
+            preset_mode=original_preset,
+            _warn=_warn,
         )
     return await _climate_call(
-        hass, valve_id, "set_temperature", temperature=rec["original"]
+        hass,
+        valve_id,
+        "set_temperature",
+        temperature=clamp_valve_target(rec["original"], state),
+        _warn=_warn,
     )
 
 
@@ -268,6 +356,12 @@ class RoomStatus:
     # biztonsági funkciók
     sensor_stale: bool = False
     temp_sensor: str | None = None
+    # 2.11.1: a szoba hőmérő hihetősége (képtelen vagy ugráló érték nem vezérel)
+    sensor_bad: str | None = None  # None (rendben) | "range" | "jump"
+    sv_hist: list[tuple[float, float]] = field(default_factory=list)  # (jelentés ideje, érték) az utolsó percekből
+    sv_seen: float = 0.0  # az utoljára vizsgált jelentés ideje
+    sv_until: float = 0.0  # eddig nem bízunk a szenzorban
+    sv_reason: str | None = None
     boost_started: float | None = None
     rest_until: float | None = None
     # ablakérzékelők
@@ -275,6 +369,9 @@ class RoomStatus:
     window_delay_s: float = DEFAULT_WINDOW_DELAY * 60
     window_open_since: float | None = None
     window_open: bool = False  # a késleltetés letelt: a szoba szünetel
+    # 2.11: a szelepek hőmérőjének automata kalibrációja
+    calibrate: bool = True  # a szoba részt vesz-e (a globális kapcsoló mellett)
+    calibration: list[dict[str, Any]] = field(default_factory=list)  # szelepenkénti állapot
     # hőmérséklet trend (°C/óra), csak a kártyák kijelzéséhez
     trend: float | None = None
     trend_source: str | None = None
@@ -297,6 +394,11 @@ class RoomStatus:
     heating_rate: float | None = None
     heating_samples: int = 0
     rate_ts: float = 0.0
+
+    @property
+    def sensor_unusable(self) -> bool:
+        """A szoba hőmérője most nem használható: elavult, vagy képtelen / ugráló értéket ad."""
+        return self.sensor_stale or self.sensor_bad is not None
 
 
 def _slope_per_hour(samples: deque[tuple[float, float]]) -> float | None:
@@ -381,6 +483,7 @@ class BoilerController:
         )
         self.window_delay_s = float(cfg.get(CONF_WINDOW_DELAY, DEFAULT_WINDOW_DELAY)) * 60
         self.outdoor_stale = False
+        self._outdoor_warned = 0.0  # a képtelen kinti érték utolsó naplózása (óránként egyszer)
         self._issue_state: dict[str, bool] = {}
 
         # 2.8: események, kazán-ciklusok, védelem (mind külön kapcsolható)
@@ -433,6 +536,9 @@ class BoilerController:
         self._gas_last_ts: float | None = None  # az utolsó elszámolás ideje
         self._gas_last_on: bool | None = None  # a kazán állapota az utolsó elszámoláskor
         self._gas_saved_ts = 0.0
+        # 2.11: a szelepek hőmérőjének automata kalibrációja (alapból kikapcsolt; a kazán termosztátot nem érinti)
+        self.cal_enabled = bool(cfg.get(CONF_CALIBRATION_ENABLED, DEFAULT_CALIBRATION_ENABLED))
+        self.cal_dry_run = bool(cfg.get(CONF_CALIBRATION_DRY_RUN, DEFAULT_CALIBRATION_DRY_RUN))
         self.cycles = CycleLog()
         self.cycle_info: dict[str, Any] = self.cycles.stats(0)
         self.short_cycling = False
@@ -459,16 +565,30 @@ class BoilerController:
         self.status: dict[str, RoomStatus] = {
             room[CONF_ROOM_ID]: self._build_status(room) for room in self.rooms
         }
+        self.calibrator = Calibrator(self)
 
         self._last_switch = None
         self._prev_summer = False
         # szelep emelések: valve_id -> {original, boost, preset, ts, restoring}
         self._boosts: dict[str, dict[str, Any]] = {}
+        # szelep -> {"n": egymás utáni hibák, "until": eddig nem próbálkozunk újra (epoch)}
+        self._cmd_fail: dict[str, dict[str, float]] = {}
         self._dry: set[str] = set()
         self._unsubs: list[Callable[[], None]] = []
         self._retry_unsub: Callable[[], None] | None = None
         self._listeners: list[Callable[[], None]] = []
         self._lock = asyncio.Lock()
+
+        # --- újraindítás-biztonság (2.11)
+        # Leállított vezérlő már nem értékel és nem ír (újratöltéskor a régi példány ne zavarjon).
+        self._stopped = False
+        # Ha a HA még indul, a vezérlő addig csak olvas, utána rövid ideig még várja, hogy az
+        # entitások (Meross LAN, szenzorok) feltöltődjenek. Újratöltésnél (futó HA) nincs várakozás.
+        self._boot_hold = not getattr(hass, "is_running", True)
+        self._ready_since: float | None = None
+        self._start_ts = dt_util.utcnow().timestamp()
+        # azok a szobák, amelyek hiszterézis-állapotát már a kazán állapotából vettük fel
+        self._seeded: set[str] = set()
 
     def _build_status(self, room: dict[str, Any]) -> RoomStatus:
         """Szoba státusz; a szelep paraméterek a szobából, ennek hiányában az általánosból."""
@@ -495,36 +615,80 @@ class BoilerController:
             valve_demand_link=bool(room.get(CONF_ROOM_VALVE_LINK)),
             window_sensors=list(room.get(CONF_ROOM_WINDOWS) or []),
             window_delay_s=opt(CONF_WINDOW_DELAY, self.window_delay_s / 60) * 60,
+            calibrate=bool(room.get(CONF_ROOM_CALIBRATE, DEFAULT_ROOM_CALIBRATE)),
         )
 
     # ------------------------------------------------------------------ életciklus
     async def async_load(self) -> None:
-        """A kinti hőmérséklet-minták visszatöltése újraindítás után."""
+        """A mentett állapot visszatöltése újraindítás / újratöltés után.
+
+        Minden értéket ellenőrzünk: a hibás, tartományon kívüli vagy a jövőbe mutató adat kimarad,
+        így egy sérült vagy régi fájl nem állíthatja el a vezérlést.
+        """
         data = await self._store.async_load()
         if not isinstance(data, dict):
             return
-        for item in data.get("samples", []):
+        now_ts = dt_util.utcnow().timestamp()
+
+        samples: list[tuple[float, float]] = []
+        raw_samples = data.get("samples")
+        for item in raw_samples if isinstance(raw_samples, list) else []:
             try:
-                self._samples.append((float(item[0]), float(item[1])))
-            except (TypeError, ValueError, IndexError):
+                ts, value = _finite(item[0]), _finite(item[1])
+            except (TypeError, IndexError, KeyError):
                 continue
+            if ts is None or value is None:
+                continue
+            if ts > now_ts + 300 or not SAMPLE_TEMP_MIN <= value <= SAMPLE_TEMP_MAX:
+                continue  # a jövőből jövő vagy értelmetlen minta
+            samples.append((ts, value))
+        samples.sort()
+        self._samples = deque(samples)
+
         self.cycles.load(data.get("cycles"))
-        try:
-            self.gas_m3 = max(0.0, float((data.get("gas") or {}).get("m3", 0.0)))
-        except (TypeError, ValueError, AttributeError):
-            self.gas_m3 = 0.0
-        for valve_id, rec in (data.get("boosts") or {}).items():
-            try:
-                self._boosts[valve_id] = {
-                    "original": float(rec["original"]),
-                    "boost": float(rec["boost"]),
-                    "preset": rec.get("preset"),
-                    "ts": float(rec.get("ts", 0)),
-                    "restoring": bool(rec.get("restoring", False)),
-                }
-            except (KeyError, TypeError, ValueError):
+        gas = data.get("gas")
+        m3 = _finite(gas.get("m3")) if isinstance(gas, dict) else None
+        self.gas_m3 = max(0.0, m3) if m3 is not None else 0.0
+
+        raw_boosts = data.get("boosts")
+        for valve_id, rec in raw_boosts.items() if isinstance(raw_boosts, dict) else ():
+            if not isinstance(rec, dict):
                 continue
+            original, boost = _finite(rec.get("original")), _finite(rec.get("boost"))
+            if original is None or boost is None:
+                continue
+            if not (0.0 <= original <= 45.0 and 0.0 <= boost <= 45.0):
+                continue  # értelmetlen célhőmérséklet: nem állítjuk vissza
+            ts = _finite(rec.get("ts")) or 0.0
+            self._boosts[valve_id] = {
+                "original": original,
+                "boost": boost,
+                "preset": rec.get("preset") if isinstance(rec.get("preset"), str) else None,
+                "ts": min(ts, now_ts),
+                "restoring": bool(rec.get("restoring", False)),
+            }
         self._load_2_9(data)
+        self.calibrator.load(
+            data.get("calibration"),
+            {valve for st in self.status.values() for valve in st.valves},
+            now_ts,
+        )
+
+        # nyári mód: a hiszterézis állapota megmarad (különben az átlag a két küszöb között
+        # újraindítás után fűtési üzemre váltana)
+        summer = data.get("summer")
+        if self.outdoor_sensor and isinstance(summer, dict) and summer.get("active") is True:
+            self.summer_active = True
+        self._prev_summer = self.summer_active
+
+        # a maximális emelés utáni pihenő nem szűnhet meg egy újraindítástól
+        rest = data.get("rest")
+        for room_id, until in rest.items() if isinstance(rest, dict) else ():
+            st = self.status.get(room_id)
+            value = _finite(until)
+            if st is not None and value is not None and value > now_ts:
+                st.rest_until = min(value, now_ts + self.max_boost_rest_seconds + 60)
+
         # újraindítás előtt még emelt szobák: ne engedjük el és emeljük újra feleslegesen
         for st in self.status.values():
             live = [
@@ -539,26 +703,35 @@ class BoilerController:
     def _load_2_9(self, data: dict[str, Any]) -> None:
         """A "Fűts most", az előfűtés és a tanult felfűtési sebesség visszatöltése."""
         now_ts = dt_util.utcnow().timestamp()
-        for room_id, rec in (data.get("rates") or {}).items():
+        for room_id, rec in _as_dict(data.get("rates")).items():
             st = self.status.get(room_id)
             try:
                 rate, count = float(rec["rate"]), int(rec["n"])
             except (KeyError, TypeError, ValueError):
                 continue
-            if st is not None and HEATING_RATE_MIN <= rate <= HEATING_RATE_MAX and count > 0:
+            if (
+                st is not None
+                and math.isfinite(rate)
+                and HEATING_RATE_MIN <= rate <= HEATING_RATE_MAX
+                and count > 0
+            ):
                 st.heating_rate, st.heating_samples = rate, count
         if self.manual_boost_enabled:
-            for room_id, rec in (data.get("manual") or {}).items():
+            for room_id, rec in _as_dict(data.get("manual")).items():
                 st = self.status.get(room_id)
                 try:
                     until, offset = float(rec["until"]), float(rec["offset"])
                     started = float(rec.get("started") or now_ts)
-                except (KeyError, TypeError, ValueError):
+                except (KeyError, TypeError, ValueError, AttributeError):
                     continue
-                if st is not None and until > now_ts:
-                    st.manual_until, st.manual_offset, st.manual_started = until, offset, started
+                if not (math.isfinite(until) and math.isfinite(offset) and math.isfinite(started)):
+                    continue
+                if st is not None and now_ts < until <= now_ts + MANUAL_BOOST_MAX_MINUTES * 60 + 60:
+                    st.manual_until = until
+                    st.manual_offset = _clamp(offset, MANUAL_BOOST_MIN_OFFSET, MANUAL_BOOST_MAX_OFFSET)
+                    st.manual_started = min(started, now_ts)
         if self.preheat_enabled:
-            for room_id, rec in (data.get("preheat") or {}).items():
+            for room_id, rec in _as_dict(data.get("preheat")).items():
                 st = self.status.get(room_id)
                 if st is None or not isinstance(rec, dict):
                     continue
@@ -586,6 +759,10 @@ class BoilerController:
             }
         except (KeyError, TypeError, ValueError):
             return None
+        if not all(math.isfinite(clean[key]) for key in ("ready", "target", "hold")):
+            return None
+        if not 5 <= clean["target"] <= MAX_RAISED_TARGET or not 0 <= clean["hold"] <= 8 * 3600:
+            return None  # értelmetlen terv: nem hajtjuk végre
         return clean if clean["ready"] + clean["hold"] > now_ts else None
 
     async def async_start(self) -> None:
@@ -617,6 +794,7 @@ class BoilerController:
 
     @callback
     def async_stop(self) -> None:
+        self._stopped = True  # a függőben lévő kiértékelések már nem futnak le
         for unsub in self._unsubs:
             unsub()
         self._unsubs.clear()
@@ -627,6 +805,48 @@ class BoilerController:
             if active:
                 ir.async_delete_issue(self.hass, DOMAIN, issue_id)
         self._issue_state.clear()
+
+    async def async_shutdown(self) -> None:
+        """Leállítás: megvárja a futó kiértékelést, majd az állapotot azonnal menti.
+
+        Újratöltéskor (beállítás módosítása) és eltávolításkor is ez fut. A régi példány
+        késleltetett mentése így nem írhatja felül az újat egy elavult állapottal, és a következő
+        indítás pontosan onnan folytatja, ahol ez abbahagyta.
+        """
+        self.async_stop()
+        async with self._lock:
+            await self._async_save()
+
+    async def async_release_all(self) -> None:
+        """Letiltott integráció: az emelt szelepek visszakapják az eredeti célhőmérsékletüket.
+
+        Letiltás után senki nem állítaná vissza őket, és a szelep a maximumon maradna (törléskor ezt az
+        `async_restore_on_remove` végzi). Beállítás-módosításnál (újratöltés) nem fut: ott az új példány
+        folytatja az emelést. Ha egy szelep éppen nem érhető el, a rekordja megmarad, és a következő
+        indulás visszaállítja.
+        """
+        if getattr(self.hass, "is_stopping", False):
+            return
+        async with self._lock:
+            for valve_id, rec in list(self._boosts.items()):
+                state = self.hass.states.get(valve_id)
+                if state is None or state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
+                    continue
+                try:
+                    raw = float(state.attributes["temperature"])
+                except (KeyError, TypeError, ValueError):
+                    continue
+                if abs(raw - rec["boost"]) > BOOST_TOLERANCE:
+                    self._boosts.pop(valve_id, None)  # időközben máshol módosították
+                    continue
+                if await _async_restore_valve(self.hass, valve_id, state, rec):
+                    self._boosts.pop(valve_id, None)
+                    _LOGGER.info(
+                        "%s: az integráció le van tiltva, az eredeti célhőmérséklet visszaállítva (%s °C)",
+                        valve_id,
+                        rec["original"],
+                    )
+            await self._async_save()
 
     @callback
     def async_add_listener(self, listener: Callable[[], None]) -> Callable[[], None]:
@@ -673,7 +893,7 @@ class BoilerController:
             self._end_manual(st, "window", now_ts)
         elif self.summer_active:
             self._end_manual(st, "summer", now_ts)
-        elif st.sensor_stale:
+        elif st.sensor_unusable:
             self._end_manual(st, "sensor", now_ts)
 
     def _end_manual(self, st: RoomStatus, reason: str, now_ts: float) -> None:
@@ -706,6 +926,8 @@ class BoilerController:
             raise BoostError("boost_window", room=st.name)
         if st.sensor_stale:
             raise BoostError("boost_stale", room=st.name)
+        if st.sensor_bad is not None:
+            raise BoostError("boost_unreliable", room=st.name)
         if not st.active:
             raise BoostError("boost_inactive", room=st.name)
 
@@ -861,7 +1083,7 @@ class BoilerController:
             current is None
             or self.summer_active
             or st.window_open
-            or st.sensor_stale
+            or st.sensor_unusable
         ):
             return  # nem fűtünk előre, a terv megmarad (a latch is)
 
@@ -1022,6 +1244,86 @@ class BoilerController:
     def _read_float(self, entity_id: str | None) -> float | None:
         return self._read_sensor(entity_id)[0]
 
+    def _vet_room_temp(self, st: RoomStatus, value: float | None, now_ts: float) -> float | None:
+        """A szoba hőmérő hihetőségi vizsgálata: a képtelen vagy ugráló értékre nem építünk.
+
+        Egy hibás szenzor (kimerülő elem, zárlat, hibaérték, ugráló mérés) hideget vagy meleget hazudna,
+        és a kazánt feleslegesen járatná, a szelepet feleslegesen emelné. Gyanús:
+        - a tartományon kívüli érték (`SENSOR_TEMP_MIN`..`SENSOR_TEMP_MAX`; a NaN is),
+        - ha a mérés az utolsó `SENSOR_PATH_WINDOW` másodpercben összesen több mint `SENSOR_PATH_MAX`
+          fokot ugrál fel-le (az `SENSOR_STEP_MIN`-nél kisebb lépés mérési zaj, az nem számít).
+        Gyanús érték után az utolsó gyanús lépéstől számított `SENSOR_HOLD_SECONDS` ideig nem bízunk a
+        szenzorban: a szoba a szelepek saját mérésére vált (mint elérhetetlen szenzornál), a
+        szelepemelés és a kalibráció megáll. A ritkán jelentő szenzort egy nagy lépés nem teszi gyanússá
+        (a jelentések az ablakon kívül esnek), a tartományon kívüli érték viszont ilyenkor is az.
+        Ha a szenzor közben elérhetetlenné válik, a jelzés megmarad: hihető mérés nélkül nem oldjuk fel.
+        """
+        if not st.temp_sensor:
+            st.sensor_bad = None
+            return value
+        if value is None:
+            return None  # nem elérhető / elavult: nincs mit vizsgálni, a korábbi jelzés változatlan marad
+        rep = min(self._reported_ts(st.temp_sensor) or now_ts, now_ts)
+        if not (SENSOR_TEMP_MIN <= value <= SENSOR_TEMP_MAX):
+            st.sv_until, st.sv_reason = now_ts + SENSOR_HOLD_SECONDS, "range"
+        elif rep > st.sv_seen + 0.5:  # új jelentés: az ingadozást csak jelentésenként vizsgáljuk
+            hist = st.sv_hist
+            hist.append((rep, value))
+            while hist and hist[0][0] < rep - SENSOR_PATH_WINDOW:
+                hist.pop(0)
+            if len(hist) >= 2 and abs(hist[-1][1] - hist[-2][1]) >= SENSOR_STEP_MIN:
+                # az új lépés nem zaj: ha az ablak összes nagy lépése együtt túl sok, gyanús
+                path = sum(
+                    abs(b[1] - a[1])
+                    for a, b in zip(hist, hist[1:])
+                    if abs(b[1] - a[1]) >= SENSOR_STEP_MIN
+                )
+                if path > SENSOR_PATH_MAX:
+                    st.sv_until, st.sv_reason = now_ts + SENSOR_HOLD_SECONDS, "jump"
+        st.sv_seen = max(st.sv_seen, rep)
+        st.sensor_bad = st.sv_reason if now_ts < st.sv_until else None
+        return None if st.sensor_bad else value
+
+    def _note_sensor_vetting(
+        self, st: RoomStatus, was_bad: str | None, raw: float | None
+    ) -> None:
+        """A szoba hőmérő hihetőségének változása: Javítások-üzenet, napló és esemény."""
+        temp_id = st.temp_sensor or ""
+        bad = st.sensor_bad
+        minutes = f"{SENSOR_HOLD_SECONDS // 60}"
+        if bad is not None and was_bad is None:
+            what = (
+                f"képtelen érték ({raw:g} °C)"
+                if bad == "range" and raw is not None and math.isfinite(raw)
+                else "képtelen érték" if bad == "range" else "ugráló mérés"
+            )
+            self._sync_issue(
+                f"unreliable_room_{self.entry_id}_{st.room_id}",
+                True,
+                "unreliable_room_temp",
+                {"room": st.name, "sensor": temp_id, "minutes": minutes},
+                message=(
+                    f"{st.name}: a szoba hőmérő ({temp_id}) nem megbízható: {what}; {minutes} percig "
+                    "a szelepek saját mérésére váltok"
+                ),
+            )
+            self._emit(
+                "sensor_unreliable",
+                st,
+                sensor=temp_id,
+                reason=bad,
+                value=None if raw is None or not math.isfinite(raw) else round(raw, 1),
+            )
+        elif bad is None and was_bad is not None:
+            self._sync_issue(
+                f"unreliable_room_{self.entry_id}_{st.room_id}",
+                False,
+                "unreliable_room_temp",
+                {"room": st.name, "sensor": temp_id, "minutes": minutes},
+            )
+            _LOGGER.info("%s: a szoba hőmérő (%s) újra megbízhatónak látszik", st.name, temp_id)
+            self._emit("sensor_reliable", st, sensor=temp_id)
+
     def _reported_ts(self, entity_id: str | None) -> float | None:
         """A szenzor utolsó jelentésének ideje (epoch), ha ismert."""
         if not entity_id:
@@ -1043,17 +1345,21 @@ class BoilerController:
         active: bool,
         translation_key: str,
         placeholders: dict[str, str],
+        message: str | None = None,
     ) -> None:
         """Javítások (Repairs) értesítés létrehozása / törlése, csak változáskor."""
         if self._issue_state.get(issue_id) == active:
             return
         self._issue_state[issue_id] = active
         if active:
-            _LOGGER.warning(
-                "Elavult szenzor: %s (%s óra óta nem jelentett)",
-                placeholders.get("sensor"),
-                placeholders.get("hours"),
-            )
+            if message is not None:
+                _LOGGER.warning("%s", message)
+            else:
+                _LOGGER.warning(
+                    "Elavult szenzor: %s (%s óra óta nem jelentett)",
+                    placeholders.get("sensor"),
+                    placeholders.get("hours"),
+                )
             ir.async_create_issue(
                 self.hass,
                 DOMAIN,
@@ -1074,11 +1380,21 @@ class BoilerController:
         return md >= start or md <= end  # évhatáron átnyúló időszak
 
     def _data_to_save(self) -> dict[str, Any]:
+        # másolatot adunk: a mentés közben a vezérlő tovább módosíthatja a saját adatait
+        return copy.deepcopy(self._raw_data_to_save())
+
+    def _raw_data_to_save(self) -> dict[str, Any]:
         return {
             "samples": [[ts, val] for ts, val in self._samples],
             "boosts": self._boosts,
             "cycles": self.cycles.to_list(),
             "gas": {"m3": round(self.gas_m3, 4)},
+            "summer": {"active": self.summer_active},
+            "rest": {
+                st.room_id: st.rest_until
+                for st in self.status.values()
+                if st.rest_until is not None
+            },
             "manual": {
                 st.room_id: {
                     "until": st.manual_until,
@@ -1098,6 +1414,8 @@ class BoilerController:
                 for st in self.status.values()
                 if st.heating_rate is not None
             },
+            # kalibráció: az eredeti értékek, a függő módosítások és a korlátozások (újraindítás után is)
+            "calibration": self.calibrator.to_dict(),
         }
 
     # ------------------------------------------------------------------ nyári mód
@@ -1111,6 +1429,15 @@ class BoilerController:
 
         now_ts = dt_util.utcnow().timestamp()
         value, stale = self._read_sensor(self.outdoor_sensor)
+        if value is not None and not (SAMPLE_TEMP_MIN <= value <= SAMPLE_TEMP_MAX):
+            # képtelen érték (pl. 85 vagy -127 °C hibaérték): nem használjuk, nehogy tévesen nyári módot
+            # (vagy fűtést) kapcsoljon; a fűtés ilyenkor engedélyezett marad
+            if now_ts - self._outdoor_warned >= 3600:
+                self._outdoor_warned = now_ts
+                _LOGGER.warning(
+                    "A kinti szenzor (%s) képtelen értéket ad (%s), nem használom", self.outdoor_sensor, value
+                )
+            value = None
         self.outdoor_now = value
         if stale != self.outdoor_stale:
             self._emit_stale(None, self.outdoor_sensor, stale)
@@ -1180,6 +1507,10 @@ class BoilerController:
                 valve_current = float(state.attributes["current_temperature"])
             except (KeyError, TypeError, ValueError):
                 valve_current = None
+            if valve_current is not None and not (
+                SENSOR_TEMP_MIN <= valve_current <= SENSOR_TEMP_MAX
+            ):
+                valve_current = None  # hibaérték (pl. 0 vagy 85 °C): nem hihető
             if valve_current is not None:
                 valve_temps.append(valve_current)
                 if user_target is not None:
@@ -1201,6 +1532,11 @@ class BoilerController:
         )
         self._update_window(st)
         now_ts = dt_util.utcnow().timestamp()
+        # 2.11.1: képtelen vagy ugráló érték nem vezérli a szobát (a szelepek saját mérésére váltunk)
+        raw_sensor_value, was_bad = sensor_value, st.sensor_bad
+        sensor_value = self._vet_room_temp(st, sensor_value, now_ts)
+        if (st.sensor_bad is None) != (was_bad is None):
+            self._note_sensor_vetting(st, was_bad, raw_sensor_value)
         self._check_manual(st, now_ts)
 
         st.current = st.source = st.target = st.effective_target = None
@@ -1230,6 +1566,8 @@ class BoilerController:
 
         # páratartalom miatti célhőmérséklet-emelés
         humidity = self._read_float(room.get(CONF_ROOM_HUM))
+        if humidity is not None and not (HUMIDITY_MIN <= humidity <= HUMIDITY_MAX):
+            humidity = None  # képtelen páratartalom (hibás szenzor): nem emeli a célt
         st.humidity = humidity
         if (
             humidity is not None
@@ -1263,6 +1601,9 @@ class BoilerController:
         if current is not None:
             st.deviation = round(st.effective_target - current, 2)
 
+        # újraindítás után: a hiszterézis állapota nem veszett el, ha a kazán közben fűtött
+        resume = self._seed_active(st) if current is not None else False
+
         # hőigény hiszterézissel: indul, ha a cél alatt van, megy a cél eléréséig
         if current is None:
             st.calling = False
@@ -1271,14 +1612,39 @@ class BoilerController:
                 st.calling = False
         elif current < st.effective_target - self.hysteresis:
             st.calling = True
+        elif resume and current < st.effective_target:
+            st.calling = True  # a fűtés a cél eléréséig folytatódik
 
         if st.window_open:
             st.calling = False  # nyitott ablak: a szoba nem kér hőt, a szelep emelés leáll
 
         st.valve_open = (
-            self._valve_open(st.valve_open, pairs) if st.valve_demand_link else False
+            self._valve_open(st.valve_open or resume, pairs) if st.valve_demand_link else False
         )
         return st
+
+    def _boiler_is_on(self) -> bool | None:
+        """A kazán állapota: True (be), False (ki), None (ismeretlen / nem elérhető)."""
+        boiler = self.hass.states.get(self.boiler)
+        if boiler is None or boiler.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
+            return None
+        return boiler.state != HVACMode.OFF
+
+    def _seed_active(self, st: RoomStatus) -> bool:
+        """Indítás után, szobánként egyszer: igaz, ha a kazán már fűt.
+
+        A hőigény hiszterézisének állapota (fűtünk-e még a cél eléréséig) csak a memóriában él.
+        Hogy a kazán újraindítás után ne kapcsoljon ki idő előtt, a fűtő kazán mellett az első
+        értékeléskor a céltól elmaradó szobát hőt kérőnek vesszük, mintha az előző körben is az
+        lett volna. Csak az indítás utáni első percekben él, később nem változtat semmit.
+        """
+        if st.room_id in self._seeded:
+            return False
+        on = self._boiler_is_on()
+        if on is None:
+            return False  # a kazán állapota még nem ismert: később újra megpróbáljuk
+        self._seeded.add(st.room_id)
+        return on and dt_util.utcnow().timestamp() - self._start_ts <= RESUME_WINDOW_SECONDS
 
     def _emit_stale(self, st: RoomStatus | None, sensor: str | None, stale: bool) -> None:
         extra: dict[str, Any] = {"sensor": sensor}
@@ -1333,13 +1699,37 @@ class BoilerController:
     # ------------------------------------------------------------------ kiértékelés
     async def async_evaluate(self) -> None:
         async with self._lock:
+            if self._stopped:
+                return  # leállított (újratöltött) vezérlő: nem értékel és nem ír
             try:
                 await self._async_evaluate()
             finally:
                 self._events_armed = True  # az első kiértékelés után már küldhetünk eseményt
                 self._notify()
 
+    def _writes_allowed(self, now_ts: float) -> bool:
+        """Írhat-e a vezérlő (szelep, kazán)? Nem, amíg a HA indul vagy leáll.
+
+        Indulás közben az entitások (Meross LAN, szenzorok) még töltődnek, a hiányos adatból hozott
+        döntés (például egy még be nem töltött szoba) feleslegesen kikapcsolná a kazánt vagy
+        átállítaná a szelepeket. Ezért a vezérlő olvas és számol, de a HA elindulása után még
+        `STARTUP_SETTLE_SECONDS` másodpercig nem ír. Futó HA-ban (újratöltés) nincs várakozás.
+        """
+        if getattr(self.hass, "is_stopping", False):
+            return False
+        if not getattr(self.hass, "is_running", True):
+            self._ready_since = None
+            return False
+        if self._boot_hold:
+            if self._ready_since is None:
+                self._ready_since = now_ts
+            if now_ts - self._ready_since < STARTUP_SETTLE_SECONDS:
+                return False
+            self._boot_hold = False
+        return True
+
     async def _async_evaluate(self) -> None:
+        allow = self._writes_allowed(dt_util.utcnow().timestamp())
         self._update_outdoor()
         statuses = [self._update_room(room) for room in self.rooms]
 
@@ -1353,13 +1743,20 @@ class BoilerController:
                 self.outdoor_avg,
             )
             self._prev_summer = self.summer_active
+            self._store.async_delay_save(self._data_to_save, 30)  # újraindítás után is megmarad
 
-        await self._async_control_valves(statuses)
+        await self._async_control_valves(statuses, allow)
         for st in statuses:
             st.boiler_demand = self._room_boiler_demand(st)
         self._observe_boiler()
         self._learn_rates(statuses)
 
+        await self._async_switch_boiler(statuses, allow)
+        # A kalibráció a kazán kapcsolása UTÁN fut: egy lassú szelep-parancs nem késleltetheti a kazánt.
+        await self.calibrator.async_run(statuses, allow, dt_util.utcnow().timestamp())
+
+    async def _async_switch_boiler(self, statuses: list[RoomStatus], allow: bool) -> None:
+        """A szobák hőigénye alapján be- vagy kikapcsolja a kazánt."""
         if not statuses or not any(st.reachable for st in statuses):
             # nincs szoba, vagy egyik szelep sem elérhető: nem nyúlunk a kazánhoz
             return
@@ -1370,6 +1767,9 @@ class BoilerController:
         if boiler is None or boiler.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
             return
         boiler_on = boiler.state != HVACMode.OFF
+
+        if not allow:
+            return  # indulás / leállás: a kazánhoz még / már nem nyúlunk
 
         if demand != boiler_on:
             remaining = self._switch_wait_remaining(demand)
@@ -1405,6 +1805,14 @@ class BoilerController:
         refs: list[datetime] = []
         if self._last_switch is not None:
             refs.append(self._last_switch + self.min_switch)
+        else:
+            # újraindítás / újratöltés után a plugin saját utolsó kapcsolását nem ismeri: a mentett
+            # ciklusnaplóból tudjuk, mikor váltott utoljára a kazán (csak biztosan ismert váltás)
+            known_change = self.cycles.last_known_change()
+            if known_change is not None:
+                refs.append(
+                    datetime.fromtimestamp(known_change, tz=timezone.utc) + self.min_switch
+                )
         if self.cycle_protection:
             wait = self.boiler_min_off if turning_on else self.boiler_min_on
             if self._last_switch is not None:
@@ -1504,8 +1912,13 @@ class BoilerController:
         self._boosts.pop(valve_id, None)
         await self._async_save()
 
-    async def _async_control_valves(self, statuses: list[RoomStatus]) -> None:
-        """A szoba hőmérője alapján teljesen kinyitja / visszaállítja a szelepeket."""
+    async def _async_control_valves(
+        self, statuses: list[RoomStatus], allow: bool = True
+    ) -> None:
+        """A szoba hőmérője alapján teljesen kinyitja / visszaállítja a szelepeket.
+
+        `allow` hamis (a HA indul vagy leáll): a döntés elkészül, de a szelepekhez nem nyúlunk.
+        """
         want: dict[str, bool] = {}
         now_ts = dt_util.utcnow().timestamp()
         for room in self.rooms:
@@ -1522,10 +1935,10 @@ class BoilerController:
 
         for valve_id, wanted in want.items():
             if self.valve_dry_run:
-                if valve_id in self._boosts:
+                if allow and valve_id in self._boosts:
                     await self._async_control_valve(valve_id, False)
                 self._dry_run_valve(valve_id, wanted)
-            else:
+            elif allow:
                 await self._async_control_valve(valve_id, wanted)
 
         for st in statuses:
@@ -1587,8 +2000,10 @@ class BoilerController:
             st.boost_wanted = False
             st.cold_since = None
             st.boost_started = None
-            if not st.calling:
-                st.rest_until = None  # a szoba elérte a célt: új kör kezdődhet
+            if not st.calling and st.current is not None:
+                # a szoba elérte a célt: új kör kezdődhet. Hiányzó adatnál (szenzor / szelep
+                # átmenetileg nem elérhető, újraindítás) a pihenő nem törlődik.
+                st.rest_until = None
             return False
 
         if st.rest_until is not None:
@@ -1613,6 +2028,7 @@ class BoilerController:
                 st.cold_since = None
                 st.boost_started = None
                 st.rest_until = now_ts + self.max_boost_rest_seconds
+                self._store.async_delay_save(self._data_to_save, 30)  # újraindítás után is érvényes
                 _LOGGER.warning(
                     "%s: a szelep emelése elérte a maximális időt (%s óra), "
                     "a szelep visszaáll, %s percig nem emelek újra",
@@ -1739,27 +2155,68 @@ class BoilerController:
         elif not wanted and rec is not None:
             await self._async_restore(valve_id, state, rec)
 
+    # --- sikertelen szelep-parancsok: egyre ritkább újrapróbálás, egyszeri jelzés
+    def _cmd_blocked(self, valve_id: str) -> bool:
+        """Igaz, ha az előző parancs elbukott, és még nem telt le a várakozás."""
+        rec = self._cmd_fail.get(valve_id)
+        return bool(rec) and dt_util.utcnow().timestamp() < rec["until"]
+
+    def _cmd_result(self, valve_id: str, ok: bool) -> bool:
+        """A parancs eredményének nyilvántartása; a hibát csak az első alkalommal jelezzük."""
+        if ok:
+            self._cmd_fail.pop(valve_id, None)
+            return True
+        rec = self._cmd_fail.setdefault(valve_id, {"n": 0, "until": 0.0})
+        rec["n"] += 1
+        delay = VALVE_RETRY_STEPS[min(int(rec["n"]) - 1, len(VALVE_RETRY_STEPS) - 1)]
+        rec["until"] = dt_util.utcnow().timestamp() + delay
+        if rec["n"] == 1:
+            _LOGGER.warning(
+                "%s: a szelep nem fogadta el a parancsot; %d s múlva újra próbálom, "
+                "azután egyre ritkábban (a további hibákat nem naplózom)",
+                valve_id,
+                delay,
+            )
+            self._emit("valve_command_failed", valve=valve_id)
+        return False
+
     async def _async_start_boost(self, valve_id: str, state: State, raw: float) -> None:
+        if self._cmd_blocked(valve_id):
+            return  # az előző parancs elbukott: nem ismételjük folyamatosan
         try:
             boost = float(state.attributes.get("max_temp", DEFAULT_VALVE_MAX_TEMP))
         except (TypeError, ValueError):
             boost = DEFAULT_VALVE_MAX_TEMP
+        boost = clamp_valve_target(boost, state)  # soha nem 34 °C fölé
         if boost - raw < MIN_BOOST_GAIN:
             return  # a szelep már eleve (majdnem) maximumon van
         # az eredeti presetet a hívás ELŐTT jegyezzük meg (a hívás átválthatja kézire)
         original_preset = state.attributes.get("preset_mode")
-        if not await _climate_call(
-            self.hass, valve_id, "set_temperature", temperature=boost
-        ):
-            return
-        self._boosts[valve_id] = {
+        # Előre írt napló: a rekord előbb kerül a lemezre, mint ahogy a parancs elmegy. Ha a HA
+        # a kettő között (vagy a parancs közben) leáll, az újraindulás tudja, mi volt az eredeti
+        # cél; különben a megemelt érték a szelep "saját" céljának látszana, és ott maradna.
+        rec = {
             "original": raw,
             "boost": boost,
             "preset": original_preset,
             "ts": dt_util.utcnow().timestamp(),
             "restoring": False,
         }
+        self._boosts[valve_id] = rec
         await self._async_save()
+        ok = await _climate_call(
+            self.hass,
+            valve_id,
+            "set_temperature",
+            temperature=boost,
+            _warn=valve_id not in self._cmd_fail,
+        )
+        if not self._cmd_result(valve_id, ok):
+            if self._boosts.get(valve_id) is rec:
+                del self._boosts[valve_id]  # a parancs nem ment át: nincs mit visszaállítani
+            await self._async_save()
+            return
+        rec["ts"] = dt_util.utcnow().timestamp()  # a türelmi idő a parancs befejezésétől számít
         _LOGGER.info(
             "%s: célhőmérséklet %s -> %s °C (szoba hőmérője szerint hideg van)",
             valve_id,
@@ -1770,7 +2227,12 @@ class BoilerController:
     async def _async_restore(
         self, valve_id: str, state: State, rec: dict[str, Any]
     ) -> None:
-        if await _async_restore_valve(self.hass, valve_id, state, rec):
+        if self._cmd_blocked(valve_id):
+            return
+        ok = await _async_restore_valve(
+            self.hass, valve_id, state, rec, _warn=valve_id not in self._cmd_fail
+        )
+        if self._cmd_result(valve_id, ok):
             rec["restoring"] = True
             rec["ts"] = dt_util.utcnow().timestamp()
             await self._async_save()
@@ -1808,3 +2270,7 @@ class BoilerController:
 
     async def _call(self, service: str, **data) -> bool:
         return await _climate_call(self.hass, self.boiler, service, **data)
+
+    async def _entity_call(self, domain: str, entity_id: str, service: str, **data: Any) -> bool:
+        """Szolgáltatáshívás tetszőleges entitásra (a kalibráció a szelep szám-entitását írja)."""
+        return await _service_call(self.hass, domain, entity_id, service, **data)

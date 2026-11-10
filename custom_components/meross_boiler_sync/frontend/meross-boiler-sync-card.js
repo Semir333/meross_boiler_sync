@@ -1,6 +1,6 @@
 /*!
  * Meross Boiler Sync – Lovelace kártyák / Lovelace cards
- * Verzió / version: 2.10.1
+ * Verzió / version: 2.11.1
  *
  * Felvétel: Irányítópult szerkesztése → Kártya hozzáadása → "Meross Boiler Sync".
  * Add: Edit dashboard → Add card → "Meross Boiler Sync".
@@ -325,6 +325,8 @@
     cd_manual: "Fűtés most", cd_pre: "Előfűtés",
     // 2.10: a profilválasztó "Fűtés ki" eleme
     preset_off: "Fűtés ki",
+    // 2.10.2: határérték (6–34 °C) jelzések
+    lim_max: "Nem állítható {v}° fölé.", lim_min: "Nem állítható {v}° alá.", lim_fail: "A szelep nem fogadta el az értéket.",
     // Fűts most gomb és felugró
     bn_title: "Fűts most", bn_ask: "Mennyi ideig fűtsön?", bn_stop: "Megszakítás", bn_raised: "Megemelt cél",
     bn_pick: "{from}° → {to}°",
@@ -360,6 +362,8 @@
   Object.assign(STR.en, {
     cd_manual: "Heat now", cd_pre: "Preheat",
     preset_off: "Heating off",
+    // 2.10.2: limit (6–34 °C) notices
+    lim_max: "Can't be set above {v}°.", lim_min: "Can't be set below {v}°.", lim_fail: "The valve did not accept the value.",
     bn_title: "Heat now", bn_ask: "Heat for how long?", bn_stop: "Stop", bn_raised: "Raised target",
     bn_pick: "{from}° → {to}°",
     bn_no_window: "Can't start while a window is open.", bn_no_stale: "The thermometer isn't reporting fresh data, so it can't start.",
@@ -538,6 +542,8 @@
   };
   /** A profilválasztó utolsó eleme: nem valódi profil, hanem a szelepek kikapcsolása (hvac_mode: off). */
   const OFF_PRESET = "__off__";
+  /* 2.10.2: a szelepnek küldhető célhőmérséklet kemény határa (a Meross vezérlő a kívül esőt elutasítja) */
+  const TARGET_MIN = 6, TARGET_MAX = 34;
   const PRESET_ICON = { auto: "auto", sleep: "moon", comfort: "sofa", eco: "leaf", away: "away", home: "home", manual: "tune", boost: "flame", [OFF_PRESET]: "power" };
   const ic = (name, cls) => `<svg class="ic ${cls || ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ""}</svg>`;
   const STATUS_ICON = {
@@ -791,9 +797,14 @@
       background:color-mix(in srgb, var(--text) 7%, transparent); color:var(--text); display:grid; place-items:center;
       -webkit-tap-highlight-color:transparent; transition:background .15s, transform .1s; }
     .pm .ic { width:1.15em; height:1.15em; }
-    .pm:hover:not(:disabled) { background:color-mix(in srgb, var(--text) 14%, transparent); }
-    .pm:active:not(:disabled) { transform:scale(.93); }
-    .pm:disabled { opacity:.35; cursor:default; }
+    .pm:hover:not(:disabled):not(.lim) { background:color-mix(in srgb, var(--text) 14%, transparent); }
+    .pm:active:not(:disabled):not(.lim) { transform:scale(.93); }
+    .pm:disabled, .pm.lim { opacity:.35; cursor:default; }
+    .limnote { position:absolute; left:0; right:0; margin:0 auto; top:.5em; z-index:8; display:flex; gap:.5em; align-items:center; width:max-content; max-width:calc(100% - 1em);
+      padding:.4em .8em; border-radius:999px; font-size:.78rem; line-height:1.3; color:var(--text); pointer-events:none;
+      background:color-mix(in srgb, var(--card-background-color, #1c1c1e) 96%, transparent); border:1px solid var(--c-stale, #ffb300); box-shadow:0 4px 14px rgba(0,0,0,.28); animation:mbs-toast .25s ease-out both; }
+    .limnote .ic { width:1.2em; height:1.2em; flex:none; color:var(--c-stale, #ffb300); }
+    .sheet .limnote { position:static; margin:10px 0 0; max-width:none; width:auto; border-radius:12px; box-shadow:none; }
     .glass .info { display:flex; gap:1em; align-items:center; justify-content:center; font-size:.88em; min-height:1.4em; }
     .hum { color:var(--c-rest-text, #64b5f6); display:inline-flex; gap:.3em; align-items:center; }
     .glass .foot { position:relative; display:flex; gap:.5em; align-items:center; justify-content:center; flex-wrap:wrap; margin-top:.1em; }
@@ -1430,6 +1441,7 @@
       this._tick = null;
       this._boostOpen = null;     // 2.9: melyik szoba "Fűts most" felugrója nyitott
       this._bmsg = null;          // {room, text}: miért nem indítható / mi ment félre
+      this._limMsg = null;        // 2.10.2 {room, kind, text, timer}: "nem állítható tovább" jelzés (egyszer, pár másodpercig)
       this._boostTimer = null;
       this._onDoc = (ev) => {
         if (this._open == null && this._boostOpen == null) return;
@@ -1462,6 +1474,8 @@
       Object.values(this._pendingPreset).forEach((p) => clearTimeout(p.expire));
       if (this._pendingQuick) clearTimeout(this._pendingQuick.expire);
       if (this._toast) clearTimeout(this._toast.timer);
+      if (this._limMsg) clearTimeout(this._limMsg.timer);
+      this._limMsg = null;
       Object.values(this._raf).forEach((id) => cancelAnimationFrame(id));
       this._pending = {};
       this._pendingPreset = {};
@@ -1555,9 +1569,32 @@
     /* ---------- célhőmérséklet és profil (egy szoba) ---------- */
     _bounds(r) {
       const v = r.valve, c = this._config;
-      const lo = v && v.min != null ? v.min : 5, hi = v && v.max != null ? v.max : 35;
+      // 2.10.2: 6–34 °C a kemény határ; a szelep saját (szűkebb) min/max értéke ezen belül érvényes
+      const lo = Math.max(TARGET_MIN, v && v.min != null ? v.min : TARGET_MIN);
+      const hi = Math.max(lo, Math.min(TARGET_MAX, v && v.max != null ? v.max : TARGET_MAX));
       const step = Number(c.step) > 0 ? Number(c.step) : (v && v.step > 0 ? v.step : 0.5);
       return { lo, hi, step };
+    }
+
+    /** Határon túli kérés / elutasított parancs: parancs NEM megy, csak egyetlen rövid jelzés (kind: max | min | fail). */
+    _limitNote(id, kind) {
+      const r = this._room(id), h = this._hass, m0 = this._limMsg;
+      if (!r) { this._redraw(); return; }
+      if (m0 && m0.room === id && m0.kind === kind) { this._redraw(); return; }   // már látszik: nem ismételjük
+      if (m0) clearTimeout(m0.timer);
+      const { lo, hi } = this._bounds(r), lim = kind === "min" ? lo : hi;
+      const fmt = (x) => this._num(x, Number.isInteger(x) ? 0 : 1);
+      const text = kind === "fail" ? T(h, "lim_fail") : F(h, kind === "min" ? "lim_min" : "lim_max", { v: fmt(lim) });
+      const msg = { room: id, kind, text, timer: null };
+      msg.timer = setTimeout(() => { if (this._limMsg === msg) { this._limMsg = null; this._redraw(); if (this._sheet) { this._sheet.sig = null; this._renderSheet(); } } }, 4000);
+      this._limMsg = msg;
+      this._redraw();
+    }
+
+    _limHtml(r) {
+      const m = this._limMsg;
+      if (!m || m.room !== r.id) return "";
+      return `<div class="limnote" role="status">${ic("alert")}<span>${esc(m.text)}</span></div>`;
     }
 
     /** + / −: a kijelzett érték azonnal változik, a hívás a gyors koppintások után egyszer megy el. */
@@ -1568,6 +1605,9 @@
       const pend = this._pending[id];
       const base = pend ? pend.value : r.target;
       if (base == null) return;
+      // a határon nincs parancs: egyetlen rövid jelzés, hogy nem állítható tovább
+      if (dir > 0 && base >= hi - 1e-9) { this._limitNote(id, "max"); return; }
+      if (dir < 0 && base <= lo + 1e-9) { this._limitNote(id, "min"); return; }
       let v = dir > 0 ? Math.floor(base / step + 1e-9) * step + step : Math.ceil(base / step - 1e-9) * step - step;
       this._queueTarget(id, Math.round(clamp(v, lo, hi) * 100) / 100);
     }
@@ -1584,10 +1624,27 @@
       const p = this._pending[id], r = this._room(id);
       if (!p) return;
       if (!r || !r.valveIds.length) { delete this._pending[id]; this._redraw(); return; }
+      // soha nem küldünk határon kívüli értéket a szelepnek
+      const { lo, hi } = this._bounds(r);
+      if (!(p.value >= lo - 1e-9 && p.value <= hi + 1e-9)) {
+        delete this._pending[id];
+        this._limitNote(id, p.value > hi ? "max" : "min");
+        return;
+      }
+      // ha minden elérhető szelepen már ez a cél, nem küldünk felesleges parancsot
+      const okv = r.valves.filter((x) => x.ok);
+      if (okv.length && okv.every((x) => x.target != null && Math.abs(x.target - p.value) < 1e-6)) {
+        delete this._pending[id];
+        this._redraw();
+        return;
+      }
       p.sent = true;
       p.expire = setTimeout(() => { if (this._pending[id] === p) { delete this._pending[id]; this._redraw(); } }, 8000);
       this._callService("climate", "set_temperature", { entity_id: r.valveIds, temperature: p.value })
-        .catch(() => { if (this._pending[id] === p) { clearTimeout(p.expire); delete this._pending[id]; this._redraw(); } });
+        .catch(() => {
+          if (this._pending[id] === p) { clearTimeout(p.expire); delete this._pending[id]; }
+          this._limitNote(id, "fail");   // a szelep nem fogadta el: egyszer jelezzük, nem próbáljuk újra
+        });
     }
 
     /** A profilválasztó elemei: a szelep profiljai + (ha a szelep tud kikapcsolni) a "Fűtés ki". */
@@ -1860,13 +1917,13 @@
       this._settle(data.rooms);
       const ui = [this._open, Object.keys(this._pending).map((k) => [k, this._pending[k].value]),
         Object.keys(this._pendingPreset).map((k) => [k, this._pendingPreset[k].value]),
-        this._pendingQuick && this._pendingQuick.value, this._toast && this._toast.text, this._boostOpen, this._bmsg && this._bmsg.text];
+        this._pendingQuick && this._pendingQuick.value, this._toast && this._toast.text, this._boostOpen, this._bmsg && this._bmsg.text, this._limMsg && this._limMsg.text];
       const sig = JSON.stringify([cfg, this._sigData(data), langOf(this._hass), ui]);
       if (sig === this._sig) return;
       this._sig = sig;
       const sz = clamp(Number(cfg.size) || 100, 70, 160) / 100;
       this._gn = 0;
-      this.shadowRoot.innerHTML = `<style>${CSS}${CSS3}</style><div class="root${this._rootCls()}" style="${esc(this._vars(cfg))};--sz:${sz}">${this._build(data)}</div>`;
+      this.shadowRoot.innerHTML = `<style>${CSS}${CSS3}</style><div class="root${this._rootCls()}" style="${this._vars(cfg)};--sz:${sz}">${this._build(data)}</div>`;
       this._applyNight();
       this._wire();
       this._after(data);
@@ -2793,8 +2850,8 @@
       const canChange = showCtl && v.ok;
       const btn = (dir) => {
         if (!showCtl) return "<span></span>";
-        const off = !canChange || (dir < 0 ? target <= lo + 1e-9 : target >= hi - 1e-9);
-        return `<button type="button" class="pm" data-act="${dir < 0 ? "dec" : "inc"}" data-room="${esc(r.id)}" aria-label="${esc(T(h, dir < 0 ? "decrease" : "increase"))}"${off ? " disabled" : ""}>${ic(dir < 0 ? "minus" : "plus")}</button>`;
+        const lim = canChange && (dir < 0 ? target <= lo + 1e-9 : target >= hi - 1e-9);
+        return `<button type="button" class="pm${lim ? " lim" : ""}" data-act="${dir < 0 ? "dec" : "inc"}" data-room="${esc(r.id)}" aria-label="${esc(T(h, dir < 0 ? "decrease" : "increase"))}"${!canChange ? " disabled" : lim ? ' aria-disabled="true"' : ""}>${ic(dir < 0 ? "minus" : "plus")}</button>`;
       };
       const showTg = (c.show_target || showCtl) && target != null;
 
@@ -2846,7 +2903,7 @@
       let fx = c.animation ? (rd ? FX_RADIATOR[r.status] : FX[r.status]) || "" : "";
       if (c.look === "eink") fx = '<div class="stripe"></div>';
       return `<div class="t glass${rd ? " rd" : ""}${rd && c.animation ? " anim" : ""} ${this._glowCls(r)}" data-st="${r.status}" data-room="${esc(r.id)}" ${this._tapAttr(r)}>
-        ${fx}
+        ${fx}${this._limHtml(r)}
         <div class="in">
           <div class="nm">${esc(r.name)}</div>
           ${visual}
@@ -2996,14 +3053,16 @@
           ring.appendChild(bubble);
           tile.classList.add("dragging");
           if (mk) { mk.setAttribute("r", "8"); mk.setAttribute("stroke-width", "3"); }
-          let last = null;
+          let last = null, hit = null;
           const move = (e) => {
             let deg = (Math.atan2(e.clientY - cy, e.clientX - cx) * 180) / Math.PI;
             deg = (deg + 360) % 360;
             let rel = (deg - 135 + 360) % 360;
             if (rel > 270) rel = rel > 315 ? 0 : 270;
             const raw = min + (rel / 270) * span;
-            const v = Math.round(clamp(Math.round(raw / step) * step, lo, hi) * 100) / 100;
+            const stepped = Math.round(raw / step) * step;
+            hit = stepped > hi + 1e-9 ? "max" : stepped < lo - 1e-9 ? "min" : null;   // a határon túlra húzták
+            const v = Math.round(clamp(stepped, lo, hi) * 100) / 100;
             if (v === last) return;
             last = v;
             const f = clamp((v - min) / span, 0, 1), [x, y] = pointOn(60, 60, 50, f);
@@ -3024,6 +3083,7 @@
             this._dragging = false;
             if (last != null && Math.abs(last - (r.target == null ? NaN : r.target)) > 1e-6) this._queueTarget(id, last);
             else { this._sig = null; this._render(); }
+            if (hit) this._limitNote(id, hit);   // egyetlen jelzés, parancs nélkül
           };
           knob.addEventListener("pointermove", move);
           knob.addEventListener("pointerup", end);
@@ -3166,7 +3226,7 @@
       if (!r) { this._closeSheet(); return; }
       const pend = this._pending[r.id], pendP = this._pendingPreset[r.id], v = r.valve;
       const hist = this._hist, d = Number(c.decimals) || 0;
-      const sig = JSON.stringify([r.a, r.valve, r.valves, pend && pend.value, pendP && pendP.value, this._hver, Math.floor(Date.now() / 60000), langOf(h), c.look, sh.open, this._boostOpen, this._bmsg && this._bmsg.text, c.show_boost, c.show_preheat, this._data.summer && this._data.summer.state]);
+      const sig = JSON.stringify([r.a, r.valve, r.valves, pend && pend.value, pendP && pendP.value, this._hver, Math.floor(Date.now() / 60000), langOf(h), c.look, sh.open, this._boostOpen, this._bmsg && this._bmsg.text, this._limMsg && this._limMsg.text, c.show_boost, c.show_preheat, this._data.summer && this._data.summer.state]);
       if (sig === sh.sig) return;
       sh.sig = sig;
       const old = host.shadowRoot.querySelector(".sheet"), scroll = old ? old.scrollTop : 0;
@@ -3187,7 +3247,7 @@
         return `<div class="vr" style="--c:${col}">${ic("valve")}<span class="vn">${esc(x.name)}</span><span class="a">${x.cur != null ? `<b>${this._num(x.cur, d)}°</b>` : "–"}${x.target != null ? ` → ${this._num(x.target, d)}°` : ""}</span></div>`;
       }).join("");
       const big = this._bigInner(r.cur, d);
-      const html = `<style>${CSS}${CSS3}</style><div class="root sheetroot${this._rootCls()}" style="${esc(this._vars(c))};--sz:1">
+      const html = `<style>${CSS}${CSS3}</style><div class="root sheetroot${this._rootCls()}" style="${this._vars(c)};--sz:1">
         <div class="sh-wrap${sh.open ? " open" : ""}"><div class="sh-dim" data-sact="close"></div>
         <div class="sheet" data-st="${r.status}" role="dialog" aria-modal="true" aria-label="${esc(r.name)}">
           <div class="grab" aria-hidden="true"><i></i></div>
@@ -3196,10 +3256,10 @@
             <button type="button" class="xb" data-sact="close" aria-label="${esc(T(h, "close"))}">${ic("close")}</button></div>
           <div class="big2"><div class="bv big">${big}</div>${trend}</div>
           ${chart}
-          <div class="ctrl"><button type="button" class="pm" data-sact="dec"${can && target > lo + 1e-9 ? "" : " disabled"} aria-label="${esc(T(h, "decrease"))}">${ic("minus")}</button>
+          <div class="ctrl"><button type="button" class="pm${can && target <= lo + 1e-9 ? " lim" : ""}" data-sact="dec"${!can ? " disabled" : target <= lo + 1e-9 ? ' aria-disabled="true"' : ""} aria-label="${esc(T(h, "decrease"))}">${ic("minus")}</button>
             <div class="tv">${target != null ? this._num(target, d) + "°" : "–"}</div>
-            <button type="button" class="pm" data-sact="inc"${can && target < hi - 1e-9 ? "" : " disabled"} aria-label="${esc(T(h, "increase"))}">${ic("plus")}</button><span style="flex:1"></span>${this._sheetExtra(r)}</div>
-          ${this._sheetBelow(r)}${chips}
+            <button type="button" class="pm${can && target >= hi - 1e-9 ? " lim" : ""}" data-sact="inc"${!can ? " disabled" : target >= hi - 1e-9 ? ' aria-disabled="true"' : ""} aria-label="${esc(T(h, "increase"))}">${ic("plus")}</button><span style="flex:1"></span>${this._sheetExtra(r)}</div>
+          ${this._limHtml(r)}${this._sheetBelow(r)}${chips}
           <div class="vl">${valves}</div>
         </div></div></div>`;
       host.shadowRoot.innerHTML = html;

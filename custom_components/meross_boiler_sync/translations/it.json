@@ -25,7 +25,7 @@
           "settings": "Impostazioni di base",
           "summer": "Modalità estate",
           "done": "Salva ed esci",
-          "features": "Funzioni (eventi, protezione, Riscalda ora, preriscaldamento, stima del gas)",
+          "features": "Funzioni (eventi, protezione, Riscalda ora, preriscaldamento, stima del gas, calibrazione delle valvole)",
           "preheat": "Programma di preriscaldamento (per stanza)"
         }
       },
@@ -42,7 +42,8 @@
           "valve_demand_link": "Collega la richiesta della caldaia allo stato della valvola",
           "humidity_sensor": "Sensore di umidità della stanza (facoltativo)",
           "window_sensors": "Sensore/i finestra / porta (facoltativo)",
-          "window_open_delay": "Ritardo finestra aperta – questa stanza, minuti (vuoto = valore globale)"
+          "window_open_delay": "Ritardo finestra aperta – questa stanza, minuti (vuoto = valore globale)",
+          "calibrate_valves": "Calibrazione automatica delle valvole (se attiva in Funzioni)"
         },
         "data_description": {
           "name": "Es. Soggiorno",
@@ -55,7 +56,8 @@
           "valve_demand_link": "Se attivo, la stanza richiede calore alla caldaia solo quando la sua valvola è aperta (la misura della valvola è sotto il suo target) o quando il plugin la sta forzando ad aprirsi. Così la caldaia non scalda contro valvole chiuse per piccoli scostamenti. Non blocca il riscaldamento se mancano i dati della valvola.",
           "humidity_sensor": "Con umidità elevata il target della stanza viene alzato leggermente (vedi Impostazioni di base).",
           "window_sensors": "Finché una finestra o una porta resta aperta più a lungo del ritardo, la stanza non richiede calore e la spinta della valvola viene rilasciata. Con più sensori basta uno aperto.",
-          "window_open_delay": "Per quanto tempo la finestra deve restare aperta prima che la stanza reagisca, così un breve ricambio d’aria non cambia nulla. 0 = subito. Se vuoto, vale il valore globale."
+          "window_open_delay": "Per quanto tempo la finestra deve restare aperta prima che la stanza reagisca, così un breve ricambio d’aria non cambia nulla. 0 = subito. Se vuoto, vale il valore globale.",
+          "calibrate_valves": "Corregge la misura di temperatura delle valvole usando il termometro della stanza. Funziona solo con un sensore di temperatura della stanza. Se disattivata, le valvole di questa stanza non vengono toccate."
         }
       },
       "edit_room": {
@@ -77,7 +79,8 @@
           "valve_demand_link": "Collega la richiesta della caldaia allo stato della valvola",
           "humidity_sensor": "Sensore di umidità della stanza (facoltativo)",
           "window_sensors": "Sensore/i finestra / porta (facoltativo)",
-          "window_open_delay": "Ritardo finestra aperta – questa stanza, minuti (vuoto = valore globale)"
+          "window_open_delay": "Ritardo finestra aperta – questa stanza, minuti (vuoto = valore globale)",
+          "calibrate_valves": "Calibrazione automatica delle valvole (se attiva in Funzioni)"
         },
         "data_description": {
           "name": "Es. Soggiorno",
@@ -90,7 +93,8 @@
           "valve_demand_link": "Se attivo, la stanza richiede calore alla caldaia solo quando la sua valvola è aperta (la misura della valvola è sotto il suo target) o quando il plugin la sta forzando ad aprirsi. Così la caldaia non scalda contro valvole chiuse per piccoli scostamenti. Non blocca il riscaldamento se mancano i dati della valvola.",
           "humidity_sensor": "Con umidità elevata il target della stanza viene alzato leggermente (vedi Impostazioni di base).",
           "window_sensors": "Finché una finestra o una porta resta aperta più a lungo del ritardo, la stanza non richiede calore e la spinta della valvola viene rilasciata. Con più sensori basta uno aperto.",
-          "window_open_delay": "Per quanto tempo la finestra deve restare aperta prima che la stanza reagisca, così un breve ricambio d’aria non cambia nulla. 0 = subito. Se vuoto, vale il valore globale."
+          "window_open_delay": "Per quanto tempo la finestra deve restare aperta prima che la stanza reagisca, così un breve ricambio d’aria non cambia nulla. 0 = subito. Se vuoto, vale il valore globale.",
+          "calibrate_valves": "Corregge la misura di temperatura delle valvole usando il termometro della stanza. Funziona solo con un sensore di temperatura della stanza. Se disattivata, le valvole di questa stanza non vengono toccate."
         }
       },
       "remove_room": {
@@ -152,7 +156,7 @@
       },
       "features": {
         "title": "Funzioni",
-        "description": "Ogni funzione può essere attivata e disattivata separatamente.\n\n**Eventi**: il plugin invia eventi `meross_boiler_sync_event` (spinta della valvola, finestra, sensore non aggiornato, cicli brevi, Riscalda ora, preriscaldamento) che puoi usare nelle automazioni; sono leggibili anche nel registro di HA.\n\n**Monitoraggio dei cicli della caldaia**: conta gli avvii della caldaia e segnala i cicli brevi.\n\n**Protezione**: se attiva, la caldaia resta accesa / spenta almeno per il tempo indicato, anche se nel frattempo cambia la richiesta delle stanze. Può ritardare il riscaldamento, quindi è disattivata per impostazione predefinita.\n\n**Riscalda ora**: il servizio `meross_boiler_sync.boost_now` (e il pulsante delle schede) alza temporaneamente l'obiettivo della stanza. Non parte in modalità estate, con una finestra aperta o con un sensore non aggiornato.\n\n**Preriscaldamento**: scalda la stanza per un orario stabilito e, in base alla velocità di riscaldamento appresa, calcola quando iniziare. Imposta il programma settimanale in *Programma di preriscaldamento* nel menu principale. Parte da solo, quindi è disattivato per impostazione predefinita.\n\n**Stima del gas**: crea un sensore del consumo di gas stimato (m³) che puoi scegliere in *Consumo di gas* nella dashboard Energia. Moltiplica il tempo di accensione della caldaia per il consumo di gas impostato qui sotto. È una stima, non una misura, ed è disattivata per impostazione predefinita.",
+        "description": "Ogni funzione può essere attivata e disattivata separatamente.\n\n**Eventi**: il plugin invia eventi `meross_boiler_sync_event` (spinta della valvola, finestra, sensore non aggiornato, cicli brevi, Riscalda ora, preriscaldamento) che puoi usare nelle automazioni; sono leggibili anche nel registro di HA.\n\n**Monitoraggio dei cicli della caldaia**: conta gli avvii della caldaia e segnala i cicli brevi.\n\n**Protezione**: se attiva, la caldaia resta accesa / spenta almeno per il tempo indicato, anche se nel frattempo cambia la richiesta delle stanze. Può ritardare il riscaldamento, quindi è disattivata per impostazione predefinita.\n\n**Riscalda ora**: il servizio `meross_boiler_sync.boost_now` (e il pulsante delle schede) alza temporaneamente l'obiettivo della stanza. Non parte in modalità estate, con una finestra aperta o con un sensore non aggiornato.\n\n**Preriscaldamento**: scalda la stanza per un orario stabilito e, in base alla velocità di riscaldamento appresa, calcola quando iniziare. Imposta il programma settimanale in *Programma di preriscaldamento* nel menu principale. Parte da solo, quindi è disattivato per impostazione predefinita.\n\n**Stima del gas**: crea un sensore del consumo di gas stimato (m³) che puoi scegliere in *Consumo di gas* nella dashboard Energia. Moltiplica il tempo di accensione della caldaia per il consumo di gas impostato qui sotto. È una stima, non una misura, ed è disattivata per impostazione predefinita.\n\n**Calibrazione delle valvole** (sperimentale): allinea la misura di temperatura delle valvole dei termosifoni al termometro della stanza, tramite l’entità numerica *Calibrazione* della valvola. Misura solo quando il termosifone si è raffreddato (la caldaia o la valvola non scaldano da almeno 90 minuti), con temperatura ambiente stabile e finestre chiuse, e modifica il valore solo se la differenza è di almeno 0,8 °C. Ogni modifica viene verificata e annullata se non è servita; dopo due tentativi falliti la valvola viene sospesa per una settimana (avviso in Riparazioni). Il termostato della caldaia non viene mai toccato. La *prova* si limita a registrare cosa verrebbe modificato. La funzione scrive un’impostazione permanente nella valvola, quindi è disattivata per impostazione predefinita; disattivandola, i valori già impostati restano.",
         "data": {
           "events_enabled": "Eventi e voci del registro",
           "cycle_monitor_enabled": "Monitoraggio dei cicli della caldaia (sensori)",
@@ -170,7 +174,9 @@
           "preheat_default_rate": "Preriscaldamento: velocità di riscaldamento predefinita (finché non è appresa)",
           "manual_boost_end_on_target": "Riscalda ora: termina quando la stanza raggiunge l'obiettivo alzato",
           "gas_estimate_enabled": "Stima del gas (per la dashboard Energia)",
-          "gas_m3_per_hour": "Stima del gas: consumo con la caldaia accesa"
+          "gas_m3_per_hour": "Stima del gas: consumo con la caldaia accesa",
+          "calibration_enabled": "Calibrazione delle valvole (automatica, sperimentale)",
+          "calibration_dry_run": "Calibrazione delle valvole: prova (solo registro)"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Se la caldaia si è avviata così tante volte o più nell'ultima ora, il sensore Cicli brevi si attiva.",
@@ -181,7 +187,9 @@
           "preheat_default_rate": "Il plugin misura la velocità di riscaldamento di ogni stanza mentre scalda; finché non ha abbastanza campioni (circa 20 minuti di riscaldamento) usa questi gradi all'ora.",
           "manual_boost_end_on_target": "Se disattivato, Riscalda ora dura per l'intera durata e mantiene l'obiettivo alzato.",
           "gas_estimate_enabled": "Aggiunge il sensore del consumo di gas stimato. Conta il tempo di accensione della caldaia; il tempo in cui Home Assistant non è in esecuzione non viene contato.",
-          "gas_m3_per_hour": "Quanti m³ di gas consuma la caldaia all'ora quando è accesa (vedi la targhetta o la bolletta). Confronta il sensore con la lettura del contatore del gas e regola questo valore finché non coincidono."
+          "gas_m3_per_hour": "Quanti m³ di gas consuma la caldaia all'ora quando è accesa (vedi la targhetta o la bolletta). Confronta il sensore con la lettura del contatore del gas e regola questo valore finché non coincidono.",
+          "calibration_enabled": "Se attiva, il plugin regola automaticamente il valore di calibrazione delle valvole in base al termometro della stanza (Meross LAN: il numero *Calibrazione*). Le singole stanze si possono escludere modificandole. La funzione scrive un’impostazione permanente nella valvola: provala prima in modalità prova.",
+          "calibration_dry_run": "Registra e invia un evento su cosa imposterebbe, ma non scrive nella valvola. Le modifiche già in corso non proseguono in modalità prova."
         }
       },
       "preheat": {
@@ -305,6 +313,9 @@
           "temperature_sensor_stale": {
             "name": "Sensore di temperatura della stanza non aggiornato"
           },
+          "temperature_sensor_unreliable": {
+            "name": "Sensore di temperatura della stanza inaffidabile (valori impossibili o instabili)"
+          },
           "valve_boost_resting": {
             "name": "Spinta della valvola in pausa dopo la durata massima"
           },
@@ -385,6 +396,18 @@
           },
           "heating_rate_learned": {
             "name": "La velocità di riscaldamento è stata appresa"
+          },
+          "calibration_enabled": {
+            "name": "Calibrazione delle valvole attiva"
+          },
+          "calibration_dry_run": {
+            "name": "Calibrazione delle valvole in prova"
+          },
+          "calibration_room": {
+            "name": "Questa stanza partecipa alla calibrazione delle valvole"
+          },
+          "valve_calibration": {
+            "name": "Calibrazione delle valvole (stato per valvola)"
           }
         }
       },
@@ -488,9 +511,17 @@
       "title": "Il sensore di temperatura della stanza non si aggiorna",
       "description": "Il sensore di temperatura {sensor} della stanza {room} non comunica da oltre {hours} ore (la batteria potrebbe essere scarica o la connessione persa). La stanza usa ora la misura propria delle valvole e il controllo automatico delle valvole è sospeso. Questa notifica scompare appena il sensore torna a comunicare."
     },
+    "unreliable_room_temp": {
+      "title": "Il sensore di temperatura della stanza non è affidabile",
+      "description": "Il sensore di temperatura {sensor} della stanza {room} ha comunicato un valore impossibile o instabile (per esempio un valore di errore o rapidi sbalzi su e giù), quindi viene ignorato per {minutes} minuti. La stanza usa ora la misura propria delle valvole; il controllo automatico e la calibrazione delle valvole sono sospesi. Questa notifica scompare appena il sensore torna a fornire valori plausibili."
+    },
     "stale_outdoor": {
       "title": "Il sensore di temperatura esterna non si aggiorna",
       "description": "Il sensore esterno {sensor} non comunica da oltre {hours} ore (la batteria potrebbe essere scarica). La modalità estate resta disattivata finché non torna a comunicare, quindi il riscaldamento resta consentito. Questa notifica scompare appena il sensore torna a comunicare."
+    },
+    "calibration_suspended": {
+      "title": "Calibrazione delle valvole sospesa",
+      "description": "Sulla valvola {valve} di {room}, due modifiche di calibrazione consecutive non hanno avvicinato la misura della valvola al termometro della stanza. La calibrazione automatica è quindi sospesa per questa valvola per {days} giorni; è stato ripristinato il valore precedente. Controlla il numero *Calibrazione* della valvola e se la valvola lo applica davvero. L’avviso scompare alla fine della sospensione o quando la funzione viene disattivata."
     }
   },
   "selector": {
@@ -560,6 +591,9 @@
     },
     "boost_stale": {
       "message": "{room}: il termometro non è aggiornato, quindi Riscalda ora non può partire."
+    },
+    "boost_unreliable": {
+      "message": "{room}: il termometro non è affidabile (valori impossibili o instabili), quindi Riscalda ora non può partire."
     },
     "boost_inactive": {
       "message": "{room}: nella stanza non c'è nessuna valvola attivata e raggiungibile."

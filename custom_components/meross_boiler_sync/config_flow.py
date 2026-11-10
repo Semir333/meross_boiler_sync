@@ -15,6 +15,8 @@ from .const import (
     CONF_BOILER_MIN_OFF,
     CONF_BOILER_MIN_ON,
     CONF_BOILER_ON_TEMP,
+    CONF_CALIBRATION_DRY_RUN,
+    CONF_CALIBRATION_ENABLED,
     CONF_CYCLE_MAX_STARTS,
     CONF_CYCLE_MIN_AVG_ON,
     CONF_CYCLE_MONITOR,
@@ -34,6 +36,7 @@ from .const import (
     CONF_PREHEAT_HOLD_MINUTES,
     CONF_PREHEAT_MAX_MINUTES,
     CONF_OUTDOOR_SENSOR,
+    CONF_ROOM_CALIBRATE,
     CONF_ROOM_HUM,
     CONF_ROOM_ID,
     CONF_ROOM_NAME,
@@ -61,6 +64,8 @@ from .const import (
     DEFAULT_BOILER_MIN_OFF,
     DEFAULT_BOILER_MIN_ON,
     DEFAULT_BOILER_ON_TEMP,
+    DEFAULT_CALIBRATION_DRY_RUN,
+    DEFAULT_CALIBRATION_ENABLED,
     DEFAULT_CYCLE_MAX_STARTS,
     DEFAULT_CYCLE_MIN_AVG_ON,
     DEFAULT_CYCLE_MONITOR,
@@ -85,6 +90,7 @@ from .const import (
     DEFAULT_MAX_BOOST_HOURS,
     DEFAULT_MAX_BOOST_REST,
     DEFAULT_REGISTER_CARD,
+    DEFAULT_ROOM_CALIBRATE,
     DEFAULT_STALE_ENABLED,
     DEFAULT_STALE_HOURS,
     DEFAULT_SUMMER_TEMP,
@@ -167,6 +173,10 @@ def _room_schema(values: dict[str, Any]) -> vol.Schema:
             vol.Optional(
                 CONF_WINDOW_DELAY, description=_suggest(values, CONF_WINDOW_DELAY)
             ): _number(0, 120, 1, "min"),
+            vol.Optional(
+                CONF_ROOM_CALIBRATE,
+                default=bool(values.get(CONF_ROOM_CALIBRATE, DEFAULT_ROOM_CALIBRATE)),
+            ): selector.BooleanSelector(),
         }
     )
 
@@ -318,6 +328,14 @@ def _features_schema(values: dict[str, Any]) -> vol.Schema:
                 CONF_GAS_M3_PER_HOUR,
                 default=values.get(CONF_GAS_M3_PER_HOUR, DEFAULT_GAS_M3_PER_HOUR),
             ): _number(0.1, 20, 0.1, "m³/h"),
+            vol.Required(
+                CONF_CALIBRATION_ENABLED,
+                default=bool(values.get(CONF_CALIBRATION_ENABLED, DEFAULT_CALIBRATION_ENABLED)),
+            ): selector.BooleanSelector(),
+            vol.Required(
+                CONF_CALIBRATION_DRY_RUN,
+                default=bool(values.get(CONF_CALIBRATION_DRY_RUN, DEFAULT_CALIBRATION_DRY_RUN)),
+            ): selector.BooleanSelector(),
         }
     )
 
@@ -456,6 +474,8 @@ class MerossBoilerSyncConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_PREHEAT_DEFAULT_RATE: DEFAULT_PREHEAT_RATE,
                     CONF_GAS_ESTIMATE: DEFAULT_GAS_ESTIMATE,
                     CONF_GAS_M3_PER_HOUR: DEFAULT_GAS_M3_PER_HOUR,
+                    CONF_CALIBRATION_ENABLED: DEFAULT_CALIBRATION_ENABLED,
+                    CONF_CALIBRATION_DRY_RUN: DEFAULT_CALIBRATION_DRY_RUN,
                     CONF_ROOMS: [],
                 },
             )
@@ -542,6 +562,7 @@ class MerossBoilerSyncOptionsFlow(config_entries.OptionsFlow):
             if user_input.get(key) is not None:  # a 0 is érvényes érték
                 room[key] = float(user_input[key])
         room[CONF_ROOM_VALVE_LINK] = bool(user_input.get(CONF_ROOM_VALVE_LINK))
+        room[CONF_ROOM_CALIBRATE] = bool(user_input.get(CONF_ROOM_CALIBRATE, DEFAULT_ROOM_CALIBRATE))
         windows = [w for w in (user_input.get(CONF_ROOM_WINDOWS) or []) if w]
         if windows:
             room[CONF_ROOM_WINDOWS] = windows

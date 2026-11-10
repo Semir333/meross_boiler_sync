@@ -25,7 +25,7 @@
           "settings": "Settings",
           "summer": "Summer mode",
           "done": "Save and exit",
-          "features": "Features (events, protection, Heat now, preheat, gas estimate)",
+          "features": "Features (events, protection, Heat now, preheat, gas estimate, valve calibration)",
           "preheat": "Preheat schedule (per room)"
         }
       },
@@ -42,7 +42,8 @@
           "valve_demand_link": "Tie boiler demand to valve state",
           "humidity_sensor": "Room humidity sensor (optional)",
           "window_sensors": "Window / door sensor(s) (optional)",
-          "window_open_delay": "Window open delay – this room, minutes (empty = global value)"
+          "window_open_delay": "Window open delay – this room, minutes (empty = global value)",
+          "calibrate_valves": "Automatic valve calibration (if enabled under Features)"
         },
         "data_description": {
           "name": "E.g. Living room",
@@ -55,7 +56,8 @@
           "valve_demand_link": "When on, the room only calls the boiler when its valve is open (valve's own reading is below its target) or when the plugin is forcing it open. Avoids firing the boiler into closed valves for small deviations. Does not block heating if valve data is missing.",
           "humidity_sensor": "At high humidity the room target is raised slightly (see Settings).",
           "window_sensors": "While a window or door stays open longer than the delay, the room stops calling for heat and the valve boost is released. With several sensors, any open one counts.",
-          "window_open_delay": "How long the window must stay open before the room reacts, so short airing changes nothing. 0 = immediately. If empty, the global value applies."
+          "window_open_delay": "How long the window must stay open before the room reacts, so short airing changes nothing. 0 = immediately. If empty, the global value applies.",
+          "calibrate_valves": "Corrects the valves' temperature readings using the room thermometer. Only works with a room temperature sensor. When off, this room's valves are left alone."
         }
       },
       "edit_room": {
@@ -77,7 +79,8 @@
           "valve_demand_link": "Tie boiler demand to valve state",
           "humidity_sensor": "Room humidity sensor (optional)",
           "window_sensors": "Window / door sensor(s) (optional)",
-          "window_open_delay": "Window open delay – this room, minutes (empty = global value)"
+          "window_open_delay": "Window open delay – this room, minutes (empty = global value)",
+          "calibrate_valves": "Automatic valve calibration (if enabled under Features)"
         },
         "data_description": {
           "name": "E.g. Living room",
@@ -90,7 +93,8 @@
           "valve_demand_link": "When on, the room only calls the boiler when its valve is open (valve's own reading is below its target) or when the plugin is forcing it open. Avoids firing the boiler into closed valves for small deviations. Does not block heating if valve data is missing.",
           "humidity_sensor": "At high humidity the room target is raised slightly (see Settings).",
           "window_sensors": "While a window or door stays open longer than the delay, the room stops calling for heat and the valve boost is released. With several sensors, any open one counts.",
-          "window_open_delay": "How long the window must stay open before the room reacts, so short airing changes nothing. 0 = immediately. If empty, the global value applies."
+          "window_open_delay": "How long the window must stay open before the room reacts, so short airing changes nothing. 0 = immediately. If empty, the global value applies.",
+          "calibrate_valves": "Corrects the valves' temperature readings using the room thermometer. Only works with a room temperature sensor. When off, this room's valves are left alone."
         }
       },
       "remove_room": {
@@ -152,7 +156,7 @@
       },
       "features": {
         "title": "Features",
-        "description": "Every feature can be switched on and off separately.\n\n**Events**: the plugin sends `meross_boiler_sync_event` events (valve boost, window, stale sensor, short cycling, Heat now, preheat) that you can use in automations; they are also readable in the HA logbook.\n\n**Boiler cycle monitoring**: counts boiler starts and flags short cycling.\n\n**Protection**: when on, the boiler stays on / off for at least the given time even if room demand changes meanwhile. This can delay heating, so it is off by default.\n\n**Heat now**: the `meross_boiler_sync.boost_now` service (and the cards' button) temporarily raises the room's target. It does not start in summer mode, with an open window or a stale sensor.\n\n**Preheat**: warms the room up for a given time, working out from the learned heating rate when to start. Set the weekly schedule under *Preheat schedule* in the main menu. It starts by itself, so it is off by default.\n\n**Gas estimate**: creates an estimated gas consumption sensor (m³) that you can pick under *Gas consumption* on the Energy dashboard. It multiplies the boiler's on-time by the gas consumption set below. It is an estimate, not a measurement, and it is off by default.",
+        "description": "Every feature can be switched on and off separately.\n\n**Events**: the plugin sends `meross_boiler_sync_event` events (valve boost, window, stale sensor, short cycling, Heat now, preheat) that you can use in automations; they are also readable in the HA logbook.\n\n**Boiler cycle monitoring**: counts boiler starts and flags short cycling.\n\n**Protection**: when on, the boiler stays on / off for at least the given time even if room demand changes meanwhile. This can delay heating, so it is off by default.\n\n**Heat now**: the `meross_boiler_sync.boost_now` service (and the cards' button) temporarily raises the room's target. It does not start in summer mode, with an open window or a stale sensor.\n\n**Preheat**: warms the room up for a given time, working out from the learned heating rate when to start. Set the weekly schedule under *Preheat schedule* in the main menu. It starts by itself, so it is off by default.\n\n**Gas estimate**: creates an estimated gas consumption sensor (m³) that you can pick under *Gas consumption* on the Energy dashboard. It multiplies the boiler's on-time by the gas consumption set below. It is an estimate, not a measurement, and it is off by default.\n\n**Valve calibration** (experimental): adjusts each radiator valve's temperature reading to match the room thermometer, through the valve's *Calibration* number entity. It only measures when the radiator has cooled down (the boiler or the valve has not been heating for at least 90 minutes), with a stable room temperature and closed windows, and only changes the value if the difference is at least 0.8 °C. Every change is verified and reverted if it did not help; after two failed attempts the valve is suspended for a week (a Repairs notice appears). The boiler thermostat is never touched. *Dry run* only logs what it would change. It writes a persistent setting into the valve, so it is off by default; turning it off keeps the values already set.",
         "data": {
           "events_enabled": "Events and logbook entries",
           "cycle_monitor_enabled": "Boiler cycle monitoring (sensors)",
@@ -170,7 +174,9 @@
           "preheat_default_rate": "Preheat: default heating rate (until learned)",
           "manual_boost_end_on_target": "Heat now: end when the room reaches the raised target",
           "gas_estimate_enabled": "Gas estimate (for the Energy dashboard)",
-          "gas_m3_per_hour": "Gas estimate: gas use while the boiler is on"
+          "gas_m3_per_hour": "Gas estimate: gas use while the boiler is on",
+          "calibration_enabled": "Valve calibration (automatic, experimental)",
+          "calibration_dry_run": "Valve calibration: dry run (log only)"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "If the boiler started this many times or more in the last hour, the Short cycling sensor turns on.",
@@ -181,7 +187,9 @@
           "preheat_default_rate": "The plugin measures each room's heating rate while heating; until it has enough samples (about 20 minutes of heating) it uses this many degrees per hour.",
           "manual_boost_end_on_target": "When off, Heat now lasts for the full duration and holds the raised target.",
           "gas_estimate_enabled": "Adds the estimated gas consumption sensor. It counts the boiler's on-time; time while Home Assistant is not running is not counted.",
-          "gas_m3_per_hour": "How many m³ of gas the boiler uses per hour while it is on (see the type plate or your bill). Compare the sensor with your gas meter reading and adjust this value until they match."
+          "gas_m3_per_hour": "How many m³ of gas the boiler uses per hour while it is on (see the type plate or your bill). Compare the sensor with your gas meter reading and adjust this value until they match.",
+          "calibration_enabled": "When on, the plugin automatically adjusts the valves' calibration value based on the room thermometer (Meross LAN: the *Calibration* number). Rooms can be switched off individually when editing the room. It writes a persistent setting into the valve, so try it in dry run first.",
+          "calibration_dry_run": "Only logs and sends an event about what it would set, but does not write to the valve. Changes already in progress are not continued while dry run is on."
         }
       },
       "preheat": {
@@ -305,6 +313,9 @@
           "temperature_sensor_stale": {
             "name": "Room temperature sensor not updating (stale)"
           },
+          "temperature_sensor_unreliable": {
+            "name": "Room thermometer is unreliable (impossible or erratic readings)"
+          },
           "valve_boost_resting": {
             "name": "Valve boost resting after maximum duration"
           },
@@ -385,6 +396,18 @@
           },
           "heating_rate_learned": {
             "name": "Heating rate has been learned"
+          },
+          "calibration_enabled": {
+            "name": "Valve calibration is on"
+          },
+          "calibration_dry_run": {
+            "name": "Valve calibration dry run"
+          },
+          "calibration_room": {
+            "name": "This room takes part in valve calibration"
+          },
+          "valve_calibration": {
+            "name": "Valve calibration (status per valve)"
           }
         }
       },
@@ -488,9 +511,17 @@
       "title": "Room temperature sensor is not updating",
       "description": "The temperature sensor {sensor} of room {room} has not reported for over {hours} hours (its battery may be empty or it lost its connection). The room now uses the valves' own reading and automatic valve control is paused. This notice disappears once the sensor reports again."
     },
+    "unreliable_room_temp": {
+      "title": "Room thermometer is not reliable",
+      "description": "The temperature sensor {sensor} of room {room} reported an impossible or erratic value (for example an error value or fast up-and-down jumps), so it is ignored for {minutes} minutes. The room now uses the valves' own reading, and automatic valve control and valve calibration are paused. This notice disappears once the sensor gives plausible readings again."
+    },
     "stale_outdoor": {
       "title": "Outdoor temperature sensor is not updating",
       "description": "The outdoor sensor {sensor} has not reported for over {hours} hours (its battery may be empty). Summer mode is switched off until it reports again, so heating stays allowed. This notice disappears once the sensor reports again."
+    },
+    "calibration_suspended": {
+      "title": "Valve calibration suspended",
+      "description": "On the {valve} valve in {room}, two calibration changes in a row did not bring the valve's reading closer to the room thermometer, so automatic calibration is suspended for this valve for {days} days. The previous value was restored. Check the valve's *Calibration* number and whether the valve really applies it. The notice disappears when the suspension ends or the feature is turned off."
     }
   },
   "selector": {
@@ -560,6 +591,9 @@
     },
     "boost_stale": {
       "message": "{room}: the thermometer is stale, so Heat now cannot start."
+    },
+    "boost_unreliable": {
+      "message": "{room}: the thermometer is not reliable (impossible or erratic readings), so Heat now cannot start."
     },
     "boost_inactive": {
       "message": "{room}: there is no switched-on, reachable valve in the room."

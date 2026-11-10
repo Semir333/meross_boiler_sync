@@ -88,6 +88,8 @@ class RoomDemandSensor(_BaseSensor):
             "preheat_start_at",
             "preheat_ready_by",
             "heating_rate",
+            # 2.11: szelep kalibráció (a mérések gyakran változnak, az előzményekbe nem kellenek)
+            "valve_calibration",
         }
     )
 
@@ -129,6 +131,7 @@ class RoomDemandSensor(_BaseSensor):
             "temperature_sensor": st.temp_sensor,
             "window_sensors": st.window_sensors,
             "temperature_sensor_stale": st.sensor_stale,
+            "temperature_sensor_unreliable": st.sensor_bad is not None,
             "window_open": st.window_open,
             "window_open_pending": st.window_open_since is not None and not st.window_open,
             "valve_boost_resting": st.rest_until is not None,
@@ -157,6 +160,11 @@ class RoomDemandSensor(_BaseSensor):
             "preheat_source": st.preheat_source,
             "heating_rate": None if st.heating_rate is None else round(st.heating_rate, 2),
             "heating_rate_learned": st.heating_samples >= HEATING_RATE_MIN_SAMPLES,
+            # 2.11: a szelepek hőmérőjének automata kalibrációja (szelepenként egy elem)
+            "calibration_enabled": c.cal_enabled,
+            "calibration_dry_run": c.cal_dry_run,
+            "calibration_room": st.calibrate,
+            "valve_calibration": st.calibration,
         }
 
 

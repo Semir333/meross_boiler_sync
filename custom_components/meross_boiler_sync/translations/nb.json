@@ -25,7 +25,7 @@
           "settings": "Grunninnstillinger",
           "summer": "Sommermodus",
           "done": "Lagre og avslutt",
-          "features": "Funksjoner (hendelser, beskyttelse, Varm nå, forvarming, gassestimat)",
+          "features": "Funksjoner (hendelser, beskyttelse, Varm nå, forvarming, gassestimat, ventilkalibrering)",
           "preheat": "Forvarmingsplan (per rom)"
         }
       },
@@ -42,7 +42,8 @@
           "valve_demand_link": "Koble kjelens varmebehov til ventilens tilstand",
           "humidity_sensor": "Romfuktsensor (valgfri)",
           "window_sensors": "Vindus-/dørsensor(er) (valgfri)",
-          "window_open_delay": "Forsinkelse for åpent vindu – dette rommet, minutter (tom = global verdi)"
+          "window_open_delay": "Forsinkelse for åpent vindu – dette rommet, minutter (tom = global verdi)",
+          "calibrate_valves": "Automatisk ventilkalibrering (hvis slått på under Funksjoner)"
         },
         "data_description": {
           "name": "F.eks. Stue",
@@ -55,7 +56,8 @@
           "valve_demand_link": "Når dette er på, ber rommet bare om varme fra kjelen når ventilen er åpen (ventilens egen måling ligger under målet) eller når tillegget tvinger den opp. Da fyrer ikke kjelen mot stengte ventiler ved små avvik. Blokkerer ikke oppvarmingen hvis ventildata mangler.",
           "humidity_sensor": "Ved høy luftfuktighet heves rommets måltemperatur litt (se Grunninnstillinger).",
           "window_sensors": "Så lenge et vindu eller en dør står åpen lenger enn forsinkelsen, ber ikke rommet om varme, og ventilløftet slippes. Med flere sensorer teller hver åpen sensor.",
-          "window_open_delay": "Hvor lenge vinduet må stå åpent før rommet reagerer, slik at kort lufting ikke endrer noe. 0 = umiddelbart. Hvis tom, gjelder den globale verdien."
+          "window_open_delay": "Hvor lenge vinduet må stå åpent før rommet reagerer, slik at kort lufting ikke endrer noe. 0 = umiddelbart. Hvis tom, gjelder den globale verdien.",
+          "calibrate_valves": "Korrigerer temperaturmålingen til ventilene med romtermometeret. Fungerer bare med en romtemperatursensor. Når den er av, røres ikke ventilene i dette rommet."
         }
       },
       "edit_room": {
@@ -77,7 +79,8 @@
           "valve_demand_link": "Koble kjelens varmebehov til ventilens tilstand",
           "humidity_sensor": "Romfuktsensor (valgfri)",
           "window_sensors": "Vindus-/dørsensor(er) (valgfri)",
-          "window_open_delay": "Forsinkelse for åpent vindu – dette rommet, minutter (tom = global verdi)"
+          "window_open_delay": "Forsinkelse for åpent vindu – dette rommet, minutter (tom = global verdi)",
+          "calibrate_valves": "Automatisk ventilkalibrering (hvis slått på under Funksjoner)"
         },
         "data_description": {
           "name": "F.eks. Stue",
@@ -90,7 +93,8 @@
           "valve_demand_link": "Når dette er på, ber rommet bare om varme fra kjelen når ventilen er åpen (ventilens egen måling ligger under målet) eller når tillegget tvinger den opp. Da fyrer ikke kjelen mot stengte ventiler ved små avvik. Blokkerer ikke oppvarmingen hvis ventildata mangler.",
           "humidity_sensor": "Ved høy luftfuktighet heves rommets måltemperatur litt (se Grunninnstillinger).",
           "window_sensors": "Så lenge et vindu eller en dør står åpen lenger enn forsinkelsen, ber ikke rommet om varme, og ventilløftet slippes. Med flere sensorer teller hver åpen sensor.",
-          "window_open_delay": "Hvor lenge vinduet må stå åpent før rommet reagerer, slik at kort lufting ikke endrer noe. 0 = umiddelbart. Hvis tom, gjelder den globale verdien."
+          "window_open_delay": "Hvor lenge vinduet må stå åpent før rommet reagerer, slik at kort lufting ikke endrer noe. 0 = umiddelbart. Hvis tom, gjelder den globale verdien.",
+          "calibrate_valves": "Korrigerer temperaturmålingen til ventilene med romtermometeret. Fungerer bare med en romtemperatursensor. Når den er av, røres ikke ventilene i dette rommet."
         }
       },
       "remove_room": {
@@ -152,7 +156,7 @@
       },
       "features": {
         "title": "Funksjoner",
-        "description": "Hver funksjon kan slås av og på separat.\n\n**Hendelser**: pluginen sender `meross_boiler_sync_event`-hendelser (ventilboost, vindu, utdatert sensor, korte sykluser, Varm nå, forvarming) som du kan bruke i automatiseringer; de kan også leses i HA-loggboken.\n\n**Overvåking av kjelesykluser**: teller kjelestarter og varsler om korte sykluser.\n\n**Beskyttelse**: når den er på, forblir kjelen på / av i minst den oppgitte tiden, selv om varmebehovet i rommene endrer seg i mellomtiden. Dette kan forsinke oppvarmingen, derfor er den av som standard.\n\n**Varm nå**: tjenesten `meross_boiler_sync.boost_now` (og knappen på kortene) hever midlertidig målet for rommet. Den starter ikke i sommermodus, med åpent vindu eller utdatert sensor.\n\n**Forvarming**: varmer opp rommet til et gitt tidspunkt og regner ut fra den lærte oppvarmingshastigheten ut når den må starte. Sett opp ukeplanen under *Forvarmingsplan* i hovedmenyen. Den starter av seg selv, derfor er den av som standard.\n\n**Gassestimat**: lager en sensor for estimert gassforbruk (m³) som du kan velge under *Gassforbruk* i Energi-dashbordet. Den multipliserer kjelens på-tid med gassforbruket som er satt nedenfor. Det er et estimat, ikke en måling, og er av som standard.",
+        "description": "Hver funksjon kan slås av og på separat.\n\n**Hendelser**: pluginen sender `meross_boiler_sync_event`-hendelser (ventilboost, vindu, utdatert sensor, korte sykluser, Varm nå, forvarming) som du kan bruke i automatiseringer; de kan også leses i HA-loggboken.\n\n**Overvåking av kjelesykluser**: teller kjelestarter og varsler om korte sykluser.\n\n**Beskyttelse**: når den er på, forblir kjelen på / av i minst den oppgitte tiden, selv om varmebehovet i rommene endrer seg i mellomtiden. Dette kan forsinke oppvarmingen, derfor er den av som standard.\n\n**Varm nå**: tjenesten `meross_boiler_sync.boost_now` (og knappen på kortene) hever midlertidig målet for rommet. Den starter ikke i sommermodus, med åpent vindu eller utdatert sensor.\n\n**Forvarming**: varmer opp rommet til et gitt tidspunkt og regner ut fra den lærte oppvarmingshastigheten ut når den må starte. Sett opp ukeplanen under *Forvarmingsplan* i hovedmenyen. Den starter av seg selv, derfor er den av som standard.\n\n**Gassestimat**: lager en sensor for estimert gassforbruk (m³) som du kan velge under *Gassforbruk* i Energi-dashbordet. Den multipliserer kjelens på-tid med gassforbruket som er satt nedenfor. Det er et estimat, ikke en måling, og er av som standard.\n\n**Ventilkalibrering** (eksperimentell): justerer temperaturmålingen til radiatorventilene etter romtermometeret via ventilens tallentitet *Kalibrering*. Måler bare når radiatoren har kjølnet (kjelen eller ventilen har ikke varmet på minst 90 minutter), med stabil romtemperatur og lukkede vinduer, og endrer bare verdien hvis avviket er minst 0,8 °C. Hver endring kontrolleres og tilbakestilles hvis den ikke hjalp; etter to mislykkede forsøk settes ventilen på pause i en uke (varsel under Reparasjoner). Kjeletermostaten røres aldri. *Prøvemodus* logger bare hva som ville blitt endret. Funksjonen skriver en varig innstilling i ventilen og er derfor av som standard; når den slås av, beholdes verdiene som allerede er satt.",
         "data": {
           "events_enabled": "Hendelser og loggbokoppføringer",
           "cycle_monitor_enabled": "Overvåking av kjelesykluser (sensorer)",
@@ -170,7 +174,9 @@
           "preheat_default_rate": "Forvarming: standard oppvarmingshastighet (til den er lært)",
           "manual_boost_end_on_target": "Varm nå: avslutt når rommet når det hevede målet",
           "gas_estimate_enabled": "Gassestimat (for Energi-dashbordet)",
-          "gas_m3_per_hour": "Gassestimat: gassforbruk når kjelen er på"
+          "gas_m3_per_hour": "Gassestimat: gassforbruk når kjelen er på",
+          "calibration_enabled": "Ventilkalibrering (automatisk, eksperimentell)",
+          "calibration_dry_run": "Ventilkalibrering: prøvemodus (bare logg)"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Hvis kjelen har startet så mange ganger eller flere den siste timen, slår sensoren Korte sykluser seg på.",
@@ -181,7 +187,9 @@
           "preheat_default_rate": "Pluginen måler oppvarmingshastigheten til hvert rom mens det varmes; til den har nok målinger (omtrent 20 minutters oppvarming) bruker den dette antallet grader per time.",
           "manual_boost_end_on_target": "Når den er av, varer Varm nå hele varigheten og holder det hevede målet.",
           "gas_estimate_enabled": "Legger til sensoren for estimert gassforbruk. Den teller kjelens på-tid; tid da Home Assistant ikke kjører, telles ikke.",
-          "gas_m3_per_hour": "Hvor mange m³ gass kjelen bruker per time mens den er på (se typeskiltet eller regningen). Sammenlign sensoren med avlesningen på gassmåleren og juster verdien til de stemmer overens."
+          "gas_m3_per_hour": "Hvor mange m³ gass kjelen bruker per time mens den er på (se typeskiltet eller regningen). Sammenlign sensoren med avlesningen på gassmåleren og juster verdien til de stemmer overens.",
+          "calibration_enabled": "Når den er på, justerer pluginen automatisk kalibreringsverdien til ventilene ut fra romtermometeret (Meross LAN: tallet *Kalibrering*). Enkeltrom kan slås av når du redigerer rommet. Funksjonen skriver en varig innstilling i ventilen, så prøv den først i prøvemodus.",
+          "calibration_dry_run": "Logger bare og sender en hendelse om hva som ville blitt satt, men skriver ikke til ventilen. Endringer som allerede pågår, fortsetter ikke i prøvemodus."
         }
       },
       "preheat": {
@@ -305,6 +313,9 @@
           "temperature_sensor_stale": {
             "name": "Romtemperatursensoren rapporterer ikke (utdatert)"
           },
+          "temperature_sensor_unreliable": {
+            "name": "Romtemperatursensoren er upålitelig (umulige eller ustabile verdier)"
+          },
           "valve_boost_resting": {
             "name": "Ventilløft på pause etter maksimal varighet"
           },
@@ -385,6 +396,18 @@
           },
           "heating_rate_learned": {
             "name": "Oppvarmingshastigheten er lært"
+          },
+          "calibration_enabled": {
+            "name": "Ventilkalibrering er på"
+          },
+          "calibration_dry_run": {
+            "name": "Ventilkalibrering i prøvemodus"
+          },
+          "calibration_room": {
+            "name": "Dette rommet deltar i ventilkalibreringen"
+          },
+          "valve_calibration": {
+            "name": "Ventilkalibrering (status per ventil)"
           }
         }
       },
@@ -488,9 +511,17 @@
       "title": "Romtemperatursensoren rapporterer ikke lenger",
       "description": "Temperatursensoren {sensor} i rommet {room} har ikke rapportert på over {hours} timer (batteriet kan være tomt eller forbindelsen brutt). Rommet bruker nå ventilenes egen måling, og den automatiske ventilstyringen er satt på pause. Dette varselet forsvinner når sensoren rapporterer igjen."
     },
+    "unreliable_room_temp": {
+      "title": "Romtemperatursensoren er ikke pålitelig",
+      "description": "Temperatursensoren {sensor} i rommet {room} rapporterte en umulig eller ustabil verdi (for eksempel en feilverdi eller raske hopp opp og ned), og ignoreres derfor i {minutes} minutter. Rommet bruker nå ventilenes egen måling, og den automatiske ventilstyringen og ventilkalibreringen er satt på pause. Dette varselet forsvinner når sensoren igjen gir rimelige verdier."
+    },
     "stale_outdoor": {
       "title": "Utetemperatursensoren rapporterer ikke lenger",
       "description": "Utesensoren {sensor} har ikke rapportert på over {hours} timer (batteriet kan være tomt). Sommermodus forblir av til den rapporterer igjen, så oppvarming er fortsatt tillatt. Dette varselet forsvinner når sensoren rapporterer igjen."
+    },
+    "calibration_suspended": {
+      "title": "Ventilkalibrering satt på pause",
+      "description": "På ventilen {valve} i {room} førte to kalibreringsendringer på rad ikke til at ventilens måling kom nærmere romtermometeret. Derfor er den automatiske kalibreringen satt på pause for denne ventilen i {days} dager, og forrige verdi er gjenopprettet. Kontroller tallet *Kalibrering* på ventilen og om ventilen faktisk bruker det. Varselet forsvinner når pausen er over eller funksjonen slås av."
     }
   },
   "selector": {
@@ -560,6 +591,9 @@
     },
     "boost_stale": {
       "message": "{room}: termometeret er utdatert, så Varm nå kan ikke starte."
+    },
+    "boost_unreliable": {
+      "message": "{room}: termometeret er ikke pålitelig (umulige eller ustabile verdier), så Varm nå kan ikke starte."
     },
     "boost_inactive": {
       "message": "{room}: det finnes ingen påslått, nåbar ventil i rommet."

@@ -25,7 +25,7 @@
           "settings": "Paramètres de base",
           "summer": "Mode été",
           "done": "Enregistrer et quitter",
-          "features": "Fonctionnalités (événements, protection, Chauffer maintenant, préchauffage, estimation du gaz)",
+          "features": "Fonctionnalités (événements, protection, Chauffer maintenant, préchauffage, estimation du gaz, calibration des vannes)",
           "preheat": "Programme de préchauffage (par pièce)"
         }
       },
@@ -42,7 +42,8 @@
           "valve_demand_link": "Lier la demande de chaudière à l’état de la vanne",
           "humidity_sensor": "Capteur d’humidité de la pièce (facultatif)",
           "window_sensors": "Capteur(s) de fenêtre / porte (facultatif)",
-          "window_open_delay": "Délai fenêtre ouverte – cette pièce, minutes (vide = valeur globale)"
+          "window_open_delay": "Délai fenêtre ouverte – cette pièce, minutes (vide = valeur globale)",
+          "calibrate_valves": "Calibration automatique des vannes (si activée dans Fonctions)"
         },
         "data_description": {
           "name": "Ex. Salon",
@@ -55,7 +56,8 @@
           "valve_demand_link": "Si activé, la pièce ne sollicite la chaudière que lorsque sa vanne est ouverte (la mesure propre de la vanne est sous sa consigne) ou lorsque le plugin la force à s’ouvrir. Évite que la chaudière chauffe contre des vannes fermées en cas de petit écart. Ne bloque pas le chauffage si les données de la vanne manquent.",
           "humidity_sensor": "En cas d’humidité élevée, la consigne de la pièce est légèrement relevée (voir Paramètres de base).",
           "window_sensors": "Tant qu’une fenêtre ou une porte reste ouverte plus longtemps que le délai, la pièce ne demande plus de chaleur et la relance de la vanne est relâchée. Avec plusieurs capteurs, un seul ouvert suffit.",
-          "window_open_delay": "Durée pendant laquelle la fenêtre doit rester ouverte avant que la pièce réagisse, afin qu’une courte aération ne déclenche rien. 0 = immédiat. Si vide, la valeur globale s’applique."
+          "window_open_delay": "Durée pendant laquelle la fenêtre doit rester ouverte avant que la pièce réagisse, afin qu’une courte aération ne déclenche rien. 0 = immédiat. Si vide, la valeur globale s’applique.",
+          "calibrate_valves": "Corrige la mesure de température des vannes à l’aide du thermomètre de la pièce. Ne fonctionne qu’avec un capteur de température de la pièce. Désactivée, les vannes de cette pièce ne sont pas touchées."
         }
       },
       "edit_room": {
@@ -77,7 +79,8 @@
           "valve_demand_link": "Lier la demande de chaudière à l’état de la vanne",
           "humidity_sensor": "Capteur d’humidité de la pièce (facultatif)",
           "window_sensors": "Capteur(s) de fenêtre / porte (facultatif)",
-          "window_open_delay": "Délai fenêtre ouverte – cette pièce, minutes (vide = valeur globale)"
+          "window_open_delay": "Délai fenêtre ouverte – cette pièce, minutes (vide = valeur globale)",
+          "calibrate_valves": "Calibration automatique des vannes (si activée dans Fonctions)"
         },
         "data_description": {
           "name": "Ex. Salon",
@@ -90,7 +93,8 @@
           "valve_demand_link": "Si activé, la pièce ne sollicite la chaudière que lorsque sa vanne est ouverte (la mesure propre de la vanne est sous sa consigne) ou lorsque le plugin la force à s’ouvrir. Évite que la chaudière chauffe contre des vannes fermées en cas de petit écart. Ne bloque pas le chauffage si les données de la vanne manquent.",
           "humidity_sensor": "En cas d’humidité élevée, la consigne de la pièce est légèrement relevée (voir Paramètres de base).",
           "window_sensors": "Tant qu’une fenêtre ou une porte reste ouverte plus longtemps que le délai, la pièce ne demande plus de chaleur et la relance de la vanne est relâchée. Avec plusieurs capteurs, un seul ouvert suffit.",
-          "window_open_delay": "Durée pendant laquelle la fenêtre doit rester ouverte avant que la pièce réagisse, afin qu’une courte aération ne déclenche rien. 0 = immédiat. Si vide, la valeur globale s’applique."
+          "window_open_delay": "Durée pendant laquelle la fenêtre doit rester ouverte avant que la pièce réagisse, afin qu’une courte aération ne déclenche rien. 0 = immédiat. Si vide, la valeur globale s’applique.",
+          "calibrate_valves": "Corrige la mesure de température des vannes à l’aide du thermomètre de la pièce. Ne fonctionne qu’avec un capteur de température de la pièce. Désactivée, les vannes de cette pièce ne sont pas touchées."
         }
       },
       "remove_room": {
@@ -152,7 +156,7 @@
       },
       "features": {
         "title": "Fonctionnalités",
-        "description": "Chaque fonctionnalité peut être activée et désactivée séparément.\n\n**Événements** : le plugin envoie des événements `meross_boiler_sync_event` (relance de vanne, fenêtre, capteur obsolète, cycles courts, Chauffer maintenant, préchauffage) utilisables dans des automatisations ; ils sont aussi lisibles dans le journal de HA.\n\n**Surveillance des cycles de la chaudière** : compte les démarrages de la chaudière et signale les cycles courts.\n\n**Protection** : si activée, la chaudière reste allumée / éteinte au moins la durée indiquée, même si la demande des pièces change entre-temps. Cela peut retarder le chauffage ; elle est donc désactivée par défaut.\n\n**Chauffer maintenant** : le service `meross_boiler_sync.boost_now` (et le bouton des cartes) relève temporairement la consigne de la pièce. Il ne démarre pas en mode été, avec une fenêtre ouverte ou un capteur obsolète.\n\n**Préchauffage** : chauffe la pièce pour une heure donnée et calcule, à partir de la vitesse de chauffe apprise, quand il faut commencer. Réglez le programme hebdomadaire sous *Programme de préchauffage* dans le menu principal. Il démarre tout seul ; il est donc désactivé par défaut.\n\n**Estimation du gaz** : crée un capteur de consommation de gaz estimée (m³) que vous pouvez choisir sous *Consommation de gaz* dans le tableau de bord Énergie. Il multiplie la durée de marche de la chaudière par la consommation de gaz indiquée ci-dessous. C’est une estimation, pas une mesure, et elle est désactivée par défaut.",
+        "description": "Chaque fonctionnalité peut être activée et désactivée séparément.\n\n**Événements** : le plugin envoie des événements `meross_boiler_sync_event` (relance de vanne, fenêtre, capteur obsolète, cycles courts, Chauffer maintenant, préchauffage) utilisables dans des automatisations ; ils sont aussi lisibles dans le journal de HA.\n\n**Surveillance des cycles de la chaudière** : compte les démarrages de la chaudière et signale les cycles courts.\n\n**Protection** : si activée, la chaudière reste allumée / éteinte au moins la durée indiquée, même si la demande des pièces change entre-temps. Cela peut retarder le chauffage ; elle est donc désactivée par défaut.\n\n**Chauffer maintenant** : le service `meross_boiler_sync.boost_now` (et le bouton des cartes) relève temporairement la consigne de la pièce. Il ne démarre pas en mode été, avec une fenêtre ouverte ou un capteur obsolète.\n\n**Préchauffage** : chauffe la pièce pour une heure donnée et calcule, à partir de la vitesse de chauffe apprise, quand il faut commencer. Réglez le programme hebdomadaire sous *Programme de préchauffage* dans le menu principal. Il démarre tout seul ; il est donc désactivé par défaut.\n\n**Estimation du gaz** : crée un capteur de consommation de gaz estimée (m³) que vous pouvez choisir sous *Consommation de gaz* dans le tableau de bord Énergie. Il multiplie la durée de marche de la chaudière par la consommation de gaz indiquée ci-dessous. C’est une estimation, pas une mesure, et elle est désactivée par défaut.\n\n**Calibration des vannes** (expérimental) : ajuste la mesure de température des vannes de radiateur sur celle du thermomètre de la pièce, via l’entité numérique *Calibration* de la vanne. Elle ne mesure que lorsque le radiateur a refroidi (la chaudière ou la vanne ne chauffent plus depuis au moins 90 minutes), avec une température de pièce stable et les fenêtres fermées, et ne modifie la valeur que si l’écart atteint au moins 0,8 °C. Chaque modification est vérifiée et annulée si elle n’a servi à rien ; après deux essais infructueux, la vanne est suspendue pendant une semaine (notification dans Réparations). Le thermostat de la chaudière n’est jamais touché. Le *mode d’essai* se contente de journaliser ce qui serait modifié. La fonction écrit un réglage permanent dans la vanne ; elle est donc désactivée par défaut, et les valeurs déjà réglées sont conservées lorsqu’on la désactive.",
         "data": {
           "events_enabled": "Événements et entrées du journal",
           "cycle_monitor_enabled": "Surveillance des cycles de la chaudière (capteurs)",
@@ -170,7 +174,9 @@
           "preheat_default_rate": "Préchauffage : vitesse de chauffe par défaut (tant qu’elle n’est pas apprise)",
           "manual_boost_end_on_target": "Chauffer maintenant : s’arrêter quand la pièce atteint la consigne relevée",
           "gas_estimate_enabled": "Estimation du gaz (pour le tableau de bord Énergie)",
-          "gas_m3_per_hour": "Estimation du gaz : consommation lorsque la chaudière est allumée"
+          "gas_m3_per_hour": "Estimation du gaz : consommation lorsque la chaudière est allumée",
+          "calibration_enabled": "Calibration des vannes (automatique, expérimental)",
+          "calibration_dry_run": "Calibration des vannes : mode d’essai (journal uniquement)"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Si la chaudière a démarré autant de fois ou plus au cours de la dernière heure, le capteur Cycles courts s’active.",
@@ -181,7 +187,9 @@
           "preheat_default_rate": "Le plugin mesure la vitesse de chauffe de chaque pièce pendant le chauffage ; tant qu’il n’a pas assez de mesures (environ 20 minutes de chauffage), il calcule avec ce nombre de degrés par heure.",
           "manual_boost_end_on_target": "Si désactivé, Chauffer maintenant dure toute la durée et maintient la consigne relevée.",
           "gas_estimate_enabled": "Ajoute le capteur de consommation de gaz estimée. Il compte la durée de marche de la chaudière ; le temps pendant lequel Home Assistant n’est pas en cours d’exécution n’est pas compté.",
-          "gas_m3_per_hour": "Combien de m³ de gaz la chaudière consomme par heure lorsqu’elle est allumée (voir la plaque signalétique ou votre facture). Comparez le capteur avec le relevé de votre compteur de gaz et ajustez cette valeur jusqu’à ce qu’ils concordent."
+          "gas_m3_per_hour": "Combien de m³ de gaz la chaudière consomme par heure lorsqu’elle est allumée (voir la plaque signalétique ou votre facture). Comparez le capteur avec le relevé de votre compteur de gaz et ajustez cette valeur jusqu’à ce qu’ils concordent.",
+          "calibration_enabled": "Lorsqu’elle est activée, l’intégration ajuste automatiquement la valeur de calibration des vannes d’après le thermomètre de la pièce (Meross LAN : le nombre *Calibration*). Chaque pièce peut être exclue dans sa modification. La fonction écrit un réglage permanent dans la vanne : essayez-la d’abord en mode d’essai.",
+          "calibration_dry_run": "Journalise et envoie un événement sur ce qui serait réglé, sans rien écrire dans la vanne. Les modifications déjà en cours ne sont pas poursuivies en mode d’essai."
         }
       },
       "preheat": {
@@ -305,6 +313,9 @@
           "temperature_sensor_stale": {
             "name": "Capteur de température de la pièce muet (obsolète)"
           },
+          "temperature_sensor_unreliable": {
+            "name": "Capteur de température de la pièce peu fiable (valeurs impossibles ou instables)"
+          },
           "valve_boost_resting": {
             "name": "Relance de la vanne en pause après la durée maximale"
           },
@@ -385,6 +396,18 @@
           },
           "heating_rate_learned": {
             "name": "La vitesse de chauffe a été apprise"
+          },
+          "calibration_enabled": {
+            "name": "Calibration des vannes activée"
+          },
+          "calibration_dry_run": {
+            "name": "Calibration des vannes en mode d’essai"
+          },
+          "calibration_room": {
+            "name": "Cette pièce participe à la calibration des vannes"
+          },
+          "valve_calibration": {
+            "name": "Calibration des vannes (état par vanne)"
           }
         }
       },
@@ -488,9 +511,17 @@
       "title": "Le capteur de température de la pièce ne transmet plus",
       "description": "Le capteur de température {sensor} de la pièce {room} n’a rien transmis depuis plus de {hours} heures (la pile est peut-être vide ou la connexion perdue). La pièce utilise maintenant la mesure propre des vannes et la régulation automatique des vannes est suspendue. Cette notification disparaît dès que le capteur transmet à nouveau."
     },
+    "unreliable_room_temp": {
+      "title": "Le capteur de température de la pièce n’est pas fiable",
+      "description": "Le capteur de température {sensor} de la pièce {room} a transmis une valeur impossible ou instable (par exemple une valeur d’erreur ou de rapides allers-retours) ; il est donc ignoré pendant {minutes} minutes. La pièce utilise maintenant la mesure propre des vannes ; la régulation automatique et la calibration des vannes sont suspendues. Cette notification disparaît dès que le capteur transmet à nouveau des valeurs plausibles."
+    },
     "stale_outdoor": {
       "title": "Le capteur de température extérieure ne transmet plus",
       "description": "Le capteur extérieur {sensor} n’a rien transmis depuis plus de {hours} heures (la pile est peut-être vide). Le mode été reste désactivé jusqu’à ce qu’il transmette à nouveau, le chauffage reste donc autorisé. Cette notification disparaît dès que le capteur transmet à nouveau."
+    },
+    "calibration_suspended": {
+      "title": "Calibration des vannes suspendue",
+      "description": "Sur la vanne {valve} de {room}, deux modifications de calibration consécutives n’ont pas rapproché la mesure de la vanne de celle du thermomètre de la pièce. La calibration automatique est donc suspendue pour cette vanne pendant {days} jours ; la valeur précédente a été rétablie. Vérifiez le nombre *Calibration* de la vanne et si la vanne en tient réellement compte. La notification disparaît à la fin de la suspension ou lorsque la fonction est désactivée."
     }
   },
   "selector": {
@@ -560,6 +591,9 @@
     },
     "boost_stale": {
       "message": "{room} : le thermomètre est obsolète, Chauffer maintenant ne peut donc pas démarrer."
+    },
+    "boost_unreliable": {
+      "message": "{room} : le thermomètre n’est pas fiable (valeurs impossibles ou instables), Chauffer maintenant ne peut donc pas démarrer."
     },
     "boost_inactive": {
       "message": "{room} : il n’y a aucune vanne activée et joignable dans la pièce."

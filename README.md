@@ -31,6 +31,20 @@ Fully localized in over 15 languages (including English, Hungarian, German, Fren
 
 ## 📋 Version History
 
+### Version 2.3
+
+#### Intelligent remaining heat:  
+  
+Measurement:  
+When a room reaches its target temperature and its heat demand ceases—causing the boiler to shut down—the system measures how much further the room temperature rises before it begins to cool. It captures the actual peak temperature, meaning the cooling that occurs during this process is already factored into the value.  
+Learned value:  
+The system calculates the median of the last 9 valid measurements for each room (starting once 4 measurements have been collected). A measurement is discarded if a window was opened, a "Heat Now" command or pre-heating cycle occurred, the sensor reading is considered unreliable, or the boiler was triggered to restart due to heat demand from a different room.  
+Early shutdown:  
+The system subtracts the permitted overshoot (default: 0.3°C) from the learned residual heat value. It then terminates the room's heat demand that much earlier—up to a maximum of 0.8°C. Example: With a target of 21.0°C and a learned residual heat of 0.8°C, the system shuts down at 20.5°C and restarts when the temperature drops below 20.2°C. Since the entire on/off range shifts accordingly, the boiler does not cycle more frequently.  
+Continuous updating:  
+If the thermal behavior of the house or the radiators changes, the learned value adapts to reflect these shifts.
+
+
 ### Version 2.2
 
 #### TRV offset setting  

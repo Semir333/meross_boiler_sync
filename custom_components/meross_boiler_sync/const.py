@@ -30,6 +30,7 @@ CONF_SUMMER_START = "summer_start"
 CONF_SUMMER_END = "summer_end"
 # 2.8: események, kazán-ciklusok, védelem (mind külön ki/be kapcsolható)
 CONF_EVENTS_ENABLED = "events_enabled"
+CONF_TRV_LOG = "trv_log"  # 2.14: TRV-napló (az automatika döntései a Rendszer › Naplók oldalon)
 CONF_CYCLE_MONITOR = "cycle_monitor_enabled"
 CONF_CYCLE_MAX_STARTS = "cycle_max_starts_per_hour"
 CONF_CYCLE_MIN_AVG_ON = "cycle_min_avg_on_minutes"
@@ -86,6 +87,7 @@ DEFAULT_VALVE_BOOST_THRESHOLD = 0.8  # °C: ennyivel hidegebb legyen a szoba, ho
 DEFAULT_VALVE_BOOST_DELAY = 10  # perc: ennyi ideig álljon fenn az eltérés az emelés előtt
 DEFAULT_VALVE_RELEASE_MARGIN = 0.3  # °C: a cél előtt ennyivel visszaengedi a szelepet
 DEFAULT_EVENTS_ENABLED = True
+DEFAULT_TRV_LOG = True
 DEFAULT_CYCLE_MONITOR = True
 DEFAULT_CYCLE_MAX_STARTS = 5  # indítás / óra: ennyitől számít gyakori kapcsolgatásnak
 DEFAULT_CYCLE_MIN_AVG_ON = 4  # perc: ennél rövidebb átlagos bekapcsolt idő gyakori kapcsolgatás
@@ -207,6 +209,13 @@ CAL_RECHECK_SECONDS = 6 * 3600  # rendben lévő szelepet ennyi időnként mér 
 CAL_DISCOVERY_RETRY = 600  # hiányzó kalibráció-entitást ennyi időnként keres újra
 CAL_READING_MIN = 5.0  # °C: ezen kívüli szelepmérést nem használ
 CAL_READING_MAX = 40.0
+# 2.14: Az eltolás megváltoztatásakor a különbség mérés nélkül alkalmazható (a kalibráció additív): ha a szelep az
+# előző eltoláshoz volt beállítva, az új beállításhoz pontosan az eltolások különbségével kell elmozdítani.
+CAL_BIAS_MIN_SHIFT = 0.25  # °C: ekkora (vagy nagyobb) eltolás-váltást alkalmaz azonnal; a kisebb mérési zaj
+CAL_IDLE_KEEP_SECONDS = 120  # a "kihűlt a radiátor" számláló ennyi leállás után még hihető (újratöltés); hosszabb kiesés után nem
+# 2.14: a TRV-naplóba ugyanazon szelep "vár / mintavétel" jellegű állapotváltásai ilyen ritkán kerülnek (másodperc);
+# az eredmény-jellegű állapotok (rendben, hiba, javaslat, felfüggesztés, határ) azonnal.
+TRV_LOG_STATE_MIN_INTERVAL = 900
 
 # --- maradékhő tanulása (2.13)
 # A hőigény megszűnése után addig figyeli a szoba hőmérőjét, amíg a csúcs el nem múlik (legfeljebb

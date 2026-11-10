@@ -42,18 +42,26 @@ def _offsets(data: dict[str, Any]) -> str:
 
 
 def _cal_text_hu(data: dict[str, Any]) -> str:
-    base = {"revert": "a szelep kalibrációja visszaállítva", "auto": "a szelep kalibrációja módosítva"}
+    base = {
+        "revert": "a szelep kalibrációja visszaállítva",
+        "auto": "a szelep kalibrációja módosítva",
+        "retarget": "a szelep kalibrációja módosítva (az eltolás megváltozott)",
+    }
     text = base.get(data.get("reason", "auto"), base["auto"])
     if data.get("dry_run"):
-        text = "próbaüzem: a szelep kalibrációját módosítanám"
+        text = "próbaüzem: a szelep kalibrációját módosítanám" + (" (az eltolás megváltozott)" if data.get("reason") == "retarget" else "")
     return f"{text}: {data.get('valve')} {_offsets(data)}".rstrip()
 
 
 def _cal_text_en(data: dict[str, Any]) -> str:
-    base = {"revert": "valve calibration restored", "auto": "valve calibration changed"}
+    base = {
+        "revert": "valve calibration restored",
+        "auto": "valve calibration changed",
+        "retarget": "valve calibration changed (the offset was changed)",
+    }
     text = base.get(data.get("reason", "auto"), base["auto"])
     if data.get("dry_run"):
-        text = "dry run: would change the valve calibration"
+        text = "dry run: would change the valve calibration" + (" (the offset was changed)" if data.get("reason") == "retarget" else "")
     return f"{text}: {data.get('valve')} {_offsets(data)}".rstrip()
 
 

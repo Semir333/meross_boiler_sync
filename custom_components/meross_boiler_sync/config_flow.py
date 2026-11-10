@@ -59,6 +59,7 @@ from .const import (
     CONF_STALE_ENABLED,
     CONF_STALE_HOURS,
     CONF_SUMMER_TEMP,
+    CONF_TRV_LOG,
     CONF_VALVE_BOOST_DELAY,
     CONF_VALVE_BOOST_THRESHOLD,
     CONF_VALVE_DRY_RUN,
@@ -100,6 +101,7 @@ from .const import (
     DEFAULT_STALE_ENABLED,
     DEFAULT_STALE_HOURS,
     DEFAULT_SUMMER_TEMP,
+    DEFAULT_TRV_LOG,
     DEFAULT_VALVE_BOOST_DELAY,
     DEFAULT_VALVE_BOOST_THRESHOLD,
     DEFAULT_VALVE_DRY_RUN,
@@ -282,6 +284,10 @@ def _features_schema(values: dict[str, Any]) -> vol.Schema:
             vol.Required(
                 CONF_EVENTS_ENABLED,
                 default=bool(values.get(CONF_EVENTS_ENABLED, DEFAULT_EVENTS_ENABLED)),
+            ): selector.BooleanSelector(),
+            vol.Required(
+                CONF_TRV_LOG,
+                default=bool(values.get(CONF_TRV_LOG, DEFAULT_TRV_LOG)),
             ): selector.BooleanSelector(),
             vol.Required(
                 CONF_CYCLE_MONITOR,
@@ -487,6 +493,7 @@ class MerossBoilerSyncConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_SUMMER_START: DEFAULT_SUMMER_START,
                     CONF_SUMMER_END: DEFAULT_SUMMER_END,
                     CONF_EVENTS_ENABLED: DEFAULT_EVENTS_ENABLED,
+                    CONF_TRV_LOG: DEFAULT_TRV_LOG,
                     CONF_CYCLE_MONITOR: DEFAULT_CYCLE_MONITOR,
                     CONF_CYCLE_MAX_STARTS: DEFAULT_CYCLE_MAX_STARTS,
                     CONF_CYCLE_MIN_AVG_ON: DEFAULT_CYCLE_MIN_AVG_ON,

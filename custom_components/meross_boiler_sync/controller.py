@@ -79,6 +79,7 @@ from .const import (
     CONF_STALE_HOURS,
     CONF_ROOM_WINDOWS,
     CONF_SUMMER_TEMP,
+    CONF_TRV_LOG,
     CONF_WINDOW_DELAY,
     CONF_VALVE_BOOST_DELAY,
     CONF_VALVE_BOOST_THRESHOLD,
@@ -119,6 +120,7 @@ from .const import (
     DEFAULT_STALE_ENABLED,
     DEFAULT_STALE_HOURS,
     DEFAULT_SUMMER_TEMP,
+    DEFAULT_TRV_LOG,
     DEFAULT_WINDOW_DELAY,
     DEFAULT_VALVE_BOOST_DELAY,
     DEFAULT_VALVE_BOOST_THRESHOLD,
@@ -189,6 +191,7 @@ from .const import (
     parse_month_day,
 )
 
+from . import trvlog
 from .calibration import Calibrator
 from .cycles import CycleLog
 
@@ -553,6 +556,8 @@ class BoilerController:
 
         # 2.8: események, kazán-ciklusok, védelem (mind külön kapcsolható)
         self.events_enabled = bool(cfg.get(CONF_EVENTS_ENABLED, DEFAULT_EVENTS_ENABLED))
+        # 2.14: TRV-napló: az automatika döntései külön naplócsatornán (kikapcsolva csak DEBUG szinten)
+        self.trv_log = bool(cfg.get(CONF_TRV_LOG, DEFAULT_TRV_LOG))
         self.cycle_monitor = bool(cfg.get(CONF_CYCLE_MONITOR, DEFAULT_CYCLE_MONITOR))
         self.cycle_max_starts = float(cfg.get(CONF_CYCLE_MAX_STARTS, DEFAULT_CYCLE_MAX_STARTS))
         self.cycle_min_avg_on = float(cfg.get(CONF_CYCLE_MIN_AVG_ON, DEFAULT_CYCLE_MIN_AVG_ON))
@@ -744,11 +749,10 @@ class BoilerController:
             }
         self._load_2_9(data)
         self._load_residual(data)
-        self.calibrator.load(
-            data.get("calibration"),
-            {valve for st in self.status.values() for valve in st.valves},
-            now_ts,
-        )
+        cal_valves = {valve for st in self.status.values() for valve in st.valves}
+        self.calibrator.load(data.get("calibration"), cal_valves, now_ts)
+        # a "kihűlt a radiátor" számlálók csak rövid leállást (újratöltést) élnek túl
+        self.calibrator.load_idle(data.get("cal_idle"), cal_valves, now_ts)
 
         # nyári mód: a hiszterézis állapota megmarad (különben az átlag a két küszöb között
         # újraindítás után fűtési üzemre váltana)
@@ -859,6 +863,8 @@ class BoilerController:
         return clean if clean["ready"] + clean["hold"] > now_ts else None
 
     async def async_start(self) -> None:
+        trvlog.set_enabled(self.entry_id, self.trv_log)
+        self._log_startup()
         if not self.rooms:
             _LOGGER.warning(
                 "Nincs szoba beállítva, a kazánt nem vezérlem. "
@@ -888,6 +894,7 @@ class BoilerController:
     @callback
     def async_stop(self) -> None:
         self._stopped = True  # a függőben lévő kiértékelések már nem futnak le
+        trvlog.set_enabled(self.entry_id, False)
         for unsub in self._unsubs:
             unsub()
         self._unsubs.clear()
@@ -909,6 +916,62 @@ class BoilerController:
         self.async_stop()
         async with self._lock:
             await self._async_save()
+
+    # ------------------------------------------------------------------ TRV-napló
+    def _tlog(self, msg: str, *args: Any) -> None:
+        """Az automatika egy döntése a TRV-naplóba (kikapcsolva csak DEBUG szintre)."""
+        trvlog.info(self.trv_log, msg, *args)
+
+    def _valve_label(self, valve_id: str) -> str:
+        """"Szoba / szelep" a naplósorokhoz; ismeretlen szelepnél maga az azonosító."""
+        for room in self.rooms:
+            if valve_id in room.get(CONF_ROOM_VALVES, ()):
+                return f"{room.get(CONF_ROOM_NAME, '?')} / {valve_id}"
+        return valve_id
+
+    def _log_startup(self) -> None:
+        """Induláskor (és minden újratöltéskor, vagyis beállítás-mentés után) egy összefoglaló szobánként:
+        ebből látszik, mit töltött be az integráció (eltolás, kalibráció, szelep-vezérlés), és hogy a napló működik."""
+        if not self.trv_log:
+            return
+        try:
+            self._tlog("a napló be van kapcsolva; az automatika szelep- és kalibráció-döntései itt követhetők "
+                       "(kikapcsolható: Beállítások › Funkciók)")
+            for room in self.rooms:
+                st = self.status.get(room.get(CONF_ROOM_ID))
+                if st is None:
+                    continue
+                if not self.cal_enabled:
+                    cal_text = "ki (a Funkciók között nincs bekapcsolva)"
+                elif not st.calibrate:
+                    cal_text = "ki (ebben a szobában)"
+                elif not st.temp_sensor:
+                    cal_text = "be, de nincs szoba hőmérő, ezért nem mér"
+                elif self.cal_dry_run:
+                    cal_text = "próbaüzem (csak naplóz)"
+                else:
+                    cal_text = "be"
+                    known = [
+                        (v, self.calibrator.cal[v].target)
+                        for v in st.valves
+                        if v in self.calibrator.cal and self.calibrator.cal[v].target is not None
+                    ]
+                    if known:
+                        cal_text += "; a szelep utoljára " + ", ".join(
+                            f"{trvlog.num(t)} °C" + (f" ({v})" if len(st.valves) > 1 else "")
+                            for v, t in known
+                        ) + " eltoláshoz volt igazítva"
+                self._tlog(
+                    "%s: betöltve – szelepek: %s; szoba hőmérő: %s; szelep-vezérlés: %s; TRV eltolás: %s °C; kalibráció: %s",
+                    st.name,
+                    ", ".join(st.valves) or "nincs",
+                    st.temp_sensor or "nincs",
+                    "próbaüzem" if st.valve_control and self.valve_dry_run else "be" if st.valve_control else "ki",
+                    trvlog.num(st.trv_offset),
+                    cal_text,
+                )
+        except Exception as err:  # noqa: BLE001 - a napló hibája nem állíthatja le az indulást
+            _LOGGER.debug("a TRV-napló induló sora nem készült el: %s", err)
 
     async def async_release_all(self) -> None:
         """Letiltott integráció: az emelt szelepek visszakapják az eredeti célhőmérsékletüket.
@@ -934,9 +997,10 @@ class BoilerController:
                     continue
                 if await _async_restore_valve(self.hass, valve_id, state, rec):
                     self._boosts.pop(valve_id, None)
-                    _LOGGER.info(
-                        "%s: az integráció le van tiltva, az eredeti célhőmérséklet visszaállítva (%s °C)",
-                        valve_id,
+                    self._tlog(
+                        "%s: az integráció le van tiltva, az eredeti célhőmérséklet visszaállítva (%s -> %s °C)",
+                        self._valve_label(valve_id),
+                        rec["boost"],
                         rec["original"],
                     )
             await self._async_save()
@@ -1049,7 +1113,7 @@ class BoilerController:
             st.manual_started = now_ts
         st.manual_until = now_ts + minutes * 60
         st.manual_offset = offset
-        _LOGGER.info("%s: Fűts most (+%s °C, %s percre)", st.name, f"{offset:g}", f"{minutes:g}")
+        self._tlog("%s: Fűts most (+%s °C, %s percre)", st.name, f"{offset:g}", f"{minutes:g}")
         self._emit("manual_boost_started", st, minutes=minutes, offset=offset)
         await self._async_save()
         await self.async_evaluate()
@@ -1263,7 +1327,7 @@ class BoilerController:
         st.preheat_req = {"ready": ready_ts, "target": float(target), "hold": hold, "source": "service"}
         if st.preheat_latch is not None and st.preheat_latch.get("source") == "service":
             st.preheat_latch = None
-        _LOGGER.info(
+        self._tlog(
             "%s: előfűtés kérve: %s °C, kész: %s", st.name, f"{target:g}", self._local_hhmm(ready_ts)
         )
         await self._async_save()
@@ -1414,7 +1478,7 @@ class BoilerController:
                 "unreliable_room_temp",
                 {"room": st.name, "sensor": temp_id, "minutes": minutes},
             )
-            _LOGGER.info("%s: a szoba hőmérő (%s) újra megbízhatónak látszik", st.name, temp_id)
+            self._tlog("%s: a szoba hőmérő (%s) újra megbízhatónak látszik", st.name, temp_id)
             self._emit("sensor_reliable", st, sensor=temp_id)
 
     def _reported_ts(self, entity_id: str | None) -> float | None:
@@ -1515,6 +1579,7 @@ class BoilerController:
             },
             # kalibráció: az eredeti értékek, a függő módosítások és a korlátozások (újraindítás után is)
             "calibration": self.calibrator.to_dict(),
+            "cal_idle": self.calibrator.idle_to_dict(dt_util.utcnow().timestamp()),
         }
 
     # ------------------------------------------------------------------ nyári mód
@@ -1849,7 +1914,7 @@ class BoilerController:
         st.resid_samples.append(sample)
         del st.resid_samples[:-RESIDUAL_KEEP]
         learned = st.residual
-        _LOGGER.info(
+        self._tlog(
             "%s: maradékhő mérés: +%.2f °C a hőigény megszűnése után (tanult: %s, %d mérés)",
             st.name,
             sample,
@@ -1972,11 +2037,13 @@ class BoilerController:
             for st in statuses:
                 st.calling = False
         if self.summer_active != self._prev_summer:
-            _LOGGER.info(
-                "Nyári mód %s (kinti 24 órás átlag: %s °C)",
-                "BEKAPCSOLVA" if self.summer_active else "KIKAPCSOLVA",
-                self.outdoor_avg,
-            )
+            if self.outdoor_avg is None or self.outdoor_stale:
+                why = "nincs használható kinti hőmérséklet"
+            else:
+                why = f"kinti 24 órás átlag: {trvlog.num(self.outdoor_avg)} °C"
+                if not self.in_summer_period:
+                    why += ", a nyári időszakon kívül"
+            self._tlog("Nyári mód %s (%s)", "BEKAPCSOLVA" if self.summer_active else "KIKAPCSOLVA", why)
             self._prev_summer = self.summer_active
             self._store.async_delay_save(self._data_to_save, 30)  # újraindítás után is megmarad
 
@@ -2019,7 +2086,7 @@ class BoilerController:
 
         if demand != boiler_on:
             self._last_switch = dt_util.utcnow()
-            _LOGGER.info(
+            self._tlog(
                 "Kazán %s (%s)",
                 "BE" if demand else "KI",
                 (
@@ -2219,7 +2286,16 @@ class BoilerController:
     def _emit_boost(
         self, st: RoomStatus, started_now: bool, started_at: float | None, now_ts: float
     ) -> None:
+        dry = "[PRÓBAÜZEM] " if self.valve_dry_run else ""
         if started_now:
+            self._tlog(
+                "%s%s: szelep-emelés indul – a szoba %s °C, a cél %s °C (%s °C-kal hidegebb)",
+                dry,
+                st.name,
+                trvlog.num(st.current),
+                trvlog.num(st.effective_target),
+                trvlog.num(st.deviation),
+            )
             self._emit(
                 "boost_started",
                 st,
@@ -2232,6 +2308,13 @@ class BoilerController:
             extra: dict[str, Any] = {"reason": self._boost_end_reason(st), "dry_run": self.valve_dry_run}
             if started_at is not None:
                 extra["duration_minutes"] = round((now_ts - started_at) / 60)
+            self._tlog(
+                "%s%s: szelep-emelés vége%s – %s",
+                dry,
+                st.name,
+                "" if started_at is None else f" ({extra['duration_minutes']} perc után)",
+                trvlog.BOOST_END_TEXT.get(extra["reason"], extra["reason"]),
+            )
             self._emit("boost_ended", st, **extra)
 
     def _room_wants_boost(self, st: RoomStatus, now_ts: float) -> bool:
@@ -2312,7 +2395,7 @@ class BoilerController:
         )
         if not any_open:
             if st.window_open:
-                _LOGGER.info("%s: az ablak bezárva, a fűtés újra engedélyezett", st.name)
+                self._tlog("%s: az ablak bezárva, a fűtés újra engedélyezett", st.name)
                 self._emit(
                     "window_resumed",
                     st,
@@ -2327,7 +2410,7 @@ class BoilerController:
         st.window_open = now_ts - st.window_open_since >= st.window_delay_s
         if st.window_open and not was_open:
             self._emit("window_paused", st, open_minutes=round(st.window_delay_s / 60))
-            _LOGGER.info(
+            self._tlog(
                 "%s: az ablak %s perce nyitva, a szoba fűtése szünetel",
                 st.name,
                 f"{st.window_delay_s / 60:g}",
@@ -2354,15 +2437,15 @@ class BoilerController:
         was = valve_id in self._dry
         if wanted and not was:
             self._dry.add(valve_id)
-            _LOGGER.info(
+            self._tlog(
                 "[PRÓBAÜZEM] %s: kinyitnám (célhőmérséklet emelés), mert a szoba "
                 "hőmérője szerint hideg van",
-                valve_id,
+                self._valve_label(valve_id),
             )
         elif not wanted and was:
             self._dry.discard(valve_id)
-            _LOGGER.info(
-                "[PRÓBAÜZEM] %s: visszaállítanám az eredeti célhőmérsékletet", valve_id
+            self._tlog(
+                "[PRÓBAÜZEM] %s: visszaállítanám az eredeti célhőmérsékletet", self._valve_label(valve_id)
             )
 
     async def _async_control_valve(self, valve_id: str, wanted: bool) -> None:
@@ -2393,11 +2476,12 @@ class BoilerController:
             elif not at_boost:
                 if now_ts - rec["ts"] < BOOST_GRACE_SECONDS:
                     return  # még nem érkezett meg a szelep visszajelzése
-                _LOGGER.info(
-                    "%s: a célhőmérsékletet közben máshol módosították (%s °C), "
+                self._tlog(
+                    "%s: a célhőmérsékletet közben máshol módosították (%s °C, az emelés %s °C volt), "
                     "nem állítom vissza",
-                    valve_id,
+                    self._valve_label(valve_id),
                     raw,
+                    rec["boost"],
                 )
                 await self._async_drop_boost(valve_id)
                 rec = None
@@ -2469,9 +2553,9 @@ class BoilerController:
             await self._async_save()
             return
         rec["ts"] = dt_util.utcnow().timestamp()  # a türelmi idő a parancs befejezésétől számít
-        _LOGGER.info(
-            "%s: célhőmérséklet %s -> %s °C (szoba hőmérője szerint hideg van)",
-            valve_id,
+        self._tlog(
+            "%s: célhőmérséklet %s -> %s °C (a szoba hőmérője szerint hideg van)",
+            self._valve_label(valve_id),
             raw,
             boost,
         )
@@ -2488,9 +2572,10 @@ class BoilerController:
             rec["restoring"] = True
             rec["ts"] = dt_util.utcnow().timestamp()
             await self._async_save()
-            _LOGGER.info(
-                "%s: eredeti célhőmérséklet visszaállítva (%s °C)",
-                valve_id,
+            self._tlog(
+                "%s: célhőmérséklet %s -> %s °C (az eredeti érték visszaállítva)",
+                self._valve_label(valve_id),
+                rec["boost"],
                 rec["original"],
             )
 

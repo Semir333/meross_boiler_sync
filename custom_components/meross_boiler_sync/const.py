@@ -208,6 +208,10 @@ CAL_MAX_PER_DAY = 4  # szelepenként legfeljebb ennyi automatikus (mérésből s
 # egymás után többször is átállíthatják; a napi 4 módosítás elfogyása után a kérés órákig, akár másnapig sem teljesülne
 CAL_MAX_PER_DAY_USER = 12
 CAL_GLOBAL_SPACING = 300  # másodperc két szelep módosítása között (a Meross hub kímélése)
+# 2.16.1: az eltolás-váltás (a felhasználó kérése) nem várhat a mérésből számolt módosítások 5 perces szünetére: 6 szelepnél az
+# utolsó 25 percig sem kapta volna meg a számot, és a felhasználó egyetlen szelepet figyelve semmit nem látott változni. A hub
+# parancsonként kevés terhelést kap, 15 másodperc bőven elég a sorbaállításhoz.
+CAL_USER_SPACING = 15
 CAL_SETTLE_SECONDS = 600  # módosítás után ennyit vár az új mérésre (a hub ritkán jelent)
 CAL_CONFIRM_SECONDS = 60  # ennyi idő után nézi meg, hogy a szám-entitás megtartotta-e az új értéket
 CAL_REVERT_TRIES = 3  # a visszaállítást ennyiszer próbálja, mielőtt feladja és felfüggeszt

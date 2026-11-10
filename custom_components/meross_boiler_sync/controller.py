@@ -901,6 +901,8 @@ class BoilerController:
         if self._retry_unsub:
             self._retry_unsub()
             self._retry_unsub = None
+        if self.calibrator is not None:
+            self.calibrator.async_stop()
         for issue_id, active in list(self._issue_state.items()):
             if active:
                 ir.async_delete_issue(self.hass, DOMAIN, issue_id)
@@ -2043,7 +2045,11 @@ class BoilerController:
         if self._boot_hold:
             if self._ready_since is None:
                 self._ready_since = now_ts
-            if now_ts - self._ready_since < STARTUP_SETTLE_SECONDS:
+            remaining = STARTUP_SETTLE_SECONDS - (now_ts - self._ready_since)
+            if remaining > 0:
+                # 2.16.1: a tartás végén azonnal értékel, nem a következő egyperces kört várja (indulás után a felhasználó
+                # perceket vár arra, hogy a plugin megmozdítsa a szelepeket)
+                self._schedule_retry(timedelta(seconds=remaining))
                 return False
             self._boot_hold = False
         return True

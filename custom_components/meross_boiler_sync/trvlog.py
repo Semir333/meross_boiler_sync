@@ -17,10 +17,12 @@ a "Teljes naplók" nézetben vannak. Ezért minden sor a Home Assistant Naplók�
 from __future__ import annotations
 
 import logging
+import math
 from typing import Any
 
 from .const import (
     CAL_GLOBAL_SPACING,
+    CAL_USER_SPACING,
     CAL_MAX_PER_DAY,
     CAL_MAX_PER_DAY_USER,
     CAL_MIN_INTERVAL,
@@ -101,7 +103,11 @@ def _minutes(seconds: float) -> str:
 
 
 def duration(seconds: float) -> str:
-    """Rövid, magyar időtartam a naplósorokhoz: "5 perc", "1 óra 20 perc"."""
+    """Rövid, magyar időtartam a naplósorokhoz: "15 mp", "5 perc", "1 óra 20 perc"."""
+    if seconds < 60:
+        secs = max(int(math.ceil(seconds)), 1)
+        if secs < 60:
+            return f"{secs} mp"
     minutes = max(int(round(seconds / 60)), 1)
     if minutes < 120:
         return f"{minutes} perc"
@@ -124,10 +130,13 @@ _STATE_TEXT: dict[tuple[str, str | None], str] = {
     ("waiting", "hold"): "a Home Assistant éppen indul vagy leáll, még nem módosítok",
     ("waiting", "dry_run"): "próbaüzem: egy korábbi módosítás ellenőrzése még függőben van, ezt próbaüzemben nem folytatom",
     ("waiting", "unsent"): "az előző módosítás parancsa nem ment el (leállás közben), új mérés indul",
-    ("waiting", "external"): "közben kézzel átállították a kalibrációt, új mérés indul",
+    ("waiting", "external"): "közben kézzel átállították a kalibrációt, az igazítást újraszámolom",
     ("waiting", "interval"): f"két módosítás között legalább {CAL_MIN_INTERVAL // 3600} óra telik el",
     ("waiting", "daily_limit"): f"elérte a napi módosítás-keretet (mérésből számolt: {CAL_MAX_PER_DAY}, eltolás-váltásra: {CAL_MAX_PER_DAY_USER} / 24 óra)",
-    ("waiting", "spacing"): f"a másik szelep módosítása után {_minutes(CAL_GLOBAL_SPACING)} szünetet tart",
+    ("waiting", "spacing"): (
+        f"a másik szelep módosítása után szünetet tart (eltolás-váltásnál {CAL_USER_SPACING} mp, mérésből számolt "
+        f"módosításnál {_minutes(CAL_GLOBAL_SPACING)}: a Meross hub kímélése)"
+    ),
     ("waiting", "backoff"): "az előző parancs sikertelen volt, később próbálom újra",
     ("waiting", "reverted"): "a hatástalan módosítást visszaállítottam",
     ("waiting", "reverting"): "visszaállítás folyamatban",

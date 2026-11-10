@@ -180,7 +180,9 @@
           "gas_estimate_enabled": "Gasschatting (voor het Energiedashboard)",
           "gas_m3_per_hour": "Gasschatting: gasverbruik als de ketel aan staat",
           "calibration_enabled": "Kraankalibratie (automatisch, experimenteel)",
-          "calibration_dry_run": "Kraankalibratie: proefmodus (alleen loggen)"
+          "calibration_dry_run": "Kraankalibratie: proefmodus (alleen loggen)",
+          "residual_comp": "Restwarmte: eerder stoppen (geleerd)",
+          "residual_allow": "Restwarmte: toegestane overschrijding (°C)"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Als de ketel het afgelopen uur zo vaak of vaker is gestart, gaat de sensor Korte cycli aan.",
@@ -193,7 +195,9 @@
           "gas_estimate_enabled": "Voegt de sensor voor het geschatte gasverbruik toe. Hij telt de aan-tijd van de ketel; tijd waarin Home Assistant niet draait, wordt niet meegeteld.",
           "gas_m3_per_hour": "Hoeveel m³ gas de ketel per uur verbruikt als hij aan staat (zie het typeplaatje of je rekening). Vergelijk de sensor met de stand van je gasmeter en pas deze waarde aan tot ze overeenkomen.",
           "calibration_enabled": "Indien aan stelt de plugin de kalibratiewaarde van de kranen automatisch bij op basis van de kamerthermometer (Meross LAN: het getal *Kalibratie*). Afzonderlijke kamers kun je uitschakelen bij het bewerken van de kamer. De functie schrijft een blijvende instelling in de kraan, probeer haar daarom eerst in proefmodus.",
-          "calibration_dry_run": "Logt alleen en stuurt een gebeurtenis over wat er zou worden ingesteld, maar schrijft niets naar de kraan. Wijzigingen die al bezig zijn, worden in proefmodus niet voortgezet."
+          "calibration_dry_run": "Logt alleen en stuurt een gebeurtenis over wat er zou worden ingesteld, maar schrijft niets naar de kraan. Wijzigingen die al bezig zijn, worden in proefmodus niet voortgezet.",
+          "residual_comp": "Meet per kamer hoeveel de kamer nog opwarmt nadat de warmtevraag is gestopt (de restwarmte van de radiator) en leert dit (mediaan van de laatste 9 schone metingen, minstens 4 nodig). Ingeschakeld beëindigt het de warmtevraag van de kamer zoveel eerder, maar alleen het deel boven de hieronder ingestelde toegestane overschrijding. De hele aan/uit-band schuift met hetzelfde bedrag omlaag, dus de ketel start niet vaker, maar de gemiddelde kamertemperatuur komt ook ongeveer zoveel lager uit. Vereist een kamerthermometer; werkt niet tijdens Nu verwarmen of voorverwarmen.",
+          "residual_allow": "Hoeveel de kamer door de restwarmte boven het doel mag uitkomen. Alleen het deel daarboven wordt gecompenseerd: bij 0,3 °C en een geleerde restwarmte van 0,8 °C stopt de warmtevraag 0,5 °C eerder. 0 = proberen precies op het doel uit te komen; maximaal 1,0. De correctie is nooit meer dan 0,8 °C."
         }
       },
       "preheat": {
@@ -416,6 +420,18 @@
           },
           "valve_calibration": {
             "name": "Kraankalibratie (status per kraan)"
+          },
+          "residual_heat": {
+            "name": "Geleerde restwarmte (°C)"
+          },
+          "residual_samples": {
+            "name": "Aantal restwarmtemetingen"
+          },
+          "residual_comp": {
+            "name": "Restwarmtecompensatie"
+          },
+          "stop_lead": {
+            "name": "Stopt zoveel eerder (°C)"
           }
         }
       },

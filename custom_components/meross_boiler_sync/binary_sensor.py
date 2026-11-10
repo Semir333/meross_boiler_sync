@@ -90,6 +90,10 @@ class RoomDemandSensor(_BaseSensor):
             "heating_rate",
             # 2.11: szelep kalibráció (a mérések gyakran változnak, az előzményekbe nem kellenek)
             "valve_calibration",
+            # 2.13: tanult maradékhő (minden hőciklus után változhat)
+            "residual_heat",
+            "residual_samples",
+            "stop_lead",
         }
     )
 
@@ -166,6 +170,11 @@ class RoomDemandSensor(_BaseSensor):
             "calibration_room": st.calibrate,
             "trv_offset": st.trv_offset,
             "valve_calibration": st.calibration,
+            # 2.13: a leállás utáni maradékhő (a tanult medián), és az ebből adódó korábbi leállítás
+            "residual_heat": st.residual,
+            "residual_samples": len(st.resid_samples),
+            "residual_comp": c.residual_comp,
+            "stop_lead": st.stop_lead,
         }
 
 

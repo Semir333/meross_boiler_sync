@@ -180,7 +180,9 @@
           "gas_estimate_enabled": "Gassestimat (for Energi-dashbordet)",
           "gas_m3_per_hour": "Gassestimat: gassforbruk når kjelen er på",
           "calibration_enabled": "Ventilkalibrering (automatisk, eksperimentell)",
-          "calibration_dry_run": "Ventilkalibrering: prøvemodus (bare logg)"
+          "calibration_dry_run": "Ventilkalibrering: prøvemodus (bare logg)",
+          "residual_comp": "Restvarme: stopp tidligere (lært)",
+          "residual_allow": "Restvarme: tillatt overskridelse (°C)"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Hvis kjelen har startet så mange ganger eller flere den siste timen, slår sensoren Korte sykluser seg på.",
@@ -193,7 +195,9 @@
           "gas_estimate_enabled": "Legger til sensoren for estimert gassforbruk. Den teller kjelens på-tid; tid da Home Assistant ikke kjører, telles ikke.",
           "gas_m3_per_hour": "Hvor mange m³ gass kjelen bruker per time mens den er på (se typeskiltet eller regningen). Sammenlign sensoren med avlesningen på gassmåleren og juster verdien til de stemmer overens.",
           "calibration_enabled": "Når den er på, justerer pluginen automatisk kalibreringsverdien til ventilene ut fra romtermometeret (Meross LAN: tallet *Kalibrering*). Enkeltrom kan slås av når du redigerer rommet. Funksjonen skriver en varig innstilling i ventilen, så prøv den først i prøvemodus.",
-          "calibration_dry_run": "Logger bare og sender en hendelse om hva som ville blitt satt, men skriver ikke til ventilen. Endringer som allerede pågår, fortsetter ikke i prøvemodus."
+          "calibration_dry_run": "Logger bare og sender en hendelse om hva som ville blitt satt, men skriver ikke til ventilen. Endringer som allerede pågår, fortsetter ikke i prøvemodus.",
+          "residual_comp": "Måler per rom hvor mye rommet fortsatt blir varmere etter at varmebehovet har opphørt (radiatorens restvarme), og lærer det (median av de siste 9 rene målingene, minst 4 trengs). Når den er på, avslutter den romets varmebehov så mye tidligere, men bare den delen som ligger over den tillatte overskridelsen som er satt nedenfor. Hele av/på-båndet flyttes ned med samme beløp, så kjelen starter ikke oftere, men gjennomsnittstemperaturen i rommet blir også omtrent så mye lavere. Krever et romtermometer; virker ikke under «Varm nå» eller forvarming.",
+          "residual_allow": "Hvor mye rommet kan gå over målet på grunn av restvarmen. Bare delen over dette kompenseres: med 0,3 °C og en lært restvarme på 0,8 °C opphører varmebehovet 0,5 °C tidligere. 0 = prøve å treffe nøyaktig på målet; høyst 1,0. Korreksjonen er aldri mer enn 0,8 °C."
         }
       },
       "preheat": {
@@ -416,6 +420,18 @@
           },
           "valve_calibration": {
             "name": "Ventilkalibrering (status per ventil)"
+          },
+          "residual_heat": {
+            "name": "Lært restvarme (°C)"
+          },
+          "residual_samples": {
+            "name": "Antall restvarmemålinger"
+          },
+          "residual_comp": {
+            "name": "Restvarmekompensasjon"
+          },
+          "stop_lead": {
+            "name": "Stopper så mye tidligere (°C)"
           }
         }
       },

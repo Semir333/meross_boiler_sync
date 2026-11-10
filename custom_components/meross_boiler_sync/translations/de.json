@@ -180,7 +180,9 @@
           "gas_estimate_enabled": "Gasschätzung (für das Energie-Dashboard)",
           "gas_m3_per_hour": "Gasschätzung: Gasverbrauch bei eingeschaltetem Kessel",
           "calibration_enabled": "Ventilkalibrierung (automatisch, experimentell)",
-          "calibration_dry_run": "Ventilkalibrierung: Testbetrieb (nur protokollieren)"
+          "calibration_dry_run": "Ventilkalibrierung: Testbetrieb (nur protokollieren)",
+          "residual_comp": "Restwärme: früher abschalten (gelernt)",
+          "residual_allow": "Restwärme: erlaubte Überschreitung (°C)"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Wenn der Kessel in der letzten Stunde so oft oder öfter gestartet ist, schaltet sich der Sensor „Kurzzyklen“ ein.",
@@ -193,7 +195,9 @@
           "gas_estimate_enabled": "Fügt den Sensor für den geschätzten Gasverbrauch hinzu. Er zählt die Einschaltzeit des Kessels; Zeiten, in denen Home Assistant nicht läuft, werden nicht gezählt.",
           "gas_m3_per_hour": "Wie viele m³ Gas der Kessel pro Stunde im eingeschalteten Zustand verbraucht (siehe Typenschild oder Rechnung). Vergleiche den Sensor mit dem Stand deines Gaszählers und passe den Wert an, bis beide übereinstimmen.",
           "calibration_enabled": "Wenn aktiv, passt das Plugin den Kalibrierwert der Ventile automatisch anhand des Raumthermometers an (Meross LAN: die Zahl *Kalibrierung*). Einzelne Räume lassen sich beim Bearbeiten des Raums ausschalten. Die Funktion schreibt eine dauerhafte Einstellung ins Ventil – probiere sie zuerst im Testbetrieb aus.",
-          "calibration_dry_run": "Protokolliert nur und sendet ein Ereignis, was eingestellt würde, schreibt aber nichts ins Ventil. Bereits laufende Änderungen werden im Testbetrieb nicht fortgesetzt."
+          "calibration_dry_run": "Protokolliert nur und sendet ein Ereignis, was eingestellt würde, schreibt aber nichts ins Ventil. Bereits laufende Änderungen werden im Testbetrieb nicht fortgesetzt.",
+          "residual_comp": "Misst pro Raum, wie viel wärmer der Raum nach dem Ende seiner Wärmeanforderung noch wird (die Restwärme des Heizkörpers), und lernt diesen Wert (Median der letzten 9 sauberen Messungen, mindestens 4 nötig). Eingeschaltet beendet es die Wärmeanforderung des Raums entsprechend früher, aber nur um den Teil, der über der unten festgelegten erlaubten Überschreitung liegt. Das gesamte Ein-/Aus-Band verschiebt sich um denselben Betrag nach unten, der Kessel startet also nicht öfter, die mittlere Raumtemperatur liegt aber etwa so viel niedriger. Benötigt ein Raumthermometer; wirkt nicht während „Jetzt heizen“ oder Vorheizen.",
+          "residual_allow": "Um wie viel der Raum wegen der Restwärme über sein Ziel steigen darf. Nur der Teil darüber wird ausgeglichen: Bei 0,3 °C und einer gelernten Restwärme von 0,8 °C endet die Wärmeanforderung 0,5 °C früher. 0 = möglichst genau das Ziel treffen; höchstens 1,0. Die Korrektur beträgt nie mehr als 0,8 °C."
         }
       },
       "preheat": {
@@ -416,6 +420,18 @@
           },
           "valve_calibration": {
             "name": "Ventilkalibrierung (Status je Ventil)"
+          },
+          "residual_heat": {
+            "name": "Gelernte Restwärme (°C)"
+          },
+          "residual_samples": {
+            "name": "Anzahl der Restwärme-Messungen"
+          },
+          "residual_comp": {
+            "name": "Restwärme-Ausgleich"
+          },
+          "stop_lead": {
+            "name": "Schaltet so viel früher ab (°C)"
           }
         }
       },

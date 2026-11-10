@@ -57,6 +57,8 @@ from .const import (
     CONF_PREHEAT_HOLD_MINUTES,
     CONF_PREHEAT_MAX_MINUTES,
     CONF_OUTDOOR_SENSOR,
+    CONF_RESIDUAL_ALLOW,
+    CONF_RESIDUAL_COMP,
     CONF_ROOM_CALIBRATE,
     CONF_ROOM_TRV_OFFSET,
     CONF_ROOM_HUM,
@@ -107,6 +109,8 @@ from .const import (
     DEFAULT_GAS_ESTIMATE,
     DEFAULT_GAS_M3_PER_HOUR,
     DEFAULT_PREHEAT_RATE,
+    DEFAULT_RESIDUAL_ALLOW,
+    DEFAULT_RESIDUAL_COMP,
     DEFAULT_SUMMER_END,
     DEFAULT_SUMMER_START,
     DEFAULT_MAX_BOOST_ENABLED,
@@ -146,6 +150,19 @@ from .const import (
     PREHEAT_DONE_TOLERANCE,
     PREHEAT_GRACE_SECONDS,
     PREHEAT_SAFETY,
+    RESIDUAL_ALLOW_MAX,
+    RESIDUAL_BOILER_GRACE_SECONDS,
+    RESIDUAL_FALL,
+    RESIDUAL_KEEP,
+    RESIDUAL_LEAD_MAX,
+    RESIDUAL_LEAD_MIN,
+    RESIDUAL_LEAD_STEP,
+    RESIDUAL_MIN_ON_SECONDS,
+    RESIDUAL_MIN_SAMPLES,
+    RESIDUAL_MIN_WINDOW_SECONDS,
+    RESIDUAL_SAMPLE_MAX,
+    RESIDUAL_TARGET_TOLERANCE,
+    RESIDUAL_WINDOW_SECONDS,
     RESTORE_RETRY_SECONDS,
     RESUME_WINDOW_SECONDS,
     SAMPLE_INTERVAL_SECONDS,
@@ -274,6 +291,13 @@ def _finite(value: Any) -> float | None:
     except (TypeError, ValueError):
         return None
     return number if math.isfinite(number) else None
+
+
+def _median(values: list[float]) -> float:
+    """Medián (páros darabszámnál a két középső átlaga); az outlierekre érzéketlen."""
+    ordered = sorted(values)
+    mid = len(ordered) // 2
+    return ordered[mid] if len(ordered) % 2 else (ordered[mid - 1] + ordered[mid]) / 2
 
 
 def trv_offset_from(value: Any) -> float:
@@ -410,11 +434,25 @@ class RoomStatus:
     heating_rate: float | None = None
     heating_samples: int = 0
     rate_ts: float = 0.0
+    # 2.13: tanult maradékhő (a hőigény megszűnése utáni további melegedés, °C)
+    resid_samples: list[float] = field(default_factory=list)  # az utolsó érvényes mérések
+    resid_run: dict[str, Any] | None = None  # a futó megfigyelés (a leállás utáni csúcs keresése)
+    call_since: float | None = None  # a mostani hőigény kezdete (epoch)
+    call_target: float | None = None  # a szelepek célja a hőigény kezdetekor
+    call_clean: bool = False  # a hőigény alatt nem volt zavaró körülmény (ablak, kézi fűtés, ...)
+    stop_lead: float = 0.0  # ennyivel előbb áll le a hőigény a tanult maradékhő miatt (°C)
 
     @property
     def sensor_unusable(self) -> bool:
         """A szoba hőmérője most nem használható: elavult, vagy képtelen / ugráló értéket ad."""
         return self.sensor_stale or self.sensor_bad is not None
+
+    @property
+    def residual(self) -> float | None:
+        """A tanult maradékhő (°C): az utolsó mérések mediánja, elég mérés esetén."""
+        if len(self.resid_samples) < RESIDUAL_MIN_SAMPLES:
+            return None
+        return round(_median(self.resid_samples), 2)
 
 
 def _slope_per_hour(samples: deque[tuple[float, float]]) -> float | None:
@@ -555,6 +593,11 @@ class BoilerController:
         # 2.11: a szelepek hőmérőjének automata kalibrációja (alapból kikapcsolt; a kazán termosztátot nem érinti)
         self.cal_enabled = bool(cfg.get(CONF_CALIBRATION_ENABLED, DEFAULT_CALIBRATION_ENABLED))
         self.cal_dry_run = bool(cfg.get(CONF_CALIBRATION_DRY_RUN, DEFAULT_CALIBRATION_DRY_RUN))
+        # 2.13: maradékhő: a tanulás mindig fut, a kompenzáció (korábbi leállítás) kapcsolható
+        self.residual_comp = bool(cfg.get(CONF_RESIDUAL_COMP, DEFAULT_RESIDUAL_COMP))
+        self.residual_allow = _clamp(
+            float(cfg.get(CONF_RESIDUAL_ALLOW, DEFAULT_RESIDUAL_ALLOW)), 0.0, RESIDUAL_ALLOW_MAX
+        )
         self.cycles = CycleLog()
         self.cycle_info: dict[str, Any] = self.cycles.stats(0)
         self.short_cycling = False
@@ -685,6 +728,7 @@ class BoilerController:
                 "restoring": bool(rec.get("restoring", False)),
             }
         self._load_2_9(data)
+        self._load_residual(data)
         self.calibrator.load(
             data.get("calibration"),
             {valve for st in self.status.values() for valve in st.valves},
@@ -761,6 +805,23 @@ class BoilerController:
                     st.preheat_skip = float(rec["skip"]) if rec.get("skip") else None
                 except (TypeError, ValueError):
                     st.preheat_skip = None
+
+    def _load_residual(self, data: dict[str, Any]) -> None:
+        """A tanult maradékhő mérései. Csak az a szoba kapja vissza, amelynek hőmérője ugyanaz maradt:
+        más szenzor más helyen más dinamikát mér. Minden értéket ellenőrzünk."""
+        for room_id, rec in _as_dict(data.get("residual")).items():
+            st = self.status.get(room_id)
+            if st is None or not isinstance(rec, dict) or not st.temp_sensor:
+                continue
+            if rec.get("sensor") != st.temp_sensor:
+                continue
+            raw = rec.get("s")
+            samples: list[float] = []
+            for item in raw if isinstance(raw, list) else []:
+                value = _finite(item)
+                if value is not None and 0.0 <= value <= RESIDUAL_SAMPLE_MAX:
+                    samples.append(round(value, 2))
+            st.resid_samples = samples[-RESIDUAL_KEEP:]
 
     @staticmethod
     def _clean_plan(plan: Any, now_ts: float) -> dict[str, Any] | None:
@@ -1431,6 +1492,12 @@ class BoilerController:
                 for st in self.status.values()
                 if st.heating_rate is not None
             },
+            # 2.13: a tanult maradékhő mérései (a szoba hőmérőjével együtt)
+            "residual": {
+                st.room_id: {"sensor": st.temp_sensor, "s": list(st.resid_samples)}
+                for st in self.status.values()
+                if st.resid_samples and st.temp_sensor
+            },
             # kalibráció: az eredeti értékek, a függő módosítások és a korlátozások (újraindítás után is)
             "calibration": self.calibrator.to_dict(),
         }
@@ -1565,6 +1632,7 @@ class BoilerController:
             st.calling = False
             st.valve_open = False
             self._reset_preheat_view(st)
+            self._reset_residual(st)
             self._update_trend(st)  # nincs aktuális érték: a trend törlődik
             return st
 
@@ -1621,24 +1689,159 @@ class BoilerController:
         # újraindítás után: a hiszterézis állapota nem veszett el, ha a kazán közben fűtött
         resume = self._seed_active(st) if current is not None else False
 
-        # hőigény hiszterézissel: indul, ha a cél alatt van, megy a cél eléréséig
+        # hőigény hiszterézissel: indul, ha a cél alatt van, megy a cél eléréséig. A tanult maradékhő
+        # (2.13) miatt a leállás `stop_lead`-del előbb jön, és a sáv szélessége nem változik, ezért a
+        # bekapcsolási küszöb is ennyivel lejjebb csúszik (így nem lesz több kazánindítás).
+        was_calling = st.calling
+        st.stop_lead = self._stop_lead(st)
+        stop_at = st.effective_target - st.stop_lead
         if current is None:
             st.calling = False
         elif st.calling:
-            if current >= st.effective_target:
+            if current >= stop_at:
                 st.calling = False
-        elif current < st.effective_target - self.hysteresis:
+        elif current < stop_at - self.hysteresis:
             st.calling = True
-        elif resume and current < st.effective_target:
+        elif resume and current < stop_at:
             st.calling = True  # a fűtés a cél eléréséig folytatódik
 
         if st.window_open:
             st.calling = False  # nyitott ablak: a szoba nem kér hőt, a szelep emelés leáll
+        self._track_residual(st, was_calling, current, stop_at, now_ts)
 
         st.valve_open = (
             self._valve_open(st.valve_open or resume, pairs) if st.valve_demand_link else False
         )
         return st
+
+    # ------------------------------------------------------------------ maradékhő (2.13)
+    def _reset_residual(self, st: RoomStatus) -> None:
+        st.resid_run = None
+        st.call_since = st.call_target = None
+        st.call_clean = False
+        st.stop_lead = 0.0
+
+    def _stop_lead(self, st: RoomStatus) -> float:
+        """Mennyivel állítsa le előbb a szoba hőigényét a tanult maradékhő miatt (°C, 0 = nem).
+
+        Csak a megengedett túllövés fölötti részt kompenzálja, legfeljebb `RESIDUAL_LEAD_MAX`-ot, és csak
+        akkor, ha a kompenzáció be van kapcsolva, elég mérés van, a szoba hőmérője megbízható, és nincs
+        "Fűts most" / előfűtés (azoknál a megemelt cél a kért viselkedés).
+        """
+        learned = st.residual
+        if (
+            not self.residual_comp
+            or learned is None
+            or st.source != "sensor"
+            or st.sensor_unusable
+            or st.manual_until is not None
+            or st.preheat_active
+        ):
+            return 0.0
+        lead = min(learned - self.residual_allow, RESIDUAL_LEAD_MAX)
+        if lead < RESIDUAL_LEAD_MIN - 1e-9:  # a lebegőpontos zaj ne döntsön a határon (0,3 - 0,2 = 0,0999…)
+            return 0.0
+        return round(round(lead / RESIDUAL_LEAD_STEP) * RESIDUAL_LEAD_STEP, 2)
+
+    def _residual_clean(self, st: RoomStatus, current: float | None) -> bool:
+        """Tiszta-e most a mérés feltétele: megbízható szoba hőmérő, nincs ablaknyitás (sem függő),
+        nyári mód, "Fűts most" vagy előfűtés."""
+        return (
+            current is not None
+            and st.source == "sensor"
+            and not st.sensor_unusable
+            and not st.window_open
+            and st.window_open_since is None
+            and not self.summer_active
+            and st.manual_until is None
+            and not st.preheat_active
+        )
+
+    def _track_residual(
+        self,
+        st: RoomStatus,
+        was_calling: bool,
+        current: float | None,
+        stop_at: float,
+        now_ts: float,
+    ) -> None:
+        """A maradékhő mérése: mennyit melegszik még a szoba, miután a hőigénye megszűnt.
+
+        Ha a hőigény természetes módon ért véget (a szoba elérte a leállási küszöböt, közben nem változott
+        a szelepek célja, nem volt ablaknyitás, "Fűts most" vagy előfűtés), a mérés elindul: a szoba
+        hőmérőjének csúcsát keresi a leállás utáni órában. Érvényes, ha a kazán közben tényleg leállt és
+        nem indult újra (különben más szoba fűtése is hozzátesz), és a csúcs elmúlt. Az utolsó
+        `RESIDUAL_KEEP` mérés mediánja a tanult érték.
+        """
+        clean = self._residual_clean(st, current)
+        if st.resid_run is not None:
+            self._step_residual_run(st, current, now_ts)
+        if st.calling:
+            if not was_calling or st.call_since is None:
+                st.call_since, st.call_target, st.call_clean = now_ts, st.target, True
+            if not clean or abs((st.target or 0.0) - (st.call_target or 0.0)) >= RESIDUAL_TARGET_TOLERANCE:
+                st.call_clean = False
+            return
+        if not was_calling:
+            return
+        # a hőigény éppen megszűnt
+        natural = (
+            st.call_clean
+            and clean
+            and st.call_since is not None
+            and now_ts - st.call_since >= RESIDUAL_MIN_ON_SECONDS
+            and current >= stop_at - 1e-9
+            and st.call_target is not None
+            and abs(st.target - st.call_target) < RESIDUAL_TARGET_TOLERANCE
+        )
+        st.call_since = st.call_target = None
+        st.call_clean = False
+        if natural:
+            st.resid_run = {
+                "t0": now_ts,
+                "base": current,
+                "peak": current,
+                "target": st.target,
+                "off": False,
+            }
+
+    def _step_residual_run(self, st: RoomStatus, current: float | None, now_ts: float) -> None:
+        run = st.resid_run
+        if run is None:
+            return
+        elapsed = now_ts - run["t0"]
+        if not self._residual_clean(st, current) or abs(st.target - run["target"]) >= RESIDUAL_TARGET_TOLERANCE:
+            st.resid_run = None  # zavaró körülmény: a mérés nem tiszta
+            return
+        boiler_on = self._boiler_is_on()
+        if boiler_on is None or (boiler_on and (run["off"] or elapsed > RESIDUAL_BOILER_GRACE_SECONDS)):
+            st.resid_run = None  # a kazán nem állt le, vagy újra fűt (más szoba is melegít): nem tiszta
+            return
+        if not boiler_on:
+            run["off"] = True
+        run["peak"] = max(run["peak"], current)
+        peak_passed = elapsed >= RESIDUAL_MIN_WINDOW_SECONDS and current <= run["peak"] - RESIDUAL_FALL + 1e-9
+        if not (elapsed >= RESIDUAL_WINDOW_SECONDS or peak_passed):
+            if st.calling:
+                st.resid_run = None  # a szoba újra fűt, mielőtt a csúcs elmúlt volna
+            return
+        st.resid_run = None
+        if run["off"]:
+            self._add_residual_sample(st, run["peak"] - run["base"])
+
+    def _add_residual_sample(self, st: RoomStatus, rise: float) -> None:
+        sample = round(_clamp(rise, 0.0, RESIDUAL_SAMPLE_MAX), 2)
+        st.resid_samples.append(sample)
+        del st.resid_samples[:-RESIDUAL_KEEP]
+        learned = st.residual
+        _LOGGER.info(
+            "%s: maradékhő mérés: +%.2f °C a hőigény megszűnése után (tanult: %s, %d mérés)",
+            st.name,
+            sample,
+            "még nincs elég mérés" if learned is None else f"{learned:.2f} °C",
+            len(st.resid_samples),
+        )
+        self._store.async_delay_save(self._data_to_save, 60)
 
     def _boiler_is_on(self) -> bool | None:
         """A kazán állapota: True (be), False (ki), None (ismeretlen / nem elérhető)."""

@@ -180,7 +180,9 @@
           "gas_estimate_enabled": "Gāzes aplēse (enerģijas informācijas panelim)",
           "gas_m3_per_hour": "Gāzes aplēse: gāzes patēriņš ieslēgtam katlam",
           "calibration_enabled": "Vārstu kalibrēšana (automātiska, eksperimentāla)",
-          "calibration_dry_run": "Vārstu kalibrēšana: izmēģinājuma režīms (tikai žurnāls)"
+          "calibration_dry_run": "Vārstu kalibrēšana: izmēģinājuma režīms (tikai žurnāls)",
+          "residual_comp": "Atlikušais siltums: apturēt agrāk (apgūts)",
+          "residual_allow": "Atlikušais siltums: pieļaujamais pārsniegums (°C)"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Ja katls pēdējās stundas laikā ir ieslēdzies tik reižu vai vairāk, sensors Īsi cikli ieslēdzas.",
@@ -193,7 +195,9 @@
           "gas_estimate_enabled": "Pievieno aptuvenā gāzes patēriņa sensoru. Tas skaita katla darbības laiku; laiks, kad Home Assistant nedarbojas, netiek skaitīts.",
           "gas_m3_per_hour": "Cik m³ gāzes katls patērē stundā, kamēr ir ieslēgts (skatiet datu plāksnīti vai rēķinu). Salīdziniet sensoru ar gāzes skaitītāja rādījumu un pielāgojiet šo vērtību, līdz tie sakrīt.",
           "calibration_enabled": "Kad ieslēgta, spraudnis automātiski pielāgo vārstu kalibrēšanas vērtību pēc istabas termometra (Meross LAN: skaitlis *Kalibrēšana*). Atsevišķas istabas var izslēgt, rediģējot istabu. Funkcija ieraksta vārstā pastāvīgu iestatījumu, tāpēc vispirms izmēģiniet izmēģinājuma režīmā.",
-          "calibration_dry_run": "Tikai ieraksta žurnālā un nosūta notikumu par to, ko iestatītu, bet vārstā neraksta. Jau uzsāktās izmaiņas izmēģinājuma režīmā netiek turpinātas."
+          "calibration_dry_run": "Tikai ieraksta žurnālā un nosūta notikumu par to, ko iestatītu, bet vārstā neraksta. Jau uzsāktās izmaiņas izmēģinājuma režīmā netiek turpinātas.",
+          "residual_comp": "Katrai telpai mēra, cik tā vēl sasilst pēc siltuma pieprasījuma beigām (radiatora atlikušais siltums), un to apgūst (pēdējo 9 tīro mērījumu mediāna, vajag vismaz 4). Ieslēgts, tas beidz telpas pieprasījumu par tik agrāk, bet tikai to daļu, kas pārsniedz zemāk norādīto pieļaujamo pārsniegumu. Viss ieslēgšanas/izslēgšanas intervāls pārbīdās uz leju par tikpat, tāpēc katls nestartē biežāk, taču arī telpas vidējā temperatūra sanāk aptuveni par tik zemāka. Nepieciešams istabas termometrs; nedarbojas “Sildīt tagad” un priekšsildīšanas laikā.",
+          "residual_allow": "Cik daudz telpa drīkst pārsniegt savu mērķi atlikušā siltuma dēļ. Kompensē tikai to daļu, kas pārsniedz šo vērtību: ar 0,3 °C un apgūtu atlikušo siltumu 0,8 °C pieprasījums beidzas par 0,5 °C agrāk. 0 = mēģināt trāpīt tieši mērķī; ne vairāk kā 1,0. Korekcija nekad nepārsniedz 0,8 °C."
         }
       },
       "preheat": {
@@ -416,6 +420,18 @@
           },
           "valve_calibration": {
             "name": "Vārstu kalibrēšana (stāvoklis katram vārstam)"
+          },
+          "residual_heat": {
+            "name": "Apgūtais atlikušais siltums (°C)"
+          },
+          "residual_samples": {
+            "name": "Atlikušā siltuma mērījumu skaits"
+          },
+          "residual_comp": {
+            "name": "Atlikušā siltuma kompensācija"
+          },
+          "stop_lead": {
+            "name": "Apstājas agrāk par (°C)"
           }
         }
       },

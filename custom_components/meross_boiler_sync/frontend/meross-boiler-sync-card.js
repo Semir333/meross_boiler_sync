@@ -1,6 +1,6 @@
 /*!
  * Meross Boiler Sync – Lovelace kártyák / Lovelace cards
- * Verzió / version: 2.12.0
+ * Verzió / version: 2.13.0
  *
  * Felvétel: Irányítópult szerkesztése → Kártya hozzáadása → "Meross Boiler Sync".
  * Add: Edit dashboard → Add card → "Meross Boiler Sync".
@@ -353,11 +353,14 @@
     // statisztika: tanult sebesség
     stt_rates: "Tanult melegedési sebesség", stt_rates_learning: "még tanul", stt_rates_note: "Az előfűtés ebből számolja, mikor kell indulni.",
     unit_cph: "°C/ó", stt_rates_def: "alapérték",
+    // 2.13: tanult maradékhő
+    stt_resid: "Tanult maradékhő", stt_resid_learning: "még tanul ({n} mérés)", stt_resid_val: "+{v} °C", stt_resid_lead: "{v} °C-kal előbb áll le",
+    stt_resid_note: "Ennyit melegszik még a szoba, miután a hőigény megszűnt. A megengedett túllövésen túli részt a rendszer úgy kompenzálja, hogy ennyivel előbb állítja le a fűtést.",
     // szerkesztő
     show_boost: "Fűts most gomb", h_show_boost: "Egy lángos gomb: egy időre megemeli a szoba célját. Be kell kapcsolni az integrációban is.",
     show_preheat: "Előfűtés jelzés", h_show_preheat: "Mutatja, mikor indul az előfűtés, és mikorra lesz kész a szoba.",
-    alert_preheat: "Az előfűtés nem éri el időben a célt", show_rates: "Tanult melegedési sebesség",
-    h_show_rates: "Szobánként mutatja, hány °C-ot melegszik óránként. Az előfűtés ebből számol.",
+    alert_preheat: "Az előfűtés nem éri el időben a célt", show_rates: "Tanult értékek (sebesség, maradékhő)",
+    h_show_rates: "Szobánként mutatja, hány °C-ot melegszik óránként (az előfűtés ebből számol), és mennyit melegszik még a szoba a hőigény megszűnése után (ennyivel előbb állítja le a fűtést).",
   });
   Object.assign(STR.en, {
     cd_manual: "Heat now", cd_pre: "Preheat",
@@ -385,10 +388,12 @@
     al_preheat: "{room}: preheat won't reach the target in time", al_preheat_sub: "Needs {v}°, ready: {t} — not enough time",
     stt_rates: "Learned heating speed", stt_rates_learning: "still learning", stt_rates_note: "Preheat uses this to work out when to start.",
     unit_cph: "°C/h", stt_rates_def: "default",
+    stt_resid: "Learned residual heat", stt_resid_learning: "still learning ({n} measurements)", stt_resid_val: "+{v} °C", stt_resid_lead: "stops {v} °C earlier",
+    stt_resid_note: "How much the room keeps warming after the demand stops. Whatever exceeds the allowed overshoot is compensated by stopping the heating this much earlier.",
     show_boost: "Heat now button", h_show_boost: "A flame button: raises the room's target for a while. It must also be switched on in the integration.",
     show_preheat: "Preheat indicator", h_show_preheat: "Shows when preheating starts and when the room will be ready.",
-    alert_preheat: "Preheat won't reach the target in time", show_rates: "Learned heating speed",
-    h_show_rates: "Shows, per room, how many °C it warms up per hour. Preheat works from this.",
+    alert_preheat: "Preheat won't reach the target in time", show_rates: "Learned values (speed, residual heat)",
+    h_show_rates: "Shows, per room, how many °C it warms up per hour (preheat works from this) and how much it keeps warming after the demand stops (heating is stopped that much earlier).",
   });
   /* ===================================================================
    *  Alapértékek, dizájn előbeállítások, színek
@@ -630,6 +635,8 @@
           readyBy: toMs(a.preheat_ready_by), target: num(a.preheat_target), source: a.preheat_source || null,
         },
         rate: num(a.heating_rate), rateLearned: !!a.heating_rate_learned,
+        // 2.13: tanult maradékhő (a hőigény megszűnése utáni további melegedés) és az ebből adódó korábbi leállítás
+        resid: num(a.residual_heat), residN: num(a.residual_samples) || 0, stopLead: num(a.stop_lead) || 0,
         delayMin: num(a.boost_delay_minutes),
         times: {
           start: toMs(a.valve_boost_starts_at), rest: toMs(a.valve_boost_rest_until),
@@ -1403,14 +1410,14 @@
     .sheet .ctrl { flex-wrap:wrap; }
     .sheet .bpop.inl { margin-top:8px; }
     .sheet .pbox { margin:12px 0 2px; flex:none; }
-    .stt .ratebars { display:grid; gap:7px; }
-    .ratebars .rb { display:grid; grid-template-columns:minmax(56px,.75fr) 1fr 8.8em; gap:10px; align-items:center; font-size:.82rem; }
-    .ratebars .rb .db { height:9px; border-radius:99px; background:var(--track); position:relative; overflow:hidden; }
-    .ratebars .rb .db i { position:absolute; inset:0 auto 0 0; border-radius:99px; background:var(--c-demand); }
-    .ratebars .rb span:last-child { color:var(--muted); text-align:right; font-variant-numeric:tabular-nums; }
-    .ratebars .rb span:last-child small { font-size:.85em; }
-    .ratebars .rb.dim .db i { opacity:.4; }
-    .stt .ratebars + .sm { margin-top:10px !important; }
+    .stt :is(.ratebars, .resbars) { display:grid; gap:7px; }
+    :is(.ratebars, .resbars) .rb { display:grid; grid-template-columns:minmax(56px,.75fr) 1fr 8.8em; gap:10px; align-items:center; font-size:.82rem; }
+    :is(.ratebars, .resbars) .rb .db { height:9px; border-radius:99px; background:var(--track); position:relative; overflow:hidden; }
+    :is(.ratebars, .resbars) .rb .db i { position:absolute; inset:0 auto 0 0; border-radius:99px; background:var(--c-demand); }
+    :is(.ratebars, .resbars) .rb span:last-child { color:var(--muted); text-align:right; font-variant-numeric:tabular-nums; }
+    :is(.ratebars, .resbars) .rb span:last-child small { font-size:.85em; }
+    :is(.ratebars, .resbars) .rb.dim .db i { opacity:.4; }
+    .stt :is(.ratebars, .resbars) + .sm { margin-top:10px !important; }
     .root.look-eink .bnb, .root.look-eink .bnl, .root.look-eink .bpc, .root.look-eink .pskip, .root.look-eink .bnx, .root.look-eink .cd .cdx, .root.look-eink .bpill { background:#fff; border:2px solid #111; color:#111; }
     .root.look-eink .bpop, .root.look-eink .pbox { background:#fff !important; border:2px solid #111; box-shadow:none; }
     .root.look-eink .cd, .root.look-eink .chip.prc, .root.look-eink .pbox { --c:#111 !important; }
@@ -3637,7 +3644,7 @@
     }
 
     _sigData(data) {
-      return [data.rooms.map((r) => [r.id, r.name, this._config.show_rates ? [r.rate, r.rateLearned] : null]), data.boilerId, this._hver, this._days, this._hloading, this._herr, Math.floor(Date.now() / 60000),
+      return [data.rooms.map((r) => [r.id, r.name, this._config.show_rates ? [r.rate, r.rateLearned, r.resid, r.residN, r.stopLead] : null]), data.boilerId, this._hver, this._days, this._hloading, this._herr, Math.floor(Date.now() / 60000),
         data.starts && [data.starts.state, data.starts.attributes], data.cycling && data.cycling.state];
     }
 
@@ -3693,7 +3700,23 @@
         const val = v == null ? esc(T(h, "stt_rates_learning")) : `${this._num(v, 1)} ${esc(uh)}${learned ? "" : ` <small>(${esc(T(h, "stt_rates_def"))})</small>`}`;
         return `<div class="rb${learned ? "" : " dim"}" ${this._tapAttr(r)}><span>${esc(r.name)}</span><span class="db"><i style="width:${v == null ? 0 : ((v / mx) * 100).toFixed(1)}%"></i></span><span>${val}</span></div>`;
       }).join("");
-      return `<h4>${esc(T(h, "stt_rates"))}</h4><div class="ratebars">${rows}</div><div class="sm" style="margin-top:6px">${esc(T(h, "stt_rates_note"))}</div>`;
+      return `<h4>${esc(T(h, "stt_rates"))}</h4><div class="ratebars">${rows}</div><div class="sm" style="margin-top:6px">${esc(T(h, "stt_rates_note"))}</div>${this._residual(data)}`;
+    }
+
+    /** 2.13: szobánként a tanult maradékhő (°C): ennyit melegszik még a szoba, miután a hőigény megszűnt; mellette,
+     *  ha a rendszer ezért előbb állítja le a fűtést, az is. Amelyik szoba még nem tanult eleget, halványan mutatja a mérések számát. */
+    _residual(data) {
+      const h = this._hass;
+      const list = data.rooms.filter((r) => r.resid != null || r.residN > 0).sort((a, b) => (b.resid == null ? -1 : b.resid) - (a.resid == null ? -1 : a.resid));
+      if (!list.length) return "";
+      const mx = Math.max(0.1, ...list.map((r) => r.resid || 0));
+      const rows = list.map((r) => {
+        const learned = r.resid != null;
+        const lead = learned && r.stopLead > 0 ? ` <small>(${esc(F(h, "stt_resid_lead", { v: this._num(r.stopLead, 2) }))})</small>` : "";
+        const val = learned ? `${esc(F(h, "stt_resid_val", { v: this._num(r.resid, 2) }))}${lead}` : esc(F(h, "stt_resid_learning", { n: r.residN }));
+        return `<div class="rb${learned ? "" : " dim"}" ${this._tapAttr(r)}><span>${esc(r.name)}</span><span class="db"><i style="width:${learned ? ((r.resid / mx) * 100).toFixed(1) : 0}%"></i></span><span>${val}</span></div>`;
+      }).join("");
+      return `<h4 style="margin-top:16px">${esc(T(h, "stt_resid"))}</h4><div class="resbars">${rows}</div><div class="sm" style="margin-top:6px">${esc(T(h, "stt_resid_note"))}</div>`;
     }
 
     _build(data) {

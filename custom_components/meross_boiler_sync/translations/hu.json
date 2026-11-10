@@ -180,7 +180,9 @@
           "gas_estimate_enabled": "Gázbecslés (az Energia fülhöz)",
           "gas_m3_per_hour": "Gázbecslés: gázfogyasztás bekapcsolt kazánnál",
           "calibration_enabled": "Szelep kalibráció (automata, kísérleti)",
-          "calibration_dry_run": "Szelep kalibráció: próbaüzem (csak naplóz)"
+          "calibration_dry_run": "Szelep kalibráció: próbaüzem (csak naplóz)",
+          "residual_comp": "Maradékhő: korábbi leállítás (tanult)",
+          "residual_allow": "Maradékhő: megengedett túllövés (°C)"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Ha a kazán ennyiszer vagy többször indult az elmúlt órában, a Gyakori kapcsolgatás szenzor bekapcsol.",
@@ -193,7 +195,9 @@
           "gas_estimate_enabled": "Létrehozza a becsült gázfogyasztás szenzort. A kazán bekapcsolt idejét számolja; azt az időt, amíg a Home Assistant nem fut, nem számolja.",
           "gas_m3_per_hour": "Hány m³ gázt fogyaszt a kazán óránként, amíg be van kapcsolva (a típustáblán vagy a számlán megtalálod). Hasonlítsd össze a szenzort a gázóra állásával, és ahhoz igazítsd az értéket.",
           "calibration_enabled": "Bekapcsolva a plugin a szoba hőmérője alapján automatikusan állítja a szelepek kalibrációs értékét (Meross LAN: a *Calibration* szám). A szobák külön is kikapcsolhatók a szoba szerkesztésénél. Tartós beállítást ír a szelepbe, ezért először próbaüzemben érdemes kipróbálni.",
-          "calibration_dry_run": "Csak a naplóba és eseményként jelzi, mire állítaná a kalibrációt, de nem ír a szelepbe. A már folyamatban lévő módosítások ilyenkor sem futnak tovább."
+          "calibration_dry_run": "Csak a naplóba és eseményként jelzi, mire állítaná a kalibrációt, de nem ír a szelepbe. A már folyamatban lévő módosítások ilyenkor sem futnak tovább.",
+          "residual_comp": "Szobánként méri, mennyit melegszik még a szoba, miután a hőigénye megszűnt (a radiátor maradék hője), és megtanulja (az utolsó 9 tiszta mérés mediánja, legalább 4 mérés kell). Bekapcsolva ennyivel előbb állítja le a szoba hőigényét, de csak a lent megadott megengedett túllövésen túli részt. A teljes be-/kikapcsolási sáv ugyanennyivel lejjebb csúszik, ezért a kazán nem indul gyakrabban, de a szoba átlaghőmérséklete is körülbelül ennyivel alacsonyabb lesz. Szoba hőmérőt igényel; a „Fűts most” és az előfűtés alatt nem működik.",
+          "residual_allow": "Mennyivel mehet a szoba a célja fölé a maradékhő miatt. Csak az ezen túli részt kompenzálja: 0,3 °C mellett és 0,8 °C tanult maradékhőnél a hőigény 0,5 °C-kal előbb szűnik meg. 0 = pontosan a célra próbál érkezni; legfeljebb 1,0. A korrekció soha nem több 0,8 °C-nál."
         }
       },
       "preheat": {
@@ -416,6 +420,18 @@
           },
           "valve_calibration": {
             "name": "Szelepek kalibrációja (állapot szelepenként)"
+          },
+          "residual_heat": {
+            "name": "Tanult maradékhő (°C)"
+          },
+          "residual_samples": {
+            "name": "Maradékhő mérések száma"
+          },
+          "residual_comp": {
+            "name": "Maradékhő kompenzáció"
+          },
+          "stop_lead": {
+            "name": "Ennyivel előbb áll le (°C)"
           }
         }
       },

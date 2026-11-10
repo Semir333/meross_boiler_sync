@@ -180,7 +180,9 @@
           "gas_estimate_enabled": "Gas estimate (for the Energy dashboard)",
           "gas_m3_per_hour": "Gas estimate: gas use while the boiler is on",
           "calibration_enabled": "Valve calibration (automatic, experimental)",
-          "calibration_dry_run": "Valve calibration: dry run (log only)"
+          "calibration_dry_run": "Valve calibration: dry run (log only)",
+          "residual_comp": "Residual heat: stop heating earlier (learned)",
+          "residual_allow": "Residual heat: allowed overshoot (°C)"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "If the boiler started this many times or more in the last hour, the Short cycling sensor turns on.",
@@ -193,7 +195,9 @@
           "gas_estimate_enabled": "Adds the estimated gas consumption sensor. It counts the boiler's on-time; time while Home Assistant is not running is not counted.",
           "gas_m3_per_hour": "How many m³ of gas the boiler uses per hour while it is on (see the type plate or your bill). Compare the sensor with your gas meter reading and adjust this value until they match.",
           "calibration_enabled": "When on, the plugin automatically adjusts the valves' calibration value based on the room thermometer (Meross LAN: the *Calibration* number). Rooms can be switched off individually when editing the room. It writes a persistent setting into the valve, so try it in dry run first.",
-          "calibration_dry_run": "Only logs and sends an event about what it would set, but does not write to the valve. Changes already in progress are not continued while dry run is on."
+          "calibration_dry_run": "Only logs and sends an event about what it would set, but does not write to the valve. Changes already in progress are not continued while dry run is on.",
+          "residual_comp": "Measures, per room, how much the room keeps warming after its heat demand stops (the radiator's leftover heat) and learns it (median of the last 9 clean measurements, at least 4 needed). When on, it ends the room's demand that much earlier, but only the part beyond the allowed overshoot set below. The whole on/off band shifts down by the same amount, so the boiler does not start more often, but the room's average temperature also ends up about that much lower. Needs a room thermometer; does not act during Heat now or preheat.",
+          "residual_allow": "How far above its target the room may go because of the residual heat. Only the part beyond this is compensated: with 0.3 °C and a learned residual heat of 0.8 °C the demand ends 0.5 °C earlier. 0 = try to land exactly on the target; at most 1.0. The correction is never more than 0.8 °C."
         }
       },
       "preheat": {
@@ -416,6 +420,18 @@
           },
           "valve_calibration": {
             "name": "Valve calibration (status per valve)"
+          },
+          "residual_heat": {
+            "name": "Learned residual heat (°C)"
+          },
+          "residual_samples": {
+            "name": "Residual heat measurements"
+          },
+          "residual_comp": {
+            "name": "Residual heat compensation"
+          },
+          "stop_lead": {
+            "name": "Stops this much earlier (°C)"
           }
         }
       },

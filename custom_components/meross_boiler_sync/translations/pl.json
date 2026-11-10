@@ -180,7 +180,9 @@
           "gas_estimate_enabled": "Szacowanie gazu (dla pulpitu Energia)",
           "gas_m3_per_hour": "Szacowanie gazu: zużycie przy włączonym kotle",
           "calibration_enabled": "Kalibracja zaworów (automatyczna, eksperymentalna)",
-          "calibration_dry_run": "Kalibracja zaworów: tryb próbny (tylko dziennik)"
+          "calibration_dry_run": "Kalibracja zaworów: tryb próbny (tylko dziennik)",
+          "residual_comp": "Ciepło resztkowe: wcześniejsze wyłączenie (wyuczone)",
+          "residual_allow": "Ciepło resztkowe: dozwolone przekroczenie (°C)"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Jeśli kocioł uruchomił się tyle razy lub więcej w ciągu ostatniej godziny, czujnik Krótkie cykle zostaje włączony.",
@@ -193,7 +195,9 @@
           "gas_estimate_enabled": "Dodaje czujnik szacowanego zużycia gazu. Liczy czas pracy kotła; czas, gdy Home Assistant nie działa, nie jest wliczany.",
           "gas_m3_per_hour": "Ile m³ gazu kocioł zużywa na godzinę podczas pracy (zobacz tabliczkę znamionową lub rachunek). Porównaj czujnik ze wskazaniem gazomierza i dostosuj tę wartość, aż się zgodzą.",
           "calibration_enabled": "Po włączeniu wtyczka automatycznie dostosowuje wartość kalibracji zaworów na podstawie termometru w pomieszczeniu (Meross LAN: liczba *Kalibracja*). Pojedyncze pomieszczenia można wyłączyć podczas ich edycji. Funkcja zapisuje w zaworze trwałe ustawienie, więc najpierw wypróbuj tryb próbny.",
-          "calibration_dry_run": "Tylko zapisuje w dzienniku i wysyła zdarzenie o tym, co zostałoby ustawione, ale nic nie zapisuje w zaworze. Zmiany już rozpoczęte nie są kontynuowane w trybie próbnym."
+          "calibration_dry_run": "Tylko zapisuje w dzienniku i wysyła zdarzenie o tym, co zostałoby ustawione, ale nic nie zapisuje w zaworze. Zmiany już rozpoczęte nie są kontynuowane w trybie próbnym.",
+          "residual_comp": "Mierzy dla każdego pomieszczenia, o ile jeszcze się nagrzewa po zakończeniu zapotrzebowania na ciepło (ciepło resztkowe grzejnika) i uczy się tej wartości (mediana ostatnich 9 czystych pomiarów, potrzeba co najmniej 4). Po włączeniu kończy zapotrzebowanie pomieszczenia o tyle wcześniej, ale tylko w części przekraczającej dozwolone przekroczenie ustawione poniżej. Cały zakres włączania/wyłączania przesuwa się w dół o tę samą wartość, więc kocioł nie startuje częściej, ale średnia temperatura pomieszczenia jest też mniej więcej o tyle niższa. Wymaga termometru w pomieszczeniu; nie działa podczas „Ogrzej teraz” ani wstępnego ogrzewania.",
+          "residual_allow": "O ile pomieszczenie może przekroczyć swój cel z powodu ciepła resztkowego. Kompensowana jest tylko część ponad to: przy 0,3 °C i wyuczonym cieple resztkowym 0,8 °C zapotrzebowanie kończy się 0,5 °C wcześniej. 0 = próbować trafić dokładnie w cel; najwyżej 1,0. Korekta nigdy nie przekracza 0,8 °C."
         }
       },
       "preheat": {
@@ -416,6 +420,18 @@
           },
           "valve_calibration": {
             "name": "Kalibracja zaworów (stan każdego zaworu)"
+          },
+          "residual_heat": {
+            "name": "Wyuczone ciepło resztkowe (°C)"
+          },
+          "residual_samples": {
+            "name": "Liczba pomiarów ciepła resztkowego"
+          },
+          "residual_comp": {
+            "name": "Kompensacja ciepła resztkowego"
+          },
+          "stop_lead": {
+            "name": "Wyłącza się wcześniej o (°C)"
           }
         }
       },

@@ -180,7 +180,9 @@
           "gas_estimate_enabled": "Gasuppskattning (för Energi-instrumentpanelen)",
           "gas_m3_per_hour": "Gasuppskattning: gasförbrukning när pannan är på",
           "calibration_enabled": "Ventilkalibrering (automatisk, experimentell)",
-          "calibration_dry_run": "Ventilkalibrering: testläge (endast logg)"
+          "calibration_dry_run": "Ventilkalibrering: testläge (endast logg)",
+          "residual_comp": "Restvärme: stoppa tidigare (inlärd)",
+          "residual_allow": "Restvärme: tillåten överskridning (°C)"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Om pannan har startat så många gånger eller fler den senaste timmen slås sensorn Korta cykler på.",
@@ -193,7 +195,9 @@
           "gas_estimate_enabled": "Lägger till sensorn för uppskattad gasförbrukning. Den räknar pannans på-tid; tid då Home Assistant inte körs räknas inte.",
           "gas_m3_per_hour": "Hur många m³ gas pannan förbrukar per timme medan den är på (se typskylten eller fakturan). Jämför sensorn med avläsningen på gasmätaren och justera värdet tills de stämmer överens.",
           "calibration_enabled": "När den är på justerar pluginet automatiskt ventilernas kalibreringsvärde utifrån rumstermometern (Meross LAN: talet *Kalibrering*). Enskilda rum kan stängas av när du redigerar rummet. Funktionen skriver en bestående inställning i ventilen, så testa den först i testläge.",
-          "calibration_dry_run": "Loggar bara och skickar en händelse om vad som skulle ställas in, men skriver inget till ventilen. Ändringar som redan pågår fortsätter inte i testläge."
+          "calibration_dry_run": "Loggar bara och skickar en händelse om vad som skulle ställas in, men skriver inget till ventilen. Ändringar som redan pågår fortsätter inte i testläge.",
+          "residual_comp": "Mäter per rum hur mycket rummet fortsätter att bli varmare efter att värmebehovet har upphört (elementets restvärme) och lär sig det (median av de senaste 9 rena mätningarna, minst 4 behövs). När det är på avslutas rummets värmebehov så mycket tidigare, men bara den del som ligger över den tillåtna överskridningen som anges nedan. Hela av/på-bandet flyttas ner med samma belopp, så pannan startar inte oftare, men rummets medeltemperatur blir också ungefär så mycket lägre. Kräver en rumstermometer; fungerar inte under ”Värm nu” eller förvärmning.",
+          "residual_allow": "Hur mycket rummet får gå över sitt mål på grund av restvärmen. Bara delen över detta kompenseras: med 0,3 °C och en inlärd restvärme på 0,8 °C upphör värmebehovet 0,5 °C tidigare. 0 = försök träffa exakt på målet; högst 1,0. Korrigeringen är aldrig mer än 0,8 °C."
         }
       },
       "preheat": {
@@ -416,6 +420,18 @@
           },
           "valve_calibration": {
             "name": "Ventilkalibrering (status per ventil)"
+          },
+          "residual_heat": {
+            "name": "Inlärd restvärme (°C)"
+          },
+          "residual_samples": {
+            "name": "Antal restvärmemätningar"
+          },
+          "residual_comp": {
+            "name": "Restvärmekompensation"
+          },
+          "stop_lead": {
+            "name": "Stoppar så mycket tidigare (°C)"
           }
         }
       },

@@ -31,6 +31,8 @@ from .const import (
     CONF_MIN_SWITCH_TIME,
     CONF_GAS_ESTIMATE,
     CONF_GAS_M3_PER_HOUR,
+    CONF_RESIDUAL_ALLOW,
+    CONF_RESIDUAL_COMP,
     CONF_PREHEAT_DEFAULT_RATE,
     CONF_PREHEAT_ENABLED,
     CONF_PREHEAT_HOLD_MINUTES,
@@ -84,6 +86,8 @@ from .const import (
     DEFAULT_PREHEAT_MAX_MINUTES,
     DEFAULT_GAS_ESTIMATE,
     DEFAULT_GAS_M3_PER_HOUR,
+    DEFAULT_RESIDUAL_ALLOW,
+    DEFAULT_RESIDUAL_COMP,
     DEFAULT_PREHEAT_RATE,
     DEFAULT_SUMMER_END,
     DEFAULT_SUMMER_START,
@@ -102,6 +106,7 @@ from .const import (
     DEFAULT_VALVE_RELEASE_MARGIN,
     DEFAULT_WINDOW_DELAY,
     DOMAIN,
+    RESIDUAL_ALLOW_MAX,
     TRV_OFFSET_MAX,
     TRV_OFFSET_MIN_ACTIVE,
     parse_month_day,
@@ -352,6 +357,14 @@ def _features_schema(values: dict[str, Any]) -> vol.Schema:
                 CONF_CALIBRATION_DRY_RUN,
                 default=bool(values.get(CONF_CALIBRATION_DRY_RUN, DEFAULT_CALIBRATION_DRY_RUN)),
             ): selector.BooleanSelector(),
+            vol.Required(
+                CONF_RESIDUAL_COMP,
+                default=bool(values.get(CONF_RESIDUAL_COMP, DEFAULT_RESIDUAL_COMP)),
+            ): selector.BooleanSelector(),
+            vol.Required(
+                CONF_RESIDUAL_ALLOW,
+                default=values.get(CONF_RESIDUAL_ALLOW, DEFAULT_RESIDUAL_ALLOW),
+            ): _number(0, RESIDUAL_ALLOW_MAX, 0.1, "°C"),
         }
     )
 
@@ -492,6 +505,8 @@ class MerossBoilerSyncConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_GAS_M3_PER_HOUR: DEFAULT_GAS_M3_PER_HOUR,
                     CONF_CALIBRATION_ENABLED: DEFAULT_CALIBRATION_ENABLED,
                     CONF_CALIBRATION_DRY_RUN: DEFAULT_CALIBRATION_DRY_RUN,
+                    CONF_RESIDUAL_COMP: DEFAULT_RESIDUAL_COMP,
+                    CONF_RESIDUAL_ALLOW: DEFAULT_RESIDUAL_ALLOW,
                     CONF_ROOMS: [],
                 },
             )

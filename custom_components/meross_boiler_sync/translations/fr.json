@@ -180,7 +180,9 @@
           "gas_estimate_enabled": "Estimation du gaz (pour le tableau de bord Énergie)",
           "gas_m3_per_hour": "Estimation du gaz : consommation lorsque la chaudière est allumée",
           "calibration_enabled": "Calibration des vannes (automatique, expérimental)",
-          "calibration_dry_run": "Calibration des vannes : mode d’essai (journal uniquement)"
+          "calibration_dry_run": "Calibration des vannes : mode d’essai (journal uniquement)",
+          "residual_comp": "Chaleur résiduelle : arrêt anticipé (apprise)",
+          "residual_allow": "Chaleur résiduelle : dépassement autorisé (°C)"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Si la chaudière a démarré autant de fois ou plus au cours de la dernière heure, le capteur Cycles courts s’active.",
@@ -193,7 +195,9 @@
           "gas_estimate_enabled": "Ajoute le capteur de consommation de gaz estimée. Il compte la durée de marche de la chaudière ; le temps pendant lequel Home Assistant n’est pas en cours d’exécution n’est pas compté.",
           "gas_m3_per_hour": "Combien de m³ de gaz la chaudière consomme par heure lorsqu’elle est allumée (voir la plaque signalétique ou votre facture). Comparez le capteur avec le relevé de votre compteur de gaz et ajustez cette valeur jusqu’à ce qu’ils concordent.",
           "calibration_enabled": "Lorsqu’elle est activée, l’intégration ajuste automatiquement la valeur de calibration des vannes d’après le thermomètre de la pièce (Meross LAN : le nombre *Calibration*). Chaque pièce peut être exclue dans sa modification. La fonction écrit un réglage permanent dans la vanne : essayez-la d’abord en mode d’essai.",
-          "calibration_dry_run": "Journalise et envoie un événement sur ce qui serait réglé, sans rien écrire dans la vanne. Les modifications déjà en cours ne sont pas poursuivies en mode d’essai."
+          "calibration_dry_run": "Journalise et envoie un événement sur ce qui serait réglé, sans rien écrire dans la vanne. Les modifications déjà en cours ne sont pas poursuivies en mode d’essai.",
+          "residual_comp": "Mesure, pièce par pièce, de combien la pièce continue de se réchauffer après l’arrêt de sa demande de chaleur (la chaleur restante du radiateur) et l’apprend (médiane des 9 dernières mesures propres, au moins 4 nécessaires). Activé, il met fin à la demande de la pièce d’autant plus tôt, mais seulement pour la part au-delà du dépassement autorisé réglé ci-dessous. Toute la plage de marche/arrêt descend du même écart : la chaudière ne démarre donc pas plus souvent, mais la température moyenne de la pièce est aussi plus basse d’environ autant. Nécessite un thermomètre de pièce ; sans effet pendant « Chauffer maintenant » ou le préchauffage.",
+          "residual_allow": "De combien la pièce peut dépasser sa consigne à cause de la chaleur résiduelle. Seule la part au-delà est compensée : avec 0,3 °C et une chaleur résiduelle apprise de 0,8 °C, la demande s’arrête 0,5 °C plus tôt. 0 = viser exactement la consigne ; au plus 1,0. La correction ne dépasse jamais 0,8 °C."
         }
       },
       "preheat": {
@@ -416,6 +420,18 @@
           },
           "valve_calibration": {
             "name": "Calibration des vannes (état par vanne)"
+          },
+          "residual_heat": {
+            "name": "Chaleur résiduelle apprise (°C)"
+          },
+          "residual_samples": {
+            "name": "Nombre de mesures de chaleur résiduelle"
+          },
+          "residual_comp": {
+            "name": "Compensation de la chaleur résiduelle"
+          },
+          "stop_lead": {
+            "name": "S’arrête plus tôt de (°C)"
           }
         }
       },

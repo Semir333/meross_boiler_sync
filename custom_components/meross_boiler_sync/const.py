@@ -51,6 +51,9 @@ CONF_GAS_M3_PER_HOUR = "gas_m3_per_hour"
 # 2.11: a radiátor szelepek hőmérőjének automata kalibrációja (külön kapcsolható, alapból ki)
 CONF_CALIBRATION_ENABLED = "calibration_enabled"
 CONF_CALIBRATION_DRY_RUN = "calibration_dry_run"
+# 2.13: a maradékhő (a hőigény megszűnése utáni további melegedés) szobánkénti tanulása és kompenzálása
+CONF_RESIDUAL_COMP = "residual_comp"
+CONF_RESIDUAL_ALLOW = "residual_allow"
 
 # --- szoba kulcsok
 CONF_ROOM_ID = "id"
@@ -108,6 +111,10 @@ DEFAULT_ROOM_CALIBRATE = True  # a globális kapcsoló bekapcsolása után minde
 DEFAULT_TRV_OFFSET = 1.0  # °C
 TRV_OFFSET_MAX = 3.0  # °C
 TRV_OFFSET_MIN_ACTIVE = 1.0  # °C: kisebb (de nem nulla) eltolás nem érvényesülne a kalibráció tűrése miatt
+# 2.13: Leállás után a radiátor maradékhője még tovább melegíti a szobát. A plugin ezt szobánként méri, és
+# ha a szoba ennél többel melegedne a cél fölé, a hőigényt ennyivel előbb szünteti meg.
+DEFAULT_RESIDUAL_COMP = True  # a kompenzáció korlátos és csak a megengedett túllövés fölötti részt érinti
+DEFAULT_RESIDUAL_ALLOW = 0.3  # °C: ennyi túllövést megengedünk (ennyit nem kompenzálunk)
 DEFAULT_SUMMER_START = "05-15"
 DEFAULT_SUMMER_END = "09-15"
 
@@ -197,8 +204,26 @@ CAL_DISCOVERY_RETRY = 600  # hiányzó kalibráció-entitást ennyi időnként k
 CAL_READING_MIN = 5.0  # °C: ezen kívüli szelepmérést nem használ
 CAL_READING_MAX = 40.0
 
+# --- maradékhő tanulása (2.13)
+# A hőigény megszűnése után addig figyeli a szoba hőmérőjét, amíg a csúcs el nem múlik (legfeljebb
+# `RESIDUAL_WINDOW_SECONDS`). Csak tiszta mérést fogad el: a kazán leáll és nem indul újra, nincs ablaknyitás,
+# a szoba hőmérője megbízható, a szelepek célja nem változik, nincs "Fűts most" / előfűtés.
+RESIDUAL_ALLOW_MAX = 1.0  # °C: a megengedett túllövés felső határa
+RESIDUAL_MIN_ON_SECONDS = 180  # ennél rövidebb hőigény után nem mérünk (indulási zaj)
+RESIDUAL_WINDOW_SECONDS = 60 * 60  # ennyi ideig figyeli a csúcsot a leállás után
+RESIDUAL_MIN_WINDOW_SECONDS = 10 * 60  # a csúcs elmúltát legkorábban ennyi idő után fogadja el
+RESIDUAL_FALL = 0.2  # °C: a csúcshoz képest ennyi esés = a csúcs elmúlt
+RESIDUAL_BOILER_GRACE_SECONDS = 15 * 60  # a leállás után ennyi ideig járhat még a kazán (kapcsolási késleltetés)
+RESIDUAL_TARGET_TOLERANCE = 0.05  # °C: a szelepek célja ennyinél jobban nem változhat a mérés alatt
+RESIDUAL_SAMPLE_MAX = 1.5  # °C: ennél nagyobb emelkedés nem hihető maradékhőnek (napsütés, kézi fűtés), erre vágjuk
+RESIDUAL_KEEP = 9  # az utolsó ennyi mérés mediánját használja
+RESIDUAL_MIN_SAMPLES = 4  # ennyi mérés kell, mielőtt a tanult érték számít
+RESIDUAL_LEAD_MAX = 0.8  # °C: ennél többel soha nem állítja le előbb a hőigényt
+RESIDUAL_LEAD_MIN = 0.1  # °C: ennél kisebb korrekciót nem alkalmaz (a hőmérő felbontásán belül van)
+RESIDUAL_LEAD_STEP = 0.05  # °C: a korrekció ilyen lépésekre kerekített (ne ugráljon)
+
 # --- újraindítás-biztonság (2.11)
-STARTUP_SETTLE_SECONDS = 90  # a HA indulása után ennyi ideig a vezérlő csak olvas (az entitások még töltődnek)
+STARTUP_SETTLE_SECONDS = 90 # a HA indulása után ennyi ideig a vezérlő csak olvas (az entitások még töltődnek)
 RESUME_WINDOW_SECONDS = 600  # indulás után ennyi ideig folytatja a fűtés hiszterézisét a kazán állapotából
 SAMPLE_TEMP_MIN = -60.0  # °C: a tárolt kinti minták ésszerű tartománya
 SAMPLE_TEMP_MAX = 60.0

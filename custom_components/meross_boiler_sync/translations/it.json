@@ -180,7 +180,9 @@
           "gas_estimate_enabled": "Stima del gas (per la dashboard Energia)",
           "gas_m3_per_hour": "Stima del gas: consumo con la caldaia accesa",
           "calibration_enabled": "Calibrazione delle valvole (automatica, sperimentale)",
-          "calibration_dry_run": "Calibrazione delle valvole: prova (solo registro)"
+          "calibration_dry_run": "Calibrazione delle valvole: prova (solo registro)",
+          "residual_comp": "Calore residuo: arresto anticipato (appreso)",
+          "residual_allow": "Calore residuo: superamento consentito (°C)"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Se la caldaia si è avviata così tante volte o più nell'ultima ora, il sensore Cicli brevi si attiva.",
@@ -193,7 +195,9 @@
           "gas_estimate_enabled": "Aggiunge il sensore del consumo di gas stimato. Conta il tempo di accensione della caldaia; il tempo in cui Home Assistant non è in esecuzione non viene contato.",
           "gas_m3_per_hour": "Quanti m³ di gas consuma la caldaia all'ora quando è accesa (vedi la targhetta o la bolletta). Confronta il sensore con la lettura del contatore del gas e regola questo valore finché non coincidono.",
           "calibration_enabled": "Se attiva, il plugin regola automaticamente il valore di calibrazione delle valvole in base al termometro della stanza (Meross LAN: il numero *Calibrazione*). Le singole stanze si possono escludere modificandole. La funzione scrive un’impostazione permanente nella valvola: provala prima in modalità prova.",
-          "calibration_dry_run": "Registra e invia un evento su cosa imposterebbe, ma non scrive nella valvola. Le modifiche già in corso non proseguono in modalità prova."
+          "calibration_dry_run": "Registra e invia un evento su cosa imposterebbe, ma non scrive nella valvola. Le modifiche già in corso non proseguono in modalità prova.",
+          "residual_comp": "Misura, stanza per stanza, di quanto la stanza continua a scaldarsi dopo la fine della sua richiesta di calore (il calore residuo del termosifone) e lo apprende (mediana delle ultime 9 misure pulite, ne servono almeno 4). Se attivo, termina la richiesta della stanza con questo anticipo, ma solo per la parte oltre il superamento consentito impostato qui sotto. L’intera banda di accensione/spegnimento scende della stessa quantità: la caldaia non si avvia più spesso, ma anche la temperatura media della stanza risulta più bassa di circa altrettanto. Richiede un termometro della stanza; non agisce durante «Riscalda ora» o il preriscaldamento.",
+          "residual_allow": "Di quanto la stanza può superare il proprio obiettivo a causa del calore residuo. Si compensa solo la parte oltre: con 0,3 °C e un calore residuo appreso di 0,8 °C la richiesta termina 0,5 °C prima. 0 = cercare di arrivare esattamente all’obiettivo; al massimo 1,0. La correzione non supera mai 0,8 °C."
         }
       },
       "preheat": {
@@ -416,6 +420,18 @@
           },
           "valve_calibration": {
             "name": "Calibrazione delle valvole (stato per valvola)"
+          },
+          "residual_heat": {
+            "name": "Calore residuo appreso (°C)"
+          },
+          "residual_samples": {
+            "name": "Numero di misure del calore residuo"
+          },
+          "residual_comp": {
+            "name": "Compensazione del calore residuo"
+          },
+          "stop_lead": {
+            "name": "Si ferma prima di (°C)"
           }
         }
       },

@@ -180,7 +180,9 @@
           "gas_estimate_enabled": "Estimación de gas (para el panel Energía)",
           "gas_m3_per_hour": "Estimación de gas: consumo con la caldera encendida",
           "calibration_enabled": "Calibración de válvulas (automática, experimental)",
-          "calibration_dry_run": "Calibración de válvulas: modo de prueba (solo registro)"
+          "calibration_dry_run": "Calibración de válvulas: modo de prueba (solo registro)",
+          "residual_comp": "Calor residual: parada anticipada (aprendido)",
+          "residual_allow": "Calor residual: exceso permitido (°C)"
         },
         "data_description": {
           "cycle_max_starts_per_hour": "Si la caldera ha arrancado tantas veces o más en la última hora, el sensor de Ciclos cortos se activa.",
@@ -193,7 +195,9 @@
           "gas_estimate_enabled": "Añade el sensor de consumo de gas estimado. Cuenta el tiempo de encendido de la caldera; el tiempo en que Home Assistant no está en funcionamiento no se cuenta.",
           "gas_m3_per_hour": "Cuántos m³ de gas consume la caldera por hora mientras está encendida (consulta la placa de características o tu factura). Compara el sensor con la lectura de tu contador de gas y ajusta este valor hasta que coincidan.",
           "calibration_enabled": "Si está activada, el plugin ajusta automáticamente el valor de calibración de las válvulas según el termómetro de la habitación (Meross LAN: el número *Calibración*). Cada habitación se puede excluir al editarla. La función escribe un ajuste permanente en la válvula: pruébala primero en modo de prueba.",
-          "calibration_dry_run": "Solo registra y envía un evento sobre lo que ajustaría, pero no escribe en la válvula. Los cambios ya en curso no continúan en modo de prueba."
+          "calibration_dry_run": "Solo registra y envía un evento sobre lo que ajustaría, pero no escribe en la válvula. Los cambios ya en curso no continúan en modo de prueba.",
+          "residual_comp": "Mide, habitación por habitación, cuánto sigue calentándose la habitación después de que termina su demanda de calor (el calor que le queda al radiador) y lo aprende (mediana de las últimas 9 mediciones limpias, se necesitan al menos 4). Activado, termina la demanda de la habitación con esa antelación, pero solo la parte que supera el exceso permitido indicado abajo. Toda la banda de encendido/apagado baja en la misma cantidad: la caldera no arranca más a menudo, pero la temperatura media de la habitación también queda más baja en torno a esa cantidad. Requiere un termómetro de habitación; no actúa durante «Calentar ahora» ni el precalentamiento.",
+          "residual_allow": "Cuánto puede superar la habitación su objetivo por el calor residual. Solo se compensa la parte que lo supera: con 0,3 °C y un calor residual aprendido de 0,8 °C la demanda termina 0,5 °C antes. 0 = intentar llegar justo al objetivo; como máximo 1,0. La corrección nunca supera 0,8 °C."
         }
       },
       "preheat": {
@@ -416,6 +420,18 @@
           },
           "valve_calibration": {
             "name": "Calibración de válvulas (estado por válvula)"
+          },
+          "residual_heat": {
+            "name": "Calor residual aprendido (°C)"
+          },
+          "residual_samples": {
+            "name": "Número de mediciones de calor residual"
+          },
+          "residual_comp": {
+            "name": "Compensación del calor residual"
+          },
+          "stop_lead": {
+            "name": "Se detiene antes en (°C)"
           }
         }
       },

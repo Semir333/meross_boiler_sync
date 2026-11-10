@@ -15,7 +15,6 @@ from homeassistant.components.climate import HVACMode
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import HomeAssistant, State, callback
-from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.event import (
@@ -28,6 +27,7 @@ from homeassistant.util import dt as dt_util
 
 from .const import (
     AVG_WINDOW_SECONDS,
+    BOILER_MODE_WARN_SECONDS,
     BOOST_GRACE_SECONDS,
     BOOST_IMMEDIATE_EXTRA,
     BOOST_TOLERANCE,
@@ -177,6 +177,7 @@ from .const import (
     STARTUP_SETTLE_SECONDS,
     STORAGE_VERSION,
     SUMMER_HYSTERESIS,
+    VALVE_ERROR_LOG_SECONDS,
     VALVE_RETRY_STEPS,
     VALVE_TARGET_MAX,
     VALVE_TARGET_MIN,
@@ -251,7 +252,15 @@ async def _service_call(
     _warn: bool = True,
     **data: Any,
 ) -> bool:
-    """Szolgáltatáshívás egy entitásra; a hibát (és az időtúllépést) jelzi, nem dobja tovább."""
+    """Szolgáltatáshívás egy entitásra; a hibát (és az időtúllépést) jelzi, nem dobja tovább.
+
+    Bármilyen hibát elfog, nem csak a HomeAssistantError-t: a Meross LAN 6.x a sikertelen parancsot
+    saját kivétellel (MerossTransportError, az Exception leszármazottja) adja tovább - az 5.x még
+    csendben figyelmen kívül hagyta -, a HA pedig blocking hívásnál a szolgáltatás kivételét
+    változatlanul visszadobja. Ha ez kiszökne, a szelepek feldolgozása (ami a kazán kapcsolása ELŐTT
+    van) megszakadna, és a kazán nem kapcsolna be vagy ki. A megszakítás (CancelledError) nem
+    `Exception`, az továbbmegy, így a leállítás közben sem akad el semmi.
+    """
     try:
         await hass.services.async_call(
             domain,
@@ -259,11 +268,13 @@ async def _service_call(
             {"entity_id": entity_id, **data},
             blocking=True,
         )
-    except (HomeAssistantError, TimeoutError) as err:
+    except Exception as err:  # noqa: BLE001 - lásd fent: a parancs hibája nem állíthatja le a vezérlést
+        # a hiba fajtáját is kiírjuk: a Meross LAN kivételeinek gyakran üres a szövege
+        detail = f"{type(err).__name__}: {err}" if str(err) else type(err).__name__
         if _warn:
-            _LOGGER.warning("%s.%s hiba a(z) %s-en: %s", domain, service, entity_id, err)
+            _LOGGER.warning("%s.%s hiba a(z) %s-en: %s", domain, service, entity_id, detail)
         else:
-            _LOGGER.debug("%s.%s hiba a(z) %s-en: %s", domain, service, entity_id, err)
+            _LOGGER.debug("%s.%s hiba a(z) %s-en: %s", domain, service, entity_id, detail)
         return False
     return True
 
@@ -632,6 +643,10 @@ class BoilerController:
         self._boosts: dict[str, dict[str, Any]] = {}
         # szelep -> {"n": egymás utáni hibák, "until": eddig nem próbálkozunk újra (epoch)}
         self._cmd_fail: dict[str, dict[str, float]] = {}
+        # szelepenként: mikor naplóztunk utoljára váratlan hibát (hogy ne ismétlődjön percenként)
+        self._valve_err_logged: dict[str, float] = {}
+        # mikor figyelmeztettünk utoljára, hogy a kazán termosztátja nem fűtő módban van
+        self._mode_warned: float = 0.0
         self._dry: set[str] = set()
         self._unsubs: list[Callable[[], None]] = []
         self._retry_unsub: Callable[[], None] | None = None
@@ -2154,12 +2169,15 @@ class BoilerController:
             want.setdefault(valve_id, False)
 
         for valve_id, wanted in want.items():
-            if self.valve_dry_run:
-                if allow and valve_id in self._boosts:
-                    await self._async_control_valve(valve_id, False)
-                self._dry_run_valve(valve_id, wanted)
-            elif allow:
-                await self._async_control_valve(valve_id, wanted)
+            try:
+                if self.valve_dry_run:
+                    if allow and valve_id in self._boosts:
+                        await self._async_control_valve(valve_id, False)
+                    self._dry_run_valve(valve_id, wanted)
+                elif allow:
+                    await self._async_control_valve(valve_id, wanted)
+            except Exception as err:  # noqa: BLE001 - egy szelep hibája nem állíthatja le a többit és a kazánt
+                self._valve_unexpected_error(valve_id, err, now_ts)
 
         for st in statuses:
             if self.valve_dry_run:
@@ -2169,6 +2187,20 @@ class BoilerController:
                     v in self._boosts and not self._boosts[v]["restoring"]
                     for v in st.valves
                 )
+
+    def _valve_unexpected_error(self, valve_id: str, err: Exception, now_ts: float) -> None:
+        """Egy szelep feldolgozásának váratlan hibája (nem a parancs elutasítása: azt a
+        `_service_call` és a `_cmd_result` kezeli). A szelepek a kazán kapcsolása ELŐTT vannak
+        sorban, ezért egy ilyen hiba nem szökhet ki: a többi szelep és a kazán dolga megy tovább.
+        A részletes naplóbejegyzés szelepenként legfeljebb félóránként egyszer készül."""
+        if now_ts - self._valve_err_logged.get(valve_id, 0.0) > VALVE_ERROR_LOG_SECONDS:
+            self._valve_err_logged[valve_id] = now_ts
+            _LOGGER.error(
+                "%s: váratlan hiba a szelep vezérlésében (a többi szelep és a kazán kapcsolása megy tovább): %s",
+                valve_id,
+                err,
+                exc_info=err,
+            )
 
     def _boost_end_reason(self, st: RoomStatus) -> str:
         """Miért ért véget a szelep emelése (az eseményhez)."""
@@ -2472,7 +2504,17 @@ class BoilerController:
             elif HVACMode.AUTO in modes:
                 mode = HVACMode.AUTO
             else:
-                _LOGGER.warning("A(z) %s nem támogat heat/auto módot", self.boiler)
+                # Meross LAN 6.x: az MTS200 "Summer mode" kapcsolója bekapcsolva csak OFF / COOL módot
+                # kínál, ilyenkor a kazánt nem lehet fűtésre kapcsolni. A figyelmeztetést ritkán ismételjük.
+                now_ts = dt_util.utcnow().timestamp()
+                if now_ts - self._mode_warned > BOILER_MODE_WARN_SECONDS:
+                    self._mode_warned = now_ts
+                    _LOGGER.warning(
+                        "A(z) %s nem támogat heat/auto módot (támogatott módok: %s); ha Meross MTS200, "
+                        "nézd meg, hogy a \"Summer mode\" (nyári mód) kapcsolója ki van-e kapcsolva",
+                        self.boiler,
+                        ", ".join(str(m) for m in modes),
+                    )
                 return
             await self._call("set_hvac_mode", hvac_mode=mode)
 

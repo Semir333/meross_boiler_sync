@@ -174,6 +174,10 @@ VALVE_TARGET_MIN = 6.0  # °C: ennél kisebb célt soha nem küldünk a szelepne
 VALVE_TARGET_MAX = 34.0  # °C: ennél nagyobbat sem
 # sikertelen parancs után egyre ritkábban próbálkozunk újra (másodperc)
 VALVE_RETRY_STEPS = (120, 300, 900, 1800, 3600)
+# 2.13.1: egy szelep váratlan (nem parancs-) hibáját legfeljebb ilyen gyakran naplózzuk részletesen (másodperc)
+VALVE_ERROR_LOG_SECONDS = 1800
+# 2.13.1: a "a kazán nem támogat fűtő módot" figyelmeztetés ismétlése (másodperc)
+BOILER_MODE_WARN_SECONDS = 1800
 
 # --- szelep hőmérő automata kalibráció (2.11)
 # A szelep a radiátor mellett méri a hőmérsékletet, ezért fűtés közben melegebbnek látja a szobát.

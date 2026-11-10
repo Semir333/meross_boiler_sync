@@ -59,7 +59,7 @@
           "window_sensors": "Så länge ett fönster eller en dörr står öppen längre än fördröjningen begär rummet ingen värme och ventilhöjningen släpps. Med flera sensorer räcker det att en är öppen.",
           "window_open_delay": "Hur länge fönstret måste vara öppet innan rummet reagerar, så att kort vädring inte ändrar något. 0 = direkt. Om tomt gäller det globala värdet.",
           "calibrate_valves": "Korrigerar ventilernas temperaturmätning med rumstermometern. Fungerar bara med en rumstemperatursensor. När den är av lämnas ventilerna i det här rummet orörda.",
-          "trv_offset": "Kalibreringen ställer in ventilens mätvärde inte på rumstermometern, utan på ett värde som är så mycket kallare. I ett rum under måltemperaturen öppnar ventilen då helt, i stället för bara delvis vid en liten avvikelse. Måltemperaturen ändras inte. När pannan värmer för andra rum kan det här rummet bli högst så mycket varmare än sitt mål. 0 = av (ventilens mätvärde följer rumstermometern); annars minst 1,0, rekommenderat 1,0–1,5 °C. Fungerar bara med ventilkalibrering påslagen och en rumstermometer angiven."
+          "trv_offset": "Kalibreringen ställer in ventilens mätvärde inte på rumstermometern, utan på ett värde som är så mycket kallare. I ett rum under måltemperaturen öppnar ventilen då helt, i stället för bara delvis vid en liten avvikelse. Måltemperaturen ändras inte. När pannan värmer för andra rum kan det här rummet bli högst så mycket varmare än sitt mål. 0 = av (ventilens mätvärde följer rumstermometern); annars minst 0,5, rekommenderat 1,0–1,5 °C. Fungerar bara med ventilkalibrering påslagen och en rumstermometer angiven."
         }
       },
       "edit_room": {
@@ -98,7 +98,7 @@
           "window_sensors": "Så länge ett fönster eller en dörr står öppen längre än fördröjningen begär rummet ingen värme och ventilhöjningen släpps. Med flera sensorer räcker det att en är öppen.",
           "window_open_delay": "Hur länge fönstret måste vara öppet innan rummet reagerar, så att kort vädring inte ändrar något. 0 = direkt. Om tomt gäller det globala värdet.",
           "calibrate_valves": "Korrigerar ventilernas temperaturmätning med rumstermometern. Fungerar bara med en rumstemperatursensor. När den är av lämnas ventilerna i det här rummet orörda.",
-          "trv_offset": "Kalibreringen ställer in ventilens mätvärde inte på rumstermometern, utan på ett värde som är så mycket kallare. I ett rum under måltemperaturen öppnar ventilen då helt, i stället för bara delvis vid en liten avvikelse. Måltemperaturen ändras inte. När pannan värmer för andra rum kan det här rummet bli högst så mycket varmare än sitt mål. 0 = av (ventilens mätvärde följer rumstermometern); annars minst 1,0, rekommenderat 1,0–1,5 °C. Fungerar bara med ventilkalibrering påslagen och en rumstermometer angiven."
+          "trv_offset": "Kalibreringen ställer in ventilens mätvärde inte på rumstermometern, utan på ett värde som är så mycket kallare. I ett rum under måltemperaturen öppnar ventilen då helt, i stället för bara delvis vid en liten avvikelse. Måltemperaturen ändras inte. När pannan värmer för andra rum kan det här rummet bli högst så mycket varmare än sitt mål. 0 = av (ventilens mätvärde följer rumstermometern); annars minst 0,5, rekommenderat 1,0–1,5 °C. Fungerar bara med ventilkalibrering påslagen och en rumstermometer angiven."
         }
       },
       "remove_room": {
@@ -186,7 +186,7 @@
           "residual_allow": "Restvärme: tillåten överskridning (°C)"
         },
         "data_description": {
-          "trv_log": "När den är på skriver integrationen varje ventil- och kalibreringsbeslut (vad den ändrade från och till, när den slog pannan på eller av, varför kalibreringen väntar) som egna rader i Inställningar › System › Loggar. Raderna börjar med ”TRV-napló ▸”: i loggen ”Home Assistant Core” kan de visas för sig med filtret Integrationer eller sökfältet. Integrationen ställer själv in loggnivån för den här kanalen; du behöver inte ändra Home Assistants logger-inställningar. När den är av visas inte dessa rader (varningar och fel visas fortfarande). Raderna är skrivna på ungerska.",
+          "trv_log": "När den är på skriver integrationen varje ventil- och kalibreringsbeslut (vad den ändrade från och till, när den slog pannan på eller av, varför kalibreringen väntar) som egna rader i Loggboken och i Inställningar › System › Loggar. I Loggar börjar raderna med ”TRV-napló ▸” och visas bara i den fullständiga (icke sammanfattade) loggvyn, som du byter till i kortets ⋮-meny: i loggen ”Home Assistant Core” kan de visas för sig med filtret Integrationer eller sökfältet. Integrationen ställer själv in loggnivån för den här kanalen; du behöver inte ändra Home Assistants logger-inställningar. När den är av visas inte dessa rader (varningar och fel visas fortfarande). Raderna är skrivna på ungerska.",
           "cycle_max_starts_per_hour": "Om pannan har startat så många gånger eller fler den senaste timmen slås sensorn Korta cykler på.",
           "cycle_min_avg_on_minutes": "Om den genomsnittliga på-tiden de senaste 2 timmarna (från minst 3 cykler) är kortare rapporterar den också.",
           "cycle_protection_enabled": "Pannan stängs inte av / startas inte om förrän minimitiden har gått. Minsta kopplingstid (Grundinställningar) gäller fortfarande.",
@@ -247,7 +247,7 @@
       "control_needs_sensor": "Ventilreglering kräver en rumstemperatursensor.",
       "invalid_date": "Ogiltigt datum, använd MM-DD (t.ex. 05-15).",
       "release_ge_threshold": "Frigöringen måste vara mindre än tröskeln för ventilhöjning.",
-      "trv_offset_range": "Förskjutningen måste vara 0 (av) eller mellan 1,0 och 3,0 °C.",
+      "trv_offset_range": "Förskjutningen måste vara 0 (av) eller mellan 0,5 och 3,0 °C.",
       "no_days": "Välj minst en dag."
     }
   },

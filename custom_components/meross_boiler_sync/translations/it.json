@@ -59,7 +59,7 @@
           "window_sensors": "Finché una finestra o una porta resta aperta più a lungo del ritardo, la stanza non richiede calore e la spinta della valvola viene rilasciata. Con più sensori basta uno aperto.",
           "window_open_delay": "Per quanto tempo la finestra deve restare aperta prima che la stanza reagisca, così un breve ricambio d’aria non cambia nulla. 0 = subito. Se vuoto, vale il valore globale.",
           "calibrate_valves": "Corregge la misura di temperatura delle valvole usando il termometro della stanza. Funziona solo con un sensore di temperatura della stanza. Se disattivata, le valvole di questa stanza non vengono toccate.",
-          "trv_offset": "La calibrazione imposta la misura della valvola non sul termometro della stanza, ma su un valore più freddo di questo offset. In una stanza sotto la temperatura obiettivo la valvola si apre così completamente, invece di aprirsi solo in parte per un piccolo scostamento. La temperatura obiettivo non cambia. Quando la caldaia scalda per altre stanze, questa stanza può superare il proprio obiettivo al massimo di questo offset. 0 = disattivato (la misura della valvola segue il termometro della stanza); altrimenti almeno 1,0, consigliato 1,0–1,5 °C. Funziona solo con la calibrazione delle valvole attiva e un termometro della stanza impostato."
+          "trv_offset": "La calibrazione imposta la misura della valvola non sul termometro della stanza, ma su un valore più freddo di questo offset. In una stanza sotto la temperatura obiettivo la valvola si apre così completamente, invece di aprirsi solo in parte per un piccolo scostamento. La temperatura obiettivo non cambia. Quando la caldaia scalda per altre stanze, questa stanza può superare il proprio obiettivo al massimo di questo offset. 0 = disattivato (la misura della valvola segue il termometro della stanza); altrimenti almeno 0,5, consigliato 1,0–1,5 °C. Funziona solo con la calibrazione delle valvole attiva e un termometro della stanza impostato."
         }
       },
       "edit_room": {
@@ -98,7 +98,7 @@
           "window_sensors": "Finché una finestra o una porta resta aperta più a lungo del ritardo, la stanza non richiede calore e la spinta della valvola viene rilasciata. Con più sensori basta uno aperto.",
           "window_open_delay": "Per quanto tempo la finestra deve restare aperta prima che la stanza reagisca, così un breve ricambio d’aria non cambia nulla. 0 = subito. Se vuoto, vale il valore globale.",
           "calibrate_valves": "Corregge la misura di temperatura delle valvole usando il termometro della stanza. Funziona solo con un sensore di temperatura della stanza. Se disattivata, le valvole di questa stanza non vengono toccate.",
-          "trv_offset": "La calibrazione imposta la misura della valvola non sul termometro della stanza, ma su un valore più freddo di questo offset. In una stanza sotto la temperatura obiettivo la valvola si apre così completamente, invece di aprirsi solo in parte per un piccolo scostamento. La temperatura obiettivo non cambia. Quando la caldaia scalda per altre stanze, questa stanza può superare il proprio obiettivo al massimo di questo offset. 0 = disattivato (la misura della valvola segue il termometro della stanza); altrimenti almeno 1,0, consigliato 1,0–1,5 °C. Funziona solo con la calibrazione delle valvole attiva e un termometro della stanza impostato."
+          "trv_offset": "La calibrazione imposta la misura della valvola non sul termometro della stanza, ma su un valore più freddo di questo offset. In una stanza sotto la temperatura obiettivo la valvola si apre così completamente, invece di aprirsi solo in parte per un piccolo scostamento. La temperatura obiettivo non cambia. Quando la caldaia scalda per altre stanze, questa stanza può superare il proprio obiettivo al massimo di questo offset. 0 = disattivato (la misura della valvola segue il termometro della stanza); altrimenti almeno 0,5, consigliato 1,0–1,5 °C. Funziona solo con la calibrazione delle valvole attiva e un termometro della stanza impostato."
         }
       },
       "remove_room": {
@@ -186,7 +186,7 @@
           "residual_allow": "Calore residuo: superamento consentito (°C)"
         },
         "data_description": {
-          "trv_log": "Se attivo, l’integrazione scrive ogni decisione su valvole e calibrazione (da quale valore a quale valore, quando ha commutato la caldaia, perché la calibrazione è in attesa) come righe separate in Impostazioni › Sistema › Log. Le righe iniziano con «TRV-napló ▸»: nel log «Home Assistant Core» si possono vedere da sole con il filtro Integrazioni o con il campo di ricerca. Il livello di questo canale lo imposta l’integrazione stessa; non serve modificare le impostazioni del logger di Home Assistant. Se disattivato, queste righe non compaiono (avvisi ed errori sì). Le righe sono scritte in ungherese.",
+          "trv_log": "Se attivo, l’integrazione scrive ogni decisione su valvole e calibrazione (da quale valore a quale valore, quando ha commutato la caldaia, perché la calibrazione è in attesa) come righe separate nel Registro (logbook, nella barra laterale) e in Impostazioni › Sistema › Log. In Log le righe iniziano con «TRV-napló ▸» e compaiono solo nella vista completa (non condensata) del log, a cui si passa dal menu ⋮ della scheda: nel log «Home Assistant Core» si possono vedere da sole con il filtro Integrazioni o con il campo di ricerca. Il livello di questo canale lo imposta l’integrazione stessa; non serve modificare le impostazioni del logger di Home Assistant. Se disattivato, queste righe non compaiono (avvisi ed errori sì). Le righe sono scritte in ungherese.",
           "cycle_max_starts_per_hour": "Se la caldaia si è avviata così tante volte o più nell'ultima ora, il sensore Cicli brevi si attiva.",
           "cycle_min_avg_on_minutes": "Se il tempo medio di accensione delle ultime 2 ore (da almeno 3 cicli) è più breve, segnala anche in questo caso.",
           "cycle_protection_enabled": "La caldaia non viene spenta / riaccesa prima che sia trascorso il tempo minimo. Il Tempo minimo di commutazione (Impostazioni di base) continua ad applicarsi.",
@@ -247,7 +247,7 @@
       "control_needs_sensor": "Il controllo valvole richiede un sensore di temperatura della stanza.",
       "invalid_date": "Data non valida, usa il formato MM-DD (es. 05-15).",
       "release_ge_threshold": "Il rilascio deve essere inferiore alla soglia di spinta.",
-      "trv_offset_range": "L’offset deve essere 0 (disattivato) oppure compreso tra 1,0 e 3,0 °C.",
+      "trv_offset_range": "L’offset deve essere 0 (disattivato) oppure compreso tra 0,5 e 3,0 °C.",
       "no_days": "Seleziona almeno un giorno."
     }
   },

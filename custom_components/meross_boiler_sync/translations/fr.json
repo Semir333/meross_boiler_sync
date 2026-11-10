@@ -59,7 +59,7 @@
           "window_sensors": "Tant qu’une fenêtre ou une porte reste ouverte plus longtemps que le délai, la pièce ne demande plus de chaleur et la relance de la vanne est relâchée. Avec plusieurs capteurs, un seul ouvert suffit.",
           "window_open_delay": "Durée pendant laquelle la fenêtre doit rester ouverte avant que la pièce réagisse, afin qu’une courte aération ne déclenche rien. 0 = immédiat. Si vide, la valeur globale s’applique.",
           "calibrate_valves": "Corrige la mesure de température des vannes à l’aide du thermomètre de la pièce. Ne fonctionne qu’avec un capteur de température de la pièce. Désactivée, les vannes de cette pièce ne sont pas touchées.",
-          "trv_offset": "La calibration règle la mesure de la vanne non pas sur le thermomètre de la pièce, mais sur une valeur plus froide de ce décalage. Dans une pièce sous sa consigne, la vanne s’ouvre alors complètement au lieu de ne s’ouvrir que partiellement pour un faible écart. La consigne ne change pas. Quand la chaudière chauffe pour d’autres pièces, cette pièce peut dépasser sa consigne de ce décalage au plus. 0 = désactivé (la mesure de la vanne suit le thermomètre de la pièce) ; sinon au moins 1,0, 1,0–1,5 °C recommandé. Ne fonctionne qu’avec la calibration des vannes activée et un thermomètre de pièce défini."
+          "trv_offset": "La calibration règle la mesure de la vanne non pas sur le thermomètre de la pièce, mais sur une valeur plus froide de ce décalage. Dans une pièce sous sa consigne, la vanne s’ouvre alors complètement au lieu de ne s’ouvrir que partiellement pour un faible écart. La consigne ne change pas. Quand la chaudière chauffe pour d’autres pièces, cette pièce peut dépasser sa consigne de ce décalage au plus. 0 = désactivé (la mesure de la vanne suit le thermomètre de la pièce) ; sinon au moins 0,5, 1,0–1,5 °C recommandé. Ne fonctionne qu’avec la calibration des vannes activée et un thermomètre de pièce défini."
         }
       },
       "edit_room": {
@@ -98,7 +98,7 @@
           "window_sensors": "Tant qu’une fenêtre ou une porte reste ouverte plus longtemps que le délai, la pièce ne demande plus de chaleur et la relance de la vanne est relâchée. Avec plusieurs capteurs, un seul ouvert suffit.",
           "window_open_delay": "Durée pendant laquelle la fenêtre doit rester ouverte avant que la pièce réagisse, afin qu’une courte aération ne déclenche rien. 0 = immédiat. Si vide, la valeur globale s’applique.",
           "calibrate_valves": "Corrige la mesure de température des vannes à l’aide du thermomètre de la pièce. Ne fonctionne qu’avec un capteur de température de la pièce. Désactivée, les vannes de cette pièce ne sont pas touchées.",
-          "trv_offset": "La calibration règle la mesure de la vanne non pas sur le thermomètre de la pièce, mais sur une valeur plus froide de ce décalage. Dans une pièce sous sa consigne, la vanne s’ouvre alors complètement au lieu de ne s’ouvrir que partiellement pour un faible écart. La consigne ne change pas. Quand la chaudière chauffe pour d’autres pièces, cette pièce peut dépasser sa consigne de ce décalage au plus. 0 = désactivé (la mesure de la vanne suit le thermomètre de la pièce) ; sinon au moins 1,0, 1,0–1,5 °C recommandé. Ne fonctionne qu’avec la calibration des vannes activée et un thermomètre de pièce défini."
+          "trv_offset": "La calibration règle la mesure de la vanne non pas sur le thermomètre de la pièce, mais sur une valeur plus froide de ce décalage. Dans une pièce sous sa consigne, la vanne s’ouvre alors complètement au lieu de ne s’ouvrir que partiellement pour un faible écart. La consigne ne change pas. Quand la chaudière chauffe pour d’autres pièces, cette pièce peut dépasser sa consigne de ce décalage au plus. 0 = désactivé (la mesure de la vanne suit le thermomètre de la pièce) ; sinon au moins 0,5, 1,0–1,5 °C recommandé. Ne fonctionne qu’avec la calibration des vannes activée et un thermomètre de pièce défini."
         }
       },
       "remove_room": {
@@ -186,7 +186,7 @@
           "residual_allow": "Chaleur résiduelle : dépassement autorisé (°C)"
         },
         "data_description": {
-          "trv_log": "Si activé, l’intégration écrit chaque décision de vanne et de calibration (de quelle valeur à quelle valeur, quand elle a commuté la chaudière, pourquoi la calibration attend) sous forme de lignes distinctes dans Paramètres › Système › Journaux. Les lignes commencent par « TRV-napló ▸ » : dans le journal « Home Assistant Core », utilisez le filtre Intégrations ou le champ de recherche pour ne voir qu’elles. L’intégration règle elle-même le niveau de ce canal ; il n’est pas nécessaire de modifier les réglages de journalisation de Home Assistant. Désactivées, ces lignes ne s’affichent pas (les avertissements et les erreurs restent affichés). Les lignes sont en hongrois.",
+          "trv_log": "Si activé, l’intégration écrit chaque décision de vanne et de calibration (de quelle valeur à quelle valeur, quand elle a commuté la chaudière, pourquoi la calibration attend) sous forme de lignes distinctes dans le Logbook (« Journal » de la barre latérale) et dans Paramètres › Système › Journaux. Dans Journaux, les lignes commencent par « TRV-napló ▸ » et n’apparaissent que dans la vue complète (non condensée) du journal, accessible depuis le menu ⋮ de la carte : dans le journal « Home Assistant Core », utilisez le filtre Intégrations ou le champ de recherche pour ne voir qu’elles. L’intégration règle elle-même le niveau de ce canal ; il n’est pas nécessaire de modifier les réglages de journalisation de Home Assistant. Désactivées, ces lignes ne s’affichent pas (les avertissements et les erreurs restent affichés). Les lignes sont en hongrois.",
           "cycle_max_starts_per_hour": "Si la chaudière a démarré autant de fois ou plus au cours de la dernière heure, le capteur Cycles courts s’active.",
           "cycle_min_avg_on_minutes": "Si la durée moyenne de marche des 2 dernières heures (sur au moins 3 cycles) est plus courte, il signale aussi.",
           "cycle_protection_enabled": "La chaudière n’est ni éteinte ni rallumée avant l’écoulement de la durée minimale. La Durée minimale de commutation (Paramètres de base) reste applicable.",
@@ -247,7 +247,7 @@
       "control_needs_sensor": "La régulation des vannes nécessite un capteur de température de la pièce.",
       "invalid_date": "Date invalide, utilisez le format MM-DD (ex. 05-15).",
       "release_ge_threshold": "Le relâchement doit être inférieur au seuil de relance.",
-      "trv_offset_range": "Le décalage doit être 0 (désactivé) ou compris entre 1,0 et 3,0 °C.",
+      "trv_offset_range": "Le décalage doit être 0 (désactivé) ou compris entre 0,5 et 3,0 °C.",
       "no_days": "Sélectionnez au moins un jour."
     }
   },

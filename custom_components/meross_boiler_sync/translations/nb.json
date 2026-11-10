@@ -59,7 +59,7 @@
           "window_sensors": "Så lenge et vindu eller en dør står åpen lenger enn forsinkelsen, ber ikke rommet om varme, og ventilløftet slippes. Med flere sensorer teller hver åpen sensor.",
           "window_open_delay": "Hvor lenge vinduet må stå åpent før rommet reagerer, slik at kort lufting ikke endrer noe. 0 = umiddelbart. Hvis tom, gjelder den globale verdien.",
           "calibrate_valves": "Korrigerer temperaturmålingen til ventilene med romtermometeret. Fungerer bare med en romtemperatursensor. Når den er av, røres ikke ventilene i dette rommet.",
-          "trv_offset": "Kalibreringen stiller ventilens måling ikke inn på romtermometeret, men på en verdi som er så mye kaldere. I et rom under måltemperaturen åpner ventilen da helt, i stedet for bare delvis ved et lite avvik. Måltemperaturen endres ikke. Når kjelen varmer for andre rom, kan dette rommet bli høyst så mye varmere enn målet. 0 = av (ventilens måling følger romtermometeret); ellers minst 1,0, anbefalt 1,0–1,5 °C. Fungerer bare med ventilkalibrering slått på og et romtermometer satt."
+          "trv_offset": "Kalibreringen stiller ventilens måling ikke inn på romtermometeret, men på en verdi som er så mye kaldere. I et rom under måltemperaturen åpner ventilen da helt, i stedet for bare delvis ved et lite avvik. Måltemperaturen endres ikke. Når kjelen varmer for andre rom, kan dette rommet bli høyst så mye varmere enn målet. 0 = av (ventilens måling følger romtermometeret); ellers minst 0,5, anbefalt 1,0–1,5 °C. Fungerer bare med ventilkalibrering slått på og et romtermometer satt."
         }
       },
       "edit_room": {
@@ -98,7 +98,7 @@
           "window_sensors": "Så lenge et vindu eller en dør står åpen lenger enn forsinkelsen, ber ikke rommet om varme, og ventilløftet slippes. Med flere sensorer teller hver åpen sensor.",
           "window_open_delay": "Hvor lenge vinduet må stå åpent før rommet reagerer, slik at kort lufting ikke endrer noe. 0 = umiddelbart. Hvis tom, gjelder den globale verdien.",
           "calibrate_valves": "Korrigerer temperaturmålingen til ventilene med romtermometeret. Fungerer bare med en romtemperatursensor. Når den er av, røres ikke ventilene i dette rommet.",
-          "trv_offset": "Kalibreringen stiller ventilens måling ikke inn på romtermometeret, men på en verdi som er så mye kaldere. I et rom under måltemperaturen åpner ventilen da helt, i stedet for bare delvis ved et lite avvik. Måltemperaturen endres ikke. Når kjelen varmer for andre rom, kan dette rommet bli høyst så mye varmere enn målet. 0 = av (ventilens måling følger romtermometeret); ellers minst 1,0, anbefalt 1,0–1,5 °C. Fungerer bare med ventilkalibrering slått på og et romtermometer satt."
+          "trv_offset": "Kalibreringen stiller ventilens måling ikke inn på romtermometeret, men på en verdi som er så mye kaldere. I et rom under måltemperaturen åpner ventilen da helt, i stedet for bare delvis ved et lite avvik. Måltemperaturen endres ikke. Når kjelen varmer for andre rom, kan dette rommet bli høyst så mye varmere enn målet. 0 = av (ventilens måling følger romtermometeret); ellers minst 0,5, anbefalt 1,0–1,5 °C. Fungerer bare med ventilkalibrering slått på og et romtermometer satt."
         }
       },
       "remove_room": {
@@ -186,7 +186,7 @@
           "residual_allow": "Restvarme: tillatt overskridelse (°C)"
         },
         "data_description": {
-          "trv_log": "Når den er på, skriver integrasjonen hver ventil- og kalibreringsavgjørelse (hva den endret fra og til, når den slo kjelen av eller på, hvorfor kalibreringen venter) som egne linjer i Innstillinger › System › Logger. Linjene begynner med «TRV-napló ▸»: i loggen «Home Assistant Core» kan de vises alene med Integrasjoner-filteret eller søkefeltet. Integrasjonen setter loggnivået for denne kanalen selv; du trenger ikke endre loggerinnstillingene i Home Assistant. Når den er av, vises ikke disse linjene (advarsler og feil vises fortsatt). Linjene er skrevet på ungarsk.",
+          "trv_log": "Når den er på, skriver integrasjonen hver ventil- og kalibreringsavgjørelse (hva den endret fra og til, når den slo kjelen av eller på, hvorfor kalibreringen venter) som egne linjer i Loggboken og i Innstillinger › System › Logger. I Logger begynner linjene med «TRV-napló ▸» og vises bare i den fullstendige (ikke sammendratte) loggvisningen, som du bytter til i kortets ⋮-meny: i loggen «Home Assistant Core» kan de vises alene med Integrasjoner-filteret eller søkefeltet. Integrasjonen setter loggnivået for denne kanalen selv; du trenger ikke endre loggerinnstillingene i Home Assistant. Når den er av, vises ikke disse linjene (advarsler og feil vises fortsatt). Linjene er skrevet på ungarsk.",
           "cycle_max_starts_per_hour": "Hvis kjelen har startet så mange ganger eller flere den siste timen, slår sensoren Korte sykluser seg på.",
           "cycle_min_avg_on_minutes": "Hvis gjennomsnittlig på-tid de siste 2 timene (fra minst 3 sykluser) er kortere, varsler den også.",
           "cycle_protection_enabled": "Kjelen slås ikke av / på igjen før minimumstiden er gått. Minimum koblingstid (Grunninnstillinger) gjelder fortsatt.",
@@ -247,7 +247,7 @@
       "control_needs_sensor": "Ventilstyring krever en romtemperatursensor.",
       "invalid_date": "Ugyldig dato, bruk MM-DD (f.eks. 05-15).",
       "release_ge_threshold": "Frigjøringen må være mindre enn terskelen for ventilløft.",
-      "trv_offset_range": "Forskyvningen må være 0 (av) eller mellom 1,0 og 3,0 °C.",
+      "trv_offset_range": "Forskyvningen må være 0 (av) eller mellom 0,5 og 3,0 °C.",
       "no_days": "Velg minst én dag."
     }
   },

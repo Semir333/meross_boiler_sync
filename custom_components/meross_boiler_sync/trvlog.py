@@ -9,6 +9,10 @@ A HA naplószintje alapból figyelmeztetés, ezért a sima INFO sor nem látszan
 integráció INFO-ra állítja, amíg legalább egy bejegyzésnél be van kapcsolva (a szülő logger szintjétől
 függetlenül), kikapcsoláskor visszaállítja. Kikapcsolva a döntés-sorok csak hibakereső (DEBUG) szinten
 kerülnek a naplóba. A figyelmeztetések és hibák ettől függetlenül mindig a szokásos módon naplózódnak.
+
+2.15: A Naplók oldal alapnézete csak a figyelmeztetéseket és hibákat mutatja ("Nem található hiba"); az INFO sorok
+a "Teljes naplók" nézetben vannak. Ezért minden sor a Home Assistant Naplókönyvébe (Logbook) is bekerül
+(`logbook_entry` esemény), ami külön beállítás nélkül, időrendben, az újraindítás után is látszik.
 """
 from __future__ import annotations
 
@@ -26,6 +30,8 @@ from .const import (
 )
 
 PREFIX = "TRV-napló ▸"
+LOGBOOK_EVENT = "logbook_entry"  # a Naplókönyv eseménye (a HA magjában: homeassistant.const.EVENT_LOGBOOK_ENTRY)
+LOGBOOK_NAME = "TRV-napló"
 FEED_NAME = f"custom_components.{DOMAIN}.trv_log"
 
 _FEED = logging.getLogger(FEED_NAME)
@@ -59,6 +65,14 @@ def info(enabled: bool, msg: str, *args: Any) -> None:
         _FEED.info(PREFIX + " " + msg, *args)
     else:
         _LOGGER.debug(msg, *args)
+
+
+def render(msg: str, args: tuple[Any, ...]) -> str:
+    """A naplósor kész szövege (a Naplókönyvhöz); hibás formátum esetén maga az üzenet, kivétel nélkül."""
+    try:
+        return msg % args if args else msg
+    except Exception:  # noqa: BLE001 - a napló hibája nem állíthatja le a vezérlést
+        return msg
 
 
 def num(value: Any) -> str:

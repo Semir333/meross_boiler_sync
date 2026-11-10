@@ -59,7 +59,7 @@
           "window_sensors": "Kamēr logs vai durvis ir atvērtas ilgāk par aizkavi, telpa nepieprasa siltumu un vārsta pacelšana tiek atbrīvota. Ja sensoru ir vairāki, pietiek ar vienu atvērtu.",
           "window_open_delay": "Cik ilgi logam jābūt atvērtam, pirms telpa reaģē, lai īsa vēdināšana neko nepārslēgtu. 0 = nekavējoties. Ja tukšs, tiek izmantota globālā vērtība.",
           "calibrate_valves": "Koriģē vārstu temperatūras mērījumu, izmantojot istabas termometru. Darbojas tikai ar istabas temperatūras sensoru. Kad izslēgta, šīs istabas vārsti netiek skarti.",
-          "trv_offset": "Kalibrēšana iestata vārsta mērījumu nevis uz istabas termometra vērtību, bet uz vērtību, kas par šo lielumu zemāka. Tad istabā, kuras temperatūra ir zem mērķa, vārsts atveras pilnībā, nevis tikai daļēji pie nelielas novirzes. Mērķa temperatūra nemainās. Kamēr katls silda citas telpas, šī istaba var kļūt siltāka par savu mērķi ne vairāk kā par šo lielumu. 0 = izslēgts (vārsta mērījums seko istabas termometram); citādi vismaz 1,0, ieteicams 1,0–1,5 °C. Darbojas tikai ar ieslēgtu vārstu kalibrēšanu un norādītu istabas termometru."
+          "trv_offset": "Kalibrēšana iestata vārsta mērījumu nevis uz istabas termometra vērtību, bet uz vērtību, kas par šo lielumu zemāka. Tad istabā, kuras temperatūra ir zem mērķa, vārsts atveras pilnībā, nevis tikai daļēji pie nelielas novirzes. Mērķa temperatūra nemainās. Kamēr katls silda citas telpas, šī istaba var kļūt siltāka par savu mērķi ne vairāk kā par šo lielumu. 0 = izslēgts (vārsta mērījums seko istabas termometram); citādi vismaz 0,5, ieteicams 1,0–1,5 °C. Darbojas tikai ar ieslēgtu vārstu kalibrēšanu un norādītu istabas termometru."
         }
       },
       "edit_room": {
@@ -98,7 +98,7 @@
           "window_sensors": "Kamēr logs vai durvis ir atvērtas ilgāk par aizkavi, telpa nepieprasa siltumu un vārsta pacelšana tiek atbrīvota. Ja sensoru ir vairāki, pietiek ar vienu atvērtu.",
           "window_open_delay": "Cik ilgi logam jābūt atvērtam, pirms telpa reaģē, lai īsa vēdināšana neko nepārslēgtu. 0 = nekavējoties. Ja tukšs, tiek izmantota globālā vērtība.",
           "calibrate_valves": "Koriģē vārstu temperatūras mērījumu, izmantojot istabas termometru. Darbojas tikai ar istabas temperatūras sensoru. Kad izslēgta, šīs istabas vārsti netiek skarti.",
-          "trv_offset": "Kalibrēšana iestata vārsta mērījumu nevis uz istabas termometra vērtību, bet uz vērtību, kas par šo lielumu zemāka. Tad istabā, kuras temperatūra ir zem mērķa, vārsts atveras pilnībā, nevis tikai daļēji pie nelielas novirzes. Mērķa temperatūra nemainās. Kamēr katls silda citas telpas, šī istaba var kļūt siltāka par savu mērķi ne vairāk kā par šo lielumu. 0 = izslēgts (vārsta mērījums seko istabas termometram); citādi vismaz 1,0, ieteicams 1,0–1,5 °C. Darbojas tikai ar ieslēgtu vārstu kalibrēšanu un norādītu istabas termometru."
+          "trv_offset": "Kalibrēšana iestata vārsta mērījumu nevis uz istabas termometra vērtību, bet uz vērtību, kas par šo lielumu zemāka. Tad istabā, kuras temperatūra ir zem mērķa, vārsts atveras pilnībā, nevis tikai daļēji pie nelielas novirzes. Mērķa temperatūra nemainās. Kamēr katls silda citas telpas, šī istaba var kļūt siltāka par savu mērķi ne vairāk kā par šo lielumu. 0 = izslēgts (vārsta mērījums seko istabas termometram); citādi vismaz 0,5, ieteicams 1,0–1,5 °C. Darbojas tikai ar ieslēgtu vārstu kalibrēšanu un norādītu istabas termometru."
         }
       },
       "remove_room": {
@@ -186,7 +186,7 @@
           "residual_allow": "Atlikušais siltums: pieļaujamais pārsniegums (°C)"
         },
         "data_description": {
-          "trv_log": "Ja ieslēgts, integrācija katru vārstu un kalibrēšanas lēmumu (kādu vērtību uz kādu mainīja, kad pārslēdza katlu, kāpēc kalibrēšana gaida) ieraksta atsevišķās rindās sadaļā Iestatījumi › Sistēma › Žurnāli. Rindas sākas ar “TRV-napló ▸”: žurnālā “Home Assistant Core” tās var apskatīt atsevišķi ar filtru Integrācijas vai meklēšanas lauku. Šī kanāla līmeni integrācija iestata pati; Home Assistant reģistrētāja iestatījumi nav jāmaina. Ja izslēgts, šīs rindas netiek rādītas (brīdinājumi un kļūdas tiek rādītas arī turpmāk). Rindas ir rakstītas ungāru valodā.",
+          "trv_log": "Ja ieslēgts, integrācija katru vārstu un kalibrēšanas lēmumu (kādu vērtību uz kādu mainīja, kad pārslēdza katlu, kāpēc kalibrēšana gaida) ieraksta atsevišķās rindās sadaļā Logbook (sānjoslā) un sadaļā Iestatījumi › Sistēma › Žurnāli. Žurnālos rindas sākas ar “TRV-napló ▸” un parādās tikai pilnajā (nesaīsinātajā) žurnāla skatā, uz kuru var pārslēgties kartes ⋮ izvēlnē: žurnālā “Home Assistant Core” tās var apskatīt atsevišķi ar filtru Integrācijas vai meklēšanas lauku. Šī kanāla līmeni integrācija iestata pati; Home Assistant reģistrētāja iestatījumi nav jāmaina. Ja izslēgts, šīs rindas netiek rādītas (brīdinājumi un kļūdas tiek rādītas arī turpmāk). Rindas ir rakstītas ungāru valodā.",
           "cycle_max_starts_per_hour": "Ja katls pēdējās stundas laikā ir ieslēdzies tik reižu vai vairāk, sensors Īsi cikli ieslēdzas.",
           "cycle_min_avg_on_minutes": "Ja pēdējo 2 stundu vidējais darbības laiks (vismaz no 3 cikliem) ir īsāks, tas arī ziņo.",
           "cycle_protection_enabled": "Katls netiek izslēgts / atkal ieslēgts, kamēr nav pagājis minimālais laiks. Minimālais pārslēgšanās laiks (Pamatiestatījumi) joprojām ir spēkā.",
@@ -247,7 +247,7 @@
       "control_needs_sensor": "Vārstu vadībai nepieciešams telpas temperatūras sensors.",
       "invalid_date": "Nederīgs datums, izmantojiet formātu MM-DD (piem., 05-15).",
       "release_ge_threshold": "Atbrīvošanai jābūt mazākai par pacelšanas slieksni.",
-      "trv_offset_range": "Nobīdei jābūt 0 (izslēgts) vai starp 1,0 un 3,0 °C.",
+      "trv_offset_range": "Nobīdei jābūt 0 (izslēgts) vai starp 0,5 un 3,0 °C.",
       "no_days": "Atlasiet vismaz vienu dienu."
     }
   },

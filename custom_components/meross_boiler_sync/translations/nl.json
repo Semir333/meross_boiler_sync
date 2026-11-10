@@ -59,7 +59,7 @@
           "window_sensors": "Zolang een raam of deur langer dan de vertraging open staat, vraagt de kamer geen warmte meer en stopt de kraanverhoging. Bij meerdere sensoren telt elke open sensor.",
           "window_open_delay": "Hoe lang het raam open moet staan voordat de kamer reageert, zodat kort luchten niets schakelt. 0 = direct. Indien leeg geldt de algemene waarde.",
           "calibrate_valves": "Corrigeert de temperatuurmeting van de kranen met de kamerthermometer. Werkt alleen met een kamertemperatuursensor. Uitgeschakeld blijven de kranen van deze kamer ongemoeid.",
-          "trv_offset": "De kalibratie stelt de meting van de kraan niet in op de kamerthermometer, maar op een waarde die zoveel kouder is. In een kamer onder de streeftemperatuur opent de kraan dan volledig in plaats van bij een kleine afwijking maar gedeeltelijk. De streeftemperatuur verandert niet. Als de ketel voor andere kamers stookt, kan deze kamer hooguit zoveel warmer worden dan de streeftemperatuur. 0 = uit (de meting van de kraan volgt de kamerthermometer); anders minimaal 1,0, aanbevolen 1,0–1,5 °C. Werkt alleen met ingeschakelde kraankalibratie en een ingestelde kamerthermometer."
+          "trv_offset": "De kalibratie stelt de meting van de kraan niet in op de kamerthermometer, maar op een waarde die zoveel kouder is. In een kamer onder de streeftemperatuur opent de kraan dan volledig in plaats van bij een kleine afwijking maar gedeeltelijk. De streeftemperatuur verandert niet. Als de ketel voor andere kamers stookt, kan deze kamer hooguit zoveel warmer worden dan de streeftemperatuur. 0 = uit (de meting van de kraan volgt de kamerthermometer); anders minimaal 0,5, aanbevolen 1,0–1,5 °C. Werkt alleen met ingeschakelde kraankalibratie en een ingestelde kamerthermometer."
         }
       },
       "edit_room": {
@@ -98,7 +98,7 @@
           "window_sensors": "Zolang een raam of deur langer dan de vertraging open staat, vraagt de kamer geen warmte meer en stopt de kraanverhoging. Bij meerdere sensoren telt elke open sensor.",
           "window_open_delay": "Hoe lang het raam open moet staan voordat de kamer reageert, zodat kort luchten niets schakelt. 0 = direct. Indien leeg geldt de algemene waarde.",
           "calibrate_valves": "Corrigeert de temperatuurmeting van de kranen met de kamerthermometer. Werkt alleen met een kamertemperatuursensor. Uitgeschakeld blijven de kranen van deze kamer ongemoeid.",
-          "trv_offset": "De kalibratie stelt de meting van de kraan niet in op de kamerthermometer, maar op een waarde die zoveel kouder is. In een kamer onder de streeftemperatuur opent de kraan dan volledig in plaats van bij een kleine afwijking maar gedeeltelijk. De streeftemperatuur verandert niet. Als de ketel voor andere kamers stookt, kan deze kamer hooguit zoveel warmer worden dan de streeftemperatuur. 0 = uit (de meting van de kraan volgt de kamerthermometer); anders minimaal 1,0, aanbevolen 1,0–1,5 °C. Werkt alleen met ingeschakelde kraankalibratie en een ingestelde kamerthermometer."
+          "trv_offset": "De kalibratie stelt de meting van de kraan niet in op de kamerthermometer, maar op een waarde die zoveel kouder is. In een kamer onder de streeftemperatuur opent de kraan dan volledig in plaats van bij een kleine afwijking maar gedeeltelijk. De streeftemperatuur verandert niet. Als de ketel voor andere kamers stookt, kan deze kamer hooguit zoveel warmer worden dan de streeftemperatuur. 0 = uit (de meting van de kraan volgt de kamerthermometer); anders minimaal 0,5, aanbevolen 1,0–1,5 °C. Werkt alleen met ingeschakelde kraankalibratie en een ingestelde kamerthermometer."
         }
       },
       "remove_room": {
@@ -186,7 +186,7 @@
           "residual_allow": "Restwarmte: toegestane overschrijding (°C)"
         },
         "data_description": {
-          "trv_log": "Indien ingeschakeld schrijft de integratie elke kraan- en kalibratiebeslissing (van welke waarde naar welke waarde, wanneer de ketel werd geschakeld, waarom de kalibratie wacht) als aparte regels in Instellingen › Systeem › Logboeken. De regels beginnen met “TRV-napló ▸”: in het logboek “Home Assistant Core” zijn ze apart te bekijken met het filter Integraties of het zoekveld. De integratie stelt het logniveau van dit kanaal zelf in; de logger-instellingen van Home Assistant hoeven niet te worden aangepast. Uitgeschakeld verschijnen deze regels niet (waarschuwingen en fouten wel). De regels zijn in het Hongaars.",
+          "trv_log": "Indien ingeschakeld schrijft de integratie elke kraan- en kalibratiebeslissing (van welke waarde naar welke waarde, wanneer de ketel werd geschakeld, waarom de kalibratie wacht) als aparte regels in het Logboek (zijbalk) en in Instellingen › Systeem › Logboeken. In Logboeken beginnen de regels met “TRV-napló ▸” en zijn ze alleen te zien in de volledige (niet samengevatte) logweergave, waarnaar je overschakelt via het ⋮-menu van de kaart: in het logboek “Home Assistant Core” zijn ze apart te bekijken met het filter Integraties of het zoekveld. De integratie stelt het logniveau van dit kanaal zelf in; de logger-instellingen van Home Assistant hoeven niet te worden aangepast. Uitgeschakeld verschijnen deze regels niet (waarschuwingen en fouten wel). De regels zijn in het Hongaars.",
           "cycle_max_starts_per_hour": "Als de ketel het afgelopen uur zo vaak of vaker is gestart, gaat de sensor Korte cycli aan.",
           "cycle_min_avg_on_minutes": "Als de gemiddelde aan-tijd van de laatste 2 uur (uit minstens 3 cycli) korter is, meldt hij ook.",
           "cycle_protection_enabled": "De ketel wordt niet uit- of weer ingeschakeld voordat de minimale tijd verstreken is. De Minimale schakeltijd (Basisinstellingen) blijft ook gelden.",
@@ -247,7 +247,7 @@
       "control_needs_sensor": "Kraanregeling vereist een kamertemperatuursensor.",
       "invalid_date": "Ongeldige datum, gebruik MM-DD (bijv. 05-15).",
       "release_ge_threshold": "Het vrijgeven moet kleiner zijn dan de drempel voor kraanverhoging.",
-      "trv_offset_range": "De offset moet 0 (uit) zijn of tussen 1,0 en 3,0 °C liggen.",
+      "trv_offset_range": "De offset moet 0 (uit) zijn of tussen 0,5 en 3,0 °C liggen.",
       "no_days": "Selecteer minstens één dag."
     }
   },

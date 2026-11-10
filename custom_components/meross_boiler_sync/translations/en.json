@@ -59,7 +59,7 @@
           "window_sensors": "While a window or door stays open longer than the delay, the room stops calling for heat and the valve boost is released. With several sensors, any open one counts.",
           "window_open_delay": "How long the window must stay open before the room reacts, so short airing changes nothing. 0 = immediately. If empty, the global value applies.",
           "calibrate_valves": "Corrects the valves' temperature readings using the room thermometer. Only works with a room temperature sensor. When off, this room's valves are left alone.",
-          "trv_offset": "Calibration sets the valve's reading not to the room thermometer but to a value this much colder. In a room below its target the valve then opens fully instead of only partly for a small error. The target temperature does not change. While the boiler runs for other rooms, this room can end up at most this much warmer than its target. 0 = off (the valve's reading follows the room thermometer); otherwise at least 1.0, 1.0–1.5 °C recommended. Only works with valve calibration switched on and a room thermometer set."
+          "trv_offset": "Calibration sets the valve's reading not to the room thermometer but to a value this much colder. In a room below its target the valve then opens fully instead of only partly for a small error. The target temperature does not change. While the boiler runs for other rooms, this room can end up at most this much warmer than its target. 0 = off (the valve's reading follows the room thermometer); otherwise at least 0.5, 1.0–1.5 °C recommended. Only works with valve calibration switched on and a room thermometer set."
         }
       },
       "edit_room": {
@@ -98,7 +98,7 @@
           "window_sensors": "While a window or door stays open longer than the delay, the room stops calling for heat and the valve boost is released. With several sensors, any open one counts.",
           "window_open_delay": "How long the window must stay open before the room reacts, so short airing changes nothing. 0 = immediately. If empty, the global value applies.",
           "calibrate_valves": "Corrects the valves' temperature readings using the room thermometer. Only works with a room temperature sensor. When off, this room's valves are left alone.",
-          "trv_offset": "Calibration sets the valve's reading not to the room thermometer but to a value this much colder. In a room below its target the valve then opens fully instead of only partly for a small error. The target temperature does not change. While the boiler runs for other rooms, this room can end up at most this much warmer than its target. 0 = off (the valve's reading follows the room thermometer); otherwise at least 1.0, 1.0–1.5 °C recommended. Only works with valve calibration switched on and a room thermometer set."
+          "trv_offset": "Calibration sets the valve's reading not to the room thermometer but to a value this much colder. In a room below its target the valve then opens fully instead of only partly for a small error. The target temperature does not change. While the boiler runs for other rooms, this room can end up at most this much warmer than its target. 0 = off (the valve's reading follows the room thermometer); otherwise at least 0.5, 1.0–1.5 °C recommended. Only works with valve calibration switched on and a room thermometer set."
         }
       },
       "remove_room": {
@@ -186,7 +186,7 @@
           "residual_allow": "Residual heat: allowed overshoot (°C)"
         },
         "data_description": {
-          "trv_log": "When on, the integration writes every valve and calibration decision (what it changed from what to what, when it switched the boiler, why the calibration is waiting) as separate lines in Settings › System › Logs. The lines start with “TRV-napló ▸”: in the “Home Assistant Core” log use the Integrations filter or the search box to see only them. The integration sets the level of this log channel itself; you do not need to change the Home Assistant logger settings. When off, these lines are not shown (warnings and errors still are). The lines are written in Hungarian.",
+          "trv_log": "When on, the integration writes every valve and calibration decision (what it changed from what to what, when it switched the boiler, why the calibration is waiting) as separate lines in the Logbook and in Settings › System › Logs. In Logs the lines start with “TRV-napló ▸” and only appear in the full (non-condensed) log view, which you can switch to in the card’s ⋮ menu: in the “Home Assistant Core” log use the Integrations filter or the search box to see only them. The integration sets the level of this log channel itself; you do not need to change the Home Assistant logger settings. When off, these lines are not shown (warnings and errors still are). The lines are written in Hungarian.",
           "cycle_max_starts_per_hour": "If the boiler started this many times or more in the last hour, the Short cycling sensor turns on.",
           "cycle_min_avg_on_minutes": "If the average on-time of the last 2 hours (from at least 3 cycles) is shorter, it also reports.",
           "cycle_protection_enabled": "The boiler is not switched off / on again before the minimum time has passed. The Minimum switching time (Basic settings) still applies.",
@@ -247,7 +247,7 @@
       "control_needs_sensor": "Valve control requires a room temperature sensor.",
       "invalid_date": "Invalid date, use MM-DD (e.g. 05-15).",
       "release_ge_threshold": "Release must be smaller than the boost threshold.",
-      "trv_offset_range": "The offset must be 0 (off) or between 1.0 and 3.0 °C.",
+      "trv_offset_range": "The offset must be 0 (off) or between 0.5 and 3.0 °C.",
       "no_days": "Select at least one day."
     }
   },

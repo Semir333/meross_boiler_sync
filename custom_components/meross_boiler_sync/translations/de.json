@@ -59,7 +59,7 @@
           "window_sensors": "Solange ein Fenster oder eine Tür länger als die Verzögerung offen ist, fordert der Raum keine Wärme an und die Ventil-Anhebung wird beendet. Bei mehreren Sensoren zählt jeder offene.",
           "window_open_delay": "Wie lange das Fenster offen sein muss, bevor der Raum reagiert, damit kurzes Lüften nichts schaltet. 0 = sofort. Wenn leer, gilt der globale Wert.",
           "calibrate_valves": "Korrigiert die Temperaturmessung der Ventile anhand des Raumthermometers. Funktioniert nur mit einem Raumtemperatursensor. Ausgeschaltet bleiben die Ventile dieses Raums unangetastet.",
-          "trv_offset": "Die Kalibrierung stellt die Messung des Ventils nicht auf das Raumthermometer ein, sondern auf einen um diesen Wert kälteren Wert. In einem Raum unter der Zieltemperatur öffnet das Ventil dann vollständig, statt bei kleiner Abweichung nur teilweise. Die Zieltemperatur ändert sich nicht. Heizt der Kessel für andere Räume, kann dieser Raum höchstens um diesen Wert wärmer als sein Ziel werden. 0 = aus (die Messung des Ventils folgt dem Raumthermometer); sonst mindestens 1,0, empfohlen 1,0–1,5 °C. Funktioniert nur bei aktivierter Ventilkalibrierung und gesetztem Raumthermometer."
+          "trv_offset": "Die Kalibrierung stellt die Messung des Ventils nicht auf das Raumthermometer ein, sondern auf einen um diesen Wert kälteren Wert. In einem Raum unter der Zieltemperatur öffnet das Ventil dann vollständig, statt bei kleiner Abweichung nur teilweise. Die Zieltemperatur ändert sich nicht. Heizt der Kessel für andere Räume, kann dieser Raum höchstens um diesen Wert wärmer als sein Ziel werden. 0 = aus (die Messung des Ventils folgt dem Raumthermometer); sonst mindestens 0,5, empfohlen 1,0–1,5 °C. Funktioniert nur bei aktivierter Ventilkalibrierung und gesetztem Raumthermometer."
         }
       },
       "edit_room": {
@@ -98,7 +98,7 @@
           "window_sensors": "Solange ein Fenster oder eine Tür länger als die Verzögerung offen ist, fordert der Raum keine Wärme an und die Ventil-Anhebung wird beendet. Bei mehreren Sensoren zählt jeder offene.",
           "window_open_delay": "Wie lange das Fenster offen sein muss, bevor der Raum reagiert, damit kurzes Lüften nichts schaltet. 0 = sofort. Wenn leer, gilt der globale Wert.",
           "calibrate_valves": "Korrigiert die Temperaturmessung der Ventile anhand des Raumthermometers. Funktioniert nur mit einem Raumtemperatursensor. Ausgeschaltet bleiben die Ventile dieses Raums unangetastet.",
-          "trv_offset": "Die Kalibrierung stellt die Messung des Ventils nicht auf das Raumthermometer ein, sondern auf einen um diesen Wert kälteren Wert. In einem Raum unter der Zieltemperatur öffnet das Ventil dann vollständig, statt bei kleiner Abweichung nur teilweise. Die Zieltemperatur ändert sich nicht. Heizt der Kessel für andere Räume, kann dieser Raum höchstens um diesen Wert wärmer als sein Ziel werden. 0 = aus (die Messung des Ventils folgt dem Raumthermometer); sonst mindestens 1,0, empfohlen 1,0–1,5 °C. Funktioniert nur bei aktivierter Ventilkalibrierung und gesetztem Raumthermometer."
+          "trv_offset": "Die Kalibrierung stellt die Messung des Ventils nicht auf das Raumthermometer ein, sondern auf einen um diesen Wert kälteren Wert. In einem Raum unter der Zieltemperatur öffnet das Ventil dann vollständig, statt bei kleiner Abweichung nur teilweise. Die Zieltemperatur ändert sich nicht. Heizt der Kessel für andere Räume, kann dieser Raum höchstens um diesen Wert wärmer als sein Ziel werden. 0 = aus (die Messung des Ventils folgt dem Raumthermometer); sonst mindestens 0,5, empfohlen 1,0–1,5 °C. Funktioniert nur bei aktivierter Ventilkalibrierung und gesetztem Raumthermometer."
         }
       },
       "remove_room": {
@@ -186,7 +186,7 @@
           "residual_allow": "Restwärme: erlaubte Überschreitung (°C)"
         },
         "data_description": {
-          "trv_log": "Wenn aktiviert, schreibt die Integration jede Ventil- und Kalibrierungsentscheidung (was sie von welchem auf welchen Wert gestellt hat, wann sie den Kessel geschaltet hat, warum die Kalibrierung wartet) als eigene Zeilen in Einstellungen › System › Protokolle. Die Zeilen beginnen mit „TRV-napló ▸“: im Protokoll „Home Assistant Core“ lassen sie sich mit dem Filter „Integrationen“ oder dem Suchfeld gesondert anzeigen. Die Protokollstufe dieses Kanals setzt die Integration selbst; die Logger-Einstellungen von Home Assistant müssen nicht geändert werden. Deaktiviert erscheinen diese Zeilen nicht (Warnungen und Fehler weiterhin). Die Zeilen sind auf Ungarisch.",
+          "trv_log": "Wenn aktiviert, schreibt die Integration jede Ventil- und Kalibrierungsentscheidung (was sie von welchem auf welchen Wert gestellt hat, wann sie den Kessel geschaltet hat, warum die Kalibrierung wartet) als eigene Zeilen im Logbuch und in Einstellungen › System › Protokolle. In den Protokollen beginnen die Zeilen mit „TRV-napló ▸“ und sind nur in der vollständigen (nicht verkürzten) Protokollansicht sichtbar, die sich im ⋮-Menü der Karte einschalten lässt: im Protokoll „Home Assistant Core“ lassen sie sich mit dem Filter „Integrationen“ oder dem Suchfeld gesondert anzeigen. Die Protokollstufe dieses Kanals setzt die Integration selbst; die Logger-Einstellungen von Home Assistant müssen nicht geändert werden. Deaktiviert erscheinen diese Zeilen nicht (Warnungen und Fehler weiterhin). Die Zeilen sind auf Ungarisch.",
           "cycle_max_starts_per_hour": "Wenn der Kessel in der letzten Stunde so oft oder öfter gestartet ist, schaltet sich der Sensor „Kurzzyklen“ ein.",
           "cycle_min_avg_on_minutes": "Ist die mittlere Einschaltdauer der letzten 2 Stunden (aus mindestens 3 Zyklen) kürzer, meldet er ebenfalls.",
           "cycle_protection_enabled": "Der Kessel wird nicht vor Ablauf der Mindestzeit aus- bzw. wieder eingeschaltet. Die Mindestschaltzeit (Grundeinstellungen) gilt weiterhin.",
@@ -247,7 +247,7 @@
       "control_needs_sensor": "Die Ventilregelung erfordert einen Raum-Temperatursensor.",
       "invalid_date": "Ungültiges Datum, Format MM-DD verwenden (z. B. 05-15).",
       "release_ge_threshold": "Die Freigabe muss kleiner als die Schwelle für die Anhebung sein.",
-      "trv_offset_range": "Der Versatz muss 0 (aus) oder zwischen 1,0 und 3,0 °C liegen.",
+      "trv_offset_range": "Der Versatz muss 0 (aus) oder zwischen 0,5 und 3,0 °C liegen.",
       "no_days": "Wähle mindestens einen Tag aus."
     }
   },

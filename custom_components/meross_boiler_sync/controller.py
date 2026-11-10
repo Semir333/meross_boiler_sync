@@ -864,7 +864,7 @@ class BoilerController:
 
     async def async_start(self) -> None:
         trvlog.set_enabled(self.entry_id, self.trv_log)
-        self._log_startup()
+        self._log_startup(await self._async_version())
         if not self.rooms:
             _LOGGER.warning(
                 "Nincs szoba beállítva, a kazánt nem vezérlem. "
@@ -919,8 +919,26 @@ class BoilerController:
 
     # ------------------------------------------------------------------ TRV-napló
     def _tlog(self, msg: str, *args: Any) -> None:
-        """Az automatika egy döntése a TRV-naplóba (kikapcsolva csak DEBUG szintre)."""
+        """Az automatika egy döntése a TRV-naplóba (kikapcsolva csak DEBUG szintre), bekapcsolva a Naplókönyvbe is."""
         trvlog.info(self.trv_log, msg, *args)
+        if self.trv_log:
+            try:
+                self.hass.bus.async_fire(
+                    trvlog.LOGBOOK_EVENT,
+                    {"name": trvlog.LOGBOOK_NAME, "message": trvlog.render(msg, args), "domain": DOMAIN},
+                )
+            except Exception as err:  # noqa: BLE001 - a napló hibája nem állíthatja le a vezérlést
+                _LOGGER.debug("a TRV-napló sora nem került a Naplókönyvbe: %s", err)
+
+    async def _async_version(self) -> str | None:
+        """Az integráció verziója a manifestből (az induló naplósorhoz); hiba esetén None."""
+        try:
+            from homeassistant.loader import async_get_integration  # noqa: PLC0415
+
+            integration = await async_get_integration(self.hass, DOMAIN)
+            return str(integration.version) if integration.version else None
+        except Exception:  # noqa: BLE001
+            return None
 
     def _valve_label(self, valve_id: str) -> str:
         """"Szoba / szelep" a naplósorokhoz; ismeretlen szelepnél maga az azonosító."""
@@ -929,14 +947,26 @@ class BoilerController:
                 return f"{room.get(CONF_ROOM_NAME, '?')} / {valve_id}"
         return valve_id
 
-    def _log_startup(self) -> None:
+    def _describe_valve(self, valve_id: str, now_ts: float) -> str:
+        """A szelep kalibráció-számának leírása az induló sorhoz; a hibája nem viheti el a többi szobát."""
+        try:
+            return self.calibrator.describe_valve(valve_id, now_ts)
+        except Exception as err:  # noqa: BLE001
+            _LOGGER.debug("%s: a kalibráció-szám leírása nem sikerült: %s", valve_id, err)
+            return "a kalibráció-szám keresése nem sikerült"
+
+    def _log_startup(self, version: str | None = None) -> None:
         """Induláskor (és minden újratöltéskor, vagyis beállítás-mentés után) egy összefoglaló szobánként:
         ebből látszik, mit töltött be az integráció (eltolás, kalibráció, szelep-vezérlés), és hogy a napló működik."""
         if not self.trv_log:
             return
         try:
-            self._tlog("a napló be van kapcsolva; az automatika szelep- és kalibráció-döntései itt követhetők "
-                       "(kikapcsolható: Beállítások › Funkciók)")
+            self._tlog(
+                "%sa napló be van kapcsolva; az automatika szelep- és kalibráció-döntései itt és a Naplókönyvben "
+                "követhetők (kikapcsolható: Beállítások › Funkciók)",
+                f"Meross Boiler Sync {version}: " if version else "",
+            )
+            now_ts = dt_util.utcnow().timestamp()
             for room in self.rooms:
                 st = self.status.get(room.get(CONF_ROOM_ID))
                 if st is None:
@@ -947,20 +977,10 @@ class BoilerController:
                     cal_text = "ki (ebben a szobában)"
                 elif not st.temp_sensor:
                     cal_text = "be, de nincs szoba hőmérő, ezért nem mér"
-                elif self.cal_dry_run:
-                    cal_text = "próbaüzem (csak naplóz)"
                 else:
-                    cal_text = "be"
-                    known = [
-                        (v, self.calibrator.cal[v].target)
-                        for v in st.valves
-                        if v in self.calibrator.cal and self.calibrator.cal[v].target is not None
-                    ]
-                    if known:
-                        cal_text += "; a szelep utoljára " + ", ".join(
-                            f"{trvlog.num(t)} °C" + (f" ({v})" if len(st.valves) > 1 else "")
-                            for v, t in known
-                        ) + " eltoláshoz volt igazítva"
+                    cal_text = "próbaüzem (csak naplóz)" if self.cal_dry_run else "be"
+                    for v in st.valves:
+                        cal_text += "; " + (f"{v}: " if len(st.valves) > 1 else "") + self._describe_valve(v, now_ts)
                 self._tlog(
                     "%s: betöltve – szelepek: %s; szoba hőmérő: %s; szelep-vezérlés: %s; TRV eltolás: %s °C; kalibráció: %s",
                     st.name,

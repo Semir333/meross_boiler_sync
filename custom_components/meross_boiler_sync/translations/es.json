@@ -59,7 +59,7 @@
           "window_sensors": "Mientras una ventana o puerta permanezca abierta más tiempo que el retardo, la habitación deja de pedir calor y se libera el refuerzo de la válvula. Con varios sensores basta con uno abierto.",
           "window_open_delay": "Cuánto tiempo debe estar abierta la ventana antes de que la habitación reaccione, para que una ventilación breve no cambie nada. 0 = inmediato. Si está vacío, se aplica el valor global.",
           "calibrate_valves": "Corrige la lectura de temperatura de las válvulas con el termómetro de la habitación. Solo funciona con un sensor de temperatura de la habitación. Desactivada, las válvulas de esta habitación no se tocan.",
-          "trv_offset": "La calibración ajusta la lectura de la válvula no al termómetro de la habitación, sino a un valor más frío en este desfase. En una habitación por debajo de su objetivo, la válvula se abre entonces por completo en lugar de abrirse solo en parte ante una pequeña diferencia. La temperatura objetivo no cambia. Mientras la caldera calienta para otras habitaciones, esta habitación puede superar su objetivo como máximo en este desfase. 0 = desactivado (la lectura de la válvula sigue al termómetro de la habitación); en otro caso, al menos 1,0, se recomienda 1,0–1,5 °C. Solo funciona con la calibración de válvulas activada y un termómetro de habitación configurado."
+          "trv_offset": "La calibración ajusta la lectura de la válvula no al termómetro de la habitación, sino a un valor más frío en este desfase. En una habitación por debajo de su objetivo, la válvula se abre entonces por completo en lugar de abrirse solo en parte ante una pequeña diferencia. La temperatura objetivo no cambia. Mientras la caldera calienta para otras habitaciones, esta habitación puede superar su objetivo como máximo en este desfase. 0 = desactivado (la lectura de la válvula sigue al termómetro de la habitación); en otro caso, al menos 0,5, se recomienda 1,0–1,5 °C. Solo funciona con la calibración de válvulas activada y un termómetro de habitación configurado."
         }
       },
       "edit_room": {
@@ -98,7 +98,7 @@
           "window_sensors": "Mientras una ventana o puerta permanezca abierta más tiempo que el retardo, la habitación deja de pedir calor y se libera el refuerzo de la válvula. Con varios sensores basta con uno abierto.",
           "window_open_delay": "Cuánto tiempo debe estar abierta la ventana antes de que la habitación reaccione, para que una ventilación breve no cambie nada. 0 = inmediato. Si está vacío, se aplica el valor global.",
           "calibrate_valves": "Corrige la lectura de temperatura de las válvulas con el termómetro de la habitación. Solo funciona con un sensor de temperatura de la habitación. Desactivada, las válvulas de esta habitación no se tocan.",
-          "trv_offset": "La calibración ajusta la lectura de la válvula no al termómetro de la habitación, sino a un valor más frío en este desfase. En una habitación por debajo de su objetivo, la válvula se abre entonces por completo en lugar de abrirse solo en parte ante una pequeña diferencia. La temperatura objetivo no cambia. Mientras la caldera calienta para otras habitaciones, esta habitación puede superar su objetivo como máximo en este desfase. 0 = desactivado (la lectura de la válvula sigue al termómetro de la habitación); en otro caso, al menos 1,0, se recomienda 1,0–1,5 °C. Solo funciona con la calibración de válvulas activada y un termómetro de habitación configurado."
+          "trv_offset": "La calibración ajusta la lectura de la válvula no al termómetro de la habitación, sino a un valor más frío en este desfase. En una habitación por debajo de su objetivo, la válvula se abre entonces por completo en lugar de abrirse solo en parte ante una pequeña diferencia. La temperatura objetivo no cambia. Mientras la caldera calienta para otras habitaciones, esta habitación puede superar su objetivo como máximo en este desfase. 0 = desactivado (la lectura de la válvula sigue al termómetro de la habitación); en otro caso, al menos 0,5, se recomienda 1,0–1,5 °C. Solo funciona con la calibración de válvulas activada y un termómetro de habitación configurado."
         }
       },
       "remove_room": {
@@ -186,7 +186,7 @@
           "residual_allow": "Calor residual: exceso permitido (°C)"
         },
         "data_description": {
-          "trv_log": "Si está activado, la integración escribe cada decisión sobre válvulas y calibración (de qué valor a qué valor, cuándo conmutó la caldera, por qué la calibración está en espera) como líneas separadas en Ajustes › Sistema › Registros. Las líneas empiezan por «TRV-napló ▸»: en el registro «Home Assistant Core» puedes verlas por separado con el filtro Integraciones o el campo de búsqueda. La integración establece por sí misma el nivel de este canal; no hace falta cambiar la configuración del logger de Home Assistant. Si está desactivado, estas líneas no se muestran (las advertencias y los errores sí). Las líneas están escritas en húngaro.",
+          "trv_log": "Si está activado, la integración escribe cada decisión sobre válvulas y calibración (de qué valor a qué valor, cuándo conmutó la caldera, por qué la calibración está en espera) como líneas separadas en el Logbook (el panel Registro de la barra lateral) y en Ajustes › Sistema › Registros. En Registros las líneas empiezan por «TRV-napló ▸» y solo aparecen en la vista completa (no resumida) del registro, a la que se cambia desde el menú ⋮ de la tarjeta: en el registro «Home Assistant Core» puedes verlas por separado con el filtro Integraciones o el campo de búsqueda. La integración establece por sí misma el nivel de este canal; no hace falta cambiar la configuración del logger de Home Assistant. Si está desactivado, estas líneas no se muestran (las advertencias y los errores sí). Las líneas están escritas en húngaro.",
           "cycle_max_starts_per_hour": "Si la caldera ha arrancado tantas veces o más en la última hora, el sensor de Ciclos cortos se activa.",
           "cycle_min_avg_on_minutes": "Si el tiempo medio de encendido de las últimas 2 horas (de al menos 3 ciclos) es más corto, también avisa.",
           "cycle_protection_enabled": "La caldera no se apaga ni se vuelve a encender antes de que pase el tiempo mínimo. El Tiempo mínimo de conmutación (Ajustes básicos) sigue aplicándose.",
@@ -247,7 +247,7 @@
       "control_needs_sensor": "El control de válvulas requiere un sensor de temperatura de la habitación.",
       "invalid_date": "Fecha no válida, usa el formato MM-DD (ej. 05-15).",
       "release_ge_threshold": "La liberación debe ser menor que el umbral de refuerzo.",
-      "trv_offset_range": "El desfase debe ser 0 (desactivado) o estar entre 1,0 y 3,0 °C.",
+      "trv_offset_range": "El desfase debe ser 0 (desactivado) o estar entre 0,5 y 3,0 °C.",
       "no_days": "Selecciona al menos un día."
     }
   },

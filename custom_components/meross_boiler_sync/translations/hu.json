@@ -59,7 +59,7 @@
           "window_sensors": "Amíg egy ablak vagy ajtó a késleltetésnél tovább nyitva van, a szoba nem kér hőt, és a szelep emelés leáll. Több érzékelőnél bármelyik nyitott elég.",
           "window_open_delay": "Mennyi ideig kell nyitva lennie az ablaknak, mielőtt a szoba reagál, így a rövid szellőztetés nem kapcsol semmit. 0 = azonnal. Üresen az általános érték érvényes.",
           "calibrate_valves": "A szoba hőmérője alapján korrigálja a szelepek hőmérőjét. Csak megadott szoba hőmérővel működik. Kikapcsolva ennek a szobának a szelepeihez nem nyúl.",
-          "trv_offset": "A kalibráció a szelep mérését nem a szoba hőmérőjére, hanem ennyivel hidegebb értékre állítja. A szelep így a cél alatti szobában teljesen kinyit, ahelyett hogy kis eltérésnél csak részben nyitna. A célhőmérséklet nem változik. Ha a kazán más szobáknak fűt, ez a szoba a céljánál legfeljebb ennyivel lehet melegebb. 0 = ki (a szelep mérése a szoba hőmérőjét követi), különben legalább 1,0; ajánlott 1,0–1,5 °C. Csak bekapcsolt szelep kalibrációval és megadott szoba hőmérővel működik."
+          "trv_offset": "A kalibráció a szelep mérését nem a szoba hőmérőjére, hanem ennyivel hidegebb értékre állítja. A szelep így a cél alatti szobában teljesen kinyit, ahelyett hogy kis eltérésnél csak részben nyitna. A célhőmérséklet nem változik. Ha a kazán más szobáknak fűt, ez a szoba a céljánál legfeljebb ennyivel lehet melegebb. 0 = ki (a szelep mérése a szoba hőmérőjét követi), különben legalább 0,5; ajánlott 1,0–1,5 °C. Csak bekapcsolt szelep kalibrációval és megadott szoba hőmérővel működik."
         }
       },
       "edit_room": {
@@ -98,7 +98,7 @@
           "window_sensors": "Amíg egy ablak vagy ajtó a késleltetésnél tovább nyitva van, a szoba nem kér hőt, és a szelep emelés leáll. Több érzékelőnél bármelyik nyitott elég.",
           "window_open_delay": "Mennyi ideig kell nyitva lennie az ablaknak, mielőtt a szoba reagál, így a rövid szellőztetés nem kapcsol semmit. 0 = azonnal. Üresen az általános érték érvényes.",
           "calibrate_valves": "A szoba hőmérője alapján korrigálja a szelepek hőmérőjét. Csak megadott szoba hőmérővel működik. Kikapcsolva ennek a szobának a szelepeihez nem nyúl.",
-          "trv_offset": "A kalibráció a szelep mérését nem a szoba hőmérőjére, hanem ennyivel hidegebb értékre állítja. A szelep így a cél alatti szobában teljesen kinyit, ahelyett hogy kis eltérésnél csak részben nyitna. A célhőmérséklet nem változik. Ha a kazán más szobáknak fűt, ez a szoba a céljánál legfeljebb ennyivel lehet melegebb. 0 = ki (a szelep mérése a szoba hőmérőjét követi), különben legalább 1,0; ajánlott 1,0–1,5 °C. Csak bekapcsolt szelep kalibrációval és megadott szoba hőmérővel működik."
+          "trv_offset": "A kalibráció a szelep mérését nem a szoba hőmérőjére, hanem ennyivel hidegebb értékre állítja. A szelep így a cél alatti szobában teljesen kinyit, ahelyett hogy kis eltérésnél csak részben nyitna. A célhőmérséklet nem változik. Ha a kazán más szobáknak fűt, ez a szoba a céljánál legfeljebb ennyivel lehet melegebb. 0 = ki (a szelep mérése a szoba hőmérőjét követi), különben legalább 0,5; ajánlott 1,0–1,5 °C. Csak bekapcsolt szelep kalibrációval és megadott szoba hőmérővel működik."
         }
       },
       "remove_room": {
@@ -186,7 +186,7 @@
           "residual_allow": "Maradékhő: megengedett túllövés (°C)"
         },
         "data_description": {
-          "trv_log": "Bekapcsolva az integráció minden szelep- és kalibráció-döntését (miről mire állított, mikor kapcsolta a kazánt, miért vár a kalibráció) külön naplósorban kiírja a Beállítások › Rendszer › Naplók oldalon. A sorok „TRV-napló ▸” előtaggal kezdődnek: a „Home Assistant Core” naplóban az Integrációk szűrővel vagy a kereső mezővel külön is megnézhetők. A napló szintjét az integráció maga állítja be, a HA naplózási beállításait nem kell módosítani. Kikapcsolva ezek a sorok nem jelennek meg (a figyelmeztetések és hibák továbbra is igen).",
+          "trv_log": "Bekapcsolva az integráció minden szelep- és kalibráció-döntését (miről mire állított, mikor kapcsolta a kazánt, miért vár a kalibráció) külön naplósorban kiírja a Naplókönyvben (oldalsáv) és a Beállítások › Rendszer › Naplók oldalon. A Naplók oldalon a sorok „TRV-napló ▸” előtaggal kezdődnek, és csak a teljes (nem sűrített) naplónézetben látszanak, amire a kártya ⋮ menüjében lehet átváltani: a „Home Assistant Core” naplóban az Integrációk szűrővel vagy a kereső mezővel külön is megnézhetők. A napló szintjét az integráció maga állítja be, a HA naplózási beállításait nem kell módosítani. Kikapcsolva ezek a sorok nem jelennek meg (a figyelmeztetések és hibák továbbra is igen).",
           "cycle_max_starts_per_hour": "Ha a kazán ennyiszer vagy többször indult az elmúlt órában, a Gyakori kapcsolgatás szenzor bekapcsol.",
           "cycle_min_avg_on_minutes": "Ha az utolsó 2 óra átlagos bekapcsolt ideje (legalább 3 ciklusból) ennél rövidebb, szintén jelez.",
           "cycle_protection_enabled": "A kazánt nem kapcsolja ki / vissza a megadott minimum idő letelte előtt. A 'Minimális kapcsolási idő' (Alapbeállítások) ettől függetlenül érvényes.",
@@ -247,7 +247,7 @@
       "control_needs_sensor": "A szelep szabályzáshoz meg kell adni a szoba hőmérséklet szenzorát.",
       "invalid_date": "Érvénytelen dátum, a formátum HH-NN (pl. 05-15).",
       "release_ge_threshold": "A visszaengedésnek kisebbnek kell lennie, mint az emelés küszöbnek.",
-      "trv_offset_range": "Az eltolás 0 (ki) vagy 1,0 és 3,0 °C közötti érték lehet.",
+      "trv_offset_range": "Az eltolás 0 (ki) vagy 0,5 és 3,0 °C közötti érték lehet.",
       "no_days": "Legalább egy napot válassz ki."
     }
   },

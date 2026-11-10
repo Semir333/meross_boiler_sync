@@ -112,7 +112,9 @@ DEFAULT_ROOM_CALIBRATE = True  # a globális kapcsoló bekapcsolása után minde
 # mindig teljesen nyit. 0 = a szelep mérése a szoba hőmérőjét követi (a 2.11 viselkedése).
 DEFAULT_TRV_OFFSET = 1.0  # °C
 TRV_OFFSET_MAX = 3.0  # °C
-TRV_OFFSET_MIN_ACTIVE = 1.0  # °C: kisebb (de nem nulla) eltolás nem érvényesülne a kalibráció tűrése miatt
+# 2.15: 0,5 °C is lehet. A nulla és a 0,5 megkülönböztetéséhez a még nem igazolt igazítás szűkebb tűréssel
+# dolgozik (`CAL_FIRST_THRESHOLD`); az igazolt szelepnél marad a széles tűrés (`CAL_THRESHOLD`).
+TRV_OFFSET_MIN_ACTIVE = 0.5  # °C: ennél kisebb (de nem nulla) eltolás nem lehet (a kalibráció lépésköze 0,5 °C)
 # 2.13: Leállás után a radiátor maradékhője még tovább melegíti a szobát. A plugin ezt szobánként méri, és
 # ha a szoba ennél többel melegedne a cél fölé, a hőigényt ennyivel előbb szünteti meg.
 DEFAULT_RESIDUAL_COMP = True  # a kompenzáció korlátos és csak a megengedett túllövés fölötti részt érinti
@@ -192,7 +194,11 @@ CAL_SAMPLE_MAX_AGE = 40 * 60  # ennél régebbi minta nem számít
 CAL_MAX_SPREAD = 0.8  # °C: a minták eltérései ennyin belül legyenek (stabil mérés)
 CAL_MAX_ROOM_SPREAD = 0.6  # °C: a szoba hőmérője a mintavétel alatt ennyinél jobban nem ingadozhat
 CAL_MAX_TREND = 0.6  # °C/óra: a szoba hőmérője ennél gyorsabban nem változhat mérés közben
-CAL_THRESHOLD = 0.8  # °C: ennél kisebb eltérést nem korrigál
+CAL_THRESHOLD = 0.8  # °C: az igazolt (már rendben mért) szelepnél ennél kisebb eltérést nem korrigál
+# 2.15: A még nem igazolt igazításnál (első beállítás, módosítás vagy becslés után) szűkebb a tűrés, különben a 0,5 °C-os
+# eltolás "rendben"-ként elveszne. A kalibráció lépésköze 0,5 °C, így az igazítás után a maradék legfeljebb 0,25 °C;
+# a 0,4 °C ehhez még ~0,15 °C mérési zajt enged anélkül, hogy felesleges módosítás indulna.
+CAL_FIRST_THRESHOLD = 0.4  # °C
 CAL_JUDGE_MIN = 1.0  # °C: ennél kisebb módosítás hatását nem ítéli meg (a mérési zajtól nem különböztethető meg)
 CAL_MAX_DIFF = 3.0  # °C: ennél nagyobb eltérés rossz hőmérő-elhelyezésre utal, ahhoz nem nyúl
 CAL_MAX_TOTAL = 4.0  # °C: az eredeti kalibrációtól legfeljebb ennyit mozdul el
@@ -212,6 +218,9 @@ CAL_READING_MAX = 40.0
 # 2.14: Az eltolás megváltoztatásakor a különbség mérés nélkül alkalmazható (a kalibráció additív): ha a szelep az
 # előző eltoláshoz volt beállítva, az új beállításhoz pontosan az eltolások különbségével kell elmozdítani.
 CAL_BIAS_MIN_SHIFT = 0.25  # °C: ekkora (vagy nagyobb) eltolás-váltást alkalmaz azonnal; a kisebb mérési zaj
+# 2.15: A 2.14 előtti állományban nincs rögzítve, mihez volt igazítva a szelep. Ilyenkor (csak egyszer, a frissítés után)
+# a szelep eredeti és mostani kalibrációjának különbségéből becsüljük (az igazítás additív), ha az hihető eltolás.
+CAL_GUESS_MAX = TRV_OFFSET_MAX + 0.25  # °C: ennél nagyobb becsült eltolás nem hihető (nincs becslés)
 CAL_IDLE_KEEP_SECONDS = 120  # a "kihűlt a radiátor" számláló ennyi leállás után még hihető (újratöltés); hosszabb kiesés után nem
 # 2.14: a TRV-naplóba ugyanazon szelep "vár / mintavétel" jellegű állapotváltásai ilyen ritkán kerülnek (másodperc);
 # az eredmény-jellegű állapotok (rendben, hiba, javaslat, felfüggesztés, határ) azonnal.

@@ -29,8 +29,17 @@ kisebb érték nem érvényesülne.
 Az eltolás megváltoztatása (2.14): a kalibráció additív, ezért ha a szelep az előző eltoláshoz volt beállítva
 (a plugin ezt tartósan megjegyzi), az új eltoláshoz a kalibrációt pontosan az eltolások különbségével kell
 elmozdítani, mérés és kihűlt radiátor nélkül. Így a 0,5 °C-os váltás is, és a fűtés közbeni váltás is percek
-alatt érvényesül; a pontos beállítást a következő csendes mérés igazolja. Ha a szelep előző beállítása nem
-ismert (az első kalibráció, vagy kézzel átállították), a mérés-alapú út dönt.
+alatt érvényesül; a pontos beállítást a következő csendes mérés igazolja.
+
+Az eltolás megváltoztatása (2.16): a szám kézi átállítása (Meross alkalmazás, másik automatika) nem akadály: a
+kalibráció additív, ezért a szelep mostani igazítása a rögzítettből kiszámolható, és az új eltolás ehhez képest azonnal
+érvényesül. Ha a szelep igazítása nem ismert (új szelep, a rögzítés elveszett), és a radiátor nem hűlt ki (fűtési
+időben ez órákig, akár soha nem következik be), a plugin nem vár a mérésre: a mostani értékből, illetve a plugin által
+mozgatott eredeti értékből becsül, azonnal módosít, a következő csendes mérés pedig szűk tűréssel ellenőrzi és
+szükség esetén javítja. Csendes radiátornál, próbaüzemben és hibapont után a mérés-alapú út dönt. Az eltolás-váltás
+(a felhasználó kérése) napi keretét nem a mérésből számolt módosítások 4-es korlátja szabja meg (`CAL_MAX_PER_DAY_USER`).
+Ha a szám az utolsó módosítás után (a 60 másodperces megerősítés után is) a régi értékre áll vissza, a hub nem fogadta
+el az új értéket (vagy kézzel visszaállították): ezt figyelmeztetés jelzi a naplóban.
 
 Mi védi a beállítást:
 - Minden módosítás előtt "előre írt" rekord kerül a lemezre; újraindítás után a plugin a szám-entitás
@@ -65,8 +74,11 @@ from .const import (
     CAL_GUESS_MAX,
     CAL_IDLE_KEEP_SECONDS,
     CAL_JUDGE_MIN,
+    CAL_LATE_REVERT_SECONDS,
+    CAL_LATE_REVERTS_MAX,
     CAL_MAX_DIFF,
     CAL_MAX_PER_DAY,
+    CAL_MAX_PER_DAY_USER,
     CAL_MAX_RANGE,
     CAL_MAX_ROOM_SPREAD,
     CAL_MAX_SAMPLES,
@@ -85,6 +97,7 @@ from .const import (
     CAL_SAMPLE_SECONDS,
     CAL_SETTLE_SECONDS,
     CAL_SUSPEND_SECONDS,
+    CAL_TARGET_LIMIT,
     CAL_THRESHOLD,
     TRV_LOG_STATE_MIN_INTERVAL,
     TRV_OFFSET_MAX,
@@ -102,7 +115,7 @@ DEFAULT_NUMBER_STEP = 0.5
 _SAME = 0.05  # °C: ennyin belül két kalibrációs érték azonosnak számít
 _NOT_TRACKING = ("off", "none", "unknown", "unavailable", "")
 # a naplósor jelzése, ha a szelep korábbi igazítása nem mért, hanem becsült érték (2.15)
-_GUESS_NOTE = " (a kiinduló érték becsült: a szelep eredeti kalibrációjából számolva)"
+_GUESS_NOTE = " (a kiinduló érték becsült, a következő csendes mérés pontosítja)"
 
 
 def _num(value: Any) -> float | None:
@@ -192,6 +205,9 @@ class ValveCal:
     aligned: bool = False
     # 2.15: a 2.14 előtti állományból betöltve: a szelep igazítása nincs rögzítve, egyszer becsülhető
     legacy: bool = False
+    # 2.16: a késői visszaállások (a szám a megerősítés után a régi értékre állt vissza) ideje az utolsó 24 órában. Nem
+    # törli a rendben lévő mérés: egy mérés a visszaállás előtt készült, tehát nem bizonyítja, hogy az eszköz megtartja az értéket.
+    late_reverts: list[float] = field(default_factory=list)
 
     # --- nem tartós (újraindítás után újraépül)
     guessed: bool = False  # a rögzített igazítás becslésből jön (a naplósorban jelezzük)
@@ -208,6 +224,9 @@ class ValveCal:
     offset: float | None = None
     proposed: float | None = None
     err_logged: float = 0.0
+    last_from: float | None = None  # a szám értéke az utolsó elküldött módosítás előtt (a késői visszaállás észleléséhez)
+    revert_logged: float = 0.0
+    wait_until: float = 0.0  # a sebesség-korlát (időköz / napi darabszám / szünet) várhatóan eddig tart
 
     # ------------------------------------------------------------------ mentés / betöltés
     def to_dict(self) -> dict[str, Any]:
@@ -227,6 +246,7 @@ class ValveCal:
             "target_offset": self.target_offset,
             "aligned": self.aligned,
             "legacy": self.legacy,
+            "late_reverts": list(self.late_reverts),
         }
 
     def forget_target(self) -> None:
@@ -243,6 +263,7 @@ class ValveCal:
             or self.strikes
             or self.suspended_until
             or self.writes
+            or self.late_reverts
             or self.target is not None
         )
 
@@ -271,6 +292,11 @@ class ValveCal:
             cal.writes = sorted(
                 t for t in (_num(x) for x in writes) if t is not None and now_ts - 86400 < t <= now_ts + 60
             )
+        reverts = raw.get("late_reverts")
+        if isinstance(reverts, list):
+            cal.late_reverts = sorted(
+                t for t in (_num(x) for x in reverts) if t is not None and now_ts - 86400 < t <= now_ts + 60
+            )[-CAL_LATE_REVERTS_MAX:]
         pending = raw.get("pending")
         if isinstance(pending, dict):
             frm, to = _num(pending.get("from")), _num(pending.get("to"))
@@ -282,6 +308,7 @@ class ValveCal:
                 and 0 < ts <= now_ts + 60
                 and abs(diff_before) <= 50
             ):
+                bias = _num(pending.get("bias"))
                 cal.pending = {
                     "from": frm,
                     "to": to,
@@ -290,6 +317,7 @@ class ValveCal:
                     "sent": bool(pending.get("sent")),
                     "done": bool(pending.get("done")),
                     "judge": pending.get("judge") is not False,  # az eltolás-váltás hatását nem ítéljük meg
+                    "bias": bias if bias is not None and 0 <= bias <= TRV_OFFSET_MAX else None,
                 }
         revert = raw.get("revert")
         if isinstance(revert, dict):
@@ -304,7 +332,9 @@ class ValveCal:
                     "ts": last if last is not None and 0 < last <= now_ts + 60 else 0.0,
                 }
         target, target_offset = _num(raw.get("target")), _num(raw.get("target_offset"))
-        if target is not None and target_offset is not None and 0 <= target <= TRV_OFFSET_MAX and abs(target_offset) <= 10:
+        # 2.16: a rögzített igazítás negatív is lehet (a szelep melegebbet mutat a szoba hőmérőjénél), és a szám kézi
+        # átállítása után a számolt érték a 0..3 °C-os eltolás-tartományon kívülre is eshet
+        if target is not None and target_offset is not None and abs(target) <= CAL_TARGET_LIMIT and abs(target_offset) <= 10:
             cal.target, cal.target_offset = target, target_offset
             cal.aligned = raw.get("aligned") is True
         # a "legacy" kulcs hiánya a 2.14 vagy régebbi állományt jelzi: ott a rögzített igazítás még ismeretlen
@@ -510,14 +540,20 @@ class Calibrator:
         cal = self.cal.get(valve_id)
         parts = [f"kalibráció-szám: {number} (most " + ("?" if value is None else f"{value:+g}") + " °C"
                  + (f", eredeti {cal.orig:+g} °C" if cal is not None and cal.orig is not None else "") + ")"]
-        if cal is not None:
-            if cal.target is not None:
-                parts.append(
-                    f"utoljára {trvlog.num(cal.target)} °C eltoláshoz volt igazítva"
-                    + ("" if cal.aligned else " (még nem igazolta mérés)")
-                )
-            elif cal.legacy:
-                parts.append("a korábbi igazítás nincs rögzítve, az első eltolás-váltásnál becsüli")
+        if cal is not None and cal.target is not None:
+            parts.append(
+                f"utoljára {trvlog.num(cal.target)} °C eltoláshoz volt igazítva"
+                + ("" if cal.aligned else " (még nem igazolta mérés)")
+            )
+        elif cal is not None and cal.legacy:
+            parts.append("a korábbi igazítás nincs rögzítve, az első eltolás-váltásnál becsüli")
+        else:
+            parts.append("a szelep igazítása még nem ismert (az első módosítás becslés, a csendes mérés pontosítja)")
+        if cal is not None and cal.suspended_until > now_ts:
+            parts.append(
+                f"FELFÜGGESZTVE még {trvlog.num((cal.suspended_until - now_ts) / 86400)} napig "
+                "(hatástalan módosítások miatt; a Javítások között is látszik)"
+            )
         return "; ".join(parts)
 
     def _tracker_active(self, info: dict[str, Any]) -> bool:
@@ -621,6 +657,8 @@ class Calibrator:
                 parts.append("még nem ismert, mihez volt igazítva a szelep, ezért az első igazítás kihűlt radiátort vár")
         if cal.status == "proposed" and cal.proposed is not None:
             parts.append(f"javasolt kalibráció: {cal.proposed:+g} °C")
+        if cal.status == "waiting" and cal.reason in ("interval", "daily_limit", "spacing") and cal.wait_until > now_ts:
+            parts.append(f"kb. {trvlog.duration(cal.wait_until - now_ts)} múlva próbálja újra")
         if cal.status == "waiting" and cal.reason == "not_quiet":
             ages = [
                 now_ts - since
@@ -723,6 +761,8 @@ class Calibrator:
                     cal.samples.clear()
                     return
                 return self._stop(cal, "ok", reason)
+            if reason == "not_quiet" and await self._async_blind(st, valve_id, cal, number, offset, (low, high, step), now_ts):
+                return
             return self._stop(cal, "verifying" if cal.pending and reason == "settling" else "waiting", reason)
 
         self._sample(cal, ref, reading, offset, now_ts)
@@ -834,14 +874,23 @@ class Calibrator:
             cal.next_sample = now_ts + CAL_SAMPLE_SECONDS
 
     def _rate_wait(self, cal: ValveCal, now_ts: float, *, ignore_interval: bool = False) -> str | None:
-        """None, ha most módosíthatunk; különben az ok kódja. Az eltolás szándékos megváltoztatása
-        (ignore_interval) nem várja meg a két módosítás közti időközt: az nem szabályozási kör, hanem a
-        felhasználó kérése; a napi darabszám és a szelepek közti szünet rá is érvényes."""
+        """None, ha most módosíthatunk; különben az ok kódja (és `cal.wait_until`: mikorra enyhül a korlát).
+
+        Az eltolás szándékos megváltoztatása (ignore_interval) nem várja meg a két módosítás közti időközt: az nem
+        szabályozási kör, hanem a felhasználó kérése. Neki a napi keret is nagyobb (`CAL_MAX_PER_DAY_USER`): a
+        tesztelés közben gyorsan egymás után kért váltások ne fogyasszák el a keretet. A szelepek közti szünet
+        mindkettőre érvényes."""
+        cal.wait_until = 0.0
         if not ignore_interval and now_ts - cal.last_write < CAL_MIN_INTERVAL:
+            cal.wait_until = cal.last_write + CAL_MIN_INTERVAL
             return "interval"
-        if len([t for t in cal.writes if now_ts - t < 86400]) >= CAL_MAX_PER_DAY:
+        limit = CAL_MAX_PER_DAY_USER if ignore_interval else CAL_MAX_PER_DAY
+        recent = sorted(t for t in cal.writes if now_ts - t < 86400)
+        if len(recent) >= limit:
+            cal.wait_until = recent[len(recent) - limit] + 86400  # amikor a legrégebbi még számító módosítás kiesik
             return "daily_limit"
         if now_ts - self._last_global < CAL_GLOBAL_SPACING:
+            cal.wait_until = self._last_global + CAL_GLOBAL_SPACING
             return "spacing"
         return None
 
@@ -865,6 +914,17 @@ class Calibrator:
             if _near(offset, pend["to"]):
                 # az új mérésre a hubnak is időt kell hagyni (újraindítás után is a módosítás idejétől számít)
                 cal.settle_until = max(cal.settle_until, pend["ts"] + CAL_SETTLE_SECONDS)
+                if not pend.get("sent"):
+                    # a parancs eljutott az eszközig, de a leállás miatt a vezérlő nem rögzíthette, mihez igazít: a
+                    # lemezen a módosítás előtti állapot van, arra építeni (a szám kézi átállítását követő újraszámolás)
+                    # a módosítást visszafordítaná
+                    pend["sent"] = True
+                    if pend.get("bias") is None:
+                        cal.forget_target()
+                    else:
+                        self._remember_target(cal, pend["bias"], pend["to"])
+                    cal.guessed = False
+                    self._save_later()
                 if not pend.get("done"):
                     pend["done"] = True
                     if pend.get("judge", True):
@@ -919,6 +979,99 @@ class Calibrator:
         cal.aligned = False
         cal.guessed = True
 
+    async def _async_blind(
+        self,
+        st: "RoomStatus",
+        valve_id: str,
+        cal: ValveCal,
+        number: str,
+        offset: float,
+        limits: tuple[float, float, float],
+        now_ts: float,
+    ) -> bool:
+        """2.16: nem ismert, mihez van igazítva a szelep, és a radiátor nem hűlt ki (a mérés most nem indulhat):
+        becsléssel azonnal teljesíti az eltolást, a pontosítást a következő csendes mérésre bízza.
+
+        Fűtési időben a szelep sokat nyitva van, és a "kihűlt a radiátor" feltétel órákig, néha soha nem teljesül; a
+        mérésre várva az eltolás átállítása nem csinál semmit. A becslés kiindulópontja: a plugin a szelep eredeti
+        kalibrációját (`orig`) mozgatta, és a kalibráció additív, tehát az eredeti és a mostani érték különbsége az
+        eddig alkalmazott eltolás; ha a plugin még nem módosította a szelepet, a mostani értéket tekintjük a szoba
+        hőmérőjéhez igazítottnak. A becslés hibája legfeljebb a szelep és a szoba hőmérőjének saját eltérése. A becsült
+        igazítás nincs igazolva, ezért a következő csendes mérés szűk tűréssel ellenőrzi és szükség esetén javítja.
+        Csendes radiátornál nem fut: ott a mérés pontosabb, és percek alatt elindul; próbaüzemben sem (ott a mérés-alapú
+        javaslat az érdekes). A hibás eszközt nem terheli: a becsült módosítás sem marad el a figyelemből, az elutasított
+        vagy visszaálló módosítás hibapontot ad, és a hibapontok felfüggesztéshez vezetnek.
+
+        A becslés csak akkor marad meg, ha módosítás lett belőle; ha nincs mit módosítani, semmi nem változik.
+        Igaz, ha ebben a körben ez volt a teendő (a kör véget ér)."""
+        if self.ctl.cal_dry_run or cal.target is not None or cal.pending is not None or cal.revert is not None:
+            return False
+        anchor = 0.0 if cal.orig is None else cal.orig - offset
+        if not -CAL_BIAS_MIN_SHIFT <= anchor <= CAL_GUESS_MAX:
+            return False  # nem hihető kiindulás (például kézzel messzire állított kalibráció): marad a mérés
+        anchor = min(max(anchor, 0.0), TRV_OFFSET_MAX)
+        if abs(st.trv_offset - anchor) < CAL_BIAS_MIN_SHIFT:
+            return False  # a becslés szerint a szelep már jó helyen van: nincs mit módosítani
+        cal.target, cal.target_offset, cal.aligned, cal.guessed = anchor, offset, False, True
+        if await self._async_retarget(st, valve_id, cal, number, offset, limits, now_ts):
+            self._save_later()
+            return True
+        cal.forget_target()  # nem lett belőle módosítás: a becslés nem marad meg
+        return False
+
+    def _note_late_revert(
+        self, st: "RoomStatus", valve_id: str, cal: ValveCal, offset: float, now_ts: float
+    ) -> str | None:
+        """Az utolsó módosítás után a szám a módosítás előtti értékre állt vissza (a 60 másodperces megerősítés után).
+
+        A Meross LAN a számot az új értékre állítja be (optimista), és a hub következő jelentése írja felül: ha az
+        eszköz nem fogadta el a módosítást, a régi érték percekkel később jön vissza. Ez ugyanaz, mint a megerősítési
+        időn belüli elutasítás, ezért hibapont (két ilyen után a szelep felfüggesztődik: egy olyan eszközre, ami nem
+        tartja meg a kalibrációt, nem írunk újra és újra), és a felhasználónak is jelezni kell, a figyelmeztetések
+        között (a Naplók oldal alapnézetében látszik).
+
+        Ha 24 órán belül másodszor áll vissza a szám, a szelep azonnal felfüggesztődik, akkor is, ha közben egy mérés
+        rendben lévőnek találta (a mérés a visszaállás előtt készült, nem bizonyítja, hogy az eszköz megtartja az
+        értéket): különben a "módosít, mérés rendben, visszaáll" kör naponta akár tucatszor megismétlődne.
+
+        None, ha nem késői visszaállásról van szó; "reverted", ha igen; "suspended", ha a szelep emiatt felfüggesztődött."""
+        before, written = cal.last_from, cal.target_offset
+        if before is None or written is None or not _near(offset, before) or _near(before, written):
+            return None
+        minutes = (now_ts - cal.last_adjusted) / 60 if cal.last_adjusted else -1
+        if not 0 <= minutes <= CAL_LATE_REVERT_SECONDS / 60:
+            return None
+        cal.last_from = None
+        cal.late_reverts = [t for t in cal.late_reverts if now_ts - 86400 < t <= now_ts] + [now_ts]
+        del cal.late_reverts[:-CAL_LATE_REVERTS_MAX]
+        if len(cal.late_reverts) >= CAL_LATE_REVERTS_MAX:
+            cal.strikes = max(cal.strikes, CAL_MAX_STRIKES - 1)  # ismétlődő visszaállás: a közbeeső rendes mérés nem számít
+        self.ctl._tlog(
+            "%s: a kalibráció-szám a módosítás (%+g -> %+g °C) után %d perccel visszaállt %+g °C-ra (az eszköz nem "
+            "tartotta meg, vagy kézzel visszaállították)",
+            self.ctl._valve_label(valve_id),
+            before,
+            written,
+            round(minutes),
+            offset,
+        )
+        if now_ts - cal.revert_logged > 1800:
+            cal.revert_logged = now_ts
+            _LOGGER.warning(
+                "%s: a kalibráció-szám a módosítás (%+g -> %+g °C) után %d perccel visszaállt %+g °C-ra. Vagy az eszköz "
+                "nem fogadta el az új értéket (a Meross LAN a számot az eszköz jelentése szerint frissíti), vagy kézzel "
+                "visszaállították. Ha nem te voltál, a szelep nem tartja meg a kalibrációt: nézd meg a Meross LAN naplóját.",
+                valve_id,
+                before,
+                written,
+                round(minutes),
+                offset,
+            )
+        if self._add_strike(st, valve_id, cal, now_ts, "reverted"):
+            cal.forget_target()
+            return "suspended"
+        return "reverted"
+
     async def _async_retarget(
         self,
         st: "RoomStatus",
@@ -938,12 +1091,38 @@ class Calibrator:
         kalibráció tűrése (`CAL_THRESHOLD`) a 0,5 °C-os váltásokat el is nyelné. Ami így nem pontos
         (kerekítés, zaj), azt a következő csendes mérés a tűrésen belülre hozza.
 
+        2.16: ha a számot közben átállították (kézzel, az alkalmazásból, másik automatika), az sem akadály: a
+        kalibráció additív, ezért a szelep mostani igazítása a rögzítettből kiszámolható (ennyivel hidegebbet mutat
+        a szelep, amennyivel a szám a rögzített érték alá ment). Korábban ilyenkor a plugin "idegen módosításnak"
+        vette, és kihűlt radiátorra várt: fűtési időben ez órákig, akár soha nem jött el, vagyis az eltolás átállítása
+        nem csinált semmit.
+
         Igaz, ha ebben a körben ez volt a teendő (a kör véget ér); hamis, ha nincs mit módosítani, vagy
         nem tudjuk, mire volt beállítva a szelep: akkor a szokásos, mérés-alapú döntés következik.
         """
         ctl = self.ctl
-        if cal.target is None or cal.target_offset is None or not _near(offset, cal.target_offset):
+        if cal.target is None or cal.target_offset is None:
             return False
+        if not _near(offset, cal.target_offset):
+            moved = cal.target + (cal.target_offset - offset)
+            if abs(moved) > CAL_TARGET_LIMIT:
+                return False  # nem hihető igazítás: a mérés dönt
+            late = self._note_late_revert(st, valve_id, cal, offset, now_ts)
+            if late == "suspended":
+                self._set(cal, "suspended")
+                return True
+            if late is None:
+                ctl._tlog(
+                    "%s: a kalibráció-számot közben átállították (%+g -> %+g °C); a szelep igazítása ennek megfelelően "
+                    "%s °C-ról %s °C-ra módosult",
+                    ctl._valve_label(valve_id),
+                    cal.target_offset,
+                    offset,
+                    trvlog.num(cal.target),
+                    trvlog.num(moved),
+                )
+            cal.target, cal.target_offset, cal.aligned = moved, offset, False
+            self._save_later()
         shift = st.trv_offset - cal.target  # pozitív: a szelepnek még hidegebbet kell mutatnia
         if abs(shift) < CAL_BIAS_MIN_SHIFT:
             return False
@@ -1092,6 +1271,7 @@ class Calibrator:
             "sent": False,
             "done": False,
             "judge": retarget_from is None,
+            "bias": bias,  # az eltolás, amihez a módosítás igazít (leállás után a rögzített igazítás pótlásához)
         }
         before = (cal.last_write, list(cal.writes), self._last_global)
         cal.last_write = now_ts
@@ -1112,6 +1292,7 @@ class Calibrator:
             return
         cal.pending["sent"] = True
         cal.last_adjusted = now_ts
+        cal.last_from = offset
         cal.samples.clear()
         cal.settle_until = now_ts + CAL_SETTLE_SECONDS
         self._remember_target(cal, bias, new)  # a szelep mostantól erre az eltolásra van beállítva

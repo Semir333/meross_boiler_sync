@@ -22,6 +22,7 @@ from typing import Any
 from .const import (
     CAL_GLOBAL_SPACING,
     CAL_MAX_PER_DAY,
+    CAL_MAX_PER_DAY_USER,
     CAL_MIN_INTERVAL,
     CAL_QUIET_SECONDS,
     CAL_SETTLE_SECONDS,
@@ -99,6 +100,15 @@ def _minutes(seconds: float) -> str:
     return f"{seconds / 60:g} perc"
 
 
+def duration(seconds: float) -> str:
+    """Rövid, magyar időtartam a naplósorokhoz: "5 perc", "1 óra 20 perc"."""
+    minutes = max(int(round(seconds / 60)), 1)
+    if minutes < 120:
+        return f"{minutes} perc"
+    hours, rest = divmod(minutes, 60)
+    return f"{hours} óra" + (f" {rest} perc" if rest else "")
+
+
 _STATE_TEXT: dict[tuple[str, str | None], str] = {
     ("off", None): "ebben a szobában ki van kapcsolva",
     ("error", None): "váratlan hiba (a részletek a naplóban)",
@@ -116,7 +126,7 @@ _STATE_TEXT: dict[tuple[str, str | None], str] = {
     ("waiting", "unsent"): "az előző módosítás parancsa nem ment el (leállás közben), új mérés indul",
     ("waiting", "external"): "közben kézzel átállították a kalibrációt, új mérés indul",
     ("waiting", "interval"): f"két módosítás között legalább {CAL_MIN_INTERVAL // 3600} óra telik el",
-    ("waiting", "daily_limit"): f"elérte a napi {CAL_MAX_PER_DAY} módosítást, holnapig vár",
+    ("waiting", "daily_limit"): f"elérte a napi módosítás-keretet (mérésből számolt: {CAL_MAX_PER_DAY}, eltolás-váltásra: {CAL_MAX_PER_DAY_USER} / 24 óra)",
     ("waiting", "spacing"): f"a másik szelep módosítása után {_minutes(CAL_GLOBAL_SPACING)} szünetet tart",
     ("waiting", "backoff"): "az előző parancs sikertelen volt, később próbálom újra",
     ("waiting", "reverted"): "a hatástalan módosítást visszaállítottam",

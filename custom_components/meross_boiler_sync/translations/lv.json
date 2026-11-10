@@ -196,7 +196,7 @@
           "manual_boost_end_on_target": "Ja izslēgts, Sildīt tagad ilgst visu norādīto laiku un tur paaugstināto mērķi.",
           "gas_estimate_enabled": "Pievieno aptuvenā gāzes patēriņa sensoru. Tas skaita katla darbības laiku; laiks, kad Home Assistant nedarbojas, netiek skaitīts.",
           "gas_m3_per_hour": "Cik m³ gāzes katls patērē stundā, kamēr ir ieslēgts (skatiet datu plāksnīti vai rēķinu). Salīdziniet sensoru ar gāzes skaitītāja rādījumu un pielāgojiet šo vērtību, līdz tie sakrīt.",
-          "calibration_enabled": "Kad ieslēgta, spraudnis automātiski pielāgo vārstu kalibrēšanas vērtību pēc istabas termometra (Meross LAN: skaitlis *Kalibrēšana*). Atsevišķas istabas var izslēgt, rediģējot istabu. Funkcija ieraksta vārstā pastāvīgu iestatījumu, tāpēc vispirms izmēģiniet izmēģinājuma režīmā.",
+          "calibration_enabled": "Kad ieslēgta, spraudnis automātiski pielāgo vārstu kalibrēšanas vērtību pēc istabas termometra (Meross LAN: skaitlis *Kalibrēšana*). Atsevišķas istabas var izslēgt, rediģējot istabu. Funkcija ieraksta vārstā pastāvīgu iestatījumu, tāpēc vispirms izmēģiniet izmēģinājuma režīmā. Spraudnis pats pārvalda kalibrēšanas skaitli: ja to nomaināt ar roku, tas dažu minūšu laikā pārrēķina un atkal saskaņo ar istabas TRV nobīdi (lai redzētu neapstrādāto vērtību, izslēdziet istabas vārstu kalibrēšanu).",
           "calibration_dry_run": "Tikai ieraksta žurnālā un nosūta notikumu par to, ko iestatītu, bet vārstā neraksta. Jau uzsāktās izmaiņas izmēģinājuma režīmā netiek turpinātas.",
           "residual_comp": "Katrai telpai mēra, cik tā vēl sasilst pēc siltuma pieprasījuma beigām (radiatora atlikušais siltums), un to apgūst (pēdējo 9 tīro mērījumu mediāna, vajag vismaz 4). Ieslēgts, tas beidz telpas pieprasījumu par tik agrāk, bet tikai to daļu, kas pārsniedz zemāk norādīto pieļaujamo pārsniegumu. Viss ieslēgšanas/izslēgšanas intervāls pārbīdās uz leju par tikpat, tāpēc katls nestartē biežāk, taču arī telpas vidējā temperatūra sanāk aptuveni par tik zemāka. Nepieciešams istabas termometrs; nedarbojas “Sildīt tagad” un priekšsildīšanas laikā.",
           "residual_allow": "Cik daudz telpa drīkst pārsniegt savu mērķi atlikušā siltuma dēļ. Kompensē tikai to daļu, kas pārsniedz šo vērtību: ar 0,3 °C un apgūtu atlikušo siltumu 0,8 °C pieprasījums beidzas par 0,5 °C agrāk. 0 = mēģināt trāpīt tieši mērķī; ne vairāk kā 1,0. Korekcija nekad nepārsniedz 0,8 °C."
@@ -547,7 +547,7 @@
     },
     "calibration_suspended": {
       "title": "Vārsta kalibrēšana apturēta",
-      "description": "Vārstam {valve} istabā {room} divas kalibrēšanas izmaiņas pēc kārtas nepietuvināja vārsta mērījumu istabas termometram. Tāpēc automātiskā kalibrēšana šim vārstam ir apturēta uz {days} dienām, un iepriekšējā vērtība ir atjaunota. Pārbaudiet vārsta skaitli *Kalibrēšana* un to, vai vārsts to tiešām izmanto. Paziņojums pazūd, kad apturēšana beidzas vai funkcija tiek izslēgta."
+      "description": "Vārstam {valve} istabā {room} divas kalibrēšanas izmaiņas pēc kārtas nepietuvināja vārsta mērījumu istabas termometram (vai kalibrēšanas skaitlis divreiz 24 stundu laikā atgriezās pie vecās vērtības: ierīce to nesaglabāja, vai arī tas tika atiestatīts ar roku). Tāpēc automātiskā kalibrēšana šim vārstam ir apturēta uz {days} dienām. Ja izmaiņa mērījumu nepietuvināja, iepriekšējā vērtība ir atjaunota. Pārbaudiet vārsta skaitli *Kalibrēšana* un to, vai vārsts to tiešām izmanto. Paziņojums pazūd, kad apturēšana beidzas vai funkcija tiek izslēgta."
     }
   },
   "selector": {

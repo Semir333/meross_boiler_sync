@@ -196,7 +196,7 @@
           "manual_boost_end_on_target": "Når den er av, varer Varm nå hele varigheten og holder det hevede målet.",
           "gas_estimate_enabled": "Legger til sensoren for estimert gassforbruk. Den teller kjelens på-tid; tid da Home Assistant ikke kjører, telles ikke.",
           "gas_m3_per_hour": "Hvor mange m³ gass kjelen bruker per time mens den er på (se typeskiltet eller regningen). Sammenlign sensoren med avlesningen på gassmåleren og juster verdien til de stemmer overens.",
-          "calibration_enabled": "Når den er på, justerer pluginen automatisk kalibreringsverdien til ventilene ut fra romtermometeret (Meross LAN: tallet *Kalibrering*). Enkeltrom kan slås av når du redigerer rommet. Funksjonen skriver en varig innstilling i ventilen, så prøv den først i prøvemodus.",
+          "calibration_enabled": "Når den er på, justerer pluginen automatisk kalibreringsverdien til ventilene ut fra romtermometeret (Meross LAN: tallet *Kalibrering*). Enkeltrom kan slås av når du redigerer rommet. Funksjonen skriver en varig innstilling i ventilen, så prøv den først i prøvemodus. Pluginen styrer kalibreringstallet: hvis du endrer det for hånd, regner den det om i løpet av få minutter og bringer det tilbake i tråd med rommets TRV-forskyvning (slå av romkalibreringen av ventiler for å se råverdien).",
           "calibration_dry_run": "Logger bare og sender en hendelse om hva som ville blitt satt, men skriver ikke til ventilen. Endringer som allerede pågår, fortsetter ikke i prøvemodus.",
           "residual_comp": "Måler per rom hvor mye rommet fortsatt blir varmere etter at varmebehovet har opphørt (radiatorens restvarme), og lærer det (median av de siste 9 rene målingene, minst 4 trengs). Når den er på, avslutter den romets varmebehov så mye tidligere, men bare den delen som ligger over den tillatte overskridelsen som er satt nedenfor. Hele av/på-båndet flyttes ned med samme beløp, så kjelen starter ikke oftere, men gjennomsnittstemperaturen i rommet blir også omtrent så mye lavere. Krever et romtermometer; virker ikke under «Varm nå» eller forvarming.",
           "residual_allow": "Hvor mye rommet kan gå over målet på grunn av restvarmen. Bare delen over dette kompenseres: med 0,3 °C og en lært restvarme på 0,8 °C opphører varmebehovet 0,5 °C tidligere. 0 = prøve å treffe nøyaktig på målet; høyst 1,0. Korreksjonen er aldri mer enn 0,8 °C."
@@ -547,7 +547,7 @@
     },
     "calibration_suspended": {
       "title": "Ventilkalibrering satt på pause",
-      "description": "På ventilen {valve} i {room} førte to kalibreringsendringer på rad ikke til at ventilens måling kom nærmere romtermometeret. Derfor er den automatiske kalibreringen satt på pause for denne ventilen i {days} dager, og forrige verdi er gjenopprettet. Kontroller tallet *Kalibrering* på ventilen og om ventilen faktisk bruker det. Varselet forsvinner når pausen er over eller funksjonen slås av."
+      "description": "På ventilen {valve} i {room} førte to kalibreringsendringer på rad ikke til at ventilens måling kom nærmere romtermometeret (eller kalibreringstallet gikk to ganger innen 24 timer tilbake til den gamle verdien: enheten beholdt det ikke, eller det ble tilbakestilt for hånd). Derfor er den automatiske kalibreringen satt på pause for denne ventilen i {days} dager. Hvis en endring ikke førte målingen nærmere, er forrige verdi gjenopprettet. Kontroller tallet *Kalibrering* på ventilen og om ventilen faktisk bruker det. Varselet forsvinner når pausen er over eller funksjonen slås av."
     }
   },
   "selector": {

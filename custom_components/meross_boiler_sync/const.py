@@ -203,7 +203,10 @@ CAL_JUDGE_MIN = 1.0  # °C: ennél kisebb módosítás hatását nem ítéli meg
 CAL_MAX_DIFF = 3.0  # °C: ennél nagyobb eltérés rossz hőmérő-elhelyezésre utal, ahhoz nem nyúl
 CAL_MAX_TOTAL = 4.0  # °C: az eredeti kalibrációtól legfeljebb ennyit mozdul el
 CAL_MIN_INTERVAL = 2 * 3600  # két módosítás között legalább ennyi idő telik el szelepenként
-CAL_MAX_PER_DAY = 4  # szelepenként legfeljebb ennyi módosítás 24 óra alatt
+CAL_MAX_PER_DAY = 4  # szelepenként legfeljebb ennyi automatikus (mérésből számolt) módosítás 24 óra alatt
+# 2.16: az eltolás megváltoztatása (a felhasználó kérése) nem szabályozási kör: több kell neki, mert tesztelés közben
+# egymás után többször is átállíthatják; a napi 4 módosítás elfogyása után a kérés órákig, akár másnapig sem teljesülne
+CAL_MAX_PER_DAY_USER = 12
 CAL_GLOBAL_SPACING = 300  # másodperc két szelep módosítása között (a Meross hub kímélése)
 CAL_SETTLE_SECONDS = 600  # módosítás után ennyit vár az új mérésre (a hub ritkán jelent)
 CAL_CONFIRM_SECONDS = 60  # ennyi idő után nézi meg, hogy a szám-entitás megtartotta-e az új értéket
@@ -221,6 +224,15 @@ CAL_BIAS_MIN_SHIFT = 0.25  # °C: ekkora (vagy nagyobb) eltolás-váltást alkal
 # 2.15: A 2.14 előtti állományban nincs rögzítve, mihez volt igazítva a szelep. Ilyenkor (csak egyszer, a frissítés után)
 # a szelep eredeti és mostani kalibrációjának különbségéből becsüljük (az igazítás additív), ha az hihető eltolás.
 CAL_GUESS_MAX = TRV_OFFSET_MAX + 0.25  # °C: ennél nagyobb becsült eltolás nem hihető (nincs becslés)
+# 2.16: Ha a kalibráció-számot kézzel (vagy az alkalmazásból) átállították, a szelep igazítása a rögzítettből kiszámolható
+# (a kalibráció additív), és a normál 0..3 °C-os eltolás-tartományon kívülre is eshet. Ennél nagyobb érték nem hihető.
+CAL_TARGET_LIMIT = 15.0  # °C
+# 2.16: A Meross LAN a számot az új értékre állítja (optimista), és a hub következő jelentése írja felül. Ha az eszköz nem fogadta
+# el a módosítást, a régi érték a 60 másodperces megerősítés után, percekkel később is visszajöhet: ezt ennyi időn belül észleli.
+CAL_LATE_REVERT_SECONDS = 3 * 3600
+# Ennyi késői visszaállás után 24 órán belül a szelep felfüggesztődik (akkor is, ha közben egy mérés rendben lévőnek találta:
+# a mérés a visszaállás előtt készült). Különben a módosít - rendben - visszaáll kör naponta többször megismétlődne.
+CAL_LATE_REVERTS_MAX = 2
 CAL_IDLE_KEEP_SECONDS = 120  # a "kihűlt a radiátor" számláló ennyi leállás után még hihető (újratöltés); hosszabb kiesés után nem
 # 2.14: a TRV-naplóba ugyanazon szelep "vár / mintavétel" jellegű állapotváltásai ilyen ritkán kerülnek (másodperc);
 # az eredmény-jellegű állapotok (rendben, hiba, javaslat, felfüggesztés, határ) azonnal.

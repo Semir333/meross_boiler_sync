@@ -31,6 +31,27 @@ Fully localized in over 15 languages (including English, Hungarian, German, Fren
 
 ## 📋 Version History
 
+### Version 2.1
+
+Unavailable or faulty room sensor  
+
+In cases where a sensor is unreachable or outdated, the system has always defaulted to using the valves' own internal temperature readings. A new behavior is that the system now also switches to this mode if it receives an invalid value—such as a reading below 1°C, above 45°C, or "NaN" (e.g., 0, -127, 85)—or if the sensor’s reading fluctuates by more than 6°C in total over a 20-minute period. The system will disregard the sensor for 30 minutes; during this interval, valve actuation (the valve reverts to its original target setting), "Heat Now" functionality, pre-heating, and calibration are all suspended. This is indicated via a notification and an event log entry.  
+It filters out erroneous values ​​for valve measurements, the humidity sensor, and the outdoor sensor.  
+When disabled, valves that had been boosted revert to their original target (previously, they would have remained at the maximum setting).  
+
+### Version 2.0
+
+Valve Calibration  
+
+This aligns radiator valves with the room thermometer. It does not affect the boiler thermostat.
+It is disabled by default and can also be disabled on a per-room basis. A "Test Run" mode is available, which only logs data without applying changes to the valve.
+Measurements are taken only when the radiator has cooled down—meaning neither the boiler nor the valve has been heating for at least 90 minutes. During this time, the room temperature must remain stable, and no windows may be open.
+The system calculates the median of 6 samples and applies an adjustment only if the deviation is 0.8 °C or greater. The value can be adjusted by a maximum of ±4 °C from the original setting.
+Every adjustment is verified: the system checks whether the valve has retained the new setting and if it is now more closely aligned with the room thermometer. If not, the setting is reverted. After two unsuccessful attempts, the valve is suspended from calibration for 7 days, and a "Repairs" notification is issued.
+If the Meross LAN integration is configured to follow an external thermometer ("Tracked sensor"), the plugin will not alter the calibration.
+Upon a restart or reload, the intended adjustment is written to disk before the command is executed; after the restart, the actual state of the numeric entity reveals whether the change was successfully applied. Time intervals, the error counter, and suspension status are preserved. No write operations occur while Home Assistant is starting up or shutting down.
+
+
 ### Version 1.9
 
 Javascript update

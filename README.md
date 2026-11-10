@@ -31,6 +31,11 @@ Fully localized in over 15 languages (including English, Hungarian, German, Fren
 
 ## 📋 Version History
 
+### Version 2.5  
+
+TRW Offset starting hotfix  
+Enable log for HA logs.
+
 ### Version 2.4  
 
 #### Meross_lan integration 6.0.1 update fix  

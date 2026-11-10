@@ -16,6 +16,16 @@ Hogyan dönt: több mérés mediánjából számolja az eltérést (szoba hőmé
 mérésből, a küszöbnél nagyobb és a hihetőségi határon belüli eltérést korrigál, a szám-entitás
 lépésközére kerekítve, az eredeti kalibrációtól legfeljebb `CAL_MAX_TOTAL` fokra.
 
+TRV eltolás (2.12): a szelep saját szabályzása arányos, ezért kis eltérésnél csak részben nyit, és a
+szoba lassan vagy sehogy sem melegszik fel. Szobánként megadható eltolás (`trv_offset`, °C) esetén a
+kalibráció nem a szoba hőmérőjére, hanem annál ennyivel hidegebb értékre állítja a szelep mérését. A
+szelep így a cél alatti szobában mindig teljesen nyit, a célhőmérséklet (a szelepen beállított érték)
+pedig változatlan marad. Ez ugyanaz, mintha a szelep célját az eltolással megemelnénk, de nem kell
+célhőmérsékletet írni, és ha a HA leáll, a szelepen tartósan csak az eltolásnyi eltérés marad.
+Következménye: ha a kazán más szobáknak fűt, ez a szoba a céljánál legfeljebb az eltolásnyival
+melegebb lehet. Az eltolás 0 (ki), vagy legalább 1 °C: a kalibráció tűrése (`CAL_THRESHOLD`) miatt
+kisebb érték nem érvényesülne.
+
 Mi védi a beállítást:
 - Minden módosítás előtt "előre írt" rekord kerül a lemezre; újraindítás után a plugin a szám-entitás
   állapotából tudja, megtörtént-e a módosítás, és a korlátozások (időköz, napi darabszám) tovább élnek.
@@ -125,9 +135,11 @@ def plan_offset(
     high: float,
     step: float,
 ) -> float | None:
-    """Az új kalibrációs érték a mért eltérésből; None, ha nincs mit módosítani.
+    """Az új kalibrációs érték a hátralévő korrekcióból; None, ha nincs mit módosítani.
 
-    `diff` = szoba hőmérő - szelep mérése. A cél: offset + diff, az eredeti értéktől legfeljebb
+    `diff` = a szelep mérésének kívánt és tényleges értéke közti különbség. Eltolás nélkül a kívánt
+    mérés a szoba hőmérője, vagyis `diff` = szoba hőmérő - szelep mérése; eltolásnál a kívánt mérés a
+    szoba hőmérője mínusz az eltolás. A cél: offset + diff, az eredeti értéktől legfeljebb
     `CAL_MAX_TOTAL` fokra, a szám-entitás határain belül, a lépésközre kerekítve.
     """
     base = offset if orig is None else orig
@@ -337,7 +349,7 @@ class Calibrator:
                         if now_ts - cal.err_logged > 1800:
                             cal.err_logged = now_ts
                             _LOGGER.exception("%s: váratlan hiba a szelep kalibrációjában: %s", valve_id, err)
-                    st.calibration.append(self._summary(valve_id, cal, now_ts))
+                    st.calibration.append(self._summary(valve_id, cal, now_ts, st.trv_offset))
         except Exception as err:  # noqa: BLE001
             _LOGGER.exception("Váratlan hiba a kalibrációban: %s", err)
 
@@ -446,14 +458,16 @@ class Calibrator:
             cal.samples.clear()
         self._set(cal, status, reason)
 
-    def _summary(self, valve_id: str, cal: ValveCal, now_ts: float) -> dict[str, Any]:
+    def _summary(self, valve_id: str, cal: ValveCal, now_ts: float, bias: float = 0.0) -> dict[str, Any]:
         return {
             "valve": valve_id,
             "status": cal.status,
             "reason": cal.reason,
             "offset": cal.offset,
             "original_offset": cal.orig,
+            # szoba hőmérő - szelep mérése, és a kívánt érték (a szoba eltolása)
             "difference": None if cal.last_diff is None else round(cal.last_diff, 1),
+            "target_difference": bias,
             "samples": len(cal.samples),
             "last_adjusted": _iso(cal.last_adjusted),
             "proposed_offset": cal.proposed,
@@ -572,13 +586,15 @@ class Calibrator:
             cal.pending = None
             self._save_later()
 
-        # 6) döntés
-        if abs(med) < CAL_THRESHOLD:
+        # 6) döntés: a szelep mérése a szoba hőmérője mínusz az eltolás legyen (eltolás nélkül: a szoba hőmérője)
+        bias = st.trv_offset
+        res = med - bias  # a hátralévő korrekció: pozitív, ha a szelep mérését emelni kell
+        if abs(res) < CAL_THRESHOLD:
             cal.strikes = 0
             return self._done(cal, "ok", None, now_ts, healthy=True)
-        if abs(med) > CAL_MAX_DIFF:
+        if abs(res) > CAL_MAX_DIFF:
             return self._done(cal, "implausible", None, now_ts)
-        new = plan_offset(med, offset, cal.orig, low, high, step)
+        new = plan_offset(res, offset, cal.orig, low, high, step)
         if new is None:
             return self._done(cal, "limit", None, now_ts)
         wait = self._rate_wait(cal, now_ts)
@@ -588,7 +604,7 @@ class Calibrator:
             return self._set(cal, "waiting", "backoff")
         if ctl.cal_dry_run:
             return self._propose(st, valve_id, cal, offset, new, med, now_ts)
-        await self._async_write(valve_id, cal, number, offset, new, med, now_ts)
+        await self._async_write(valve_id, cal, number, offset, new, med, now_ts, bias)
 
     def _done(self, cal: ValveCal, status: str, reason: str | None, now_ts: float, *, healthy: bool = False) -> None:
         """A mérés lezárult; egy ideig nem mér újra."""
@@ -701,7 +717,7 @@ class Calibrator:
             valve_id,
             frm,
             to,
-            "" if reason != "auto" or diff is None else f" (a szelep mérése {self._diff_text(diff)})",
+            "" if reason != "auto" or diff is None else f" (a szelep mérése {self._diff_text(diff, st.trv_offset)})",
         )
         self.ctl._emit(
             "valve_calibrated",
@@ -710,13 +726,20 @@ class Calibrator:
             from_offset=frm,
             to_offset=to,
             difference=None if diff is None else round(diff, 2),
+            target_difference=st.trv_offset,
             dry_run=False,
             reason=reason,
         )
 
     @staticmethod
-    def _diff_text(diff: float) -> str:
-        return "%.1f °C-kal %s a szoba hőmérőjénél" % (abs(diff), "alacsonyabb" if diff > 0 else "magasabb")
+    def _diff_text(diff: float, bias: float = 0.0) -> str:
+        if abs(diff) < 0.05:
+            text = "megegyezik a szoba hőmérőjével"
+        else:
+            text = "%.1f °C-kal %s a szoba hőmérőjénél" % (abs(diff), "alacsonyabb" if diff > 0 else "magasabb")
+        if bias > 0:
+            text += ", a cél %.1f °C-kal alacsonyabb" % bias
+        return text
 
     def _propose(
         self, st: "RoomStatus", valve_id: str, cal: ValveCal, offset: float, new: float, med: float, now_ts: float
@@ -732,7 +755,7 @@ class Calibrator:
             valve_id,
             offset,
             new,
-            self._diff_text(med),
+            self._diff_text(med, st.trv_offset),
         )
         self.ctl._emit(
             "valve_calibrated",
@@ -741,13 +764,22 @@ class Calibrator:
             from_offset=offset,
             to_offset=new,
             difference=round(med, 2),
+            target_difference=st.trv_offset,
             dry_run=True,
             reason="auto",
         )
         self._save_later()
 
     async def _async_write(
-        self, valve_id: str, cal: ValveCal, number: str, offset: float, new: float, med: float, now_ts: float
+        self,
+        valve_id: str,
+        cal: ValveCal,
+        number: str,
+        offset: float,
+        new: float,
+        med: float,
+        now_ts: float,
+        bias: float = 0.0,
     ) -> None:
         ctl = self.ctl
         if cal.orig is None:
@@ -778,7 +810,7 @@ class Calibrator:
             valve_id,
             offset,
             new,
-            self._diff_text(med),
+            self._diff_text(med, bias),
         )
         self._save_later()
 

@@ -43,7 +43,8 @@
           "humidity_sensor": "Sensor de humedad de la habitación (opcional)",
           "window_sensors": "Sensor(es) de ventana / puerta (opcional)",
           "window_open_delay": "Retardo de ventana abierta – esta habitación, minutos (vacío = valor global)",
-          "calibrate_valves": "Calibración automática de válvulas (si está activada en Funciones)"
+          "calibrate_valves": "Calibración automática de válvulas (si está activada en Funciones)",
+          "trv_offset": "Desfase TRV – la válvula mide tanto menos (°C, 0 = desactivado)"
         },
         "data_description": {
           "name": "Ej. Salón",
@@ -57,7 +58,8 @@
           "humidity_sensor": "Con humedad alta, la temperatura objetivo de la habitación se eleva ligeramente (ver Ajustes básicos).",
           "window_sensors": "Mientras una ventana o puerta permanezca abierta más tiempo que el retardo, la habitación deja de pedir calor y se libera el refuerzo de la válvula. Con varios sensores basta con uno abierto.",
           "window_open_delay": "Cuánto tiempo debe estar abierta la ventana antes de que la habitación reaccione, para que una ventilación breve no cambie nada. 0 = inmediato. Si está vacío, se aplica el valor global.",
-          "calibrate_valves": "Corrige la lectura de temperatura de las válvulas con el termómetro de la habitación. Solo funciona con un sensor de temperatura de la habitación. Desactivada, las válvulas de esta habitación no se tocan."
+          "calibrate_valves": "Corrige la lectura de temperatura de las válvulas con el termómetro de la habitación. Solo funciona con un sensor de temperatura de la habitación. Desactivada, las válvulas de esta habitación no se tocan.",
+          "trv_offset": "La calibración ajusta la lectura de la válvula no al termómetro de la habitación, sino a un valor más frío en este desfase. En una habitación por debajo de su objetivo, la válvula se abre entonces por completo en lugar de abrirse solo en parte ante una pequeña diferencia. La temperatura objetivo no cambia. Mientras la caldera calienta para otras habitaciones, esta habitación puede superar su objetivo como máximo en este desfase. 0 = desactivado (la lectura de la válvula sigue al termómetro de la habitación); en otro caso, al menos 1,0, se recomienda 1,0–1,5 °C. Solo funciona con la calibración de válvulas activada y un termómetro de habitación configurado."
         }
       },
       "edit_room": {
@@ -80,7 +82,8 @@
           "humidity_sensor": "Sensor de humedad de la habitación (opcional)",
           "window_sensors": "Sensor(es) de ventana / puerta (opcional)",
           "window_open_delay": "Retardo de ventana abierta – esta habitación, minutos (vacío = valor global)",
-          "calibrate_valves": "Calibración automática de válvulas (si está activada en Funciones)"
+          "calibrate_valves": "Calibración automática de válvulas (si está activada en Funciones)",
+          "trv_offset": "Desfase TRV – la válvula mide tanto menos (°C, 0 = desactivado)"
         },
         "data_description": {
           "name": "Ej. Salón",
@@ -94,7 +97,8 @@
           "humidity_sensor": "Con humedad alta, la temperatura objetivo de la habitación se eleva ligeramente (ver Ajustes básicos).",
           "window_sensors": "Mientras una ventana o puerta permanezca abierta más tiempo que el retardo, la habitación deja de pedir calor y se libera el refuerzo de la válvula. Con varios sensores basta con uno abierto.",
           "window_open_delay": "Cuánto tiempo debe estar abierta la ventana antes de que la habitación reaccione, para que una ventilación breve no cambie nada. 0 = inmediato. Si está vacío, se aplica el valor global.",
-          "calibrate_valves": "Corrige la lectura de temperatura de las válvulas con el termómetro de la habitación. Solo funciona con un sensor de temperatura de la habitación. Desactivada, las válvulas de esta habitación no se tocan."
+          "calibrate_valves": "Corrige la lectura de temperatura de las válvulas con el termómetro de la habitación. Solo funciona con un sensor de temperatura de la habitación. Desactivada, las válvulas de esta habitación no se tocan.",
+          "trv_offset": "La calibración ajusta la lectura de la válvula no al termómetro de la habitación, sino a un valor más frío en este desfase. En una habitación por debajo de su objetivo, la válvula se abre entonces por completo en lugar de abrirse solo en parte ante una pequeña diferencia. La temperatura objetivo no cambia. Mientras la caldera calienta para otras habitaciones, esta habitación puede superar su objetivo como máximo en este desfase. 0 = desactivado (la lectura de la válvula sigue al termómetro de la habitación); en otro caso, al menos 1,0, se recomienda 1,0–1,5 °C. Solo funciona con la calibración de válvulas activada y un termómetro de habitación configurado."
         }
       },
       "remove_room": {
@@ -237,6 +241,7 @@
       "control_needs_sensor": "El control de válvulas requiere un sensor de temperatura de la habitación.",
       "invalid_date": "Fecha no válida, usa el formato MM-DD (ej. 05-15).",
       "release_ge_threshold": "La liberación debe ser menor que el umbral de refuerzo.",
+      "trv_offset_range": "El desfase debe ser 0 (desactivado) o estar entre 1,0 y 3,0 °C.",
       "no_days": "Selecciona al menos un día."
     }
   },
@@ -405,6 +410,9 @@
           },
           "calibration_room": {
             "name": "Esta habitación participa en la calibración de válvulas"
+          },
+          "trv_offset": {
+            "name": "Desfase TRV (°C)"
           },
           "valve_calibration": {
             "name": "Calibración de válvulas (estado por válvula)"

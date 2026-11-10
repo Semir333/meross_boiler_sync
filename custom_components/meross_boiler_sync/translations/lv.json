@@ -43,7 +43,8 @@
           "humidity_sensor": "Telpas mitruma sensors (neobligāts)",
           "window_sensors": "Loga / durvju sensors(-i) (neobligāts)",
           "window_open_delay": "Atvērta loga aizkave – šī telpa, minūtes (tukšs = globālā vērtība)",
-          "calibrate_valves": "Automātiska vārstu kalibrēšana (ja ieslēgta sadaļā Funkcijas)"
+          "calibrate_valves": "Automātiska vārstu kalibrēšana (ja ieslēgta sadaļā Funkcijas)",
+          "trv_offset": "TRV nobīde – vārsts mēra tik daudz zemāk (°C, 0 = izslēgts)"
         },
         "data_description": {
           "name": "Piem., Viesistaba",
@@ -57,7 +58,8 @@
           "humidity_sensor": "Pie augsta mitruma telpas mērķa temperatūra tiek nedaudz paaugstināta (skatīt Pamatiestatījumus).",
           "window_sensors": "Kamēr logs vai durvis ir atvērtas ilgāk par aizkavi, telpa nepieprasa siltumu un vārsta pacelšana tiek atbrīvota. Ja sensoru ir vairāki, pietiek ar vienu atvērtu.",
           "window_open_delay": "Cik ilgi logam jābūt atvērtam, pirms telpa reaģē, lai īsa vēdināšana neko nepārslēgtu. 0 = nekavējoties. Ja tukšs, tiek izmantota globālā vērtība.",
-          "calibrate_valves": "Koriģē vārstu temperatūras mērījumu, izmantojot istabas termometru. Darbojas tikai ar istabas temperatūras sensoru. Kad izslēgta, šīs istabas vārsti netiek skarti."
+          "calibrate_valves": "Koriģē vārstu temperatūras mērījumu, izmantojot istabas termometru. Darbojas tikai ar istabas temperatūras sensoru. Kad izslēgta, šīs istabas vārsti netiek skarti.",
+          "trv_offset": "Kalibrēšana iestata vārsta mērījumu nevis uz istabas termometra vērtību, bet uz vērtību, kas par šo lielumu zemāka. Tad istabā, kuras temperatūra ir zem mērķa, vārsts atveras pilnībā, nevis tikai daļēji pie nelielas novirzes. Mērķa temperatūra nemainās. Kamēr katls silda citas telpas, šī istaba var kļūt siltāka par savu mērķi ne vairāk kā par šo lielumu. 0 = izslēgts (vārsta mērījums seko istabas termometram); citādi vismaz 1,0, ieteicams 1,0–1,5 °C. Darbojas tikai ar ieslēgtu vārstu kalibrēšanu un norādītu istabas termometru."
         }
       },
       "edit_room": {
@@ -80,7 +82,8 @@
           "humidity_sensor": "Telpas mitruma sensors (neobligāts)",
           "window_sensors": "Loga / durvju sensors(-i) (neobligāts)",
           "window_open_delay": "Atvērta loga aizkave – šī telpa, minūtes (tukšs = globālā vērtība)",
-          "calibrate_valves": "Automātiska vārstu kalibrēšana (ja ieslēgta sadaļā Funkcijas)"
+          "calibrate_valves": "Automātiska vārstu kalibrēšana (ja ieslēgta sadaļā Funkcijas)",
+          "trv_offset": "TRV nobīde – vārsts mēra tik daudz zemāk (°C, 0 = izslēgts)"
         },
         "data_description": {
           "name": "Piem., Viesistaba",
@@ -94,7 +97,8 @@
           "humidity_sensor": "Pie augsta mitruma telpas mērķa temperatūra tiek nedaudz paaugstināta (skatīt Pamatiestatījumus).",
           "window_sensors": "Kamēr logs vai durvis ir atvērtas ilgāk par aizkavi, telpa nepieprasa siltumu un vārsta pacelšana tiek atbrīvota. Ja sensoru ir vairāki, pietiek ar vienu atvērtu.",
           "window_open_delay": "Cik ilgi logam jābūt atvērtam, pirms telpa reaģē, lai īsa vēdināšana neko nepārslēgtu. 0 = nekavējoties. Ja tukšs, tiek izmantota globālā vērtība.",
-          "calibrate_valves": "Koriģē vārstu temperatūras mērījumu, izmantojot istabas termometru. Darbojas tikai ar istabas temperatūras sensoru. Kad izslēgta, šīs istabas vārsti netiek skarti."
+          "calibrate_valves": "Koriģē vārstu temperatūras mērījumu, izmantojot istabas termometru. Darbojas tikai ar istabas temperatūras sensoru. Kad izslēgta, šīs istabas vārsti netiek skarti.",
+          "trv_offset": "Kalibrēšana iestata vārsta mērījumu nevis uz istabas termometra vērtību, bet uz vērtību, kas par šo lielumu zemāka. Tad istabā, kuras temperatūra ir zem mērķa, vārsts atveras pilnībā, nevis tikai daļēji pie nelielas novirzes. Mērķa temperatūra nemainās. Kamēr katls silda citas telpas, šī istaba var kļūt siltāka par savu mērķi ne vairāk kā par šo lielumu. 0 = izslēgts (vārsta mērījums seko istabas termometram); citādi vismaz 1,0, ieteicams 1,0–1,5 °C. Darbojas tikai ar ieslēgtu vārstu kalibrēšanu un norādītu istabas termometru."
         }
       },
       "remove_room": {
@@ -237,6 +241,7 @@
       "control_needs_sensor": "Vārstu vadībai nepieciešams telpas temperatūras sensors.",
       "invalid_date": "Nederīgs datums, izmantojiet formātu MM-DD (piem., 05-15).",
       "release_ge_threshold": "Atbrīvošanai jābūt mazākai par pacelšanas slieksni.",
+      "trv_offset_range": "Nobīdei jābūt 0 (izslēgts) vai starp 1,0 un 3,0 °C.",
       "no_days": "Atlasiet vismaz vienu dienu."
     }
   },
@@ -405,6 +410,9 @@
           },
           "calibration_room": {
             "name": "Šī istaba piedalās vārstu kalibrēšanā"
+          },
+          "trv_offset": {
+            "name": "TRV nobīde (°C)"
           },
           "valve_calibration": {
             "name": "Vārstu kalibrēšana (stāvoklis katram vārstam)"

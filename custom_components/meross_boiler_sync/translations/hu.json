@@ -43,7 +43,8 @@
           "humidity_sensor": "Szoba páratartalom szenzor (opcionális)",
           "window_sensors": "Ablak- / ajtóérzékelő(k) (opcionális)",
           "window_open_delay": "Ablak nyitva késleltetés – ennél a szobánál, perc (üres = általános érték)",
-          "calibrate_valves": "Szelepek automata kalibrációja (ha a Funkciókban be van kapcsolva)"
+          "calibrate_valves": "Szelepek automata kalibrációja (ha a Funkciókban be van kapcsolva)",
+          "trv_offset": "TRV eltolás – a szelep ennyivel mutasson hidegebbet (°C, 0 = ki)"
         },
         "data_description": {
           "name": "Pl. Nappali",
@@ -57,7 +58,8 @@
           "humidity_sensor": "Magas páratartalomnál enyhén megemeli a szoba célhőmérsékletét (lásd Alapbeállítások).",
           "window_sensors": "Amíg egy ablak vagy ajtó a késleltetésnél tovább nyitva van, a szoba nem kér hőt, és a szelep emelés leáll. Több érzékelőnél bármelyik nyitott elég.",
           "window_open_delay": "Mennyi ideig kell nyitva lennie az ablaknak, mielőtt a szoba reagál, így a rövid szellőztetés nem kapcsol semmit. 0 = azonnal. Üresen az általános érték érvényes.",
-          "calibrate_valves": "A szoba hőmérője alapján korrigálja a szelepek hőmérőjét. Csak megadott szoba hőmérővel működik. Kikapcsolva ennek a szobának a szelepeihez nem nyúl."
+          "calibrate_valves": "A szoba hőmérője alapján korrigálja a szelepek hőmérőjét. Csak megadott szoba hőmérővel működik. Kikapcsolva ennek a szobának a szelepeihez nem nyúl.",
+          "trv_offset": "A kalibráció a szelep mérését nem a szoba hőmérőjére, hanem ennyivel hidegebb értékre állítja. A szelep így a cél alatti szobában teljesen kinyit, ahelyett hogy kis eltérésnél csak részben nyitna. A célhőmérséklet nem változik. Ha a kazán más szobáknak fűt, ez a szoba a céljánál legfeljebb ennyivel lehet melegebb. 0 = ki (a szelep mérése a szoba hőmérőjét követi), különben legalább 1,0; ajánlott 1,0–1,5 °C. Csak bekapcsolt szelep kalibrációval és megadott szoba hőmérővel működik."
         }
       },
       "edit_room": {
@@ -80,7 +82,8 @@
           "humidity_sensor": "Szoba páratartalom szenzor (opcionális)",
           "window_sensors": "Ablak- / ajtóérzékelő(k) (opcionális)",
           "window_open_delay": "Ablak nyitva késleltetés – ennél a szobánál, perc (üres = általános érték)",
-          "calibrate_valves": "Szelepek automata kalibrációja (ha a Funkciókban be van kapcsolva)"
+          "calibrate_valves": "Szelepek automata kalibrációja (ha a Funkciókban be van kapcsolva)",
+          "trv_offset": "TRV eltolás – a szelep ennyivel mutasson hidegebbet (°C, 0 = ki)"
         },
         "data_description": {
           "name": "Pl. Nappali",
@@ -94,7 +97,8 @@
           "humidity_sensor": "Magas páratartalomnál enyhén megemeli a szoba célhőmérsékletét (lásd Alapbeállítások).",
           "window_sensors": "Amíg egy ablak vagy ajtó a késleltetésnél tovább nyitva van, a szoba nem kér hőt, és a szelep emelés leáll. Több érzékelőnél bármelyik nyitott elég.",
           "window_open_delay": "Mennyi ideig kell nyitva lennie az ablaknak, mielőtt a szoba reagál, így a rövid szellőztetés nem kapcsol semmit. 0 = azonnal. Üresen az általános érték érvényes.",
-          "calibrate_valves": "A szoba hőmérője alapján korrigálja a szelepek hőmérőjét. Csak megadott szoba hőmérővel működik. Kikapcsolva ennek a szobának a szelepeihez nem nyúl."
+          "calibrate_valves": "A szoba hőmérője alapján korrigálja a szelepek hőmérőjét. Csak megadott szoba hőmérővel működik. Kikapcsolva ennek a szobának a szelepeihez nem nyúl.",
+          "trv_offset": "A kalibráció a szelep mérését nem a szoba hőmérőjére, hanem ennyivel hidegebb értékre állítja. A szelep így a cél alatti szobában teljesen kinyit, ahelyett hogy kis eltérésnél csak részben nyitna. A célhőmérséklet nem változik. Ha a kazán más szobáknak fűt, ez a szoba a céljánál legfeljebb ennyivel lehet melegebb. 0 = ki (a szelep mérése a szoba hőmérőjét követi), különben legalább 1,0; ajánlott 1,0–1,5 °C. Csak bekapcsolt szelep kalibrációval és megadott szoba hőmérővel működik."
         }
       },
       "remove_room": {
@@ -237,6 +241,7 @@
       "control_needs_sensor": "A szelep szabályzáshoz meg kell adni a szoba hőmérséklet szenzorát.",
       "invalid_date": "Érvénytelen dátum, a formátum HH-NN (pl. 05-15).",
       "release_ge_threshold": "A visszaengedésnek kisebbnek kell lennie, mint az emelés küszöbnek.",
+      "trv_offset_range": "Az eltolás 0 (ki) vagy 1,0 és 3,0 °C közötti érték lehet.",
       "no_days": "Legalább egy napot válassz ki."
     }
   },
@@ -405,6 +410,9 @@
           },
           "calibration_room": {
             "name": "Ez a szoba részt vesz a szelep kalibrációban"
+          },
+          "trv_offset": {
+            "name": "TRV eltolás (°C)"
           },
           "valve_calibration": {
             "name": "Szelepek kalibrációja (állapot szelepenként)"

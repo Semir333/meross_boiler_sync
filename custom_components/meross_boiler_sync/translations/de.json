@@ -43,7 +43,8 @@
           "humidity_sensor": "Raum-Feuchtesensor (optional)",
           "window_sensors": "Fenster-/Türsensor(en) (optional)",
           "window_open_delay": "Verzögerung bei offenem Fenster – dieser Raum, Minuten (leer = globaler Wert)",
-          "calibrate_valves": "Automatische Ventilkalibrierung (wenn unter Funktionen aktiv)"
+          "calibrate_valves": "Automatische Ventilkalibrierung (wenn unter Funktionen aktiv)",
+          "trv_offset": "TRV-Versatz – das Ventil soll so viel kälter messen (°C, 0 = aus)"
         },
         "data_description": {
           "name": "Z. B. Wohnzimmer",
@@ -57,7 +58,8 @@
           "humidity_sensor": "Bei hoher Luftfeuchtigkeit wird die Zieltemperatur des Raums leicht angehoben (siehe Grundeinstellungen).",
           "window_sensors": "Solange ein Fenster oder eine Tür länger als die Verzögerung offen ist, fordert der Raum keine Wärme an und die Ventil-Anhebung wird beendet. Bei mehreren Sensoren zählt jeder offene.",
           "window_open_delay": "Wie lange das Fenster offen sein muss, bevor der Raum reagiert, damit kurzes Lüften nichts schaltet. 0 = sofort. Wenn leer, gilt der globale Wert.",
-          "calibrate_valves": "Korrigiert die Temperaturmessung der Ventile anhand des Raumthermometers. Funktioniert nur mit einem Raumtemperatursensor. Ausgeschaltet bleiben die Ventile dieses Raums unangetastet."
+          "calibrate_valves": "Korrigiert die Temperaturmessung der Ventile anhand des Raumthermometers. Funktioniert nur mit einem Raumtemperatursensor. Ausgeschaltet bleiben die Ventile dieses Raums unangetastet.",
+          "trv_offset": "Die Kalibrierung stellt die Messung des Ventils nicht auf das Raumthermometer ein, sondern auf einen um diesen Wert kälteren Wert. In einem Raum unter der Zieltemperatur öffnet das Ventil dann vollständig, statt bei kleiner Abweichung nur teilweise. Die Zieltemperatur ändert sich nicht. Heizt der Kessel für andere Räume, kann dieser Raum höchstens um diesen Wert wärmer als sein Ziel werden. 0 = aus (die Messung des Ventils folgt dem Raumthermometer); sonst mindestens 1,0, empfohlen 1,0–1,5 °C. Funktioniert nur bei aktivierter Ventilkalibrierung und gesetztem Raumthermometer."
         }
       },
       "edit_room": {
@@ -80,7 +82,8 @@
           "humidity_sensor": "Raum-Feuchtesensor (optional)",
           "window_sensors": "Fenster-/Türsensor(en) (optional)",
           "window_open_delay": "Verzögerung bei offenem Fenster – dieser Raum, Minuten (leer = globaler Wert)",
-          "calibrate_valves": "Automatische Ventilkalibrierung (wenn unter Funktionen aktiv)"
+          "calibrate_valves": "Automatische Ventilkalibrierung (wenn unter Funktionen aktiv)",
+          "trv_offset": "TRV-Versatz – das Ventil soll so viel kälter messen (°C, 0 = aus)"
         },
         "data_description": {
           "name": "Z. B. Wohnzimmer",
@@ -94,7 +97,8 @@
           "humidity_sensor": "Bei hoher Luftfeuchtigkeit wird die Zieltemperatur des Raums leicht angehoben (siehe Grundeinstellungen).",
           "window_sensors": "Solange ein Fenster oder eine Tür länger als die Verzögerung offen ist, fordert der Raum keine Wärme an und die Ventil-Anhebung wird beendet. Bei mehreren Sensoren zählt jeder offene.",
           "window_open_delay": "Wie lange das Fenster offen sein muss, bevor der Raum reagiert, damit kurzes Lüften nichts schaltet. 0 = sofort. Wenn leer, gilt der globale Wert.",
-          "calibrate_valves": "Korrigiert die Temperaturmessung der Ventile anhand des Raumthermometers. Funktioniert nur mit einem Raumtemperatursensor. Ausgeschaltet bleiben die Ventile dieses Raums unangetastet."
+          "calibrate_valves": "Korrigiert die Temperaturmessung der Ventile anhand des Raumthermometers. Funktioniert nur mit einem Raumtemperatursensor. Ausgeschaltet bleiben die Ventile dieses Raums unangetastet.",
+          "trv_offset": "Die Kalibrierung stellt die Messung des Ventils nicht auf das Raumthermometer ein, sondern auf einen um diesen Wert kälteren Wert. In einem Raum unter der Zieltemperatur öffnet das Ventil dann vollständig, statt bei kleiner Abweichung nur teilweise. Die Zieltemperatur ändert sich nicht. Heizt der Kessel für andere Räume, kann dieser Raum höchstens um diesen Wert wärmer als sein Ziel werden. 0 = aus (die Messung des Ventils folgt dem Raumthermometer); sonst mindestens 1,0, empfohlen 1,0–1,5 °C. Funktioniert nur bei aktivierter Ventilkalibrierung und gesetztem Raumthermometer."
         }
       },
       "remove_room": {
@@ -237,6 +241,7 @@
       "control_needs_sensor": "Die Ventilregelung erfordert einen Raum-Temperatursensor.",
       "invalid_date": "Ungültiges Datum, Format MM-DD verwenden (z. B. 05-15).",
       "release_ge_threshold": "Die Freigabe muss kleiner als die Schwelle für die Anhebung sein.",
+      "trv_offset_range": "Der Versatz muss 0 (aus) oder zwischen 1,0 und 3,0 °C liegen.",
       "no_days": "Wähle mindestens einen Tag aus."
     }
   },
@@ -405,6 +410,9 @@
           },
           "calibration_room": {
             "name": "Dieser Raum nimmt an der Ventilkalibrierung teil"
+          },
+          "trv_offset": {
+            "name": "TRV-Versatz (°C)"
           },
           "valve_calibration": {
             "name": "Ventilkalibrierung (Status je Ventil)"

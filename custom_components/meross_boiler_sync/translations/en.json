@@ -43,7 +43,8 @@
           "humidity_sensor": "Room humidity sensor (optional)",
           "window_sensors": "Window / door sensor(s) (optional)",
           "window_open_delay": "Window open delay – this room, minutes (empty = global value)",
-          "calibrate_valves": "Automatic valve calibration (if enabled under Features)"
+          "calibrate_valves": "Automatic valve calibration (if enabled under Features)",
+          "trv_offset": "TRV offset – make the valve read this much colder (°C, 0 = off)"
         },
         "data_description": {
           "name": "E.g. Living room",
@@ -57,7 +58,8 @@
           "humidity_sensor": "At high humidity the room target is raised slightly (see Settings).",
           "window_sensors": "While a window or door stays open longer than the delay, the room stops calling for heat and the valve boost is released. With several sensors, any open one counts.",
           "window_open_delay": "How long the window must stay open before the room reacts, so short airing changes nothing. 0 = immediately. If empty, the global value applies.",
-          "calibrate_valves": "Corrects the valves' temperature readings using the room thermometer. Only works with a room temperature sensor. When off, this room's valves are left alone."
+          "calibrate_valves": "Corrects the valves' temperature readings using the room thermometer. Only works with a room temperature sensor. When off, this room's valves are left alone.",
+          "trv_offset": "Calibration sets the valve's reading not to the room thermometer but to a value this much colder. In a room below its target the valve then opens fully instead of only partly for a small error. The target temperature does not change. While the boiler runs for other rooms, this room can end up at most this much warmer than its target. 0 = off (the valve's reading follows the room thermometer); otherwise at least 1.0, 1.0–1.5 °C recommended. Only works with valve calibration switched on and a room thermometer set."
         }
       },
       "edit_room": {
@@ -80,7 +82,8 @@
           "humidity_sensor": "Room humidity sensor (optional)",
           "window_sensors": "Window / door sensor(s) (optional)",
           "window_open_delay": "Window open delay – this room, minutes (empty = global value)",
-          "calibrate_valves": "Automatic valve calibration (if enabled under Features)"
+          "calibrate_valves": "Automatic valve calibration (if enabled under Features)",
+          "trv_offset": "TRV offset – make the valve read this much colder (°C, 0 = off)"
         },
         "data_description": {
           "name": "E.g. Living room",
@@ -94,7 +97,8 @@
           "humidity_sensor": "At high humidity the room target is raised slightly (see Settings).",
           "window_sensors": "While a window or door stays open longer than the delay, the room stops calling for heat and the valve boost is released. With several sensors, any open one counts.",
           "window_open_delay": "How long the window must stay open before the room reacts, so short airing changes nothing. 0 = immediately. If empty, the global value applies.",
-          "calibrate_valves": "Corrects the valves' temperature readings using the room thermometer. Only works with a room temperature sensor. When off, this room's valves are left alone."
+          "calibrate_valves": "Corrects the valves' temperature readings using the room thermometer. Only works with a room temperature sensor. When off, this room's valves are left alone.",
+          "trv_offset": "Calibration sets the valve's reading not to the room thermometer but to a value this much colder. In a room below its target the valve then opens fully instead of only partly for a small error. The target temperature does not change. While the boiler runs for other rooms, this room can end up at most this much warmer than its target. 0 = off (the valve's reading follows the room thermometer); otherwise at least 1.0, 1.0–1.5 °C recommended. Only works with valve calibration switched on and a room thermometer set."
         }
       },
       "remove_room": {
@@ -237,6 +241,7 @@
       "control_needs_sensor": "Valve control requires a room temperature sensor.",
       "invalid_date": "Invalid date, use MM-DD (e.g. 05-15).",
       "release_ge_threshold": "Release must be smaller than the boost threshold.",
+      "trv_offset_range": "The offset must be 0 (off) or between 1.0 and 3.0 °C.",
       "no_days": "Select at least one day."
     }
   },
@@ -405,6 +410,9 @@
           },
           "calibration_room": {
             "name": "This room takes part in valve calibration"
+          },
+          "trv_offset": {
+            "name": "TRV offset (°C)"
           },
           "valve_calibration": {
             "name": "Valve calibration (status per valve)"

@@ -43,7 +43,8 @@
           "humidity_sensor": "Sensore di umidità della stanza (facoltativo)",
           "window_sensors": "Sensore/i finestra / porta (facoltativo)",
           "window_open_delay": "Ritardo finestra aperta – questa stanza, minuti (vuoto = valore globale)",
-          "calibrate_valves": "Calibrazione automatica delle valvole (se attiva in Funzioni)"
+          "calibrate_valves": "Calibrazione automatica delle valvole (se attiva in Funzioni)",
+          "trv_offset": "Offset TRV – la valvola misura così tanto in meno (°C, 0 = disattivato)"
         },
         "data_description": {
           "name": "Es. Soggiorno",
@@ -57,7 +58,8 @@
           "humidity_sensor": "Con umidità elevata il target della stanza viene alzato leggermente (vedi Impostazioni di base).",
           "window_sensors": "Finché una finestra o una porta resta aperta più a lungo del ritardo, la stanza non richiede calore e la spinta della valvola viene rilasciata. Con più sensori basta uno aperto.",
           "window_open_delay": "Per quanto tempo la finestra deve restare aperta prima che la stanza reagisca, così un breve ricambio d’aria non cambia nulla. 0 = subito. Se vuoto, vale il valore globale.",
-          "calibrate_valves": "Corregge la misura di temperatura delle valvole usando il termometro della stanza. Funziona solo con un sensore di temperatura della stanza. Se disattivata, le valvole di questa stanza non vengono toccate."
+          "calibrate_valves": "Corregge la misura di temperatura delle valvole usando il termometro della stanza. Funziona solo con un sensore di temperatura della stanza. Se disattivata, le valvole di questa stanza non vengono toccate.",
+          "trv_offset": "La calibrazione imposta la misura della valvola non sul termometro della stanza, ma su un valore più freddo di questo offset. In una stanza sotto la temperatura obiettivo la valvola si apre così completamente, invece di aprirsi solo in parte per un piccolo scostamento. La temperatura obiettivo non cambia. Quando la caldaia scalda per altre stanze, questa stanza può superare il proprio obiettivo al massimo di questo offset. 0 = disattivato (la misura della valvola segue il termometro della stanza); altrimenti almeno 1,0, consigliato 1,0–1,5 °C. Funziona solo con la calibrazione delle valvole attiva e un termometro della stanza impostato."
         }
       },
       "edit_room": {
@@ -80,7 +82,8 @@
           "humidity_sensor": "Sensore di umidità della stanza (facoltativo)",
           "window_sensors": "Sensore/i finestra / porta (facoltativo)",
           "window_open_delay": "Ritardo finestra aperta – questa stanza, minuti (vuoto = valore globale)",
-          "calibrate_valves": "Calibrazione automatica delle valvole (se attiva in Funzioni)"
+          "calibrate_valves": "Calibrazione automatica delle valvole (se attiva in Funzioni)",
+          "trv_offset": "Offset TRV – la valvola misura così tanto in meno (°C, 0 = disattivato)"
         },
         "data_description": {
           "name": "Es. Soggiorno",
@@ -94,7 +97,8 @@
           "humidity_sensor": "Con umidità elevata il target della stanza viene alzato leggermente (vedi Impostazioni di base).",
           "window_sensors": "Finché una finestra o una porta resta aperta più a lungo del ritardo, la stanza non richiede calore e la spinta della valvola viene rilasciata. Con più sensori basta uno aperto.",
           "window_open_delay": "Per quanto tempo la finestra deve restare aperta prima che la stanza reagisca, così un breve ricambio d’aria non cambia nulla. 0 = subito. Se vuoto, vale il valore globale.",
-          "calibrate_valves": "Corregge la misura di temperatura delle valvole usando il termometro della stanza. Funziona solo con un sensore di temperatura della stanza. Se disattivata, le valvole di questa stanza non vengono toccate."
+          "calibrate_valves": "Corregge la misura di temperatura delle valvole usando il termometro della stanza. Funziona solo con un sensore di temperatura della stanza. Se disattivata, le valvole di questa stanza non vengono toccate.",
+          "trv_offset": "La calibrazione imposta la misura della valvola non sul termometro della stanza, ma su un valore più freddo di questo offset. In una stanza sotto la temperatura obiettivo la valvola si apre così completamente, invece di aprirsi solo in parte per un piccolo scostamento. La temperatura obiettivo non cambia. Quando la caldaia scalda per altre stanze, questa stanza può superare il proprio obiettivo al massimo di questo offset. 0 = disattivato (la misura della valvola segue il termometro della stanza); altrimenti almeno 1,0, consigliato 1,0–1,5 °C. Funziona solo con la calibrazione delle valvole attiva e un termometro della stanza impostato."
         }
       },
       "remove_room": {
@@ -237,6 +241,7 @@
       "control_needs_sensor": "Il controllo valvole richiede un sensore di temperatura della stanza.",
       "invalid_date": "Data non valida, usa il formato MM-DD (es. 05-15).",
       "release_ge_threshold": "Il rilascio deve essere inferiore alla soglia di spinta.",
+      "trv_offset_range": "L’offset deve essere 0 (disattivato) oppure compreso tra 1,0 e 3,0 °C.",
       "no_days": "Seleziona almeno un giorno."
     }
   },
@@ -405,6 +410,9 @@
           },
           "calibration_room": {
             "name": "Questa stanza partecipa alla calibrazione delle valvole"
+          },
+          "trv_offset": {
+            "name": "Offset TRV (°C)"
           },
           "valve_calibration": {
             "name": "Calibrazione delle valvole (stato per valvola)"

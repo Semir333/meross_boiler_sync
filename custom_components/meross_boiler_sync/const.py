@@ -63,6 +63,7 @@ CONF_ROOM_VALVE_LINK = "valve_demand_link"
 CONF_ROOM_WINDOWS = "window_sensors"
 CONF_ROOM_PREHEAT = "preheat_schedule"  # [{"days": [0..6], "time": "HH:MM", "temperature": 22.0}]
 CONF_ROOM_CALIBRATE = "calibrate_valves"  # a szoba szelepeinek kalibrálása (a globális kapcsoló mellett)
+CONF_ROOM_TRV_OFFSET = "trv_offset"  # 2.12: a kalibrált szelep ennyivel mutasson hidegebbet a szoba hőmérőjénél
 
 # --- alapértékek
 DEFAULT_HYSTERESIS = 0.3  # °C
@@ -101,6 +102,12 @@ DEFAULT_GAS_M3_PER_HOUR = 1.6  # m³/óra: a kazán gázfogyasztása bekapcsolt 
 DEFAULT_CALIBRATION_ENABLED = False  # a kalibráció tartós beállítást ír a szelepbe, ezért alapból ki van kapcsolva
 DEFAULT_CALIBRATION_DRY_RUN = False
 DEFAULT_ROOM_CALIBRATE = True  # a globális kapcsoló bekapcsolása után minden hőmérős szoba részt vesz
+# 2.12: A szelep saját szabályzása arányos: kis eltérésnél csak részben nyit. Ha a kalibráció a szelep
+# mérését szándékosan ennyivel hidegebbre állítja a szoba hőmérőjénél, a szelep a cél alatti szobában
+# mindig teljesen nyit. 0 = a szelep mérése a szoba hőmérőjét követi (a 2.11 viselkedése).
+DEFAULT_TRV_OFFSET = 1.0  # °C
+TRV_OFFSET_MAX = 3.0  # °C
+TRV_OFFSET_MIN_ACTIVE = 1.0  # °C: kisebb (de nem nulla) eltolás nem érvényesülne a kalibráció tűrése miatt
 DEFAULT_SUMMER_START = "05-15"
 DEFAULT_SUMMER_END = "09-15"
 

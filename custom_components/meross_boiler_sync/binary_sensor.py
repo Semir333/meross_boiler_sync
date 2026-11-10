@@ -164,6 +164,7 @@ class RoomDemandSensor(_BaseSensor):
             "calibration_enabled": c.cal_enabled,
             "calibration_dry_run": c.cal_dry_run,
             "calibration_room": st.calibrate,
+            "trv_offset": st.trv_offset,
             "valve_calibration": st.calibration,
         }
 

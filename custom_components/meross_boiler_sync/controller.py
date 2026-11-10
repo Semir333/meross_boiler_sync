@@ -58,6 +58,7 @@ from .const import (
     CONF_PREHEAT_MAX_MINUTES,
     CONF_OUTDOOR_SENSOR,
     CONF_ROOM_CALIBRATE,
+    CONF_ROOM_TRV_OFFSET,
     CONF_ROOM_HUM,
     CONF_ROOM_ID,
     CONF_ROOM_NAME,
@@ -100,6 +101,7 @@ from .const import (
     DEFAULT_MIN_SWITCH_TIME,
     DEFAULT_PREHEAT_ENABLED,
     DEFAULT_ROOM_CALIBRATE,
+    DEFAULT_TRV_OFFSET,
     DEFAULT_PREHEAT_HOLD_MINUTES,
     DEFAULT_PREHEAT_MAX_MINUTES,
     DEFAULT_GAS_ESTIMATE,
@@ -165,6 +167,7 @@ from .const import (
     TREND_MIN_SPAN_SECONDS,
     TREND_SAMPLE_SECONDS,
     TREND_WINDOW_SECONDS,
+    TRV_OFFSET_MAX,
     parse_month_day,
 )
 
@@ -273,6 +276,17 @@ def _finite(value: Any) -> float | None:
     return number if math.isfinite(number) else None
 
 
+def trv_offset_from(value: Any) -> float:
+    """A szoba TRV eltolása (°C) a beállításból: hiányzó vagy hibás érték esetén az alapérték,
+    különben 0 és `TRV_OFFSET_MAX` közé szorítva."""
+    if value is None or isinstance(value, bool):
+        return DEFAULT_TRV_OFFSET
+    number = _finite(value)
+    if number is None:
+        return DEFAULT_TRV_OFFSET
+    return round(min(max(number, 0.0), TRV_OFFSET_MAX), 2)
+
+
 async def _async_restore_valve(
     hass: HomeAssistant,
     valve_id: str,
@@ -371,6 +385,8 @@ class RoomStatus:
     window_open: bool = False  # a késleltetés letelt: a szoba szünetel
     # 2.11: a szelepek hőmérőjének automata kalibrációja
     calibrate: bool = True  # a szoba részt vesz-e (a globális kapcsoló mellett)
+    # 2.12: a kalibrált szelep ennyivel mutasson hidegebbet a szoba hőmérőjénél (0 = ne legyen eltolás)
+    trv_offset: float = 0.0
     calibration: list[dict[str, Any]] = field(default_factory=list)  # szelepenkénti állapot
     # hőmérséklet trend (°C/óra), csak a kártyák kijelzéséhez
     trend: float | None = None
@@ -616,6 +632,7 @@ class BoilerController:
             window_sensors=list(room.get(CONF_ROOM_WINDOWS) or []),
             window_delay_s=opt(CONF_WINDOW_DELAY, self.window_delay_s / 60) * 60,
             calibrate=bool(room.get(CONF_ROOM_CALIBRATE, DEFAULT_ROOM_CALIBRATE)),
+            trv_offset=trv_offset_from(room.get(CONF_ROOM_TRV_OFFSET)),
         )
 
     # ------------------------------------------------------------------ életciklus

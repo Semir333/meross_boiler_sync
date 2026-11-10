@@ -37,6 +37,7 @@ from .const import (
     CONF_PREHEAT_MAX_MINUTES,
     CONF_OUTDOOR_SENSOR,
     CONF_ROOM_CALIBRATE,
+    CONF_ROOM_TRV_OFFSET,
     CONF_ROOM_HUM,
     CONF_ROOM_ID,
     CONF_ROOM_NAME,
@@ -91,6 +92,7 @@ from .const import (
     DEFAULT_MAX_BOOST_REST,
     DEFAULT_REGISTER_CARD,
     DEFAULT_ROOM_CALIBRATE,
+    DEFAULT_TRV_OFFSET,
     DEFAULT_STALE_ENABLED,
     DEFAULT_STALE_HOURS,
     DEFAULT_SUMMER_TEMP,
@@ -100,6 +102,8 @@ from .const import (
     DEFAULT_VALVE_RELEASE_MARGIN,
     DEFAULT_WINDOW_DELAY,
     DOMAIN,
+    TRV_OFFSET_MAX,
+    TRV_OFFSET_MIN_ACTIVE,
     parse_month_day,
 )
 
@@ -132,6 +136,14 @@ def _suggest(values: dict[str, Any], key: str) -> dict[str, Any]:
 
 
 # ------------------------------------------------------------------ sémák
+def _trv_offset_default(values: dict[str, Any]) -> float:
+    """Az űrlapon felajánlott TRV eltolás: a szoba mentett értéke, ennek hiányában az alapérték."""
+    value = values.get(CONF_ROOM_TRV_OFFSET)
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return DEFAULT_TRV_OFFSET
+    return float(value)
+
+
 def _room_schema(values: dict[str, Any]) -> vol.Schema:
     return vol.Schema(
         {
@@ -177,6 +189,10 @@ def _room_schema(values: dict[str, Any]) -> vol.Schema:
                 CONF_ROOM_CALIBRATE,
                 default=bool(values.get(CONF_ROOM_CALIBRATE, DEFAULT_ROOM_CALIBRATE)),
             ): selector.BooleanSelector(),
+            vol.Optional(
+                CONF_ROOM_TRV_OFFSET,
+                default=_trv_offset_default(values),
+            ): _number(0, TRV_OFFSET_MAX, 0.5, "°C"),
         }
     )
 
@@ -541,6 +557,12 @@ class MerossBoilerSyncOptionsFlow(config_entries.OptionsFlow):
             return {CONF_VALVE_RELEASE_MARGIN: "release_ge_threshold"}
         if user_input.get(CONF_ROOM_VALVE_CONTROL) and not user_input.get(CONF_ROOM_TEMP):
             return {CONF_ROOM_VALVE_CONTROL: "control_needs_sensor"}
+        offset = user_input.get(CONF_ROOM_TRV_OFFSET)
+        if offset is not None and (
+            not 0 <= float(offset) <= TRV_OFFSET_MAX
+            or 0 < float(offset) < TRV_OFFSET_MIN_ACTIVE
+        ):
+            return {CONF_ROOM_TRV_OFFSET: "trv_offset_range"}
         return {}
 
     @staticmethod
@@ -563,6 +585,8 @@ class MerossBoilerSyncOptionsFlow(config_entries.OptionsFlow):
                 room[key] = float(user_input[key])
         room[CONF_ROOM_VALVE_LINK] = bool(user_input.get(CONF_ROOM_VALVE_LINK))
         room[CONF_ROOM_CALIBRATE] = bool(user_input.get(CONF_ROOM_CALIBRATE, DEFAULT_ROOM_CALIBRATE))
+        offset = user_input.get(CONF_ROOM_TRV_OFFSET)
+        room[CONF_ROOM_TRV_OFFSET] = DEFAULT_TRV_OFFSET if offset is None else float(offset)  # a 0 is érvényes
         windows = [w for w in (user_input.get(CONF_ROOM_WINDOWS) or []) if w]
         if windows:
             room[CONF_ROOM_WINDOWS] = windows

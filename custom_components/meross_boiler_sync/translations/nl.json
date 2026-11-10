@@ -43,7 +43,8 @@
           "humidity_sensor": "Kamervochtigheidssensor (optioneel)",
           "window_sensors": "Raam-/deursensor(en) (optioneel)",
           "window_open_delay": "Vertraging open raam – deze kamer, minuten (leeg = algemene waarde)",
-          "calibrate_valves": "Automatische kraankalibratie (indien ingeschakeld bij Functies)"
+          "calibrate_valves": "Automatische kraankalibratie (indien ingeschakeld bij Functies)",
+          "trv_offset": "TRV-offset – de kraan laat zoveel kouder meten (°C, 0 = uit)"
         },
         "data_description": {
           "name": "Bijv. Woonkamer",
@@ -57,7 +58,8 @@
           "humidity_sensor": "Bij hoge luchtvochtigheid wordt de doeltemperatuur van de kamer licht verhoogd (zie Basisinstellingen).",
           "window_sensors": "Zolang een raam of deur langer dan de vertraging open staat, vraagt de kamer geen warmte meer en stopt de kraanverhoging. Bij meerdere sensoren telt elke open sensor.",
           "window_open_delay": "Hoe lang het raam open moet staan voordat de kamer reageert, zodat kort luchten niets schakelt. 0 = direct. Indien leeg geldt de algemene waarde.",
-          "calibrate_valves": "Corrigeert de temperatuurmeting van de kranen met de kamerthermometer. Werkt alleen met een kamertemperatuursensor. Uitgeschakeld blijven de kranen van deze kamer ongemoeid."
+          "calibrate_valves": "Corrigeert de temperatuurmeting van de kranen met de kamerthermometer. Werkt alleen met een kamertemperatuursensor. Uitgeschakeld blijven de kranen van deze kamer ongemoeid.",
+          "trv_offset": "De kalibratie stelt de meting van de kraan niet in op de kamerthermometer, maar op een waarde die zoveel kouder is. In een kamer onder de streeftemperatuur opent de kraan dan volledig in plaats van bij een kleine afwijking maar gedeeltelijk. De streeftemperatuur verandert niet. Als de ketel voor andere kamers stookt, kan deze kamer hooguit zoveel warmer worden dan de streeftemperatuur. 0 = uit (de meting van de kraan volgt de kamerthermometer); anders minimaal 1,0, aanbevolen 1,0–1,5 °C. Werkt alleen met ingeschakelde kraankalibratie en een ingestelde kamerthermometer."
         }
       },
       "edit_room": {
@@ -80,7 +82,8 @@
           "humidity_sensor": "Kamervochtigheidssensor (optioneel)",
           "window_sensors": "Raam-/deursensor(en) (optioneel)",
           "window_open_delay": "Vertraging open raam – deze kamer, minuten (leeg = algemene waarde)",
-          "calibrate_valves": "Automatische kraankalibratie (indien ingeschakeld bij Functies)"
+          "calibrate_valves": "Automatische kraankalibratie (indien ingeschakeld bij Functies)",
+          "trv_offset": "TRV-offset – de kraan laat zoveel kouder meten (°C, 0 = uit)"
         },
         "data_description": {
           "name": "Bijv. Woonkamer",
@@ -94,7 +97,8 @@
           "humidity_sensor": "Bij hoge luchtvochtigheid wordt de doeltemperatuur van de kamer licht verhoogd (zie Basisinstellingen).",
           "window_sensors": "Zolang een raam of deur langer dan de vertraging open staat, vraagt de kamer geen warmte meer en stopt de kraanverhoging. Bij meerdere sensoren telt elke open sensor.",
           "window_open_delay": "Hoe lang het raam open moet staan voordat de kamer reageert, zodat kort luchten niets schakelt. 0 = direct. Indien leeg geldt de algemene waarde.",
-          "calibrate_valves": "Corrigeert de temperatuurmeting van de kranen met de kamerthermometer. Werkt alleen met een kamertemperatuursensor. Uitgeschakeld blijven de kranen van deze kamer ongemoeid."
+          "calibrate_valves": "Corrigeert de temperatuurmeting van de kranen met de kamerthermometer. Werkt alleen met een kamertemperatuursensor. Uitgeschakeld blijven de kranen van deze kamer ongemoeid.",
+          "trv_offset": "De kalibratie stelt de meting van de kraan niet in op de kamerthermometer, maar op een waarde die zoveel kouder is. In een kamer onder de streeftemperatuur opent de kraan dan volledig in plaats van bij een kleine afwijking maar gedeeltelijk. De streeftemperatuur verandert niet. Als de ketel voor andere kamers stookt, kan deze kamer hooguit zoveel warmer worden dan de streeftemperatuur. 0 = uit (de meting van de kraan volgt de kamerthermometer); anders minimaal 1,0, aanbevolen 1,0–1,5 °C. Werkt alleen met ingeschakelde kraankalibratie en een ingestelde kamerthermometer."
         }
       },
       "remove_room": {
@@ -237,6 +241,7 @@
       "control_needs_sensor": "Kraanregeling vereist een kamertemperatuursensor.",
       "invalid_date": "Ongeldige datum, gebruik MM-DD (bijv. 05-15).",
       "release_ge_threshold": "Het vrijgeven moet kleiner zijn dan de drempel voor kraanverhoging.",
+      "trv_offset_range": "De offset moet 0 (uit) zijn of tussen 1,0 en 3,0 °C liggen.",
       "no_days": "Selecteer minstens één dag."
     }
   },
@@ -405,6 +410,9 @@
           },
           "calibration_room": {
             "name": "Deze kamer doet mee aan de kraankalibratie"
+          },
+          "trv_offset": {
+            "name": "TRV-offset (°C)"
           },
           "valve_calibration": {
             "name": "Kraankalibratie (status per kraan)"

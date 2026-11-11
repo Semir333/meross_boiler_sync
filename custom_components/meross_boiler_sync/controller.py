@@ -190,7 +190,7 @@ from .const import (
 
 from . import trvlog
 from .calibration import Calibrator
-from .offset import room_trv_offset, trv_offset_from  # noqa: F401 - a trv_offset_from a külső használatra (tesztek) is elérhető
+from .offset import room_trv_offset, room_valve_offsets, trv_offset_from  # noqa: F401 - a trv_offset_from a külső használatra (tesztek) is elérhető
 from .cycles import CycleLog
 
 _LOGGER = logging.getLogger(__name__)
@@ -413,6 +413,9 @@ class RoomStatus:
     # 2.12: a kalibrált szelep mérése a szoba hőmérőjéhez képest (0 = ne legyen eltolás). 2.17: előjeles, a Meross LAN
     # kalibráció számával azonos előjellel: a plusz melegebbet, a mínusz hidegebbet mutat a szelep (alapérték: -1 °C)
     trv_offset: float = 0.0
+    # 2.18: a szelepek egyedi eltolása (előjeles, mint a `trv_offset`); csak a megadott szelepek szerepelnek benne, a többi a
+    # szoba eltolását használja (`offset_for`)
+    valve_offsets: dict[str, float] = field(default_factory=dict)
     calibration: list[dict[str, Any]] = field(default_factory=list)  # szelepenkénti állapot
     # hőmérséklet trend (°C/óra), csak a kártyák kijelzéséhez
     trend: float | None = None
@@ -446,9 +449,20 @@ class RoomStatus:
 
     @property
     def trv_bias(self) -> float:
-        """2.17: a kalibráció belső számolása ezt használja: ennyivel mutasson HIDEGEBBET a szelep a szoba hőmérőjénél (szoba
-        hőmérője - szelep mérése). A felhasználónak látszó `trv_offset` ellentettje (a plusz eltolás melegebbet jelent)."""
+        """2.17: a szoba eltolásának belső alakja: ennyivel mutasson HIDEGEBBET a szelep a szoba hőmérőjénél (szoba hőmérője -
+        szelep mérése). A felhasználónak látszó `trv_offset` ellentettje (a plusz eltolás melegebbet jelent). 2.18-tól a
+        kalibráció szelepenként számol (`bias_for`); ez a szoba alapértéke."""
         return 0.0 - self.trv_offset
+
+    def offset_for(self, valve_id: str) -> float:
+        """2.18: a szelep TRV eltolása (°C, előjeles): az egyedi érték, ennek hiányában a szoba eltolása. Egy szelepes
+        szobában, vagy ha nincs egyedi érték, megegyezik a `trv_offset` értékével."""
+        value = self.valve_offsets.get(valve_id)
+        return self.trv_offset if value is None else value
+
+    def bias_for(self, valve_id: str) -> float:
+        """2.18: a szelep eltolásának belső alakja (a `trv_bias` szelepenkénti megfelelője): a kalibráció ezzel számol."""
+        return 0.0 - self.offset_for(valve_id)
 
     @property
     def sensor_unusable(self) -> bool:
@@ -690,6 +704,7 @@ class BoilerController:
             window_delay_s=opt(CONF_WINDOW_DELAY, self.window_delay_s / 60) * 60,
             calibrate=bool(room.get(CONF_ROOM_CALIBRATE, DEFAULT_ROOM_CALIBRATE)),
             trv_offset=room_trv_offset(room),
+            valve_offsets=room_valve_offsets(room),
         )
 
     # ------------------------------------------------------------------ életciklus
@@ -977,13 +992,18 @@ class BoilerController:
                     cal_text = "próbaüzem (csak naplóz)" if self.cal_dry_run else "be"
                     for v in st.valves:
                         cal_text += "; " + (f"{v}: " if len(st.valves) > 1 else "") + self._describe_valve(v, now_ts)
+                offset_text = f"{trvlog.signed(st.trv_offset)} °C"
+                if st.valve_offsets:  # 2.18: a szelepek egyedi eltolása is látszik (melyik szelep melyik értéket használja)
+                    offset_text += " (szoba alapérték; egyedi: " + ", ".join(
+                        f"{valve_id} {trvlog.signed(value)} °C" for valve_id, value in st.valve_offsets.items()
+                    ) + ")"
                 self._tlog(
-                    "%s: betöltve – szelepek: %s; szoba hőmérő: %s; szelep-vezérlés: %s; TRV eltolás: %s °C; kalibráció: %s",
+                    "%s: betöltve – szelepek: %s; szoba hőmérő: %s; szelep-vezérlés: %s; TRV eltolás: %s; kalibráció: %s",
                     st.name,
                     ", ".join(st.valves) or "nincs",
                     st.temp_sensor or "nincs",
                     "próbaüzem" if st.valve_control and self.valve_dry_run else "be" if st.valve_control else "ki",
-                    trvlog.signed(st.trv_offset),
+                    offset_text,
                     cal_text,
                 )
         except Exception as err:  # noqa: BLE001 - a napló hibája nem állíthatja le az indulást

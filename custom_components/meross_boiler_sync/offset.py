@@ -6,6 +6,9 @@ verziók a `trv_offset` kulcsban az ellentettjét, a "ennyivel mutasson hidegebb
 `trv_offset_signed` kulcsba ment. A régi értéket olvasáskor átszámoljuk, ezért a mentett szobák ugyanúgy működnek tovább, és nincs
 szükség a beállítások átírására (az átírás kétszer lefuthatna, az olvasáskori átszámolás nem).
 
+2.18: a több szelepes szobában az egyes szelepek eltolása külön is megadható (`valve_trv_offsets`, szelep → előjeles eltolás);
+amelyik szelepnek nincs egyedi értéke, az a szoba eltolását használja (`room_valve_offsets`).
+
 Ez a modul a vezérlőtől és az űrlaptól függetlenül, csak az állandókra épül, hogy mindkettő ugyanazt az értelmezést használja.
 """
 from __future__ import annotations
@@ -16,6 +19,8 @@ from typing import Any
 from .const import (
     CONF_ROOM_TRV_OFFSET,
     CONF_ROOM_TRV_OFFSET_SIGNED,
+    CONF_ROOM_VALVE_OFFSETS,
+    CONF_ROOM_VALVES,
     DEFAULT_TRV_OFFSET,
     TRV_OFFSET_MAX,
 )
@@ -54,3 +59,22 @@ def room_trv_offset(room: dict[str, Any]) -> float:
     if number is None:
         return DEFAULT_TRV_OFFSET
     return 0.0 - round(min(max(number, 0.0), TRV_OFFSET_MAX), 2)  # a régi beállítás nem lehetett negatív
+
+
+def room_valve_offsets(room: dict[str, Any]) -> dict[str, float]:
+    """2.18: a szoba szelepeinek egyedi TRV eltolása (°C, előjelesen): {szelep: eltolás}.
+
+    Több szelepes szobában az egyes szelepek eltolása külön is megadható (az űrlap második lépése). Csak a megadott szelepek
+    szerepelnek az eredményben; amelyik nincs benne, az a szoba eltolását (`room_trv_offset`) használja. A mentett beállításból
+    csak a hihető elemek számítanak: a szobában már nem szereplő szelep bejegyzése (a szelepet kivették) és a hibás vagy nem
+    szám érték kimarad, és ilyenkor a szoba eltolása érvényes (nem az alapérték: egy elírás ne írja át a szoba beállítását).
+    Az érték ±`TRV_OFFSET_MAX` közé szorított, a 0 érvényes (az a szelep a szoba hőmérőjét követi)."""
+    raw = room.get(CONF_ROOM_VALVE_OFFSETS)
+    if not isinstance(raw, dict):
+        return {}
+    result: dict[str, float] = {}
+    for valve_id in room.get(CONF_ROOM_VALVES) or []:
+        number = _finite(raw.get(valve_id))
+        if number is not None:
+            result[valve_id] = trv_offset_from(number)
+    return result

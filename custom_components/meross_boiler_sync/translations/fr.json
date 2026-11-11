@@ -59,7 +59,7 @@
           "window_sensors": "Tant qu’une fenêtre ou une porte reste ouverte plus longtemps que le délai, la pièce ne demande plus de chaleur et la relance de la vanne est relâchée. Avec plusieurs capteurs, un seul ouvert suffit.",
           "window_open_delay": "Durée pendant laquelle la fenêtre doit rester ouverte avant que la pièce réagisse, afin qu’une courte aération ne déclenche rien. 0 = immédiat. Si vide, la valeur globale s’applique.",
           "calibrate_valves": "Corrige la mesure de température des vannes à l’aide du thermomètre de la pièce. Ne fonctionne qu’avec un capteur de température de la pièce. Désactivée, les vannes de cette pièce ne sont pas touchées.",
-          "trv_offset_signed": "De combien la mesure de la vanne s’écarte du thermomètre de la pièce, avec le même signe que le nombre de calibration de Meross LAN. Négatif (p. ex. -1,0) : la vanne mesure plus froid que la pièce ; dans une pièce sous sa consigne, elle s’ouvre alors complètement au lieu de ne s’ouvrir que partiellement pour un faible écart ; quand la chaudière chauffe pour d’autres pièces, cette pièce peut dépasser sa consigne de ce décalage au plus. Positif (p. ex. +1,0) : la vanne mesure plus chaud que la pièce, elle se ferme donc plus tôt et la pièce peut rester jusqu’à ce décalage sous sa consigne. 0 = désactivé (la mesure de la vanne suit le thermomètre de la pièce) ; sinon entre 0,5 et 3,0 en valeur absolue, -1,0 à -1,5 °C recommandé. La consigne ne change pas. Ne fonctionne qu’avec la calibration des vannes activée et un thermomètre de pièce défini."
+          "trv_offset_signed": "De combien la mesure de la vanne s’écarte du thermomètre de la pièce, avec le même signe que le nombre de calibration de Meross LAN. Négatif (p. ex. -1,0) : la vanne mesure plus froid que la pièce ; dans une pièce sous sa consigne, elle s’ouvre alors complètement au lieu de ne s’ouvrir que partiellement pour un faible écart ; quand la chaudière chauffe pour d’autres pièces, cette pièce peut dépasser sa consigne de ce décalage au plus. Positif (p. ex. +1,0) : la vanne mesure plus chaud que la pièce, elle se ferme donc plus tôt et la pièce peut rester jusqu’à ce décalage sous sa consigne. 0 = désactivé (la mesure de la vanne suit le thermomètre de la pièce) ; sinon entre 0,5 et 3,0 en valeur absolue, -1,0 à -1,5 °C recommandé. La consigne ne change pas. Ne fonctionne qu’avec la calibration des vannes activée et un thermomètre de pièce défini. Dans une pièce comportant plusieurs vannes, c’est la valeur par défaut : après l’enregistrement de la pièce, une étape distincte permet de définir une valeur différente pour chaque vanne."
         }
       },
       "edit_room": {
@@ -98,7 +98,21 @@
           "window_sensors": "Tant qu’une fenêtre ou une porte reste ouverte plus longtemps que le délai, la pièce ne demande plus de chaleur et la relance de la vanne est relâchée. Avec plusieurs capteurs, un seul ouvert suffit.",
           "window_open_delay": "Durée pendant laquelle la fenêtre doit rester ouverte avant que la pièce réagisse, afin qu’une courte aération ne déclenche rien. 0 = immédiat. Si vide, la valeur globale s’applique.",
           "calibrate_valves": "Corrige la mesure de température des vannes à l’aide du thermomètre de la pièce. Ne fonctionne qu’avec un capteur de température de la pièce. Désactivée, les vannes de cette pièce ne sont pas touchées.",
-          "trv_offset_signed": "De combien la mesure de la vanne s’écarte du thermomètre de la pièce, avec le même signe que le nombre de calibration de Meross LAN. Négatif (p. ex. -1,0) : la vanne mesure plus froid que la pièce ; dans une pièce sous sa consigne, elle s’ouvre alors complètement au lieu de ne s’ouvrir que partiellement pour un faible écart ; quand la chaudière chauffe pour d’autres pièces, cette pièce peut dépasser sa consigne de ce décalage au plus. Positif (p. ex. +1,0) : la vanne mesure plus chaud que la pièce, elle se ferme donc plus tôt et la pièce peut rester jusqu’à ce décalage sous sa consigne. 0 = désactivé (la mesure de la vanne suit le thermomètre de la pièce) ; sinon entre 0,5 et 3,0 en valeur absolue, -1,0 à -1,5 °C recommandé. La consigne ne change pas. Ne fonctionne qu’avec la calibration des vannes activée et un thermomètre de pièce défini."
+          "trv_offset_signed": "De combien la mesure de la vanne s’écarte du thermomètre de la pièce, avec le même signe que le nombre de calibration de Meross LAN. Négatif (p. ex. -1,0) : la vanne mesure plus froid que la pièce ; dans une pièce sous sa consigne, elle s’ouvre alors complètement au lieu de ne s’ouvrir que partiellement pour un faible écart ; quand la chaudière chauffe pour d’autres pièces, cette pièce peut dépasser sa consigne de ce décalage au plus. Positif (p. ex. +1,0) : la vanne mesure plus chaud que la pièce, elle se ferme donc plus tôt et la pièce peut rester jusqu’à ce décalage sous sa consigne. 0 = désactivé (la mesure de la vanne suit le thermomètre de la pièce) ; sinon entre 0,5 et 3,0 en valeur absolue, -1,0 à -1,5 °C recommandé. La consigne ne change pas. Ne fonctionne qu’avec la calibration des vannes activée et un thermomètre de pièce défini. Dans une pièce comportant plusieurs vannes, c’est la valeur par défaut : après l’enregistrement de la pièce, une étape distincte permet de définir une valeur différente pour chaque vanne."
+        }
+      },
+      "valve_offsets": {
+        "title": "Décalage TRV par vanne – {room}",
+        "description": "La pièce **{room}** compte plusieurs vannes. Le décalage TRV de chaque vanne peut être réglé ici séparément (positif : la vanne mesure plus chaud que le thermomètre de la pièce, négatif : plus froid – même signe que le nombre de calibration de Meross LAN ; 0 = la vanne suit le thermomètre de la pièce).\n\nLes champs suivent l’ordre des vannes :\n\n{valves}\n\n**Un champ laissé vide signifie que la vanne utilise le décalage de la pièce ({room_offset} °C).** Valeurs : 0, ou entre 0,5 et 3,0 en valeur absolue.",
+        "data": {
+          "valve_offset_1": "Vanne 1 – décalage TRV (°C)",
+          "valve_offset_2": "Vanne 2 – décalage TRV (°C)",
+          "valve_offset_3": "Vanne 3 – décalage TRV (°C)",
+          "valve_offset_4": "Vanne 4 – décalage TRV (°C)",
+          "valve_offset_5": "Vanne 5 – décalage TRV (°C)",
+          "valve_offset_6": "Vanne 6 – décalage TRV (°C)",
+          "valve_offset_7": "Vanne 7 – décalage TRV (°C)",
+          "valve_offset_8": "Vanne 8 – décalage TRV (°C)"
         }
       },
       "remove_room": {
@@ -419,6 +433,9 @@
           },
           "trv_offset": {
             "name": "Décalage TRV (°C)"
+          },
+          "valve_trv_offsets": {
+            "name": "Décalages TRV par vanne (°C)"
           },
           "valve_calibration": {
             "name": "Calibration des vannes (état par vanne)"

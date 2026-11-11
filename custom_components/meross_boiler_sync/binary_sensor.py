@@ -169,6 +169,8 @@ class RoomDemandSensor(_BaseSensor):
             "calibration_dry_run": c.cal_dry_run,
             "calibration_room": st.calibrate,
             "trv_offset": st.trv_offset,
+            # 2.18: a szelepek egyedi eltolása (szelep -> előjeles eltolás); amelyik szelep nincs benne, a szoba eltolását használja
+            "valve_trv_offsets": dict(st.valve_offsets),
             "valve_calibration": st.calibration,
             # 2.13: a leállás utáni maradékhő (a tanult medián), és az ebből adódó korábbi leállítás
             "residual_heat": st.residual,

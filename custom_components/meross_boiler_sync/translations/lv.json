@@ -59,7 +59,7 @@
           "window_sensors": "Kamēr logs vai durvis ir atvērtas ilgāk par aizkavi, telpa nepieprasa siltumu un vārsta pacelšana tiek atbrīvota. Ja sensoru ir vairāki, pietiek ar vienu atvērtu.",
           "window_open_delay": "Cik ilgi logam jābūt atvērtam, pirms telpa reaģē, lai īsa vēdināšana neko nepārslēgtu. 0 = nekavējoties. Ja tukšs, tiek izmantota globālā vērtība.",
           "calibrate_valves": "Koriģē vārstu temperatūras mērījumu, izmantojot istabas termometru. Darbojas tikai ar istabas temperatūras sensoru. Kad izslēgta, šīs istabas vārsti netiek skarti.",
-          "trv_offset_signed": "Par cik vārsta mērījums atšķiras no istabas termometra, ar tādu pašu zīmi kā Meross LAN kalibrēšanas skaitlim. Negatīva (piem., -1,0): vārsts mēra aukstāk nekā istabā, tāpēc istabā, kuras temperatūra ir zem mērķa, tas atveras pilnībā, nevis tikai daļēji pie nelielas novirzes; kamēr katls silda citas telpas, šī istaba var kļūt siltāka par savu mērķi ne vairāk kā par šo lielumu. Pozitīva (piem., +1,0): vārsts mēra siltāk nekā istabā, tāpēc aizveras agrāk, un istaba var palikt aukstāka par savu mērķi ne vairāk kā par šo lielumu. 0 = izslēgts (vārsta mērījums seko istabas termometram); citādi absolūtā vērtībā no 0,5 līdz 3,0, ieteicams no -1,0 līdz -1,5 °C. Mērķa temperatūra nemainās. Darbojas tikai ar ieslēgtu vārstu kalibrēšanu un norādītu istabas termometru."
+          "trv_offset_signed": "Par cik vārsta mērījums atšķiras no istabas termometra, ar tādu pašu zīmi kā Meross LAN kalibrēšanas skaitlim. Negatīva (piem., -1,0): vārsts mēra aukstāk nekā istabā, tāpēc istabā, kuras temperatūra ir zem mērķa, tas atveras pilnībā, nevis tikai daļēji pie nelielas novirzes; kamēr katls silda citas telpas, šī istaba var kļūt siltāka par savu mērķi ne vairāk kā par šo lielumu. Pozitīva (piem., +1,0): vārsts mēra siltāk nekā istabā, tāpēc aizveras agrāk, un istaba var palikt aukstāka par savu mērķi ne vairāk kā par šo lielumu. 0 = izslēgts (vārsta mērījums seko istabas termometram); citādi absolūtā vērtībā no 0,5 līdz 3,0, ieteicams no -1,0 līdz -1,5 °C. Mērķa temperatūra nemainās. Darbojas tikai ar ieslēgtu vārstu kalibrēšanu un norādītu istabas termometru. Istabā ar vairākiem vārstiem šī ir noklusējuma vērtība: pēc istabas saglabāšanas atsevišķā solī katram vārstam var iestatīt savu vērtību."
         }
       },
       "edit_room": {
@@ -98,7 +98,21 @@
           "window_sensors": "Kamēr logs vai durvis ir atvērtas ilgāk par aizkavi, telpa nepieprasa siltumu un vārsta pacelšana tiek atbrīvota. Ja sensoru ir vairāki, pietiek ar vienu atvērtu.",
           "window_open_delay": "Cik ilgi logam jābūt atvērtam, pirms telpa reaģē, lai īsa vēdināšana neko nepārslēgtu. 0 = nekavējoties. Ja tukšs, tiek izmantota globālā vērtība.",
           "calibrate_valves": "Koriģē vārstu temperatūras mērījumu, izmantojot istabas termometru. Darbojas tikai ar istabas temperatūras sensoru. Kad izslēgta, šīs istabas vārsti netiek skarti.",
-          "trv_offset_signed": "Par cik vārsta mērījums atšķiras no istabas termometra, ar tādu pašu zīmi kā Meross LAN kalibrēšanas skaitlim. Negatīva (piem., -1,0): vārsts mēra aukstāk nekā istabā, tāpēc istabā, kuras temperatūra ir zem mērķa, tas atveras pilnībā, nevis tikai daļēji pie nelielas novirzes; kamēr katls silda citas telpas, šī istaba var kļūt siltāka par savu mērķi ne vairāk kā par šo lielumu. Pozitīva (piem., +1,0): vārsts mēra siltāk nekā istabā, tāpēc aizveras agrāk, un istaba var palikt aukstāka par savu mērķi ne vairāk kā par šo lielumu. 0 = izslēgts (vārsta mērījums seko istabas termometram); citādi absolūtā vērtībā no 0,5 līdz 3,0, ieteicams no -1,0 līdz -1,5 °C. Mērķa temperatūra nemainās. Darbojas tikai ar ieslēgtu vārstu kalibrēšanu un norādītu istabas termometru."
+          "trv_offset_signed": "Par cik vārsta mērījums atšķiras no istabas termometra, ar tādu pašu zīmi kā Meross LAN kalibrēšanas skaitlim. Negatīva (piem., -1,0): vārsts mēra aukstāk nekā istabā, tāpēc istabā, kuras temperatūra ir zem mērķa, tas atveras pilnībā, nevis tikai daļēji pie nelielas novirzes; kamēr katls silda citas telpas, šī istaba var kļūt siltāka par savu mērķi ne vairāk kā par šo lielumu. Pozitīva (piem., +1,0): vārsts mēra siltāk nekā istabā, tāpēc aizveras agrāk, un istaba var palikt aukstāka par savu mērķi ne vairāk kā par šo lielumu. 0 = izslēgts (vārsta mērījums seko istabas termometram); citādi absolūtā vērtībā no 0,5 līdz 3,0, ieteicams no -1,0 līdz -1,5 °C. Mērķa temperatūra nemainās. Darbojas tikai ar ieslēgtu vārstu kalibrēšanu un norādītu istabas termometru. Istabā ar vairākiem vārstiem šī ir noklusējuma vērtība: pēc istabas saglabāšanas atsevišķā solī katram vārstam var iestatīt savu vērtību."
+        }
+      },
+      "valve_offsets": {
+        "title": "TRV nobīde katram vārstam – {room}",
+        "description": "Istabā **{room}** ir vairāki vārsti. Šeit TRV nobīdi var iestatīt katram vārstam atsevišķi (pozitīva: vārsts mēra siltāk nekā istabas termometrs, negatīva: aukstāk – tāda pati zīme kā Meross LAN kalibrēšanas skaitlim; 0 = vārsts seko istabas termometram).\n\nLauki seko vārstu secībai:\n\n{valves}\n\n**Tukšs lauks nozīmē, ka vārsts izmanto istabas nobīdi ({room_offset} °C).** Vērtības: 0 vai absolūtā vērtībā no 0,5 līdz 3,0.",
+        "data": {
+          "valve_offset_1": "1. vārsts – TRV nobīde (°C)",
+          "valve_offset_2": "2. vārsts – TRV nobīde (°C)",
+          "valve_offset_3": "3. vārsts – TRV nobīde (°C)",
+          "valve_offset_4": "4. vārsts – TRV nobīde (°C)",
+          "valve_offset_5": "5. vārsts – TRV nobīde (°C)",
+          "valve_offset_6": "6. vārsts – TRV nobīde (°C)",
+          "valve_offset_7": "7. vārsts – TRV nobīde (°C)",
+          "valve_offset_8": "8. vārsts – TRV nobīde (°C)"
         }
       },
       "remove_room": {
@@ -419,6 +433,9 @@
           },
           "trv_offset": {
             "name": "TRV nobīde (°C)"
+          },
+          "valve_trv_offsets": {
+            "name": "TRV nobīde katram vārstam (°C)"
           },
           "valve_calibration": {
             "name": "Vārstu kalibrēšana (stāvoklis katram vārstam)"

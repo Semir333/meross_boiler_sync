@@ -59,7 +59,7 @@
           "window_sensors": "Dopóki okno lub drzwi są otwarte dłużej niż opóźnienie, pomieszczenie nie zgłasza zapotrzebowania na ciepło, a wymuszanie zaworu jest zwalniane. Przy kilku czujnikach liczy się każdy otwarty.",
           "window_open_delay": "Jak długo okno musi być otwarte, zanim pomieszczenie zareaguje, aby krótkie wietrzenie niczego nie przełączało. 0 = natychmiast. Jeśli puste, obowiązuje wartość globalna.",
           "calibrate_valves": "Koryguje pomiar temperatury zaworów za pomocą termometru w pomieszczeniu. Działa tylko z czujnikiem temperatury pomieszczenia. Po wyłączeniu zawory tego pomieszczenia pozostają nietknięte.",
-          "trv_offset_signed": "O ile wskazanie zaworu różni się od termometru w pomieszczeniu, z takim samym znakiem jak liczba kalibracji w Meross LAN. Minus (np. -1,0): zawór wskazuje chłodniej niż pomieszczenie, więc w pomieszczeniu poniżej temperatury docelowej otwiera się w pełni, zamiast otwierać się tylko częściowo przy niewielkiej różnicy; gdy kocioł grzeje dla innych pomieszczeń, to pomieszczenie może przekroczyć cel co najwyżej o tę wartość. Plus (np. +1,0): zawór wskazuje cieplej niż pomieszczenie, więc zamyka się wcześniej, a pomieszczenie może pozostać co najwyżej o tę wartość chłodniejsze od celu. 0 = wył. (wskazanie zaworu podąża za termometrem w pomieszczeniu); w przeciwnym razie co do wartości bezwzględnej od 0,5 do 3,0, zalecane od -1,0 do -1,5 °C. Temperatura docelowa się nie zmienia. Działa tylko przy włączonej kalibracji zaworów i ustawionym termometrze w pomieszczeniu."
+          "trv_offset_signed": "O ile wskazanie zaworu różni się od termometru w pomieszczeniu, z takim samym znakiem jak liczba kalibracji w Meross LAN. Minus (np. -1,0): zawór wskazuje chłodniej niż pomieszczenie, więc w pomieszczeniu poniżej temperatury docelowej otwiera się w pełni, zamiast otwierać się tylko częściowo przy niewielkiej różnicy; gdy kocioł grzeje dla innych pomieszczeń, to pomieszczenie może przekroczyć cel co najwyżej o tę wartość. Plus (np. +1,0): zawór wskazuje cieplej niż pomieszczenie, więc zamyka się wcześniej, a pomieszczenie może pozostać co najwyżej o tę wartość chłodniejsze od celu. 0 = wył. (wskazanie zaworu podąża za termometrem w pomieszczeniu); w przeciwnym razie co do wartości bezwzględnej od 0,5 do 3,0, zalecane od -1,0 do -1,5 °C. Temperatura docelowa się nie zmienia. Działa tylko przy włączonej kalibracji zaworów i ustawionym termometrze w pomieszczeniu. W pomieszczeniu z kilkoma zaworami jest to wartość domyślna: po zapisaniu pomieszczenia w osobnym kroku można ustawić inną wartość dla każdego zaworu."
         }
       },
       "edit_room": {
@@ -98,7 +98,21 @@
           "window_sensors": "Dopóki okno lub drzwi są otwarte dłużej niż opóźnienie, pomieszczenie nie zgłasza zapotrzebowania na ciepło, a wymuszanie zaworu jest zwalniane. Przy kilku czujnikach liczy się każdy otwarty.",
           "window_open_delay": "Jak długo okno musi być otwarte, zanim pomieszczenie zareaguje, aby krótkie wietrzenie niczego nie przełączało. 0 = natychmiast. Jeśli puste, obowiązuje wartość globalna.",
           "calibrate_valves": "Koryguje pomiar temperatury zaworów za pomocą termometru w pomieszczeniu. Działa tylko z czujnikiem temperatury pomieszczenia. Po wyłączeniu zawory tego pomieszczenia pozostają nietknięte.",
-          "trv_offset_signed": "O ile wskazanie zaworu różni się od termometru w pomieszczeniu, z takim samym znakiem jak liczba kalibracji w Meross LAN. Minus (np. -1,0): zawór wskazuje chłodniej niż pomieszczenie, więc w pomieszczeniu poniżej temperatury docelowej otwiera się w pełni, zamiast otwierać się tylko częściowo przy niewielkiej różnicy; gdy kocioł grzeje dla innych pomieszczeń, to pomieszczenie może przekroczyć cel co najwyżej o tę wartość. Plus (np. +1,0): zawór wskazuje cieplej niż pomieszczenie, więc zamyka się wcześniej, a pomieszczenie może pozostać co najwyżej o tę wartość chłodniejsze od celu. 0 = wył. (wskazanie zaworu podąża za termometrem w pomieszczeniu); w przeciwnym razie co do wartości bezwzględnej od 0,5 do 3,0, zalecane od -1,0 do -1,5 °C. Temperatura docelowa się nie zmienia. Działa tylko przy włączonej kalibracji zaworów i ustawionym termometrze w pomieszczeniu."
+          "trv_offset_signed": "O ile wskazanie zaworu różni się od termometru w pomieszczeniu, z takim samym znakiem jak liczba kalibracji w Meross LAN. Minus (np. -1,0): zawór wskazuje chłodniej niż pomieszczenie, więc w pomieszczeniu poniżej temperatury docelowej otwiera się w pełni, zamiast otwierać się tylko częściowo przy niewielkiej różnicy; gdy kocioł grzeje dla innych pomieszczeń, to pomieszczenie może przekroczyć cel co najwyżej o tę wartość. Plus (np. +1,0): zawór wskazuje cieplej niż pomieszczenie, więc zamyka się wcześniej, a pomieszczenie może pozostać co najwyżej o tę wartość chłodniejsze od celu. 0 = wył. (wskazanie zaworu podąża za termometrem w pomieszczeniu); w przeciwnym razie co do wartości bezwzględnej od 0,5 do 3,0, zalecane od -1,0 do -1,5 °C. Temperatura docelowa się nie zmienia. Działa tylko przy włączonej kalibracji zaworów i ustawionym termometrze w pomieszczeniu. W pomieszczeniu z kilkoma zaworami jest to wartość domyślna: po zapisaniu pomieszczenia w osobnym kroku można ustawić inną wartość dla każdego zaworu."
+        }
+      },
+      "valve_offsets": {
+        "title": "Przesunięcie TRV dla każdego zaworu – {room}",
+        "description": "Pomieszczenie **{room}** ma kilka zaworów. Tutaj można ustawić przesunięcie TRV osobno dla każdego zaworu (plus: zawór wskazuje cieplej niż termometr w pomieszczeniu, minus: chłodniej – taki sam znak jak liczba kalibracji w Meross LAN; 0 = zawór podąża za termometrem w pomieszczeniu).\n\nPola występują w kolejności zaworów:\n\n{valves}\n\n**Puste pole oznacza, że zawór używa przesunięcia pomieszczenia ({room_offset} °C).** Wartości: 0 albo co do wartości bezwzględnej od 0,5 do 3,0.",
+        "data": {
+          "valve_offset_1": "Zawór 1 – przesunięcie TRV (°C)",
+          "valve_offset_2": "Zawór 2 – przesunięcie TRV (°C)",
+          "valve_offset_3": "Zawór 3 – przesunięcie TRV (°C)",
+          "valve_offset_4": "Zawór 4 – przesunięcie TRV (°C)",
+          "valve_offset_5": "Zawór 5 – przesunięcie TRV (°C)",
+          "valve_offset_6": "Zawór 6 – przesunięcie TRV (°C)",
+          "valve_offset_7": "Zawór 7 – przesunięcie TRV (°C)",
+          "valve_offset_8": "Zawór 8 – przesunięcie TRV (°C)"
         }
       },
       "remove_room": {
@@ -419,6 +433,9 @@
           },
           "trv_offset": {
             "name": "Przesunięcie TRV (°C)"
+          },
+          "valve_trv_offsets": {
+            "name": "Przesunięcia TRV dla poszczególnych zaworów (°C)"
           },
           "valve_calibration": {
             "name": "Kalibracja zaworów (stan każdego zaworu)"

@@ -10,7 +10,7 @@ from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.helpers import selector
 
-from .offset import room_trv_offset
+from .offset import room_trv_offset, room_valve_offsets
 from .const import (
     CONF_BOILER,
     CONF_BOILER_MIN_OFF,
@@ -41,6 +41,7 @@ from .const import (
     CONF_OUTDOOR_SENSOR,
     CONF_ROOM_CALIBRATE,
     CONF_ROOM_TRV_OFFSET_SIGNED,
+    CONF_ROOM_VALVE_OFFSETS,
     CONF_ROOM_HUM,
     CONF_ROOM_ID,
     CONF_ROOM_NAME,
@@ -109,6 +110,7 @@ from .const import (
     DEFAULT_VALVE_RELEASE_MARGIN,
     DEFAULT_WINDOW_DELAY,
     DOMAIN,
+    MAX_VALVE_OFFSET_FIELDS,
     RESIDUAL_ALLOW_MAX,
     TRV_OFFSET_MAX,
     TRV_OFFSET_MIN_ACTIVE,
@@ -201,6 +203,52 @@ def _room_schema(values: dict[str, Any]) -> vol.Schema:
             ): _number(-TRV_OFFSET_MAX, TRV_OFFSET_MAX, 0.5, "°C"),
         }
     )
+
+
+def _valve_field(index: int) -> str:
+    """2.18: a szelepenkénti eltolás mezőjének kulcsa (1-től): `valve_offset_1`, `valve_offset_2`, ... A kulcs szám szerinti,
+    hogy a mezők címkéje a többi mezőhöz hasonlóan statikus fordítás lehessen; hogy melyik szám melyik szelep, azt az űrlap
+    leírása sorolja fel (a szelep neve és entitás-azonosítója)."""
+    return f"valve_offset_{index}"
+
+
+def _valve_offsets_schema(count: int, values: dict[str, Any]) -> vol.Schema:
+    """2.18: egy mező szelepenként (`count` darab), mind elhagyható: az üres mező azt jelenti, hogy a szelep a szoba eltolását
+    használja. A javasolt érték a szelep mentett egyedi eltolása (a `values` a mező kulcsa szerint adja)."""
+    return vol.Schema(
+        {
+            vol.Optional(
+                _valve_field(index), description=_suggest(values, _valve_field(index))
+            ): _number(-TRV_OFFSET_MAX, TRV_OFFSET_MAX, 0.5, "°C")
+            for index in range(1, count + 1)
+        }
+    )
+
+
+def _offset_invalid(offset: Any) -> bool:
+    """Az eltolás megadott értéke nem érvényes: abszolút értéke nagyobb a megengedettnél, vagy nem nulla, de kisebb a
+    legkisebb aktív értéknél (a szelep kalibrációjának legkisebb lépése 0,5 °C)."""
+    return abs(float(offset)) > TRV_OFFSET_MAX or 0 < abs(float(offset)) < TRV_OFFSET_MIN_ACTIVE
+
+
+def _validate_valve_offsets(user_input: dict[str, Any], count: int) -> dict[str, str]:
+    """2.18: a szelepenkénti eltolások ellenőrzése; a hibás mező mellett jelenik meg a hiba."""
+    errors: dict[str, str] = {}
+    for index in range(1, count + 1):
+        value = user_input.get(_valve_field(index))
+        if value is not None and _offset_invalid(value):
+            errors[_valve_field(index)] = "trv_offset_range"
+    return errors
+
+
+def _offset_text(value: float) -> str:
+    """Az eltolás a leírásban: előjellel, egy tizedessel ("-1.0", "+1.5"), a nulla előjel nélkül."""
+    return "0" if value == 0 else f"{value:+.1f}"
+
+
+def _markdown_safe(text: str) -> str:
+    """A leírásba kerülő név: sortörés és kód-jelölő nélkül, hogy ne törje szét a felsorolást."""
+    return " ".join(str(text).replace("`", "'").split())
 
 
 def _settings_schema(values: dict[str, Any]) -> vol.Schema:
@@ -536,6 +584,7 @@ class MerossBoilerSyncOptionsFlow(config_entries.OptionsFlow):
     def __init__(self) -> None:
         self._opts: dict[str, Any] | None = None
         self._edit_id: str | None = None
+        self._offsets_id: str | None = None  # 2.18: az a szoba, amelynek a szelepenkénti eltolását szerkesztjük
 
     def _load(self) -> dict[str, Any]:
         if self._opts is None:
@@ -579,10 +628,7 @@ class MerossBoilerSyncOptionsFlow(config_entries.OptionsFlow):
         if user_input.get(CONF_ROOM_VALVE_CONTROL) and not user_input.get(CONF_ROOM_TEMP):
             return {CONF_ROOM_VALVE_CONTROL: "control_needs_sensor"}
         offset = user_input.get(CONF_ROOM_TRV_OFFSET_SIGNED)
-        if offset is not None and (
-            abs(float(offset)) > TRV_OFFSET_MAX
-            or 0 < abs(float(offset)) < TRV_OFFSET_MIN_ACTIVE
-        ):
+        if offset is not None and _offset_invalid(offset):
             return {CONF_ROOM_TRV_OFFSET_SIGNED: "trv_offset_range"}
         return {}
 
@@ -637,10 +683,9 @@ class MerossBoilerSyncOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             errors = self._validate_room(user_input, None)
             if not errors:
-                opts[CONF_ROOMS].append(
-                    self._room_from_input(user_input, uuid.uuid4().hex[:8])
-                )
-                return await self.async_step_init()
+                room_id = uuid.uuid4().hex[:8]
+                opts[CONF_ROOMS].append(self._room_from_input(user_input, room_id))
+                return await self._async_after_room(room_id)
         return self.async_show_form(
             step_id="add_room",
             data_schema=_room_schema(user_input or {}),
@@ -683,12 +728,87 @@ class MerossBoilerSyncOptionsFlow(config_entries.OptionsFlow):
                 updated = self._room_from_input(user_input, self._edit_id)
                 if room.get(CONF_ROOM_PREHEAT):  # a menetrendet ez az űrlap nem szerkeszti
                     updated[CONF_ROOM_PREHEAT] = room[CONF_ROOM_PREHEAT]
+                # 2.18: a szelepek egyedi eltolását sem ez az űrlap szerkeszti: megmarad azoknál a szelepeknél, amelyek a
+                # szobában maradtak. Ha a szobában egynél több szelep nem marad, a szobaszintű mező az egyetlen beállítás
+                # (különben egy láthatatlan egyedi érték felülírná azt, amit az űrlap mutat)
+                kept = {
+                    valve_id: value
+                    for valve_id, value in room_valve_offsets(room).items()
+                    if valve_id in updated[CONF_ROOM_VALVES]
+                }
+                if kept and len(updated[CONF_ROOM_VALVES]) >= 2:
+                    updated[CONF_ROOM_VALVE_OFFSETS] = kept
                 opts[CONF_ROOMS][index] = updated
-                return await self.async_step_init()
+                return await self._async_after_room(self._edit_id)
         return self.async_show_form(
             step_id="edit_room_form",
             data_schema=_room_schema(user_input or room),
             errors=errors,
+        )
+
+    # --- 2.18: szelepenkénti TRV eltolás (több szelepes szoba)
+    async def _async_after_room(self, room_id: str | None):
+        """A szoba mentése után: több szelepes szobánál a szelepenkénti eltolás lépése, különben a főmenü."""
+        room = next((r for r in self._load()[CONF_ROOMS] if r[CONF_ROOM_ID] == room_id), None)
+        if room is not None and len(room[CONF_ROOM_VALVES]) >= 2:
+            self._offsets_id = room_id
+            return await self.async_step_valve_offsets()
+        return await self.async_step_init()
+
+    def _valve_title(self, valve_id: str) -> str:
+        """A szelep a leírásban: "**név** (`entitás`)"; ha nincs (más) neve, csak az entitás-azonosító."""
+        name = None
+        try:
+            state = self.hass.states.get(valve_id)
+            name = state.attributes.get("friendly_name") if state is not None else None
+        except Exception:  # noqa: BLE001 - a név csak szépítés: hiányában az azonosító is elég
+            name = None
+        name = _markdown_safe(name) if name else ""
+        if name and name != valve_id:
+            return f"**{name}** (`{valve_id}`)"
+        return f"`{valve_id}`"
+
+    async def async_step_valve_offsets(self, user_input: dict[str, Any] | None = None):
+        """2.18: a több szelepes szoba szelepeinek külön TRV eltolása. A mezők a szelepek sorrendjében követik egymást, a leírás
+        felsorolja, melyik szám melyik szelep (név és entitás-azonosító). Az üres mező: a szelep a szoba eltolását használja."""
+        opts = self._load()
+        room = next((r for r in opts[CONF_ROOMS] if r[CONF_ROOM_ID] == self._offsets_id), None)
+        if room is None or len(room[CONF_ROOM_VALVES]) < 2:
+            return await self.async_step_init()
+        shown = list(room[CONF_ROOM_VALVES])[:MAX_VALVE_OFFSET_FIELDS]
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            errors = _validate_valve_offsets(user_input, len(shown))
+            if not errors:
+                # a nem szerkeszthető (a mezők számát meghaladó) szelepek értéke változatlan marad
+                offsets = {
+                    valve_id: value for valve_id, value in room_valve_offsets(room).items() if valve_id not in shown
+                }
+                for index, valve_id in enumerate(shown, start=1):
+                    value = user_input.get(_valve_field(index))
+                    if value is not None:  # a 0 is érvényes: az a szelep a szoba hőmérőjét követi
+                        offsets[valve_id] = float(value) + 0.0
+                if offsets:
+                    room[CONF_ROOM_VALVE_OFFSETS] = offsets
+                else:
+                    room.pop(CONF_ROOM_VALVE_OFFSETS, None)
+                self._offsets_id = None  # a lépés kész: a főmenüből nem nyitható meg újra
+                return await self.async_step_init()
+            values: dict[str, Any] = user_input
+        else:
+            current = room_valve_offsets(room)
+            values = {_valve_field(index): current.get(valve_id) for index, valve_id in enumerate(shown, start=1)}
+        return self.async_show_form(
+            step_id="valve_offsets",
+            data_schema=_valve_offsets_schema(len(shown), values),
+            errors=errors,
+            description_placeholders={
+                "room": room[CONF_ROOM_NAME],
+                "room_offset": _offset_text(room_trv_offset(room)),
+                "valves": "\n".join(
+                    f"{index}. {self._valve_title(valve_id)}" for index, valve_id in enumerate(shown, start=1)
+                ),
+            },
         )
 
     # --- szoba törlése

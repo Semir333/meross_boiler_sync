@@ -59,7 +59,7 @@
           "window_sensors": "Mientras una ventana o puerta permanezca abierta más tiempo que el retardo, la habitación deja de pedir calor y se libera el refuerzo de la válvula. Con varios sensores basta con uno abierto.",
           "window_open_delay": "Cuánto tiempo debe estar abierta la ventana antes de que la habitación reaccione, para que una ventilación breve no cambie nada. 0 = inmediato. Si está vacío, se aplica el valor global.",
           "calibrate_valves": "Corrige la lectura de temperatura de las válvulas con el termómetro de la habitación. Solo funciona con un sensor de temperatura de la habitación. Desactivada, las válvulas de esta habitación no se tocan.",
-          "trv_offset_signed": "Cuánto difiere la lectura de la válvula del termómetro de la habitación, con el mismo signo que el número de calibración de Meross LAN. Negativo (p. ej. -1,0): la válvula mide más frío que la habitación, por lo que en una habitación por debajo de su objetivo se abre por completo en lugar de abrirse solo en parte ante una pequeña diferencia; mientras la caldera calienta para otras habitaciones, esta habitación puede superar su objetivo como máximo en ese valor. Positivo (p. ej. +1,0): la válvula mide más cálido que la habitación, por lo que cierra antes y la habitación puede quedar hasta ese valor por debajo de su objetivo. 0 = desactivado (la lectura de la válvula sigue al termómetro de la habitación); en otro caso, entre 0,5 y 3,0 en valor absoluto, se recomienda de -1,0 a -1,5 °C. La temperatura objetivo no cambia. Solo funciona con la calibración de válvulas activada y un termómetro de habitación configurado."
+          "trv_offset_signed": "Cuánto difiere la lectura de la válvula del termómetro de la habitación, con el mismo signo que el número de calibración de Meross LAN. Negativo (p. ej. -1,0): la válvula mide más frío que la habitación, por lo que en una habitación por debajo de su objetivo se abre por completo en lugar de abrirse solo en parte ante una pequeña diferencia; mientras la caldera calienta para otras habitaciones, esta habitación puede superar su objetivo como máximo en ese valor. Positivo (p. ej. +1,0): la válvula mide más cálido que la habitación, por lo que cierra antes y la habitación puede quedar hasta ese valor por debajo de su objetivo. 0 = desactivado (la lectura de la válvula sigue al termómetro de la habitación); en otro caso, entre 0,5 y 3,0 en valor absoluto, se recomienda de -1,0 a -1,5 °C. La temperatura objetivo no cambia. Solo funciona con la calibración de válvulas activada y un termómetro de habitación configurado. En una habitación con varias válvulas este es el valor predeterminado: tras guardar la habitación, un paso aparte permite fijar un valor distinto para cada válvula."
         }
       },
       "edit_room": {
@@ -98,7 +98,21 @@
           "window_sensors": "Mientras una ventana o puerta permanezca abierta más tiempo que el retardo, la habitación deja de pedir calor y se libera el refuerzo de la válvula. Con varios sensores basta con uno abierto.",
           "window_open_delay": "Cuánto tiempo debe estar abierta la ventana antes de que la habitación reaccione, para que una ventilación breve no cambie nada. 0 = inmediato. Si está vacío, se aplica el valor global.",
           "calibrate_valves": "Corrige la lectura de temperatura de las válvulas con el termómetro de la habitación. Solo funciona con un sensor de temperatura de la habitación. Desactivada, las válvulas de esta habitación no se tocan.",
-          "trv_offset_signed": "Cuánto difiere la lectura de la válvula del termómetro de la habitación, con el mismo signo que el número de calibración de Meross LAN. Negativo (p. ej. -1,0): la válvula mide más frío que la habitación, por lo que en una habitación por debajo de su objetivo se abre por completo en lugar de abrirse solo en parte ante una pequeña diferencia; mientras la caldera calienta para otras habitaciones, esta habitación puede superar su objetivo como máximo en ese valor. Positivo (p. ej. +1,0): la válvula mide más cálido que la habitación, por lo que cierra antes y la habitación puede quedar hasta ese valor por debajo de su objetivo. 0 = desactivado (la lectura de la válvula sigue al termómetro de la habitación); en otro caso, entre 0,5 y 3,0 en valor absoluto, se recomienda de -1,0 a -1,5 °C. La temperatura objetivo no cambia. Solo funciona con la calibración de válvulas activada y un termómetro de habitación configurado."
+          "trv_offset_signed": "Cuánto difiere la lectura de la válvula del termómetro de la habitación, con el mismo signo que el número de calibración de Meross LAN. Negativo (p. ej. -1,0): la válvula mide más frío que la habitación, por lo que en una habitación por debajo de su objetivo se abre por completo en lugar de abrirse solo en parte ante una pequeña diferencia; mientras la caldera calienta para otras habitaciones, esta habitación puede superar su objetivo como máximo en ese valor. Positivo (p. ej. +1,0): la válvula mide más cálido que la habitación, por lo que cierra antes y la habitación puede quedar hasta ese valor por debajo de su objetivo. 0 = desactivado (la lectura de la válvula sigue al termómetro de la habitación); en otro caso, entre 0,5 y 3,0 en valor absoluto, se recomienda de -1,0 a -1,5 °C. La temperatura objetivo no cambia. Solo funciona con la calibración de válvulas activada y un termómetro de habitación configurado. En una habitación con varias válvulas este es el valor predeterminado: tras guardar la habitación, un paso aparte permite fijar un valor distinto para cada válvula."
+        }
+      },
+      "valve_offsets": {
+        "title": "Desfase TRV por válvula – {room}",
+        "description": "La habitación **{room}** tiene varias válvulas. Aquí se puede ajustar por separado el desfase TRV de cada válvula (positivo: la válvula mide más cálido que el termómetro de la habitación, negativo: más frío – el mismo signo que el número de calibración de Meross LAN; 0 = la válvula sigue el termómetro de la habitación).\n\nLos campos siguen el orden de las válvulas:\n\n{valves}\n\n**Un campo vacío significa que la válvula usa el desfase de la habitación ({room_offset} °C).** Valores: 0, o entre 0,5 y 3,0 en valor absoluto.",
+        "data": {
+          "valve_offset_1": "Válvula 1 – desfase TRV (°C)",
+          "valve_offset_2": "Válvula 2 – desfase TRV (°C)",
+          "valve_offset_3": "Válvula 3 – desfase TRV (°C)",
+          "valve_offset_4": "Válvula 4 – desfase TRV (°C)",
+          "valve_offset_5": "Válvula 5 – desfase TRV (°C)",
+          "valve_offset_6": "Válvula 6 – desfase TRV (°C)",
+          "valve_offset_7": "Válvula 7 – desfase TRV (°C)",
+          "valve_offset_8": "Válvula 8 – desfase TRV (°C)"
         }
       },
       "remove_room": {
@@ -419,6 +433,9 @@
           },
           "trv_offset": {
             "name": "Desfase TRV (°C)"
+          },
+          "valve_trv_offsets": {
+            "name": "Desfases TRV por válvula (°C)"
           },
           "valve_calibration": {
             "name": "Calibración de válvulas (estado por válvula)"

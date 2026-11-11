@@ -74,6 +74,11 @@ CONF_ROOM_TRV_OFFSET = "trv_offset"
 # érték melegebbet, a mínusz hidegebbet mutat a szelep a szoba hőmérőjénél (-3..+3 °C). Külön kulcs, hogy a régi, ellentétes
 # előjelű értékek ne keveredhessenek az újakkal (nincs szükség verzióváltásra és átalakításra, ami kétszer lefuthatna).
 CONF_ROOM_TRV_OFFSET_SIGNED = "trv_offset_signed"
+# 2.18: szelepenkénti (egyedi) TRV eltolás, a több szelepes szobákhoz: {szelep entitás-azonosító: előjeles eltolás}, ugyanabban az
+# alakban, mint a szoba eltolása. Csak a megadott szelepeknek van bejegyzése; amelyiknek nincs, az a szoba eltolását használja.
+CONF_ROOM_VALVE_OFFSETS = "valve_trv_offsets"
+# Az űrlap legfeljebb ennyi szelep eltolását teszi szerkeszthetővé (a mezők kulcsa és fordítása szám szerinti: `valve_offset_1`, ...)
+MAX_VALVE_OFFSET_FIELDS = 8
 
 # --- alapértékek
 DEFAULT_HYSTERESIS = 0.3  # °C

@@ -59,7 +59,7 @@
           "window_sensors": "Solange ein Fenster oder eine Tür länger als die Verzögerung offen ist, fordert der Raum keine Wärme an und die Ventil-Anhebung wird beendet. Bei mehreren Sensoren zählt jeder offene.",
           "window_open_delay": "Wie lange das Fenster offen sein muss, bevor der Raum reagiert, damit kurzes Lüften nichts schaltet. 0 = sofort. Wenn leer, gilt der globale Wert.",
           "calibrate_valves": "Korrigiert die Temperaturmessung der Ventile anhand des Raumthermometers. Funktioniert nur mit einem Raumtemperatursensor. Ausgeschaltet bleiben die Ventile dieses Raums unangetastet.",
-          "trv_offset_signed": "Um wie viel die Messung des Ventils vom Raumthermometer abweicht – mit demselben Vorzeichen wie die Kalibrierzahl von Meross LAN. Minus (z. B. -1,0): Das Ventil misst kälter als der Raum, daher öffnet es in einem Raum unter der Zieltemperatur vollständig, statt bei kleiner Abweichung nur teilweise; heizt der Kessel für andere Räume, kann dieser Raum höchstens um diesen Wert wärmer als sein Ziel werden. Plus (z. B. +1,0): Das Ventil misst wärmer als der Raum, schließt daher früher, und der Raum kann bis zu diesem Wert kälter als sein Ziel bleiben. 0 = aus (die Messung des Ventils folgt dem Raumthermometer); sonst im Betrag zwischen 0,5 und 3,0, empfohlen -1,0 bis -1,5 °C. Die Zieltemperatur ändert sich nicht. Funktioniert nur bei aktivierter Ventilkalibrierung und gesetztem Raumthermometer."
+          "trv_offset_signed": "Um wie viel die Messung des Ventils vom Raumthermometer abweicht – mit demselben Vorzeichen wie die Kalibrierzahl von Meross LAN. Minus (z. B. -1,0): Das Ventil misst kälter als der Raum, daher öffnet es in einem Raum unter der Zieltemperatur vollständig, statt bei kleiner Abweichung nur teilweise; heizt der Kessel für andere Räume, kann dieser Raum höchstens um diesen Wert wärmer als sein Ziel werden. Plus (z. B. +1,0): Das Ventil misst wärmer als der Raum, schließt daher früher, und der Raum kann bis zu diesem Wert kälter als sein Ziel bleiben. 0 = aus (die Messung des Ventils folgt dem Raumthermometer); sonst im Betrag zwischen 0,5 und 3,0, empfohlen -1,0 bis -1,5 °C. Die Zieltemperatur ändert sich nicht. Funktioniert nur bei aktivierter Ventilkalibrierung und gesetztem Raumthermometer. In einem Raum mit mehreren Ventilen ist dies der Standardwert: Nach dem Speichern des Raums lässt sich in einem eigenen Schritt für jedes Ventil ein abweichender Wert festlegen."
         }
       },
       "edit_room": {
@@ -98,7 +98,21 @@
           "window_sensors": "Solange ein Fenster oder eine Tür länger als die Verzögerung offen ist, fordert der Raum keine Wärme an und die Ventil-Anhebung wird beendet. Bei mehreren Sensoren zählt jeder offene.",
           "window_open_delay": "Wie lange das Fenster offen sein muss, bevor der Raum reagiert, damit kurzes Lüften nichts schaltet. 0 = sofort. Wenn leer, gilt der globale Wert.",
           "calibrate_valves": "Korrigiert die Temperaturmessung der Ventile anhand des Raumthermometers. Funktioniert nur mit einem Raumtemperatursensor. Ausgeschaltet bleiben die Ventile dieses Raums unangetastet.",
-          "trv_offset_signed": "Um wie viel die Messung des Ventils vom Raumthermometer abweicht – mit demselben Vorzeichen wie die Kalibrierzahl von Meross LAN. Minus (z. B. -1,0): Das Ventil misst kälter als der Raum, daher öffnet es in einem Raum unter der Zieltemperatur vollständig, statt bei kleiner Abweichung nur teilweise; heizt der Kessel für andere Räume, kann dieser Raum höchstens um diesen Wert wärmer als sein Ziel werden. Plus (z. B. +1,0): Das Ventil misst wärmer als der Raum, schließt daher früher, und der Raum kann bis zu diesem Wert kälter als sein Ziel bleiben. 0 = aus (die Messung des Ventils folgt dem Raumthermometer); sonst im Betrag zwischen 0,5 und 3,0, empfohlen -1,0 bis -1,5 °C. Die Zieltemperatur ändert sich nicht. Funktioniert nur bei aktivierter Ventilkalibrierung und gesetztem Raumthermometer."
+          "trv_offset_signed": "Um wie viel die Messung des Ventils vom Raumthermometer abweicht – mit demselben Vorzeichen wie die Kalibrierzahl von Meross LAN. Minus (z. B. -1,0): Das Ventil misst kälter als der Raum, daher öffnet es in einem Raum unter der Zieltemperatur vollständig, statt bei kleiner Abweichung nur teilweise; heizt der Kessel für andere Räume, kann dieser Raum höchstens um diesen Wert wärmer als sein Ziel werden. Plus (z. B. +1,0): Das Ventil misst wärmer als der Raum, schließt daher früher, und der Raum kann bis zu diesem Wert kälter als sein Ziel bleiben. 0 = aus (die Messung des Ventils folgt dem Raumthermometer); sonst im Betrag zwischen 0,5 und 3,0, empfohlen -1,0 bis -1,5 °C. Die Zieltemperatur ändert sich nicht. Funktioniert nur bei aktivierter Ventilkalibrierung und gesetztem Raumthermometer. In einem Raum mit mehreren Ventilen ist dies der Standardwert: Nach dem Speichern des Raums lässt sich in einem eigenen Schritt für jedes Ventil ein abweichender Wert festlegen."
+        }
+      },
+      "valve_offsets": {
+        "title": "TRV-Versatz pro Ventil – {room}",
+        "description": "In **{room}** gibt es mehrere Ventile. Hier lässt sich der TRV-Versatz für jedes Ventil einzeln festlegen (plus: das Ventil misst wärmer als das Raumthermometer, minus: kälter – dasselbe Vorzeichen wie die Kalibrierzahl von Meross LAN; 0 = das Ventil folgt dem Raumthermometer).\n\nDie Felder folgen der Reihenfolge der Ventile:\n\n{valves}\n\n**Ein leeres Feld bedeutet: Das Ventil verwendet den Versatz des Raums ({room_offset} °C).** Werte: 0 oder im Betrag zwischen 0,5 und 3,0.",
+        "data": {
+          "valve_offset_1": "Ventil 1 – TRV-Versatz (°C)",
+          "valve_offset_2": "Ventil 2 – TRV-Versatz (°C)",
+          "valve_offset_3": "Ventil 3 – TRV-Versatz (°C)",
+          "valve_offset_4": "Ventil 4 – TRV-Versatz (°C)",
+          "valve_offset_5": "Ventil 5 – TRV-Versatz (°C)",
+          "valve_offset_6": "Ventil 6 – TRV-Versatz (°C)",
+          "valve_offset_7": "Ventil 7 – TRV-Versatz (°C)",
+          "valve_offset_8": "Ventil 8 – TRV-Versatz (°C)"
         }
       },
       "remove_room": {
@@ -419,6 +433,9 @@
           },
           "trv_offset": {
             "name": "TRV-Versatz (°C)"
+          },
+          "valve_trv_offsets": {
+            "name": "TRV-Versatz pro Ventil (°C, einzelne Ventile)"
           },
           "valve_calibration": {
             "name": "Ventilkalibrierung (Status je Ventil)"

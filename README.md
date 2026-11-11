@@ -31,11 +31,11 @@ Fully localized in over 15 languages (including English, Hungarian, German, Fren
 
 ## 📋 Version History
 
-### Version 2.6-2.7-2.8
+### Version 2.6-2.7-2.8-2.9
 
 TRW Offset calibration entity hotfix
 Log enable hotfix
-+/- TRW modify
++/- TRW modify with double entity termostat also
 
 ### Version 2.5  
 

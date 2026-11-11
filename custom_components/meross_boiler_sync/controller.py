@@ -60,7 +60,6 @@ from .const import (
     CONF_RESIDUAL_ALLOW,
     CONF_RESIDUAL_COMP,
     CONF_ROOM_CALIBRATE,
-    CONF_ROOM_TRV_OFFSET,
     CONF_ROOM_HUM,
     CONF_ROOM_ID,
     CONF_ROOM_NAME,
@@ -104,7 +103,6 @@ from .const import (
     DEFAULT_MIN_SWITCH_TIME,
     DEFAULT_PREHEAT_ENABLED,
     DEFAULT_ROOM_CALIBRATE,
-    DEFAULT_TRV_OFFSET,
     DEFAULT_PREHEAT_HOLD_MINUTES,
     DEFAULT_PREHEAT_MAX_MINUTES,
     DEFAULT_GAS_ESTIMATE,
@@ -187,12 +185,12 @@ from .const import (
     TREND_MIN_SPAN_SECONDS,
     TREND_SAMPLE_SECONDS,
     TREND_WINDOW_SECONDS,
-    TRV_OFFSET_MAX,
     parse_month_day,
 )
 
 from . import trvlog
 from .calibration import Calibrator
+from .offset import room_trv_offset, trv_offset_from  # noqa: F401 - a trv_offset_from a külső használatra (tesztek) is elérhető
 from .cycles import CycleLog
 
 _LOGGER = logging.getLogger(__name__)
@@ -314,17 +312,6 @@ def _median(values: list[float]) -> float:
     return ordered[mid] if len(ordered) % 2 else (ordered[mid - 1] + ordered[mid]) / 2
 
 
-def trv_offset_from(value: Any) -> float:
-    """A szoba TRV eltolása (°C) a beállításból: hiányzó vagy hibás érték esetén az alapérték,
-    különben 0 és `TRV_OFFSET_MAX` közé szorítva."""
-    if value is None or isinstance(value, bool):
-        return DEFAULT_TRV_OFFSET
-    number = _finite(value)
-    if number is None:
-        return DEFAULT_TRV_OFFSET
-    return round(min(max(number, 0.0), TRV_OFFSET_MAX), 2)
-
-
 async def _async_restore_valve(
     hass: HomeAssistant,
     valve_id: str,
@@ -423,7 +410,8 @@ class RoomStatus:
     window_open: bool = False  # a késleltetés letelt: a szoba szünetel
     # 2.11: a szelepek hőmérőjének automata kalibrációja
     calibrate: bool = True  # a szoba részt vesz-e (a globális kapcsoló mellett)
-    # 2.12: a kalibrált szelep ennyivel mutasson hidegebbet a szoba hőmérőjénél (0 = ne legyen eltolás)
+    # 2.12: a kalibrált szelep mérése a szoba hőmérőjéhez képest (0 = ne legyen eltolás). 2.17: előjeles, a Meross LAN
+    # kalibráció számával azonos előjellel: a plusz melegebbet, a mínusz hidegebbet mutat a szelep (alapérték: -1 °C)
     trv_offset: float = 0.0
     calibration: list[dict[str, Any]] = field(default_factory=list)  # szelepenkénti állapot
     # hőmérséklet trend (°C/óra), csak a kártyák kijelzéséhez
@@ -455,6 +443,12 @@ class RoomStatus:
     call_target: float | None = None  # a szelepek célja a hőigény kezdetekor
     call_clean: bool = False  # a hőigény alatt nem volt zavaró körülmény (ablak, kézi fűtés, ...)
     stop_lead: float = 0.0  # ennyivel előbb áll le a hőigény a tanult maradékhő miatt (°C)
+
+    @property
+    def trv_bias(self) -> float:
+        """2.17: a kalibráció belső számolása ezt használja: ennyivel mutasson HIDEGEBBET a szelep a szoba hőmérőjénél (szoba
+        hőmérője - szelep mérése). A felhasználónak látszó `trv_offset` ellentettje (a plusz eltolás melegebbet jelent)."""
+        return 0.0 - self.trv_offset
 
     @property
     def sensor_unusable(self) -> bool:
@@ -695,7 +689,7 @@ class BoilerController:
             window_sensors=list(room.get(CONF_ROOM_WINDOWS) or []),
             window_delay_s=opt(CONF_WINDOW_DELAY, self.window_delay_s / 60) * 60,
             calibrate=bool(room.get(CONF_ROOM_CALIBRATE, DEFAULT_ROOM_CALIBRATE)),
-            trv_offset=trv_offset_from(room.get(CONF_ROOM_TRV_OFFSET)),
+            trv_offset=room_trv_offset(room),
         )
 
     # ------------------------------------------------------------------ életciklus
@@ -989,7 +983,7 @@ class BoilerController:
                     ", ".join(st.valves) or "nincs",
                     st.temp_sensor or "nincs",
                     "próbaüzem" if st.valve_control and self.valve_dry_run else "be" if st.valve_control else "ki",
-                    trvlog.num(st.trv_offset),
+                    trvlog.signed(st.trv_offset),
                     cal_text,
                 )
         except Exception as err:  # noqa: BLE001 - a napló hibája nem állíthatja le az indulást

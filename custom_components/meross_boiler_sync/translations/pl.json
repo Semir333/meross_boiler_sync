@@ -44,7 +44,7 @@
           "window_sensors": "Czujnik(i) okna / drzwi (opcjonalnie)",
           "window_open_delay": "Opóźnienie otwartego okna – to pomieszczenie, minuty (puste = wartość globalna)",
           "calibrate_valves": "Automatyczna kalibracja zaworów (jeśli włączona w Funkcjach)",
-          "trv_offset": "Przesunięcie TRV – zawór wskazuje o tyle chłodniej (°C, 0 = wył.)"
+          "trv_offset_signed": "Przesunięcie TRV (°C) – plus: zawór wskazuje cieplej, minus: chłodniej; 0 = wył."
         },
         "data_description": {
           "name": "Np. Salon",
@@ -59,7 +59,7 @@
           "window_sensors": "Dopóki okno lub drzwi są otwarte dłużej niż opóźnienie, pomieszczenie nie zgłasza zapotrzebowania na ciepło, a wymuszanie zaworu jest zwalniane. Przy kilku czujnikach liczy się każdy otwarty.",
           "window_open_delay": "Jak długo okno musi być otwarte, zanim pomieszczenie zareaguje, aby krótkie wietrzenie niczego nie przełączało. 0 = natychmiast. Jeśli puste, obowiązuje wartość globalna.",
           "calibrate_valves": "Koryguje pomiar temperatury zaworów za pomocą termometru w pomieszczeniu. Działa tylko z czujnikiem temperatury pomieszczenia. Po wyłączeniu zawory tego pomieszczenia pozostają nietknięte.",
-          "trv_offset": "Kalibracja ustawia wskazanie zaworu nie na termometr w pomieszczeniu, lecz na wartość o tyle chłodniejszą. W pomieszczeniu poniżej temperatury docelowej zawór otwiera się wtedy w pełni, zamiast otwierać się tylko częściowo przy niewielkiej różnicy. Temperatura docelowa się nie zmienia. Gdy kocioł grzeje dla innych pomieszczeń, to pomieszczenie może przekroczyć cel co najwyżej o tę wartość. 0 = wył. (wskazanie zaworu podąża za termometrem w pomieszczeniu); w przeciwnym razie co najmniej 0,5, zalecane 1,0–1,5 °C. Działa tylko przy włączonej kalibracji zaworów i ustawionym termometrze w pomieszczeniu."
+          "trv_offset_signed": "O ile wskazanie zaworu różni się od termometru w pomieszczeniu, z takim samym znakiem jak liczba kalibracji w Meross LAN. Minus (np. -1,0): zawór wskazuje chłodniej niż pomieszczenie, więc w pomieszczeniu poniżej temperatury docelowej otwiera się w pełni, zamiast otwierać się tylko częściowo przy niewielkiej różnicy; gdy kocioł grzeje dla innych pomieszczeń, to pomieszczenie może przekroczyć cel co najwyżej o tę wartość. Plus (np. +1,0): zawór wskazuje cieplej niż pomieszczenie, więc zamyka się wcześniej, a pomieszczenie może pozostać co najwyżej o tę wartość chłodniejsze od celu. 0 = wył. (wskazanie zaworu podąża za termometrem w pomieszczeniu); w przeciwnym razie co do wartości bezwzględnej od 0,5 do 3,0, zalecane od -1,0 do -1,5 °C. Temperatura docelowa się nie zmienia. Działa tylko przy włączonej kalibracji zaworów i ustawionym termometrze w pomieszczeniu."
         }
       },
       "edit_room": {
@@ -83,7 +83,7 @@
           "window_sensors": "Czujnik(i) okna / drzwi (opcjonalnie)",
           "window_open_delay": "Opóźnienie otwartego okna – to pomieszczenie, minuty (puste = wartość globalna)",
           "calibrate_valves": "Automatyczna kalibracja zaworów (jeśli włączona w Funkcjach)",
-          "trv_offset": "Przesunięcie TRV – zawór wskazuje o tyle chłodniej (°C, 0 = wył.)"
+          "trv_offset_signed": "Przesunięcie TRV (°C) – plus: zawór wskazuje cieplej, minus: chłodniej; 0 = wył."
         },
         "data_description": {
           "name": "Np. Salon",
@@ -98,7 +98,7 @@
           "window_sensors": "Dopóki okno lub drzwi są otwarte dłużej niż opóźnienie, pomieszczenie nie zgłasza zapotrzebowania na ciepło, a wymuszanie zaworu jest zwalniane. Przy kilku czujnikach liczy się każdy otwarty.",
           "window_open_delay": "Jak długo okno musi być otwarte, zanim pomieszczenie zareaguje, aby krótkie wietrzenie niczego nie przełączało. 0 = natychmiast. Jeśli puste, obowiązuje wartość globalna.",
           "calibrate_valves": "Koryguje pomiar temperatury zaworów za pomocą termometru w pomieszczeniu. Działa tylko z czujnikiem temperatury pomieszczenia. Po wyłączeniu zawory tego pomieszczenia pozostają nietknięte.",
-          "trv_offset": "Kalibracja ustawia wskazanie zaworu nie na termometr w pomieszczeniu, lecz na wartość o tyle chłodniejszą. W pomieszczeniu poniżej temperatury docelowej zawór otwiera się wtedy w pełni, zamiast otwierać się tylko częściowo przy niewielkiej różnicy. Temperatura docelowa się nie zmienia. Gdy kocioł grzeje dla innych pomieszczeń, to pomieszczenie może przekroczyć cel co najwyżej o tę wartość. 0 = wył. (wskazanie zaworu podąża za termometrem w pomieszczeniu); w przeciwnym razie co najmniej 0,5, zalecane 1,0–1,5 °C. Działa tylko przy włączonej kalibracji zaworów i ustawionym termometrze w pomieszczeniu."
+          "trv_offset_signed": "O ile wskazanie zaworu różni się od termometru w pomieszczeniu, z takim samym znakiem jak liczba kalibracji w Meross LAN. Minus (np. -1,0): zawór wskazuje chłodniej niż pomieszczenie, więc w pomieszczeniu poniżej temperatury docelowej otwiera się w pełni, zamiast otwierać się tylko częściowo przy niewielkiej różnicy; gdy kocioł grzeje dla innych pomieszczeń, to pomieszczenie może przekroczyć cel co najwyżej o tę wartość. Plus (np. +1,0): zawór wskazuje cieplej niż pomieszczenie, więc zamyka się wcześniej, a pomieszczenie może pozostać co najwyżej o tę wartość chłodniejsze od celu. 0 = wył. (wskazanie zaworu podąża za termometrem w pomieszczeniu); w przeciwnym razie co do wartości bezwzględnej od 0,5 do 3,0, zalecane od -1,0 do -1,5 °C. Temperatura docelowa się nie zmienia. Działa tylko przy włączonej kalibracji zaworów i ustawionym termometrze w pomieszczeniu."
         }
       },
       "remove_room": {
@@ -247,7 +247,7 @@
       "control_needs_sensor": "Regulacja zaworów wymaga czujnika temperatury pomieszczenia.",
       "invalid_date": "Nieprawidłowa data, użyj formatu MM-DD (np. 05-15).",
       "release_ge_threshold": "Zwolnienie musi być mniejsze niż próg wymuszenia.",
-      "trv_offset_range": "Przesunięcie musi wynosić 0 (wył.) albo mieścić się między 0,5 a 3,0 °C.",
+      "trv_offset_range": "Przesunięcie musi wynosić 0 (wył.) albo mieścić się między 0,5 a 3,0 °C co do wartości bezwzględnej (np. -1,5 lub +1,0).",
       "no_days": "Wybierz co najmniej jeden dzień."
     }
   },

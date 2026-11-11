@@ -86,6 +86,17 @@ def num(value: Any) -> str:
         return "?"
 
 
+def signed(value: Any) -> str:
+    """Előjeles szám a naplóba (a TRV eltolás és az igazítás a Meross LAN számával azonos előjellel): "+1", "-0.5", "0"."""
+    try:
+        number = round(float(value), 2)
+    except (TypeError, ValueError, OverflowError):
+        return "?"
+    if not math.isfinite(number):
+        return "?"
+    return "0" if number == 0 else f"{number:+g}"
+
+
 # a szelep-emelés végének oka (a `_boost_end_reason` kódjai)
 BOOST_END_TEXT = {
     "max_time": "elérte a maximális emelési időt",
@@ -151,10 +162,12 @@ _STATE_TEXT: dict[tuple[str, str | None], str] = {
     ("waiting", "settling"): f"a módosítás után {_minutes(CAL_SETTLE_SECONDS)} türelmi idő, hogy a szelep mérése beálljon",
     ("sampling", "samples"): "mintavétel folyamatban",
     ("sampling", "unstable"): "a minták szórnak, még nem döntök",
+    ("sampling", "cooling"): "a szelep mérése még csúszik (a radiátor még hűl), megvárom, amíg megáll",
     ("verifying", "confirm"): "a módosítás megerősítésére vár",
     ("verifying", "settling"): f"a módosítás hatását ellenőrzi ({_minutes(CAL_SETTLE_SECONDS)} türelmi idő)",
     ("verifying", "samples"): "a módosítás hatását ellenőrzi (mintavétel)",
     ("verifying", "unstable"): "a módosítás hatását ellenőrzi (a minták szórnak)",
+    ("verifying", "cooling"): "a módosítás hatását ellenőrzi (a szelep mérése még csúszik, a radiátor még hűl)",
     ("waiting", None): "vár",
     ("sampling", None): "mintavétel",
     ("verifying", None): "a módosítás hatását ellenőrzi",

@@ -44,7 +44,7 @@
           "window_sensors": "Vindus-/dørsensor(er) (valgfri)",
           "window_open_delay": "Forsinkelse for åpent vindu – dette rommet, minutter (tom = global verdi)",
           "calibrate_valves": "Automatisk ventilkalibrering (hvis slått på under Funksjoner)",
-          "trv_offset": "TRV-forskyvning – ventilen måler så mye kaldere (°C, 0 = av)"
+          "trv_offset_signed": "TRV-forskyvning (°C) – pluss: ventilen måler varmere, minus: kaldere; 0 = av"
         },
         "data_description": {
           "name": "F.eks. Stue",
@@ -59,7 +59,7 @@
           "window_sensors": "Så lenge et vindu eller en dør står åpen lenger enn forsinkelsen, ber ikke rommet om varme, og ventilløftet slippes. Med flere sensorer teller hver åpen sensor.",
           "window_open_delay": "Hvor lenge vinduet må stå åpent før rommet reagerer, slik at kort lufting ikke endrer noe. 0 = umiddelbart. Hvis tom, gjelder den globale verdien.",
           "calibrate_valves": "Korrigerer temperaturmålingen til ventilene med romtermometeret. Fungerer bare med en romtemperatursensor. Når den er av, røres ikke ventilene i dette rommet.",
-          "trv_offset": "Kalibreringen stiller ventilens måling ikke inn på romtermometeret, men på en verdi som er så mye kaldere. I et rom under måltemperaturen åpner ventilen da helt, i stedet for bare delvis ved et lite avvik. Måltemperaturen endres ikke. Når kjelen varmer for andre rom, kan dette rommet bli høyst så mye varmere enn målet. 0 = av (ventilens måling følger romtermometeret); ellers minst 0,5, anbefalt 1,0–1,5 °C. Fungerer bare med ventilkalibrering slått på og et romtermometer satt."
+          "trv_offset_signed": "Hvor mye ventilens måling avviker fra romtermometeret, med samme fortegn som kalibreringstallet i Meross LAN. Minus (f.eks. -1,0): ventilen måler kaldere enn rommet, så i et rom under måltemperaturen åpner den helt, i stedet for bare delvis ved et lite avvik; når kjelen varmer for andre rom, kan dette rommet bli høyst så mye varmere enn målet. Pluss (f.eks. +1,0): ventilen måler varmere enn rommet, så den stenger tidligere, og rommet kan bli værende høyst så mye kaldere enn målet. 0 = av (ventilens måling følger romtermometeret); ellers mellom 0,5 og 3,0 i absoluttverdi, anbefalt -1,0 til -1,5 °C. Måltemperaturen endres ikke. Fungerer bare med ventilkalibrering slått på og et romtermometer satt."
         }
       },
       "edit_room": {
@@ -83,7 +83,7 @@
           "window_sensors": "Vindus-/dørsensor(er) (valgfri)",
           "window_open_delay": "Forsinkelse for åpent vindu – dette rommet, minutter (tom = global verdi)",
           "calibrate_valves": "Automatisk ventilkalibrering (hvis slått på under Funksjoner)",
-          "trv_offset": "TRV-forskyvning – ventilen måler så mye kaldere (°C, 0 = av)"
+          "trv_offset_signed": "TRV-forskyvning (°C) – pluss: ventilen måler varmere, minus: kaldere; 0 = av"
         },
         "data_description": {
           "name": "F.eks. Stue",
@@ -98,7 +98,7 @@
           "window_sensors": "Så lenge et vindu eller en dør står åpen lenger enn forsinkelsen, ber ikke rommet om varme, og ventilløftet slippes. Med flere sensorer teller hver åpen sensor.",
           "window_open_delay": "Hvor lenge vinduet må stå åpent før rommet reagerer, slik at kort lufting ikke endrer noe. 0 = umiddelbart. Hvis tom, gjelder den globale verdien.",
           "calibrate_valves": "Korrigerer temperaturmålingen til ventilene med romtermometeret. Fungerer bare med en romtemperatursensor. Når den er av, røres ikke ventilene i dette rommet.",
-          "trv_offset": "Kalibreringen stiller ventilens måling ikke inn på romtermometeret, men på en verdi som er så mye kaldere. I et rom under måltemperaturen åpner ventilen da helt, i stedet for bare delvis ved et lite avvik. Måltemperaturen endres ikke. Når kjelen varmer for andre rom, kan dette rommet bli høyst så mye varmere enn målet. 0 = av (ventilens måling følger romtermometeret); ellers minst 0,5, anbefalt 1,0–1,5 °C. Fungerer bare med ventilkalibrering slått på og et romtermometer satt."
+          "trv_offset_signed": "Hvor mye ventilens måling avviker fra romtermometeret, med samme fortegn som kalibreringstallet i Meross LAN. Minus (f.eks. -1,0): ventilen måler kaldere enn rommet, så i et rom under måltemperaturen åpner den helt, i stedet for bare delvis ved et lite avvik; når kjelen varmer for andre rom, kan dette rommet bli høyst så mye varmere enn målet. Pluss (f.eks. +1,0): ventilen måler varmere enn rommet, så den stenger tidligere, og rommet kan bli værende høyst så mye kaldere enn målet. 0 = av (ventilens måling følger romtermometeret); ellers mellom 0,5 og 3,0 i absoluttverdi, anbefalt -1,0 til -1,5 °C. Måltemperaturen endres ikke. Fungerer bare med ventilkalibrering slått på og et romtermometer satt."
         }
       },
       "remove_room": {
@@ -247,7 +247,7 @@
       "control_needs_sensor": "Ventilstyring krever en romtemperatursensor.",
       "invalid_date": "Ugyldig dato, bruk MM-DD (f.eks. 05-15).",
       "release_ge_threshold": "Frigjøringen må være mindre enn terskelen for ventilløft.",
-      "trv_offset_range": "Forskyvningen må være 0 (av) eller mellom 0,5 og 3,0 °C.",
+      "trv_offset_range": "Forskyvningen må være 0 (av) eller mellom 0,5 og 3,0 °C i absoluttverdi (f.eks. -1,5 eller +1,0).",
       "no_days": "Velg minst én dag."
     }
   },

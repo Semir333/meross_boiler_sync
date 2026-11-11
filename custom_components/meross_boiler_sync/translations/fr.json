@@ -44,7 +44,7 @@
           "window_sensors": "Capteur(s) de fenêtre / porte (facultatif)",
           "window_open_delay": "Délai fenêtre ouverte – cette pièce, minutes (vide = valeur globale)",
           "calibrate_valves": "Calibration automatique des vannes (si activée dans Fonctions)",
-          "trv_offset": "Décalage TRV – la vanne mesure autant de moins (°C, 0 = désactivé)"
+          "trv_offset_signed": "Décalage TRV (°C) – positif : la vanne mesure plus chaud, négatif : plus froid ; 0 = désactivé"
         },
         "data_description": {
           "name": "Ex. Salon",
@@ -59,7 +59,7 @@
           "window_sensors": "Tant qu’une fenêtre ou une porte reste ouverte plus longtemps que le délai, la pièce ne demande plus de chaleur et la relance de la vanne est relâchée. Avec plusieurs capteurs, un seul ouvert suffit.",
           "window_open_delay": "Durée pendant laquelle la fenêtre doit rester ouverte avant que la pièce réagisse, afin qu’une courte aération ne déclenche rien. 0 = immédiat. Si vide, la valeur globale s’applique.",
           "calibrate_valves": "Corrige la mesure de température des vannes à l’aide du thermomètre de la pièce. Ne fonctionne qu’avec un capteur de température de la pièce. Désactivée, les vannes de cette pièce ne sont pas touchées.",
-          "trv_offset": "La calibration règle la mesure de la vanne non pas sur le thermomètre de la pièce, mais sur une valeur plus froide de ce décalage. Dans une pièce sous sa consigne, la vanne s’ouvre alors complètement au lieu de ne s’ouvrir que partiellement pour un faible écart. La consigne ne change pas. Quand la chaudière chauffe pour d’autres pièces, cette pièce peut dépasser sa consigne de ce décalage au plus. 0 = désactivé (la mesure de la vanne suit le thermomètre de la pièce) ; sinon au moins 0,5, 1,0–1,5 °C recommandé. Ne fonctionne qu’avec la calibration des vannes activée et un thermomètre de pièce défini."
+          "trv_offset_signed": "De combien la mesure de la vanne s’écarte du thermomètre de la pièce, avec le même signe que le nombre de calibration de Meross LAN. Négatif (p. ex. -1,0) : la vanne mesure plus froid que la pièce ; dans une pièce sous sa consigne, elle s’ouvre alors complètement au lieu de ne s’ouvrir que partiellement pour un faible écart ; quand la chaudière chauffe pour d’autres pièces, cette pièce peut dépasser sa consigne de ce décalage au plus. Positif (p. ex. +1,0) : la vanne mesure plus chaud que la pièce, elle se ferme donc plus tôt et la pièce peut rester jusqu’à ce décalage sous sa consigne. 0 = désactivé (la mesure de la vanne suit le thermomètre de la pièce) ; sinon entre 0,5 et 3,0 en valeur absolue, -1,0 à -1,5 °C recommandé. La consigne ne change pas. Ne fonctionne qu’avec la calibration des vannes activée et un thermomètre de pièce défini."
         }
       },
       "edit_room": {
@@ -83,7 +83,7 @@
           "window_sensors": "Capteur(s) de fenêtre / porte (facultatif)",
           "window_open_delay": "Délai fenêtre ouverte – cette pièce, minutes (vide = valeur globale)",
           "calibrate_valves": "Calibration automatique des vannes (si activée dans Fonctions)",
-          "trv_offset": "Décalage TRV – la vanne mesure autant de moins (°C, 0 = désactivé)"
+          "trv_offset_signed": "Décalage TRV (°C) – positif : la vanne mesure plus chaud, négatif : plus froid ; 0 = désactivé"
         },
         "data_description": {
           "name": "Ex. Salon",
@@ -98,7 +98,7 @@
           "window_sensors": "Tant qu’une fenêtre ou une porte reste ouverte plus longtemps que le délai, la pièce ne demande plus de chaleur et la relance de la vanne est relâchée. Avec plusieurs capteurs, un seul ouvert suffit.",
           "window_open_delay": "Durée pendant laquelle la fenêtre doit rester ouverte avant que la pièce réagisse, afin qu’une courte aération ne déclenche rien. 0 = immédiat. Si vide, la valeur globale s’applique.",
           "calibrate_valves": "Corrige la mesure de température des vannes à l’aide du thermomètre de la pièce. Ne fonctionne qu’avec un capteur de température de la pièce. Désactivée, les vannes de cette pièce ne sont pas touchées.",
-          "trv_offset": "La calibration règle la mesure de la vanne non pas sur le thermomètre de la pièce, mais sur une valeur plus froide de ce décalage. Dans une pièce sous sa consigne, la vanne s’ouvre alors complètement au lieu de ne s’ouvrir que partiellement pour un faible écart. La consigne ne change pas. Quand la chaudière chauffe pour d’autres pièces, cette pièce peut dépasser sa consigne de ce décalage au plus. 0 = désactivé (la mesure de la vanne suit le thermomètre de la pièce) ; sinon au moins 0,5, 1,0–1,5 °C recommandé. Ne fonctionne qu’avec la calibration des vannes activée et un thermomètre de pièce défini."
+          "trv_offset_signed": "De combien la mesure de la vanne s’écarte du thermomètre de la pièce, avec le même signe que le nombre de calibration de Meross LAN. Négatif (p. ex. -1,0) : la vanne mesure plus froid que la pièce ; dans une pièce sous sa consigne, elle s’ouvre alors complètement au lieu de ne s’ouvrir que partiellement pour un faible écart ; quand la chaudière chauffe pour d’autres pièces, cette pièce peut dépasser sa consigne de ce décalage au plus. Positif (p. ex. +1,0) : la vanne mesure plus chaud que la pièce, elle se ferme donc plus tôt et la pièce peut rester jusqu’à ce décalage sous sa consigne. 0 = désactivé (la mesure de la vanne suit le thermomètre de la pièce) ; sinon entre 0,5 et 3,0 en valeur absolue, -1,0 à -1,5 °C recommandé. La consigne ne change pas. Ne fonctionne qu’avec la calibration des vannes activée et un thermomètre de pièce défini."
         }
       },
       "remove_room": {
@@ -247,7 +247,7 @@
       "control_needs_sensor": "La régulation des vannes nécessite un capteur de température de la pièce.",
       "invalid_date": "Date invalide, utilisez le format MM-DD (ex. 05-15).",
       "release_ge_threshold": "Le relâchement doit être inférieur au seuil de relance.",
-      "trv_offset_range": "Le décalage doit être 0 (désactivé) ou compris entre 0,5 et 3,0 °C.",
+      "trv_offset_range": "Le décalage doit être 0 (désactivé) ou compris entre 0,5 et 3,0 °C en valeur absolue (p. ex. -1,5 ou +1,0).",
       "no_days": "Sélectionnez au moins un jour."
     }
   },

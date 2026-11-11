@@ -44,7 +44,7 @@
           "window_sensors": "Ablak- / ajtóérzékelő(k) (opcionális)",
           "window_open_delay": "Ablak nyitva késleltetés – ennél a szobánál, perc (üres = általános érték)",
           "calibrate_valves": "Szelepek automata kalibrációja (ha a Funkciókban be van kapcsolva)",
-          "trv_offset": "TRV eltolás – a szelep ennyivel mutasson hidegebbet (°C, 0 = ki)"
+          "trv_offset_signed": "TRV eltolás (°C) – plusz: a szelep melegebbet, mínusz: hidegebbet mutat; 0 = ki"
         },
         "data_description": {
           "name": "Pl. Nappali",
@@ -59,7 +59,7 @@
           "window_sensors": "Amíg egy ablak vagy ajtó a késleltetésnél tovább nyitva van, a szoba nem kér hőt, és a szelep emelés leáll. Több érzékelőnél bármelyik nyitott elég.",
           "window_open_delay": "Mennyi ideig kell nyitva lennie az ablaknak, mielőtt a szoba reagál, így a rövid szellőztetés nem kapcsol semmit. 0 = azonnal. Üresen az általános érték érvényes.",
           "calibrate_valves": "A szoba hőmérője alapján korrigálja a szelepek hőmérőjét. Csak megadott szoba hőmérővel működik. Kikapcsolva ennek a szobának a szelepeihez nem nyúl.",
-          "trv_offset": "A kalibráció a szelep mérését nem a szoba hőmérőjére, hanem ennyivel hidegebb értékre állítja. A szelep így a cél alatti szobában teljesen kinyit, ahelyett hogy kis eltérésnél csak részben nyitna. A célhőmérséklet nem változik. Ha a kazán más szobáknak fűt, ez a szoba a céljánál legfeljebb ennyivel lehet melegebb. 0 = ki (a szelep mérése a szoba hőmérőjét követi), különben legalább 0,5; ajánlott 1,0–1,5 °C. Csak bekapcsolt szelep kalibrációval és megadott szoba hőmérővel működik."
+          "trv_offset_signed": "Ennyivel tér el a szelep mérése a szoba hőmérőjétől, a Meross LAN kalibráció-számával azonos előjellel. Mínusz (pl. -1,0): a szelep hidegebbet mutat a szobánál, ezért a cél alatti szobában teljesen kinyit, ahelyett hogy kis eltérésnél csak részben nyitna; ha a kazán más szobáknak fűt, ez a szoba a céljánál legfeljebb ennyivel lehet melegebb. Plusz (pl. +1,0): a szelep melegebbet mutat a szobánál, ezért korábban zár, és a szoba a céljánál legfeljebb ennyivel maradhat hidegebb. 0 = ki (a szelep mérése a szoba hőmérőjét követi), különben abszolút értékben 0,5 és 3,0 között; ajánlott -1,0 és -1,5 °C között. A célhőmérséklet nem változik. Csak bekapcsolt szelep kalibrációval és megadott szoba hőmérővel működik."
         }
       },
       "edit_room": {
@@ -83,7 +83,7 @@
           "window_sensors": "Ablak- / ajtóérzékelő(k) (opcionális)",
           "window_open_delay": "Ablak nyitva késleltetés – ennél a szobánál, perc (üres = általános érték)",
           "calibrate_valves": "Szelepek automata kalibrációja (ha a Funkciókban be van kapcsolva)",
-          "trv_offset": "TRV eltolás – a szelep ennyivel mutasson hidegebbet (°C, 0 = ki)"
+          "trv_offset_signed": "TRV eltolás (°C) – plusz: a szelep melegebbet, mínusz: hidegebbet mutat; 0 = ki"
         },
         "data_description": {
           "name": "Pl. Nappali",
@@ -98,7 +98,7 @@
           "window_sensors": "Amíg egy ablak vagy ajtó a késleltetésnél tovább nyitva van, a szoba nem kér hőt, és a szelep emelés leáll. Több érzékelőnél bármelyik nyitott elég.",
           "window_open_delay": "Mennyi ideig kell nyitva lennie az ablaknak, mielőtt a szoba reagál, így a rövid szellőztetés nem kapcsol semmit. 0 = azonnal. Üresen az általános érték érvényes.",
           "calibrate_valves": "A szoba hőmérője alapján korrigálja a szelepek hőmérőjét. Csak megadott szoba hőmérővel működik. Kikapcsolva ennek a szobának a szelepeihez nem nyúl.",
-          "trv_offset": "A kalibráció a szelep mérését nem a szoba hőmérőjére, hanem ennyivel hidegebb értékre állítja. A szelep így a cél alatti szobában teljesen kinyit, ahelyett hogy kis eltérésnél csak részben nyitna. A célhőmérséklet nem változik. Ha a kazán más szobáknak fűt, ez a szoba a céljánál legfeljebb ennyivel lehet melegebb. 0 = ki (a szelep mérése a szoba hőmérőjét követi), különben legalább 0,5; ajánlott 1,0–1,5 °C. Csak bekapcsolt szelep kalibrációval és megadott szoba hőmérővel működik."
+          "trv_offset_signed": "Ennyivel tér el a szelep mérése a szoba hőmérőjétől, a Meross LAN kalibráció-számával azonos előjellel. Mínusz (pl. -1,0): a szelep hidegebbet mutat a szobánál, ezért a cél alatti szobában teljesen kinyit, ahelyett hogy kis eltérésnél csak részben nyitna; ha a kazán más szobáknak fűt, ez a szoba a céljánál legfeljebb ennyivel lehet melegebb. Plusz (pl. +1,0): a szelep melegebbet mutat a szobánál, ezért korábban zár, és a szoba a céljánál legfeljebb ennyivel maradhat hidegebb. 0 = ki (a szelep mérése a szoba hőmérőjét követi), különben abszolút értékben 0,5 és 3,0 között; ajánlott -1,0 és -1,5 °C között. A célhőmérséklet nem változik. Csak bekapcsolt szelep kalibrációval és megadott szoba hőmérővel működik."
         }
       },
       "remove_room": {
@@ -247,7 +247,7 @@
       "control_needs_sensor": "A szelep szabályzáshoz meg kell adni a szoba hőmérséklet szenzorát.",
       "invalid_date": "Érvénytelen dátum, a formátum HH-NN (pl. 05-15).",
       "release_ge_threshold": "A visszaengedésnek kisebbnek kell lennie, mint az emelés küszöbnek.",
-      "trv_offset_range": "Az eltolás 0 (ki) vagy 0,5 és 3,0 °C közötti érték lehet.",
+      "trv_offset_range": "Az eltolás 0 (ki) vagy abszolút értékben 0,5 és 3,0 °C közötti érték lehet (pl. -1,5 vagy +1,0).",
       "no_days": "Legalább egy napot válassz ki."
     }
   },

@@ -67,7 +67,13 @@ CONF_ROOM_VALVE_LINK = "valve_demand_link"
 CONF_ROOM_WINDOWS = "window_sensors"
 CONF_ROOM_PREHEAT = "preheat_schedule"  # [{"days": [0..6], "time": "HH:MM", "temperature": 22.0}]
 CONF_ROOM_CALIBRATE = "calibrate_valves"  # a szoba szelepeinek kalibrálása (a globális kapcsoló mellett)
-CONF_ROOM_TRV_OFFSET = "trv_offset"  # 2.12: a kalibrált szelep ennyivel mutasson hidegebbet a szoba hőmérőjénél
+# 2.12-2.16: a kalibrált szelep ennyivel mutasson HIDEGEBBET a szoba hőmérőjénél (0..3 °C). 2.17-től csak a régi, mentett beállítás
+# olvasására szolgál (előjelet vált: lásd `room_trv_offset`); az űrlap és a mentés az előjeles kulcsot használja.
+CONF_ROOM_TRV_OFFSET = "trv_offset"
+# 2.17: a szelep mérése a szoba hőmérőjéhez képest, előjelesen, a Meross LAN kalibráció számával azonos előjellel: a plusz
+# érték melegebbet, a mínusz hidegebbet mutat a szelep a szoba hőmérőjénél (-3..+3 °C). Külön kulcs, hogy a régi, ellentétes
+# előjelű értékek ne keveredhessenek az újakkal (nincs szükség verzióváltásra és átalakításra, ami kétszer lefuthatna).
+CONF_ROOM_TRV_OFFSET_SIGNED = "trv_offset_signed"
 
 # --- alapértékek
 DEFAULT_HYSTERESIS = 0.3  # °C
@@ -108,13 +114,15 @@ DEFAULT_CALIBRATION_ENABLED = False  # a kalibráció tartós beállítást ír 
 DEFAULT_CALIBRATION_DRY_RUN = False
 DEFAULT_ROOM_CALIBRATE = True  # a globális kapcsoló bekapcsolása után minden hőmérős szoba részt vesz
 # 2.12: A szelep saját szabályzása arányos: kis eltérésnél csak részben nyit. Ha a kalibráció a szelep
-# mérését szándékosan ennyivel hidegebbre állítja a szoba hőmérőjénél, a szelep a cél alatti szobában
+# mérését szándékosan hidegebbre állítja a szoba hőmérőjénél, a szelep a cél alatti szobában
 # mindig teljesen nyit. 0 = a szelep mérése a szoba hőmérőjét követi (a 2.11 viselkedése).
-DEFAULT_TRV_OFFSET = 1.0  # °C
-TRV_OFFSET_MAX = 3.0  # °C
+# 2.17: az eltolás előjeles (szelep mérése - szoba hőmérője): a mínusz hidegebbet, a plusz melegebbet mutat a szelep. Az
+# alapérték ugyanaz, mint korábban (1 °C-kal hidegebb), csak az előjele változott.
+DEFAULT_TRV_OFFSET = -1.0  # °C
+TRV_OFFSET_MAX = 3.0  # °C: az eltolás abszolút értéke legfeljebb ennyi (mindkét előjellel)
 # 2.15: 0,5 °C is lehet. A nulla és a 0,5 megkülönböztetéséhez a még nem igazolt igazítás szűkebb tűréssel
 # dolgozik (`CAL_FIRST_THRESHOLD`); az igazolt szelepnél marad a széles tűrés (`CAL_THRESHOLD`).
-TRV_OFFSET_MIN_ACTIVE = 0.5  # °C: ennél kisebb (de nem nulla) eltolás nem lehet (a kalibráció lépésköze 0,5 °C)
+TRV_OFFSET_MIN_ACTIVE = 0.5  # °C: ennél kisebb abszolút értékű (de nem nulla) eltolás nem lehet (a kalibráció lépésköze 0,5 °C)
 # 2.13: Leállás után a radiátor maradékhője még tovább melegíti a szobát. A plugin ezt szobánként méri, és
 # ha a szoba ennél többel melegedne a cél fölé, a hőigényt ennyivel előbb szünteti meg.
 DEFAULT_RESIDUAL_COMP = True  # a kompenzáció korlátos és csak a megengedett túllövés fölötti részt érinti
@@ -186,12 +194,20 @@ BOILER_MODE_WARN_SECONDS = 1800
 # --- szelep hőmérő automata kalibráció (2.11)
 # A szelep a radiátor mellett méri a hőmérsékletet, ezért fűtés közben melegebbnek látja a szobát.
 # Mérni csak akkor érdemes, ha a radiátor már kihűlt, ezért a kalibráció csak csendes időben dolgozik.
-CAL_QUIET_SECONDS = 90 * 60  # ennyi ideje nem fűt a kazán / nem nyitott a szelep, mielőtt mér
+# 2.16.2: 90 helyett 45 perc. Fűtési időben a szoba egy óra alatt is kihűl, és a fűtés újraindul, így a rögzített 90 perc
+# szinte soha nem telt le. A "kihűlt-e a radiátor" kérdést mostantól a szelep mérésének csúszása (`CAL_MAX_DRIFT`) dönti el:
+# a gyorsan hűlő radiátornál hamarabb mér, a lassúnál tovább vár. A 45 perc alsó határ (a kazán / a szelep ennyi ideje nem fűt).
+CAL_QUIET_SECONDS = 45 * 60  # ennyi ideje nem fűt a kazán / nem nyitott a szelep, mielőtt mér
 CAL_SAMPLE_SECONDS = 150  # két minta között legalább ennyi idő (a hub kb. 3 percenként jelent)
 CAL_MIN_SAMPLES = 6  # ennyi egymás utáni, stabil minta kell a döntéshez (kb. 12 perc)
 CAL_MAX_SAMPLES = 12
 CAL_SAMPLE_MAX_AGE = 40 * 60  # ennél régebbi minta nem számít
 CAL_MAX_SPREAD = 0.8  # °C: a minták eltérései ennyin belül legyenek (stabil mérés)
+# 2.16.2: a hűlő radiátor a szelep mérését lassan, de egyirányba húzza (a szelep egyre hidegebbet mutat). A mintákra illesztett
+# egyenes meredeksége (a szoba hőmérője mínusz a szelep mérése, °C/óra) ennél nagyobb: a radiátor még hűl, a mérés vár.
+# A maradék hiba kb. a meredekség és a radiátor hűlési időállandójának szorzata (0,6 °C/óra és 25 perc: ~0,25 °C).
+# Szimulált, zajos (0,05 °C) lapos szelepnél a hat mintás ablakok ~90%-a átmegy ezen; a 0,4-es határ már a felét elutasítaná.
+CAL_MAX_DRIFT = 0.6  # °C/óra
 CAL_MAX_ROOM_SPREAD = 0.6  # °C: a szoba hőmérője a mintavétel alatt ennyinél jobban nem ingadozhat
 CAL_MAX_TREND = 0.6  # °C/óra: a szoba hőmérője ennél gyorsabban nem változhat mérés közben
 CAL_THRESHOLD = 0.8  # °C: az igazolt (már rendben mért) szelepnél ennél kisebb eltérést nem korrigál
@@ -227,7 +243,7 @@ CAL_READING_MAX = 40.0
 CAL_BIAS_MIN_SHIFT = 0.25  # °C: ekkora (vagy nagyobb) eltolás-váltást alkalmaz azonnal; a kisebb mérési zaj
 # 2.15: A 2.14 előtti állományban nincs rögzítve, mihez volt igazítva a szelep. Ilyenkor (csak egyszer, a frissítés után)
 # a szelep eredeti és mostani kalibrációjának különbségéből becsüljük (az igazítás additív), ha az hihető eltolás.
-CAL_GUESS_MAX = TRV_OFFSET_MAX + 0.25  # °C: ennél nagyobb becsült eltolás nem hihető (nincs becslés)
+CAL_GUESS_MAX = TRV_OFFSET_MAX + 0.25  # °C: ennél nagyobb (abszolút értékű) becsült igazítás nem hihető (nincs becslés)
 # 2.16: Ha a kalibráció-számot kézzel (vagy az alkalmazásból) átállították, a szelep igazítása a rögzítettből kiszámolható
 # (a kalibráció additív), és a normál 0..3 °C-os eltolás-tartományon kívülre is eshet. Ennél nagyobb érték nem hihető.
 CAL_TARGET_LIMIT = 15.0  # °C

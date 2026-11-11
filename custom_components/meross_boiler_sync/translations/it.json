@@ -44,7 +44,7 @@
           "window_sensors": "Sensore/i finestra / porta (facoltativo)",
           "window_open_delay": "Ritardo finestra aperta – questa stanza, minuti (vuoto = valore globale)",
           "calibrate_valves": "Calibrazione automatica delle valvole (se attiva in Funzioni)",
-          "trv_offset": "Offset TRV – la valvola misura così tanto in meno (°C, 0 = disattivato)"
+          "trv_offset_signed": "Offset TRV (°C) – positivo: la valvola misura più caldo, negativo: più freddo; 0 = disattivato"
         },
         "data_description": {
           "name": "Es. Soggiorno",
@@ -59,7 +59,7 @@
           "window_sensors": "Finché una finestra o una porta resta aperta più a lungo del ritardo, la stanza non richiede calore e la spinta della valvola viene rilasciata. Con più sensori basta uno aperto.",
           "window_open_delay": "Per quanto tempo la finestra deve restare aperta prima che la stanza reagisca, così un breve ricambio d’aria non cambia nulla. 0 = subito. Se vuoto, vale il valore globale.",
           "calibrate_valves": "Corregge la misura di temperatura delle valvole usando il termometro della stanza. Funziona solo con un sensore di temperatura della stanza. Se disattivata, le valvole di questa stanza non vengono toccate.",
-          "trv_offset": "La calibrazione imposta la misura della valvola non sul termometro della stanza, ma su un valore più freddo di questo offset. In una stanza sotto la temperatura obiettivo la valvola si apre così completamente, invece di aprirsi solo in parte per un piccolo scostamento. La temperatura obiettivo non cambia. Quando la caldaia scalda per altre stanze, questa stanza può superare il proprio obiettivo al massimo di questo offset. 0 = disattivato (la misura della valvola segue il termometro della stanza); altrimenti almeno 0,5, consigliato 1,0–1,5 °C. Funziona solo con la calibrazione delle valvole attiva e un termometro della stanza impostato."
+          "trv_offset_signed": "Di quanto la misura della valvola si discosta dal termometro della stanza, con lo stesso segno del numero di calibrazione di Meross LAN. Negativo (es. -1,0): la valvola misura più freddo della stanza, quindi in una stanza sotto la temperatura obiettivo si apre completamente invece di aprirsi solo in parte per un piccolo scostamento; quando la caldaia scalda per altre stanze, questa stanza può superare il proprio obiettivo al massimo di questo valore. Positivo (es. +1,0): la valvola misura più caldo della stanza, quindi chiude prima e la stanza può restare fino a questo valore sotto il proprio obiettivo. 0 = disattivato (la misura della valvola segue il termometro della stanza); altrimenti tra 0,5 e 3,0 in valore assoluto, consigliato da -1,0 a -1,5 °C. La temperatura obiettivo non cambia. Funziona solo con la calibrazione delle valvole attiva e un termometro della stanza impostato."
         }
       },
       "edit_room": {
@@ -83,7 +83,7 @@
           "window_sensors": "Sensore/i finestra / porta (facoltativo)",
           "window_open_delay": "Ritardo finestra aperta – questa stanza, minuti (vuoto = valore globale)",
           "calibrate_valves": "Calibrazione automatica delle valvole (se attiva in Funzioni)",
-          "trv_offset": "Offset TRV – la valvola misura così tanto in meno (°C, 0 = disattivato)"
+          "trv_offset_signed": "Offset TRV (°C) – positivo: la valvola misura più caldo, negativo: più freddo; 0 = disattivato"
         },
         "data_description": {
           "name": "Es. Soggiorno",
@@ -98,7 +98,7 @@
           "window_sensors": "Finché una finestra o una porta resta aperta più a lungo del ritardo, la stanza non richiede calore e la spinta della valvola viene rilasciata. Con più sensori basta uno aperto.",
           "window_open_delay": "Per quanto tempo la finestra deve restare aperta prima che la stanza reagisca, così un breve ricambio d’aria non cambia nulla. 0 = subito. Se vuoto, vale il valore globale.",
           "calibrate_valves": "Corregge la misura di temperatura delle valvole usando il termometro della stanza. Funziona solo con un sensore di temperatura della stanza. Se disattivata, le valvole di questa stanza non vengono toccate.",
-          "trv_offset": "La calibrazione imposta la misura della valvola non sul termometro della stanza, ma su un valore più freddo di questo offset. In una stanza sotto la temperatura obiettivo la valvola si apre così completamente, invece di aprirsi solo in parte per un piccolo scostamento. La temperatura obiettivo non cambia. Quando la caldaia scalda per altre stanze, questa stanza può superare il proprio obiettivo al massimo di questo offset. 0 = disattivato (la misura della valvola segue il termometro della stanza); altrimenti almeno 0,5, consigliato 1,0–1,5 °C. Funziona solo con la calibrazione delle valvole attiva e un termometro della stanza impostato."
+          "trv_offset_signed": "Di quanto la misura della valvola si discosta dal termometro della stanza, con lo stesso segno del numero di calibrazione di Meross LAN. Negativo (es. -1,0): la valvola misura più freddo della stanza, quindi in una stanza sotto la temperatura obiettivo si apre completamente invece di aprirsi solo in parte per un piccolo scostamento; quando la caldaia scalda per altre stanze, questa stanza può superare il proprio obiettivo al massimo di questo valore. Positivo (es. +1,0): la valvola misura più caldo della stanza, quindi chiude prima e la stanza può restare fino a questo valore sotto il proprio obiettivo. 0 = disattivato (la misura della valvola segue il termometro della stanza); altrimenti tra 0,5 e 3,0 in valore assoluto, consigliato da -1,0 a -1,5 °C. La temperatura obiettivo non cambia. Funziona solo con la calibrazione delle valvole attiva e un termometro della stanza impostato."
         }
       },
       "remove_room": {
@@ -247,7 +247,7 @@
       "control_needs_sensor": "Il controllo valvole richiede un sensore di temperatura della stanza.",
       "invalid_date": "Data non valida, usa il formato MM-DD (es. 05-15).",
       "release_ge_threshold": "Il rilascio deve essere inferiore alla soglia di spinta.",
-      "trv_offset_range": "L’offset deve essere 0 (disattivato) oppure compreso tra 0,5 e 3,0 °C.",
+      "trv_offset_range": "L’offset deve essere 0 (disattivato) oppure compreso tra 0,5 e 3,0 °C in valore assoluto (es. -1,5 o +1,0).",
       "no_days": "Seleziona almeno un giorno."
     }
   },

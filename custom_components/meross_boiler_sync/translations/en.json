@@ -44,7 +44,7 @@
           "window_sensors": "Window / door sensor(s) (optional)",
           "window_open_delay": "Window open delay – this room, minutes (empty = global value)",
           "calibrate_valves": "Automatic valve calibration (if enabled under Features)",
-          "trv_offset": "TRV offset – make the valve read this much colder (°C, 0 = off)"
+          "trv_offset_signed": "TRV offset (°C) – plus: the valve reads warmer, minus: colder; 0 = off"
         },
         "data_description": {
           "name": "E.g. Living room",
@@ -59,7 +59,7 @@
           "window_sensors": "While a window or door stays open longer than the delay, the room stops calling for heat and the valve boost is released. With several sensors, any open one counts.",
           "window_open_delay": "How long the window must stay open before the room reacts, so short airing changes nothing. 0 = immediately. If empty, the global value applies.",
           "calibrate_valves": "Corrects the valves' temperature readings using the room thermometer. Only works with a room temperature sensor. When off, this room's valves are left alone.",
-          "trv_offset": "Calibration sets the valve's reading not to the room thermometer but to a value this much colder. In a room below its target the valve then opens fully instead of only partly for a small error. The target temperature does not change. While the boiler runs for other rooms, this room can end up at most this much warmer than its target. 0 = off (the valve's reading follows the room thermometer); otherwise at least 0.5, 1.0–1.5 °C recommended. Only works with valve calibration switched on and a room thermometer set."
+          "trv_offset_signed": "How much the valve's reading differs from the room thermometer, with the same sign as the Meross LAN calibration number. Minus (e.g. -1.0): the valve reads colder than the room, so in a room below its target it opens fully instead of only partly for a small error; while the boiler runs for other rooms, this room can end up at most this much warmer than its target. Plus (e.g. +1.0): the valve reads warmer than the room, so it closes earlier and the room can stay up to this much colder than its target. 0 = off (the valve's reading follows the room thermometer); otherwise between 0.5 and 3.0 in absolute value, -1.0 to -1.5 °C recommended. The target temperature does not change. Only works with valve calibration switched on and a room thermometer set."
         }
       },
       "edit_room": {
@@ -83,7 +83,7 @@
           "window_sensors": "Window / door sensor(s) (optional)",
           "window_open_delay": "Window open delay – this room, minutes (empty = global value)",
           "calibrate_valves": "Automatic valve calibration (if enabled under Features)",
-          "trv_offset": "TRV offset – make the valve read this much colder (°C, 0 = off)"
+          "trv_offset_signed": "TRV offset (°C) – plus: the valve reads warmer, minus: colder; 0 = off"
         },
         "data_description": {
           "name": "E.g. Living room",
@@ -98,7 +98,7 @@
           "window_sensors": "While a window or door stays open longer than the delay, the room stops calling for heat and the valve boost is released. With several sensors, any open one counts.",
           "window_open_delay": "How long the window must stay open before the room reacts, so short airing changes nothing. 0 = immediately. If empty, the global value applies.",
           "calibrate_valves": "Corrects the valves' temperature readings using the room thermometer. Only works with a room temperature sensor. When off, this room's valves are left alone.",
-          "trv_offset": "Calibration sets the valve's reading not to the room thermometer but to a value this much colder. In a room below its target the valve then opens fully instead of only partly for a small error. The target temperature does not change. While the boiler runs for other rooms, this room can end up at most this much warmer than its target. 0 = off (the valve's reading follows the room thermometer); otherwise at least 0.5, 1.0–1.5 °C recommended. Only works with valve calibration switched on and a room thermometer set."
+          "trv_offset_signed": "How much the valve's reading differs from the room thermometer, with the same sign as the Meross LAN calibration number. Minus (e.g. -1.0): the valve reads colder than the room, so in a room below its target it opens fully instead of only partly for a small error; while the boiler runs for other rooms, this room can end up at most this much warmer than its target. Plus (e.g. +1.0): the valve reads warmer than the room, so it closes earlier and the room can stay up to this much colder than its target. 0 = off (the valve's reading follows the room thermometer); otherwise between 0.5 and 3.0 in absolute value, -1.0 to -1.5 °C recommended. The target temperature does not change. Only works with valve calibration switched on and a room thermometer set."
         }
       },
       "remove_room": {
@@ -247,7 +247,7 @@
       "control_needs_sensor": "Valve control requires a room temperature sensor.",
       "invalid_date": "Invalid date, use MM-DD (e.g. 05-15).",
       "release_ge_threshold": "Release must be smaller than the boost threshold.",
-      "trv_offset_range": "The offset must be 0 (off) or between 0.5 and 3.0 °C.",
+      "trv_offset_range": "The offset must be 0 (off) or between 0.5 and 3.0 °C in absolute value (e.g. -1.5 or +1.0).",
       "no_days": "Select at least one day."
     }
   },

@@ -31,10 +31,11 @@ Fully localized in over 15 languages (including English, Hungarian, German, Fren
 
 ## 📋 Version History
 
-### Version 2.6-2.7
+### Version 2.6-2.7-2.8
 
 TRW Offset calibration entity hotfix
 Log enable hotfix
++/- TRW modify
 
 ### Version 2.5  
 

@@ -21,6 +21,7 @@
         "menu_options": {
           "add_room": "部屋を追加",
           "edit_room": "部屋を編集",
+          "valve_pick": "バルブごとのTRVオフセット（複数バルブの部屋）",
           "remove_room": "部屋を削除",
           "settings": "基本設定",
           "summer": "夏モード",
@@ -105,14 +106,20 @@
         "title": "バルブごとのTRVオフセット – {room}",
         "description": "**{room}** には複数のバルブがあります。ここではバルブごとに個別にTRVオフセットを設定できます（プラス：バルブが部屋の温度計より高く測定、マイナス：低く測定。Meross LANの校正値と同じ符号。0 = バルブは部屋の温度計に追従）。\n\n入力欄はバルブの順に並んでいます：\n\n{valves}\n\n**空欄にすると、そのバルブは部屋のオフセット（{room_offset} °C）を使います。** 値は0、または絶対値で0.5〜3.0です。",
         "data": {
-          "valve_offset_1": "バルブ1 – TRVオフセット (°C)",
-          "valve_offset_2": "バルブ2 – TRVオフセット (°C)",
-          "valve_offset_3": "バルブ3 – TRVオフセット (°C)",
-          "valve_offset_4": "バルブ4 – TRVオフセット (°C)",
-          "valve_offset_5": "バルブ5 – TRVオフセット (°C)",
-          "valve_offset_6": "バルブ6 – TRVオフセット (°C)",
-          "valve_offset_7": "バルブ7 – TRVオフセット (°C)",
-          "valve_offset_8": "バルブ8 – TRVオフセット (°C)"
+          "valve_offset_1": "1. {valve_1} – TRVオフセット (°C)",
+          "valve_offset_2": "2. {valve_2} – TRVオフセット (°C)",
+          "valve_offset_3": "3. {valve_3} – TRVオフセット (°C)",
+          "valve_offset_4": "4. {valve_4} – TRVオフセット (°C)",
+          "valve_offset_5": "5. {valve_5} – TRVオフセット (°C)",
+          "valve_offset_6": "6. {valve_6} – TRVオフセット (°C)",
+          "valve_offset_7": "7. {valve_7} – TRVオフセット (°C)",
+          "valve_offset_8": "8. {valve_8} – TRVオフセット (°C)"
+        }
+      },
+      "valve_pick": {
+        "title": "バルブごとのTRVオフセット – どの部屋？",
+        "data": {
+          "room": "部屋"
         }
       },
       "remove_room": {

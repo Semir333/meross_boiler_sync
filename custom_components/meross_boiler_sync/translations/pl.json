@@ -21,6 +21,7 @@
         "menu_options": {
           "add_room": "Dodaj pomieszczenie",
           "edit_room": "Edytuj pomieszczenie",
+          "valve_pick": "Przesunięcie TRV dla każdego zaworu (pomieszczenia z kilkoma zaworami)",
           "remove_room": "Usuń pomieszczenie",
           "settings": "Ustawienia podstawowe",
           "summer": "Tryb letni",
@@ -105,14 +106,20 @@
         "title": "Przesunięcie TRV dla każdego zaworu – {room}",
         "description": "Pomieszczenie **{room}** ma kilka zaworów. Tutaj można ustawić przesunięcie TRV osobno dla każdego zaworu (plus: zawór wskazuje cieplej niż termometr w pomieszczeniu, minus: chłodniej – taki sam znak jak liczba kalibracji w Meross LAN; 0 = zawór podąża za termometrem w pomieszczeniu).\n\nPola występują w kolejności zaworów:\n\n{valves}\n\n**Puste pole oznacza, że zawór używa przesunięcia pomieszczenia ({room_offset} °C).** Wartości: 0 albo co do wartości bezwzględnej od 0,5 do 3,0.",
         "data": {
-          "valve_offset_1": "Zawór 1 – przesunięcie TRV (°C)",
-          "valve_offset_2": "Zawór 2 – przesunięcie TRV (°C)",
-          "valve_offset_3": "Zawór 3 – przesunięcie TRV (°C)",
-          "valve_offset_4": "Zawór 4 – przesunięcie TRV (°C)",
-          "valve_offset_5": "Zawór 5 – przesunięcie TRV (°C)",
-          "valve_offset_6": "Zawór 6 – przesunięcie TRV (°C)",
-          "valve_offset_7": "Zawór 7 – przesunięcie TRV (°C)",
-          "valve_offset_8": "Zawór 8 – przesunięcie TRV (°C)"
+          "valve_offset_1": "1. {valve_1} – przesunięcie TRV (°C)",
+          "valve_offset_2": "2. {valve_2} – przesunięcie TRV (°C)",
+          "valve_offset_3": "3. {valve_3} – przesunięcie TRV (°C)",
+          "valve_offset_4": "4. {valve_4} – przesunięcie TRV (°C)",
+          "valve_offset_5": "5. {valve_5} – przesunięcie TRV (°C)",
+          "valve_offset_6": "6. {valve_6} – przesunięcie TRV (°C)",
+          "valve_offset_7": "7. {valve_7} – przesunięcie TRV (°C)",
+          "valve_offset_8": "8. {valve_8} – przesunięcie TRV (°C)"
+        }
+      },
+      "valve_pick": {
+        "title": "Przesunięcie TRV dla każdego zaworu – które pomieszczenie?",
+        "data": {
+          "room": "Pomieszczenie"
         }
       },
       "remove_room": {

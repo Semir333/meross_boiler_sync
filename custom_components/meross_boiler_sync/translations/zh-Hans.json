@@ -21,6 +21,7 @@
         "menu_options": {
           "add_room": "添加房间",
           "edit_room": "编辑房间",
+          "valve_pick": "每个阀门的 TRV 偏移（有多个阀门的房间）",
           "remove_room": "删除房间",
           "settings": "基本设置",
           "summer": "夏季模式",
@@ -105,14 +106,20 @@
         "title": "每个阀门的 TRV 偏移 – {room}",
         "description": "**{room}** 有多个阀门。在这里可以为每个阀门单独设置 TRV 偏移（正数：阀门读数比房间温度计高，负数：低——符号与 Meross LAN 的校准数值相同；0 = 阀门跟随房间温度计）。\n\n各输入框按阀门的顺序排列：\n\n{valves}\n\n**留空表示该阀门使用房间的偏移（{room_offset} °C）。** 取值：0，或绝对值介于 0.5 和 3.0 之间。",
         "data": {
-          "valve_offset_1": "阀门 1 – TRV 偏移 (°C)",
-          "valve_offset_2": "阀门 2 – TRV 偏移 (°C)",
-          "valve_offset_3": "阀门 3 – TRV 偏移 (°C)",
-          "valve_offset_4": "阀门 4 – TRV 偏移 (°C)",
-          "valve_offset_5": "阀门 5 – TRV 偏移 (°C)",
-          "valve_offset_6": "阀门 6 – TRV 偏移 (°C)",
-          "valve_offset_7": "阀门 7 – TRV 偏移 (°C)",
-          "valve_offset_8": "阀门 8 – TRV 偏移 (°C)"
+          "valve_offset_1": "1. {valve_1} – TRV 偏移 (°C)",
+          "valve_offset_2": "2. {valve_2} – TRV 偏移 (°C)",
+          "valve_offset_3": "3. {valve_3} – TRV 偏移 (°C)",
+          "valve_offset_4": "4. {valve_4} – TRV 偏移 (°C)",
+          "valve_offset_5": "5. {valve_5} – TRV 偏移 (°C)",
+          "valve_offset_6": "6. {valve_6} – TRV 偏移 (°C)",
+          "valve_offset_7": "7. {valve_7} – TRV 偏移 (°C)",
+          "valve_offset_8": "8. {valve_8} – TRV 偏移 (°C)"
+        }
+      },
+      "valve_pick": {
+        "title": "每个阀门的 TRV 偏移 – 哪个房间？",
+        "data": {
+          "room": "房间"
         }
       },
       "remove_room": {

@@ -21,6 +21,7 @@
         "menu_options": {
           "add_room": "Ajouter une pièce",
           "edit_room": "Modifier une pièce",
+          "valve_pick": "Décalage TRV par vanne (pièces avec plusieurs vannes)",
           "remove_room": "Supprimer une pièce",
           "settings": "Paramètres de base",
           "summer": "Mode été",
@@ -105,14 +106,20 @@
         "title": "Décalage TRV par vanne – {room}",
         "description": "La pièce **{room}** compte plusieurs vannes. Le décalage TRV de chaque vanne peut être réglé ici séparément (positif : la vanne mesure plus chaud que le thermomètre de la pièce, négatif : plus froid – même signe que le nombre de calibration de Meross LAN ; 0 = la vanne suit le thermomètre de la pièce).\n\nLes champs suivent l’ordre des vannes :\n\n{valves}\n\n**Un champ laissé vide signifie que la vanne utilise le décalage de la pièce ({room_offset} °C).** Valeurs : 0, ou entre 0,5 et 3,0 en valeur absolue.",
         "data": {
-          "valve_offset_1": "Vanne 1 – décalage TRV (°C)",
-          "valve_offset_2": "Vanne 2 – décalage TRV (°C)",
-          "valve_offset_3": "Vanne 3 – décalage TRV (°C)",
-          "valve_offset_4": "Vanne 4 – décalage TRV (°C)",
-          "valve_offset_5": "Vanne 5 – décalage TRV (°C)",
-          "valve_offset_6": "Vanne 6 – décalage TRV (°C)",
-          "valve_offset_7": "Vanne 7 – décalage TRV (°C)",
-          "valve_offset_8": "Vanne 8 – décalage TRV (°C)"
+          "valve_offset_1": "1. {valve_1} – décalage TRV (°C)",
+          "valve_offset_2": "2. {valve_2} – décalage TRV (°C)",
+          "valve_offset_3": "3. {valve_3} – décalage TRV (°C)",
+          "valve_offset_4": "4. {valve_4} – décalage TRV (°C)",
+          "valve_offset_5": "5. {valve_5} – décalage TRV (°C)",
+          "valve_offset_6": "6. {valve_6} – décalage TRV (°C)",
+          "valve_offset_7": "7. {valve_7} – décalage TRV (°C)",
+          "valve_offset_8": "8. {valve_8} – décalage TRV (°C)"
+        }
+      },
+      "valve_pick": {
+        "title": "Décalage TRV par vanne – quelle pièce ?",
+        "data": {
+          "room": "Pièce"
         }
       },
       "remove_room": {

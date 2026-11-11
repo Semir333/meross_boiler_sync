@@ -21,6 +21,7 @@
         "menu_options": {
           "add_room": "Lägg till rum",
           "edit_room": "Redigera rum",
+          "valve_pick": "TRV-förskjutning per ventil (rum med flera ventiler)",
           "remove_room": "Ta bort rum",
           "settings": "Grundinställningar",
           "summer": "Sommarläge",
@@ -105,14 +106,20 @@
         "title": "TRV-förskjutning per ventil – {room}",
         "description": "**{room}** har flera ventiler. Här kan TRV-förskjutningen ställas in för varje ventil för sig (plus: ventilen mäter varmare än rumstermometern, minus: kallare – samma tecken som kalibreringstalet i Meross LAN; 0 = ventilen följer rumstermometern).\n\nFälten följer ventilernas ordning:\n\n{valves}\n\n**Ett tomt fält betyder att ventilen använder rummets förskjutning ({room_offset} °C).** Värden: 0, eller mellan 0,5 och 3,0 i absolutvärde.",
         "data": {
-          "valve_offset_1": "Ventil 1 – TRV-förskjutning (°C)",
-          "valve_offset_2": "Ventil 2 – TRV-förskjutning (°C)",
-          "valve_offset_3": "Ventil 3 – TRV-förskjutning (°C)",
-          "valve_offset_4": "Ventil 4 – TRV-förskjutning (°C)",
-          "valve_offset_5": "Ventil 5 – TRV-förskjutning (°C)",
-          "valve_offset_6": "Ventil 6 – TRV-förskjutning (°C)",
-          "valve_offset_7": "Ventil 7 – TRV-förskjutning (°C)",
-          "valve_offset_8": "Ventil 8 – TRV-förskjutning (°C)"
+          "valve_offset_1": "1. {valve_1} – TRV-förskjutning (°C)",
+          "valve_offset_2": "2. {valve_2} – TRV-förskjutning (°C)",
+          "valve_offset_3": "3. {valve_3} – TRV-förskjutning (°C)",
+          "valve_offset_4": "4. {valve_4} – TRV-förskjutning (°C)",
+          "valve_offset_5": "5. {valve_5} – TRV-förskjutning (°C)",
+          "valve_offset_6": "6. {valve_6} – TRV-förskjutning (°C)",
+          "valve_offset_7": "7. {valve_7} – TRV-förskjutning (°C)",
+          "valve_offset_8": "8. {valve_8} – TRV-förskjutning (°C)"
+        }
+      },
+      "valve_pick": {
+        "title": "TRV-förskjutning per ventil – vilket rum?",
+        "data": {
+          "room": "Rum"
         }
       },
       "remove_room": {

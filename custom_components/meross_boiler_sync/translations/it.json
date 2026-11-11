@@ -21,6 +21,7 @@
         "menu_options": {
           "add_room": "Aggiungi stanza",
           "edit_room": "Modifica stanza",
+          "valve_pick": "Offset TRV per valvola (stanze con più valvole)",
           "remove_room": "Rimuovi stanza",
           "settings": "Impostazioni di base",
           "summer": "Modalità estate",
@@ -105,14 +106,20 @@
         "title": "Offset TRV per valvola – {room}",
         "description": "La stanza **{room}** ha più valvole. Qui l’offset TRV si può impostare separatamente per ogni valvola (positivo: la valvola misura più caldo del termometro della stanza, negativo: più freddo – stesso segno del numero di calibrazione di Meross LAN; 0 = la valvola segue il termometro della stanza).\n\nI campi seguono l’ordine delle valvole:\n\n{valves}\n\n**Un campo lasciato vuoto significa che la valvola usa l’offset della stanza ({room_offset} °C).** Valori: 0, oppure tra 0,5 e 3,0 in valore assoluto.",
         "data": {
-          "valve_offset_1": "Valvola 1 – offset TRV (°C)",
-          "valve_offset_2": "Valvola 2 – offset TRV (°C)",
-          "valve_offset_3": "Valvola 3 – offset TRV (°C)",
-          "valve_offset_4": "Valvola 4 – offset TRV (°C)",
-          "valve_offset_5": "Valvola 5 – offset TRV (°C)",
-          "valve_offset_6": "Valvola 6 – offset TRV (°C)",
-          "valve_offset_7": "Valvola 7 – offset TRV (°C)",
-          "valve_offset_8": "Valvola 8 – offset TRV (°C)"
+          "valve_offset_1": "1. {valve_1} – offset TRV (°C)",
+          "valve_offset_2": "2. {valve_2} – offset TRV (°C)",
+          "valve_offset_3": "3. {valve_3} – offset TRV (°C)",
+          "valve_offset_4": "4. {valve_4} – offset TRV (°C)",
+          "valve_offset_5": "5. {valve_5} – offset TRV (°C)",
+          "valve_offset_6": "6. {valve_6} – offset TRV (°C)",
+          "valve_offset_7": "7. {valve_7} – offset TRV (°C)",
+          "valve_offset_8": "8. {valve_8} – offset TRV (°C)"
+        }
+      },
+      "valve_pick": {
+        "title": "Offset TRV per valvola – quale stanza?",
+        "data": {
+          "room": "Stanza"
         }
       },
       "remove_room": {

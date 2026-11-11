@@ -21,6 +21,7 @@
         "menu_options": {
           "add_room": "Add room",
           "edit_room": "Edit room",
+          "valve_pick": "TRV offset per valve (rooms with several valves)",
           "remove_room": "Remove room",
           "settings": "Settings",
           "summer": "Summer mode",
@@ -105,14 +106,20 @@
         "title": "TRV offset per valve – {room}",
         "description": "**{room}** has more than one valve. Here you can set the TRV offset for each valve separately (plus: the valve reads warmer than the room thermometer, minus: colder – the same sign as the Meross LAN calibration number; 0 = the valve follows the room thermometer).\n\nThe fields follow the order of the valves:\n\n{valves}\n\n**A field left empty means the valve uses the room's offset ({room_offset} °C).** Values: 0, or between 0.5 and 3.0 in absolute value.",
         "data": {
-          "valve_offset_1": "Valve 1 – TRV offset (°C)",
-          "valve_offset_2": "Valve 2 – TRV offset (°C)",
-          "valve_offset_3": "Valve 3 – TRV offset (°C)",
-          "valve_offset_4": "Valve 4 – TRV offset (°C)",
-          "valve_offset_5": "Valve 5 – TRV offset (°C)",
-          "valve_offset_6": "Valve 6 – TRV offset (°C)",
-          "valve_offset_7": "Valve 7 – TRV offset (°C)",
-          "valve_offset_8": "Valve 8 – TRV offset (°C)"
+          "valve_offset_1": "1. {valve_1} – TRV offset (°C)",
+          "valve_offset_2": "2. {valve_2} – TRV offset (°C)",
+          "valve_offset_3": "3. {valve_3} – TRV offset (°C)",
+          "valve_offset_4": "4. {valve_4} – TRV offset (°C)",
+          "valve_offset_5": "5. {valve_5} – TRV offset (°C)",
+          "valve_offset_6": "6. {valve_6} – TRV offset (°C)",
+          "valve_offset_7": "7. {valve_7} – TRV offset (°C)",
+          "valve_offset_8": "8. {valve_8} – TRV offset (°C)"
+        }
+      },
+      "valve_pick": {
+        "title": "TRV offset per valve – which room?",
+        "data": {
+          "room": "Room"
         }
       },
       "remove_room": {

@@ -21,6 +21,7 @@
         "menu_options": {
           "add_room": "Raum hinzufügen",
           "edit_room": "Raum bearbeiten",
+          "valve_pick": "TRV-Versatz pro Ventil (Räume mit mehreren Ventilen)",
           "remove_room": "Raum entfernen",
           "settings": "Grundeinstellungen",
           "summer": "Sommermodus",
@@ -105,14 +106,20 @@
         "title": "TRV-Versatz pro Ventil – {room}",
         "description": "In **{room}** gibt es mehrere Ventile. Hier lässt sich der TRV-Versatz für jedes Ventil einzeln festlegen (plus: das Ventil misst wärmer als das Raumthermometer, minus: kälter – dasselbe Vorzeichen wie die Kalibrierzahl von Meross LAN; 0 = das Ventil folgt dem Raumthermometer).\n\nDie Felder folgen der Reihenfolge der Ventile:\n\n{valves}\n\n**Ein leeres Feld bedeutet: Das Ventil verwendet den Versatz des Raums ({room_offset} °C).** Werte: 0 oder im Betrag zwischen 0,5 und 3,0.",
         "data": {
-          "valve_offset_1": "Ventil 1 – TRV-Versatz (°C)",
-          "valve_offset_2": "Ventil 2 – TRV-Versatz (°C)",
-          "valve_offset_3": "Ventil 3 – TRV-Versatz (°C)",
-          "valve_offset_4": "Ventil 4 – TRV-Versatz (°C)",
-          "valve_offset_5": "Ventil 5 – TRV-Versatz (°C)",
-          "valve_offset_6": "Ventil 6 – TRV-Versatz (°C)",
-          "valve_offset_7": "Ventil 7 – TRV-Versatz (°C)",
-          "valve_offset_8": "Ventil 8 – TRV-Versatz (°C)"
+          "valve_offset_1": "1. {valve_1} – TRV-Versatz (°C)",
+          "valve_offset_2": "2. {valve_2} – TRV-Versatz (°C)",
+          "valve_offset_3": "3. {valve_3} – TRV-Versatz (°C)",
+          "valve_offset_4": "4. {valve_4} – TRV-Versatz (°C)",
+          "valve_offset_5": "5. {valve_5} – TRV-Versatz (°C)",
+          "valve_offset_6": "6. {valve_6} – TRV-Versatz (°C)",
+          "valve_offset_7": "7. {valve_7} – TRV-Versatz (°C)",
+          "valve_offset_8": "8. {valve_8} – TRV-Versatz (°C)"
+        }
+      },
+      "valve_pick": {
+        "title": "TRV-Versatz pro Ventil – welcher Raum?",
+        "data": {
+          "room": "Raum"
         }
       },
       "remove_room": {

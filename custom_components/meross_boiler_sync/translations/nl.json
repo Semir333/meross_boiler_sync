@@ -21,6 +21,7 @@
         "menu_options": {
           "add_room": "Kamer toevoegen",
           "edit_room": "Kamer bewerken",
+          "valve_pick": "TRV-offset per kraan (kamers met meerdere kranen)",
           "remove_room": "Kamer verwijderen",
           "settings": "Basisinstellingen",
           "summer": "Zomermodus",
@@ -105,14 +106,20 @@
         "title": "TRV-offset per kraan – {room}",
         "description": "In **{room}** zitten meerdere kranen. Hier kun je de TRV-offset per kraan apart instellen (plus: de kraan meet warmer dan de kamerthermometer, min: kouder – hetzelfde teken als het kalibratiegetal van Meross LAN; 0 = de kraan volgt de kamerthermometer).\n\nDe velden volgen de volgorde van de kranen:\n\n{valves}\n\n**Een leeg veld betekent dat de kraan de offset van de kamer gebruikt ({room_offset} °C).** Waarden: 0, of tussen 0,5 en 3,0 in absolute waarde.",
         "data": {
-          "valve_offset_1": "Kraan 1 – TRV-offset (°C)",
-          "valve_offset_2": "Kraan 2 – TRV-offset (°C)",
-          "valve_offset_3": "Kraan 3 – TRV-offset (°C)",
-          "valve_offset_4": "Kraan 4 – TRV-offset (°C)",
-          "valve_offset_5": "Kraan 5 – TRV-offset (°C)",
-          "valve_offset_6": "Kraan 6 – TRV-offset (°C)",
-          "valve_offset_7": "Kraan 7 – TRV-offset (°C)",
-          "valve_offset_8": "Kraan 8 – TRV-offset (°C)"
+          "valve_offset_1": "1. {valve_1} – TRV-offset (°C)",
+          "valve_offset_2": "2. {valve_2} – TRV-offset (°C)",
+          "valve_offset_3": "3. {valve_3} – TRV-offset (°C)",
+          "valve_offset_4": "4. {valve_4} – TRV-offset (°C)",
+          "valve_offset_5": "5. {valve_5} – TRV-offset (°C)",
+          "valve_offset_6": "6. {valve_6} – TRV-offset (°C)",
+          "valve_offset_7": "7. {valve_7} – TRV-offset (°C)",
+          "valve_offset_8": "8. {valve_8} – TRV-offset (°C)"
+        }
+      },
+      "valve_pick": {
+        "title": "TRV-offset per kraan – welke kamer?",
+        "data": {
+          "room": "Kamer"
         }
       },
       "remove_room": {

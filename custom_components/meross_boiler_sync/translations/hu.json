@@ -21,6 +21,7 @@
         "menu_options": {
           "add_room": "Szoba hozzáadása",
           "edit_room": "Szoba szerkesztése",
+          "valve_pick": "Szelepenkénti TRV eltolás (több szelepes szobák)",
           "remove_room": "Szoba törlése",
           "settings": "Alapbeállítások",
           "summer": "Nyári mód",
@@ -105,14 +106,20 @@
         "title": "Szelepenkénti TRV eltolás – {room}",
         "description": "A(z) **{room}** szobában több szelep van. Itt szelepenként külön megadhatod a TRV eltolást (plusz: a szelep melegebbet, mínusz: hidegebbet mutat a szoba hőmérőjénél, a Meross LAN kalibráció-számával azonos előjellel; 0 = a szelep a szoba hőmérőjét követi).\n\nA mezők a szelepek sorrendjében következnek:\n\n{valves}\n\n**Az üresen hagyott mező azt jelenti, hogy a szelep a szoba eltolását használja ({room_offset} °C).** Megadható érték: 0, vagy abszolút értékben 0,5 és 3,0 között.",
         "data": {
-          "valve_offset_1": "1. szelep – TRV eltolás (°C)",
-          "valve_offset_2": "2. szelep – TRV eltolás (°C)",
-          "valve_offset_3": "3. szelep – TRV eltolás (°C)",
-          "valve_offset_4": "4. szelep – TRV eltolás (°C)",
-          "valve_offset_5": "5. szelep – TRV eltolás (°C)",
-          "valve_offset_6": "6. szelep – TRV eltolás (°C)",
-          "valve_offset_7": "7. szelep – TRV eltolás (°C)",
-          "valve_offset_8": "8. szelep – TRV eltolás (°C)"
+          "valve_offset_1": "1. {valve_1} – TRV eltolás (°C)",
+          "valve_offset_2": "2. {valve_2} – TRV eltolás (°C)",
+          "valve_offset_3": "3. {valve_3} – TRV eltolás (°C)",
+          "valve_offset_4": "4. {valve_4} – TRV eltolás (°C)",
+          "valve_offset_5": "5. {valve_5} – TRV eltolás (°C)",
+          "valve_offset_6": "6. {valve_6} – TRV eltolás (°C)",
+          "valve_offset_7": "7. {valve_7} – TRV eltolás (°C)",
+          "valve_offset_8": "8. {valve_8} – TRV eltolás (°C)"
+        }
+      },
+      "valve_pick": {
+        "title": "Szelepenkénti TRV eltolás – melyik szoba?",
+        "data": {
+          "room": "Szoba"
         }
       },
       "remove_room": {

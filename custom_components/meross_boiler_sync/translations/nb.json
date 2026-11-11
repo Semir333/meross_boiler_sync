@@ -21,6 +21,7 @@
         "menu_options": {
           "add_room": "Legg til rom",
           "edit_room": "Rediger rom",
+          "valve_pick": "TRV-forskyvning per ventil (rom med flere ventiler)",
           "remove_room": "Fjern rom",
           "settings": "Grunninnstillinger",
           "summer": "Sommermodus",
@@ -105,14 +106,20 @@
         "title": "TRV-forskyvning per ventil – {room}",
         "description": "**{room}** har flere ventiler. Her kan TRV-forskyvningen settes for hver ventil for seg (pluss: ventilen måler varmere enn romtermometeret, minus: kaldere – samme fortegn som kalibreringstallet i Meross LAN; 0 = ventilen følger romtermometeret).\n\nFeltene følger rekkefølgen til ventilene:\n\n{valves}\n\n**Et tomt felt betyr at ventilen bruker rommets forskyvning ({room_offset} °C).** Verdier: 0, eller mellom 0,5 og 3,0 i absoluttverdi.",
         "data": {
-          "valve_offset_1": "Ventil 1 – TRV-forskyvning (°C)",
-          "valve_offset_2": "Ventil 2 – TRV-forskyvning (°C)",
-          "valve_offset_3": "Ventil 3 – TRV-forskyvning (°C)",
-          "valve_offset_4": "Ventil 4 – TRV-forskyvning (°C)",
-          "valve_offset_5": "Ventil 5 – TRV-forskyvning (°C)",
-          "valve_offset_6": "Ventil 6 – TRV-forskyvning (°C)",
-          "valve_offset_7": "Ventil 7 – TRV-forskyvning (°C)",
-          "valve_offset_8": "Ventil 8 – TRV-forskyvning (°C)"
+          "valve_offset_1": "1. {valve_1} – TRV-forskyvning (°C)",
+          "valve_offset_2": "2. {valve_2} – TRV-forskyvning (°C)",
+          "valve_offset_3": "3. {valve_3} – TRV-forskyvning (°C)",
+          "valve_offset_4": "4. {valve_4} – TRV-forskyvning (°C)",
+          "valve_offset_5": "5. {valve_5} – TRV-forskyvning (°C)",
+          "valve_offset_6": "6. {valve_6} – TRV-forskyvning (°C)",
+          "valve_offset_7": "7. {valve_7} – TRV-forskyvning (°C)",
+          "valve_offset_8": "8. {valve_8} – TRV-forskyvning (°C)"
+        }
+      },
+      "valve_pick": {
+        "title": "TRV-forskyvning per ventil – hvilket rom?",
+        "data": {
+          "room": "Rom"
         }
       },
       "remove_room": {

@@ -21,6 +21,7 @@
         "menu_options": {
           "add_room": "Pievienot telpu",
           "edit_room": "Rediģēt telpu",
+          "valve_pick": "TRV nobīde katram vārstam (istabas ar vairākiem vārstiem)",
           "remove_room": "Noņemt telpu",
           "settings": "Pamatiestatījumi",
           "summer": "Vasaras režīms",
@@ -105,14 +106,20 @@
         "title": "TRV nobīde katram vārstam – {room}",
         "description": "Istabā **{room}** ir vairāki vārsti. Šeit TRV nobīdi var iestatīt katram vārstam atsevišķi (pozitīva: vārsts mēra siltāk nekā istabas termometrs, negatīva: aukstāk – tāda pati zīme kā Meross LAN kalibrēšanas skaitlim; 0 = vārsts seko istabas termometram).\n\nLauki seko vārstu secībai:\n\n{valves}\n\n**Tukšs lauks nozīmē, ka vārsts izmanto istabas nobīdi ({room_offset} °C).** Vērtības: 0 vai absolūtā vērtībā no 0,5 līdz 3,0.",
         "data": {
-          "valve_offset_1": "1. vārsts – TRV nobīde (°C)",
-          "valve_offset_2": "2. vārsts – TRV nobīde (°C)",
-          "valve_offset_3": "3. vārsts – TRV nobīde (°C)",
-          "valve_offset_4": "4. vārsts – TRV nobīde (°C)",
-          "valve_offset_5": "5. vārsts – TRV nobīde (°C)",
-          "valve_offset_6": "6. vārsts – TRV nobīde (°C)",
-          "valve_offset_7": "7. vārsts – TRV nobīde (°C)",
-          "valve_offset_8": "8. vārsts – TRV nobīde (°C)"
+          "valve_offset_1": "1. {valve_1} – TRV nobīde (°C)",
+          "valve_offset_2": "2. {valve_2} – TRV nobīde (°C)",
+          "valve_offset_3": "3. {valve_3} – TRV nobīde (°C)",
+          "valve_offset_4": "4. {valve_4} – TRV nobīde (°C)",
+          "valve_offset_5": "5. {valve_5} – TRV nobīde (°C)",
+          "valve_offset_6": "6. {valve_6} – TRV nobīde (°C)",
+          "valve_offset_7": "7. {valve_7} – TRV nobīde (°C)",
+          "valve_offset_8": "8. {valve_8} – TRV nobīde (°C)"
+        }
+      },
+      "valve_pick": {
+        "title": "TRV nobīde katram vārstam – kura istaba?",
+        "data": {
+          "room": "Telpa"
         }
       },
       "remove_room": {

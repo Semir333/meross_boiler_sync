@@ -667,7 +667,10 @@ class MerossBoilerSyncOptionsFlow(config_entries.OptionsFlow):
         opts = self._load()
         menu = ["add_room"]
         if opts[CONF_ROOMS]:
-            menu += ["edit_room", "remove_room", "preheat"]
+            menu.append("edit_room")
+            if self._multi_valve_rooms():  # 2.18.1: a szelepenkénti TRV eltolás közvetlenül is elérhető
+                menu.append("valve_pick")
+            menu += ["remove_room", "preheat"]
         menu += ["settings", "features", "summer", "done"]
         names = ", ".join(room[CONF_ROOM_NAME] for room in opts[CONF_ROOMS]) or "–"
         return self.async_show_menu(
@@ -755,18 +758,55 @@ class MerossBoilerSyncOptionsFlow(config_entries.OptionsFlow):
             return await self.async_step_valve_offsets()
         return await self.async_step_init()
 
-    def _valve_title(self, valve_id: str) -> str:
-        """A szelep a leírásban: "**név** (`entitás`)"; ha nincs (más) neve, csak az entitás-azonosító."""
+    def _valve_name(self, valve_id: str) -> str:
+        """A szelep neve a címkékhez és a leíráshoz (a Home Assistantban látható név); ha nincs, az entitás-azonosító."""
         name = None
         try:
             state = self.hass.states.get(valve_id)
             name = state.attributes.get("friendly_name") if state is not None else None
         except Exception:  # noqa: BLE001 - a név csak szépítés: hiányában az azonosító is elég
             name = None
-        name = _markdown_safe(name) if name else ""
-        if name and name != valve_id:
+        return (_markdown_safe(name) if name else "") or valve_id
+
+    def _valve_title(self, valve_id: str) -> str:
+        """A szelep a leírásban: "**név** (`entitás`)"; ha nincs (más) neve, csak az entitás-azonosító."""
+        name = self._valve_name(valve_id)
+        if name != valve_id:
             return f"**{name}** (`{valve_id}`)"
         return f"`{valve_id}`"
+
+    def _multi_valve_rooms(self) -> list[dict[str, Any]]:
+        """A több szelepes szobák (ezeknél van szelepenkénti eltolás)."""
+        return [room for room in self._load()[CONF_ROOMS] if len(room.get(CONF_ROOM_VALVES) or []) >= 2]
+
+    async def async_step_valve_pick(self, user_input: dict[str, Any] | None = None):
+        """2.18.1: a szelepenkénti TRV eltolás elérése a főmenüből, a szoba újramentése nélkül. Egyetlen több szelepes szobánál
+        rögtön a lépés jön, több ilyen szobánál előbb a szoba kiválasztása."""
+        rooms = self._multi_valve_rooms()
+        if not rooms:
+            return await self.async_step_init()
+        if user_input is not None:
+            picked = user_input.get(CONF_PICK_ROOM)
+            if not any(room[CONF_ROOM_ID] == picked for room in rooms):
+                return await self.async_step_init()
+            self._offsets_id = picked
+            return await self.async_step_valve_offsets()
+        if len(rooms) == 1:
+            self._offsets_id = rooms[0][CONF_ROOM_ID]
+            return await self.async_step_valve_offsets()
+        return self.async_show_form(
+            step_id="valve_pick",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_PICK_ROOM): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=[{"value": room[CONF_ROOM_ID], "label": room[CONF_ROOM_NAME]} for room in rooms],
+                            mode=selector.SelectSelectorMode.DROPDOWN,
+                        )
+                    )
+                }
+            ),
+        )
 
     async def async_step_valve_offsets(self, user_input: dict[str, Any] | None = None):
         """2.18: a több szelepes szoba szelepeinek külön TRV eltolása. A mezők a szelepek sorrendjében követik egymást, a leírás
@@ -808,6 +848,11 @@ class MerossBoilerSyncOptionsFlow(config_entries.OptionsFlow):
                 "valves": "\n".join(
                     f"{index}. {self._valve_title(valve_id)}" for index, valve_id in enumerate(shown, start=1)
                 ),
+                # a mezők címkéje a szelep nevét mutatja: `valve_1`, `valve_2`, ... (a nem használt sorszámok üresek)
+                **{
+                    f"valve_{index}": self._valve_name(shown[index - 1]) if index <= len(shown) else ""
+                    for index in range(1, MAX_VALVE_OFFSET_FIELDS + 1)
+                },
             },
         )
 

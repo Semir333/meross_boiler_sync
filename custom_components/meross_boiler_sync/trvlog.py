@@ -168,6 +168,7 @@ _STATE_TEXT: dict[tuple[str, str | None], str] = {
     ("verifying", "samples"): "a módosítás hatását ellenőrzi (mintavétel)",
     ("verifying", "unstable"): "a módosítás hatását ellenőrzi (a minták szórnak)",
     ("verifying", "cooling"): "a módosítás hatását ellenőrzi (a szelep mérése még csúszik, a radiátor még hűl)",
+    ("verifying", "retest"): "az első ellenőrzés nem mutatta ki a módosítás hatását; később újra mér, mielőtt visszaállítaná",
     ("waiting", None): "vár",
     ("sampling", None): "mintavétel",
     ("verifying", None): "a módosítás hatását ellenőrzi",

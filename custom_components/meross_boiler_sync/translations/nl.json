@@ -41,7 +41,9 @@
           "valve_boost_delay": "Wachttijd voor kraanverhoging – deze kamer, minuten (leeg = algemene waarde)",
           "valve_release_margin": "Kraan vrijgeven vóór het doel – deze kamer (leeg = algemene waarde)",
           "valve_demand_link": "Ketelvraag koppelen aan de kraanstatus",
+          "valve_cut": "Kranen sluiten tegen oververhitting en bij open raam",
           "humidity_sensor": "Kamervochtigheidssensor (optioneel)",
+          "humidity_max_boost": "Max. verhoging bij luchtvochtigheid in deze kamer (°C)",
           "window_sensors": "Raam-/deursensor(en) (optioneel)",
           "window_open_delay": "Vertraging open raam – deze kamer, minuten (leeg = algemene waarde)",
           "calibrate_valves": "Automatische kraankalibratie (indien ingeschakeld bij Functies)",
@@ -56,7 +58,9 @@
           "valve_boost_delay": "Hoe lang de afwijking moet aanhouden voordat de kraan wordt verhoogd. 0 = direct. Indien leeg geldt de algemene waarde.",
           "valve_release_margin": "De kraan krijgt zijn oorspronkelijke doeltemperatuur zo ver vóór het doel terug. Moet kleiner zijn dan de drempel. Indien leeg geldt de algemene waarde.",
           "valve_demand_link": "Indien ingeschakeld vraagt de kamer alleen warmte aan de ketel als de kraan open is (de eigen meting van de kraan ligt onder zijn doel) of als de plugin hem openzet. Zo stookt de ketel bij kleine afwijkingen niet tegen gesloten kranen. Blokkeert het verwarmen niet als kraangegevens ontbreken.",
+          "valve_cut": "Als de kamerthermometer aangeeft dat de kamer minstens 0,3 °C boven het doel zit en de kamer geen warmte vraagt terwijl de ketel voor een andere kamer draait, wordt de doeltemperatuur van de open kranen van de kamer tijdelijk 3 °C verlaagd (de kraan sluit) en hersteld zodra de ketel stopt, de kamer weer op het doel zit of warmte vraagt. Bij een open raam (als er een raamsensor is) worden de kranen op dezelfde manier gesloten. Bedoeld tegen de oververhitting door de TRV-offset. Eén sluiting duurt hooguit 30 minuten, daarna krijgt de kraan een paar minuten zijn eigen schema terug. Vereist een kamerthermometer. De kraan beweegt vaker (batterij); met de schakelaar ‘Proefmodus kraanregeling’ kun je het eerst uitproberen.",
           "humidity_sensor": "Bij hoge luchtvochtigheid wordt de doeltemperatuur van de kamer licht verhoogd (zie Basisinstellingen).",
+          "humidity_max_boost": "Laat leeg om de waarde uit de Basisinstellingen te gebruiken. 0 = geen verhoging bij luchtvochtigheid in deze kamer.",
           "window_sensors": "Zolang een raam of deur langer dan de vertraging open staat, vraagt de kamer geen warmte meer en stopt de kraanverhoging. Bij meerdere sensoren telt elke open sensor.",
           "window_open_delay": "Hoe lang het raam open moet staan voordat de kamer reageert, zodat kort luchten niets schakelt. 0 = direct. Indien leeg geldt de algemene waarde.",
           "calibrate_valves": "Corrigeert de temperatuurmeting van de kranen met de kamerthermometer. Werkt alleen met een kamertemperatuursensor. Uitgeschakeld blijven de kranen van deze kamer ongemoeid.",
@@ -80,7 +84,9 @@
           "valve_boost_delay": "Wachttijd voor kraanverhoging – deze kamer, minuten (leeg = algemene waarde)",
           "valve_release_margin": "Kraan vrijgeven vóór het doel – deze kamer (leeg = algemene waarde)",
           "valve_demand_link": "Ketelvraag koppelen aan de kraanstatus",
+          "valve_cut": "Kranen sluiten tegen oververhitting en bij open raam",
           "humidity_sensor": "Kamervochtigheidssensor (optioneel)",
+          "humidity_max_boost": "Max. verhoging bij luchtvochtigheid in deze kamer (°C)",
           "window_sensors": "Raam-/deursensor(en) (optioneel)",
           "window_open_delay": "Vertraging open raam – deze kamer, minuten (leeg = algemene waarde)",
           "calibrate_valves": "Automatische kraankalibratie (indien ingeschakeld bij Functies)",
@@ -95,7 +101,9 @@
           "valve_boost_delay": "Hoe lang de afwijking moet aanhouden voordat de kraan wordt verhoogd. 0 = direct. Indien leeg geldt de algemene waarde.",
           "valve_release_margin": "De kraan krijgt zijn oorspronkelijke doeltemperatuur zo ver vóór het doel terug. Moet kleiner zijn dan de drempel. Indien leeg geldt de algemene waarde.",
           "valve_demand_link": "Indien ingeschakeld vraagt de kamer alleen warmte aan de ketel als de kraan open is (de eigen meting van de kraan ligt onder zijn doel) of als de plugin hem openzet. Zo stookt de ketel bij kleine afwijkingen niet tegen gesloten kranen. Blokkeert het verwarmen niet als kraangegevens ontbreken.",
+          "valve_cut": "Als de kamerthermometer aangeeft dat de kamer minstens 0,3 °C boven het doel zit en de kamer geen warmte vraagt terwijl de ketel voor een andere kamer draait, wordt de doeltemperatuur van de open kranen van de kamer tijdelijk 3 °C verlaagd (de kraan sluit) en hersteld zodra de ketel stopt, de kamer weer op het doel zit of warmte vraagt. Bij een open raam (als er een raamsensor is) worden de kranen op dezelfde manier gesloten. Bedoeld tegen de oververhitting door de TRV-offset. Eén sluiting duurt hooguit 30 minuten, daarna krijgt de kraan een paar minuten zijn eigen schema terug. Vereist een kamerthermometer. De kraan beweegt vaker (batterij); met de schakelaar ‘Proefmodus kraanregeling’ kun je het eerst uitproberen.",
           "humidity_sensor": "Bij hoge luchtvochtigheid wordt de doeltemperatuur van de kamer licht verhoogd (zie Basisinstellingen).",
+          "humidity_max_boost": "Laat leeg om de waarde uit de Basisinstellingen te gebruiken. 0 = geen verhoging bij luchtvochtigheid in deze kamer.",
           "window_sensors": "Zolang een raam of deur langer dan de vertraging open staat, vraagt de kamer geen warmte meer en stopt de kraanverhoging. Bij meerdere sensoren telt elke open sensor.",
           "window_open_delay": "Hoe lang het raam open moet staan voordat de kamer reageert, zodat kort luchten niets schakelt. 0 = direct. Indien leeg geldt de algemene waarde.",
           "calibrate_valves": "Corrigeert de temperatuurmeting van de kranen met de kamerthermometer. Werkt alleen met een kamertemperatuursensor. Uitgeschakeld blijven de kranen van deze kamer ongemoeid.",
@@ -144,6 +152,7 @@
           "max_boost_hours": "Max. duur kraanverhoging (uren)",
           "max_boost_rest_minutes": "Pauze na max. verhoging (minuten)",
           "window_open_delay": "Vertraging open raam – standaard (minuten)",
+          "frost_temp": "Drempel vorstbeveiliging (°C, 0 = uit)",
           "valve_dry_run": "Proefmodus kraanregeling (alleen loggen, niets naar de kranen schrijven)",
           "register_card": "Lovelace-kaart laden"
         },
@@ -161,7 +170,8 @@
           "max_boost_hours": "Na deze tijd krijgt de kraan zijn oorspronkelijke doeltemperatuur terug, ook als de kamer het doel niet heeft bereikt.",
           "max_boost_rest_minutes": "Hoe lang na het bereiken van de maximale duur geen nieuwe verhoging wordt gestart. Zodra de kamer het doel bereikt, wordt dit gereset.",
           "window_open_delay": "Standaard voor alle kamers: hoe lang een raam open moet staan voordat de verwarming van die kamer pauzeert. Korter luchten verandert niets.",
-          "valve_dry_run": "Indien ingeschakeld logt de kraanregeling alleen wat ze zou doen (voorvoegsel [PRÓBAÜZEM]) en wijzigt ze niets aan de kranen. Aanbevolen voor de eerste livetest.",
+          "frost_temp": "Als een kamer langer dan 5 minuten kouder is dan deze waarde, vraagt de kamer warmte, ongeacht de kraanstatus, een open raam en de zomermodus, tot ze 1 °C boven de drempel zit. Een uitgeschakelde kraan wordt ingeschakeld met de drempel + 1 °C als doel. Je krijgt hierover een reparatiemelding.",
+          "valve_dry_run": "Indien ingeschakeld logt de kraanregeling alleen wat ze zou doen (voorvoegsel [PRÓBAÜZEM]) en wijzigt ze niets aan de kranen. Aanbevolen voor de eerste livetest. Geldt ook voor het sluiten van kranen tegen oververhitting.",
           "register_card": "Indien ingeschakeld voegt de integratie het kaartbestand toe aan de dashboardresources (Instellingen → Dashboards → Resources) en houdt de versie actueel, zodat de kaart in de lijst 'Kaart toevoegen' verschijnt (er wordt nooit zelf een kaart aan een dashboard toegevoegd). Bij dashboards in YAML-modus moet je de resource handmatig toevoegen (zie README). Indien uitgeschakeld raakt de integratie de resources niet aan."
         }
       },
@@ -348,6 +358,21 @@
           "temperature_sensor_unreliable": {
             "name": "Kamertemperatuursensor onbetrouwbaar (onmogelijke of springerige waarden)"
           },
+          "temperature_sensor_stuck": {
+            "name": "Kamerthermometer meldt niet tijdens het verwarmen (hangt)"
+          },
+          "valves_unreachable": {
+            "name": "Kranen onbereikbaar (kamerthermometer regelt)"
+          },
+          "valves_unreachable_paused": {
+            "name": "Noodregeling gepauzeerd (kamer warmt niet op)"
+          },
+          "frost_protection": {
+            "name": "Vorstbeveiliging actief"
+          },
+          "valve_cut": {
+            "name": "Kraansluiting actief (doel van de kraan verlaagd)"
+          },
           "valve_boost_resting": {
             "name": "Kraanverhoging rust na maximale duur"
           },
@@ -428,6 +453,9 @@
           },
           "heating_rate_learned": {
             "name": "Opwarmsnelheid is geleerd"
+          },
+          "heating_rate_samples": {
+            "name": "Metingen opwarmsnelheid (verwarmingsbeurten)"
           },
           "calibration_enabled": {
             "name": "Kraankalibratie is aan"
@@ -565,13 +593,33 @@
       "title": "Kamertemperatuursensor is niet betrouwbaar",
       "description": "De temperatuursensor {sensor} van kamer {room} meldde een onmogelijke of springerige waarde (bijvoorbeeld een foutwaarde of snel op en neer gaan) en wordt daarom {minutes} minuten genegeerd. De kamer gebruikt nu de eigen meting van de kranen; de automatische kraanregeling en de kraankalibratie zijn gepauzeerd. Deze melding verdwijnt zodra de sensor weer geloofwaardige waarden geeft."
     },
+    "stuck_room_temp": {
+      "title": "De kamerthermometer meldt niet tijdens het verwarmen",
+      "description": "Thermometer {sensor} van kamer {room} heeft al {minutes} minuten niets gemeld terwijl de kamer warmte vraagt en de ketel draait (mogelijk hangt hij op één waarde: zwakke batterij of verbindingsprobleem). De kamer gebruikt nu de eigen meting van de kranen. Deze melding verdwijnt zodra de thermometer weer meldt."
+    },
+    "valves_unreachable": {
+      "title": "De kranen van de kamer zijn onbereikbaar",
+      "description": "De kranen van kamer {room} zijn al meer dan {minutes} minuten onbereikbaar (hub, wifi of Meross LAN). Tot ze terug zijn, komt de warmtevraag van de kamer van de kamerthermometer en het laatst op de kranen geziene doel ({target} °C); de kranen blijven volgens hun eigen instellingen regelen. Als de kamer bij draaiende ketel binnen 2 uur niet opwarmt (de kraan is mogelijk dicht gebleven), wordt de warmtevraag van de kamer 6 uur gepauzeerd en daarna opnieuw geprobeerd. Deze melding verdwijnt zodra de kranen weer bereikbaar zijn."
+    },
+    "heating_blind": {
+      "title": "Geen enkele kamer te beoordelen – ketel uitgeschakeld",
+      "description": "Al meer dan {minutes} minuten is geen enkele kraan bereikbaar, en geen enkele kamer kan op de eigen thermometer terugvallen (geen kamerthermometer of geen bekend doel). De integratie stookt niet blind door: de ketel is uitgeschakeld. De vorstbeveiliging blijft werken in kamers met een thermometer. Controleer de Meross-hub en de integratie Meross LAN. Deze melding verdwijnt zodra minstens één kamer weer te beoordelen is."
+    },
+    "frost_protection": {
+      "title": "Vorstbeveiliging actief",
+      "description": "Kamer {room} is {temperature} °C, onder de drempel van de vorstbeveiliging ({threshold} °C). De kamer vraagt warmte, ongeacht de kraanstatus, een open raam en de zomermodus, tot ze warmer is dan {target} °C; uitgeschakelde kranen zijn met dit doel ingeschakeld (ze blijven zo tot je ze wijzigt). Deze melding verdwijnt zodra de kamer is opgewarmd. De drempel stel je in bij de Basisinstellingen (0 = uit)."
+    },
+    "boiler_command_failed": {
+      "title": "De ketelthermostaat volgt de opdrachten niet",
+      "description": "De ketelthermostaat ({boiler}) heeft de aan/uit-opdracht {count} keer achter elkaar geweigerd of niet gevolgd. De integratie probeert het elke minuut opnieuw. Controleer of de thermostaat beschikbaar is in Home Assistant en, bij een Meross MTS200, of de schakelaar ‘Summer mode’ uit staat. Deze melding verdwijnt zodra de thermostaat de opdracht weer volgt."
+    },
     "stale_outdoor": {
       "title": "Buitentemperatuursensor meldt niet meer",
       "description": "De buitensensor {sensor} heeft al meer dan {hours} uur niets gemeld (mogelijk is de batterij leeg). De zomermodus blijft uitgeschakeld tot hij weer meldt, dus verwarmen blijft toegestaan. Deze melding verdwijnt zodra de sensor weer meldt."
     },
     "calibration_suspended": {
       "title": "Kraankalibratie onderbroken",
-      "description": "Bij kraan {valve} in {room} brachten twee kalibratiewijzigingen na elkaar de meting van de kraan niet dichter bij de kamerthermometer (of het kalibratiegetal sprong binnen 24 uur twee keer terug naar de oude waarde: het apparaat hield die niet vast, of ze werd met de hand teruggezet). De automatische kalibratie is voor deze kraan daarom {days} dagen onderbroken. Als een wijziging de meting niet dichterbij bracht, is de vorige waarde hersteld. Controleer het getal *Kalibratie* van de kraan en of de kraan het echt toepast. De melding verdwijnt als de onderbreking afloopt of de functie wordt uitgeschakeld."
+      "description": "Bij kraan {valve} in {room} brachten twee kalibratiewijzigingen na elkaar de meting van de kraan niet dichter bij de kamerthermometer (of het kalibratiegetal sprong binnen 24 uur twee keer terug naar de oude waarde: het apparaat hield die niet vast, of ze werd met de hand teruggezet). De automatische kalibratie is voor deze kraan daarom {days} dagen onderbroken. Als een wijziging de meting niet dichterbij bracht, is de vorige waarde hersteld. Controleer het getal *Kalibratie* van de kraan en of de kraan het echt toepast. De melding verdwijnt als de onderbreking afloopt of de functie wordt uitgeschakeld. De onderbreking kan meteen worden opgeheven door de TRV-offset van de kraan te wijzigen of met de service `meross_boiler_sync.reset_calibration`."
     }
   },
   "selector": {
@@ -627,6 +675,10 @@
     "cancel_preheat": {
       "name": "Voorverwarmen annuleren",
       "description": "Wist het eenmalige verzoek en slaat het lopende of volgende geplande voorverwarmen over."
+    },
+    "reset_calibration": {
+      "name": "Kalibratie resetten",
+      "description": "Wist de foutstatus van de kalibratie voor de kranen van de kamer (strafpunten, onderbreking, lopende controle), zodat een onderbroken kraan meteen weer meedoet aan de kalibratie. Het kalibratiegetal van de kraan wordt niet gewijzigd."
     }
   },
   "exceptions": {

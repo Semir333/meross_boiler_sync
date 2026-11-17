@@ -1,4 +1,4 @@
-"""Szolgáltatások: "Fűts most" és előfűtés (2.9)."""
+"""Szolgáltatások: "Fűts most" és előfűtés (2.9), a kalibráció alaphelyzetbe állítása (2.19)."""
 from __future__ import annotations
 
 from datetime import datetime, timedelta
@@ -25,6 +25,7 @@ SERVICE_BOOST_NOW = "boost_now"
 SERVICE_CANCEL_BOOST_NOW = "cancel_boost_now"
 SERVICE_PREHEAT = "preheat"
 SERVICE_CANCEL_PREHEAT = "cancel_preheat"
+SERVICE_RESET_CALIBRATION = "reset_calibration"
 
 ATTR_MINUTES = "minutes"
 ATTR_OFFSET = "offset"
@@ -134,9 +135,22 @@ async def async_setup_services(hass: HomeAssistant) -> None:
     hass.services.async_register(DOMAIN, SERVICE_BOOST_NOW, boost_now, schema=_BOOST_SCHEMA)
     hass.services.async_register(DOMAIN, SERVICE_CANCEL_BOOST_NOW, cancel_boost_now, schema=_ENTITIES)
     hass.services.async_register(DOMAIN, SERVICE_PREHEAT, preheat, schema=_PREHEAT_SCHEMA)
+    async def reset_calibration(call: ServiceCall) -> None:
+        """2.19: a megadott szobák szelepeinek kalibrációs hibaállapotát törli (hibapontok, felfüggesztés, függő
+        ellenőrzés); a felfüggesztett szelep azonnal újra részt vesz a kalibrációban."""
+        for ctrl, st in _rooms(hass, call.data[ATTR_ENTITY_ID]):
+            await ctrl.async_reset_calibration(st.room_id)
+
     hass.services.async_register(DOMAIN, SERVICE_CANCEL_PREHEAT, cancel_preheat, schema=_ENTITIES)
+    hass.services.async_register(DOMAIN, SERVICE_RESET_CALIBRATION, reset_calibration, schema=_ENTITIES)
 
 
 def async_unload_services(hass: HomeAssistant) -> None:
-    for name in (SERVICE_BOOST_NOW, SERVICE_CANCEL_BOOST_NOW, SERVICE_PREHEAT, SERVICE_CANCEL_PREHEAT):
+    for name in (
+        SERVICE_BOOST_NOW,
+        SERVICE_CANCEL_BOOST_NOW,
+        SERVICE_PREHEAT,
+        SERVICE_CANCEL_PREHEAT,
+        SERVICE_RESET_CALIBRATION,
+    ):
         hass.services.async_remove(DOMAIN, name)

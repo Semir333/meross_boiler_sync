@@ -23,6 +23,7 @@ from .const import (
     CONF_CYCLE_MONITOR,
     CONF_CYCLE_PROTECTION,
     CONF_EVENTS_ENABLED,
+    CONF_FROST_TEMP,
     CONF_HUMIDITY_MAX_BOOST,
     CONF_HYSTERESIS,
     CONF_MANUAL_BOOST_ENABLED,
@@ -40,6 +41,7 @@ from .const import (
     CONF_PREHEAT_MAX_MINUTES,
     CONF_OUTDOOR_SENSOR,
     CONF_ROOM_CALIBRATE,
+    CONF_ROOM_TRV_OFFSET,
     CONF_ROOM_TRV_OFFSET_SIGNED,
     CONF_ROOM_VALVE_OFFSETS,
     CONF_ROOM_HUM,
@@ -48,6 +50,7 @@ from .const import (
     CONF_ROOM_PREHEAT,
     CONF_ROOM_TEMP,
     CONF_ROOM_VALVE_CONTROL,
+    CONF_ROOM_VALVE_CUT,
     CONF_REGISTER_CARD,
     CONF_ROOM_VALVE_LINK,
     CONF_ROOM_VALVES,
@@ -77,6 +80,7 @@ from .const import (
     DEFAULT_CYCLE_MONITOR,
     DEFAULT_CYCLE_PROTECTION,
     DEFAULT_EVENTS_ENABLED,
+    DEFAULT_FROST_TEMP,
     DEFAULT_HUMIDITY_MAX_BOOST,
     DEFAULT_HYSTERESIS,
     DEFAULT_MANUAL_BOOST_ENABLED,
@@ -98,7 +102,9 @@ from .const import (
     DEFAULT_MAX_BOOST_HOURS,
     DEFAULT_MAX_BOOST_REST,
     DEFAULT_REGISTER_CARD,
+    DEFAULT_NEW_ROOM_TRV_OFFSET,
     DEFAULT_ROOM_CALIBRATE,
+    DEFAULT_ROOM_VALVE_CUT,
     DEFAULT_TRV_OFFSET,
     DEFAULT_STALE_ENABLED,
     DEFAULT_STALE_HOURS,
@@ -110,6 +116,7 @@ from .const import (
     DEFAULT_VALVE_RELEASE_MARGIN,
     DEFAULT_WINDOW_DELAY,
     DOMAIN,
+    FROST_TEMP_MAX,
     MAX_VALVE_OFFSET_FIELDS,
     RESIDUAL_ALLOW_MAX,
     TRV_OFFSET_MAX,
@@ -146,13 +153,18 @@ def _suggest(values: dict[str, Any], key: str) -> dict[str, Any]:
 
 
 # ------------------------------------------------------------------ sémák
-def _trv_offset_default(values: dict[str, Any]) -> float:
+def _trv_offset_default(values: dict[str, Any], new: bool = False) -> float:
     """Az űrlapon felajánlott TRV eltolás (előjeles): a szoba mentett értéke, ennek hiányában az alapérték. A 2.16 és régebbi
-    verziókban mentett (ellentétes előjelű) érték átszámolva jelenik meg, ugyanúgy, ahogy a vezérlő használja."""
+    verziókban mentett (ellentétes előjelű) érték átszámolva jelenik meg, ugyanúgy, ahogy a vezérlő használja.
+
+    2.19: az ÚJ szoba űrlapja 0-t ajánl fel (`new`): így a kalibráció bekapcsolása mérés nélkül semmit nem ír a szelepbe.
+    A már mentett szobák értéke változatlan, és a mentett érték nélküli (régi) szobánál a korábbi alapérték látszik."""
+    if new and CONF_ROOM_TRV_OFFSET_SIGNED not in values and CONF_ROOM_TRV_OFFSET not in values:
+        return DEFAULT_NEW_ROOM_TRV_OFFSET
     return room_trv_offset(values)
 
 
-def _room_schema(values: dict[str, Any]) -> vol.Schema:
+def _room_schema(values: dict[str, Any], new: bool = False) -> vol.Schema:
     return vol.Schema(
         {
             vol.Required(
@@ -184,9 +196,18 @@ def _room_schema(values: dict[str, Any]) -> vol.Schema:
                 CONF_ROOM_VALVE_LINK,
                 default=bool(values.get(CONF_ROOM_VALVE_LINK, False)),
             ): selector.BooleanSelector(),
+            # 2.19: szelep-zárás túlfűtés ellen (a cél fölötti, nem kérő szoba és a nyitott ablakú szoba szelepe)
+            vol.Optional(
+                CONF_ROOM_VALVE_CUT,
+                default=bool(values.get(CONF_ROOM_VALVE_CUT, DEFAULT_ROOM_VALVE_CUT)),
+            ): selector.BooleanSelector(),
             vol.Optional(
                 CONF_ROOM_HUM, description=_suggest(values, CONF_ROOM_HUM)
             ): _entity("sensor", "humidity"),
+            # 2.19: a páratartalom miatti emelés szobánként felülírható (üres = az általános érték, 0 = ebben a szobában ki)
+            vol.Optional(
+                CONF_HUMIDITY_MAX_BOOST, description=_suggest(values, CONF_HUMIDITY_MAX_BOOST)
+            ): _number(0, 2, 0.1, "°C"),
             vol.Optional(
                 CONF_ROOM_WINDOWS, description=_suggest(values, CONF_ROOM_WINDOWS)
             ): _entity("binary_sensor", ["window", "door", "opening"], multiple=True),
@@ -199,7 +220,7 @@ def _room_schema(values: dict[str, Any]) -> vol.Schema:
             ): selector.BooleanSelector(),
             vol.Optional(
                 CONF_ROOM_TRV_OFFSET_SIGNED,
-                default=_trv_offset_default(values),
+                default=_trv_offset_default(values, new),
             ): _number(-TRV_OFFSET_MAX, TRV_OFFSET_MAX, 0.5, "°C"),
         }
     )
@@ -312,6 +333,11 @@ def _settings_schema(values: dict[str, Any]) -> vol.Schema:
                 CONF_WINDOW_DELAY,
                 default=values.get(CONF_WINDOW_DELAY, DEFAULT_WINDOW_DELAY),
             ): _number(0, 120, 1, "min"),
+            # 2.19: fagyvédelem (0 = kikapcsolva)
+            vol.Required(
+                CONF_FROST_TEMP,
+                default=values.get(CONF_FROST_TEMP, DEFAULT_FROST_TEMP),
+            ): _number(0, FROST_TEMP_MAX, 0.5, "°C"),
             vol.Required(
                 CONF_VALVE_DRY_RUN,
                 default=bool(values.get(CONF_VALVE_DRY_RUN, DEFAULT_VALVE_DRY_RUN)),
@@ -527,6 +553,7 @@ class MerossBoilerSyncConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_HUMIDITY_MAX_BOOST: DEFAULT_HUMIDITY_MAX_BOOST,
                     CONF_VALVE_DRY_RUN: DEFAULT_VALVE_DRY_RUN,
                     CONF_WINDOW_DELAY: DEFAULT_WINDOW_DELAY,
+                    CONF_FROST_TEMP: DEFAULT_FROST_TEMP,
                     CONF_REGISTER_CARD: DEFAULT_REGISTER_CARD,
                     CONF_STALE_ENABLED: DEFAULT_STALE_ENABLED,
                     CONF_STALE_HOURS: DEFAULT_STALE_HOURS,
@@ -633,7 +660,9 @@ class MerossBoilerSyncOptionsFlow(config_entries.OptionsFlow):
         return {}
 
     @staticmethod
-    def _room_from_input(user_input: dict[str, Any], room_id: str) -> dict[str, Any]:
+    def _room_from_input(
+        user_input: dict[str, Any], room_id: str, default_offset: float = DEFAULT_TRV_OFFSET
+    ) -> dict[str, Any]:
         room: dict[str, Any] = {
             CONF_ROOM_ID: room_id,
             CONF_ROOM_NAME: user_input[CONF_ROOM_NAME].strip(),
@@ -647,13 +676,15 @@ class MerossBoilerSyncOptionsFlow(config_entries.OptionsFlow):
             CONF_VALVE_BOOST_DELAY,
             CONF_VALVE_RELEASE_MARGIN,
             CONF_WINDOW_DELAY,
+            CONF_HUMIDITY_MAX_BOOST,  # 2.19: szobánkénti páratartalom-emelés (üres = az általános érték)
         ):
             if user_input.get(key) is not None:  # a 0 is érvényes érték
                 room[key] = float(user_input[key])
         room[CONF_ROOM_VALVE_LINK] = bool(user_input.get(CONF_ROOM_VALVE_LINK))
+        room[CONF_ROOM_VALVE_CUT] = bool(user_input.get(CONF_ROOM_VALVE_CUT, DEFAULT_ROOM_VALVE_CUT))
         room[CONF_ROOM_CALIBRATE] = bool(user_input.get(CONF_ROOM_CALIBRATE, DEFAULT_ROOM_CALIBRATE))
         offset = user_input.get(CONF_ROOM_TRV_OFFSET_SIGNED)
-        room[CONF_ROOM_TRV_OFFSET_SIGNED] = DEFAULT_TRV_OFFSET if offset is None else float(offset) + 0.0  # a 0 is érvényes
+        room[CONF_ROOM_TRV_OFFSET_SIGNED] = default_offset if offset is None else float(offset) + 0.0  # a 0 is érvényes
         windows = [w for w in (user_input.get(CONF_ROOM_WINDOWS) or []) if w]
         if windows:
             room[CONF_ROOM_WINDOWS] = windows
@@ -687,11 +718,11 @@ class MerossBoilerSyncOptionsFlow(config_entries.OptionsFlow):
             errors = self._validate_room(user_input, None)
             if not errors:
                 room_id = uuid.uuid4().hex[:8]
-                opts[CONF_ROOMS].append(self._room_from_input(user_input, room_id))
+                opts[CONF_ROOMS].append(self._room_from_input(user_input, room_id, DEFAULT_NEW_ROOM_TRV_OFFSET))
                 return await self._async_after_room(room_id)
         return self.async_show_form(
             step_id="add_room",
-            data_schema=_room_schema(user_input or {}),
+            data_schema=_room_schema(user_input or {}, new=True),
             errors=errors,
         )
 

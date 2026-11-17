@@ -64,7 +64,13 @@ Mi védi a beállítást:
 - A módosítás után új, stabil mérést vár (a hub ritkán jelent), és csak akkor korrigál újra, ha az
   előző módosítás igazoltan közelebb vitte a szelepet a szoba hőmérőjéhez. Ha nem (a szelep nem veszi
   figyelembe, vagy éppen rossz irányba hat), visszaállítja az előző értéket; két egymás utáni
-  hatástalan módosítás után a szelepet egy hétre felfüggeszti és Javítások (Repairs) üzenetet küld.
+  hatástalan módosítás után a szelepet felfüggeszti és Javítások (Repairs) üzenetet küld.
+- 2.19: a hatástalannak mért módosítást nem állítja vissza azonnal. A két mérés (előtte és utána) más hőállapotban
+  készül, és a szelep és a szoba természetes különbségének elmozdulása egy jó módosítást is hatástalannak mutathat:
+  az első sikertelen ellenőrzés után `CAL_RETEST_SECONDS` múlva újra mér, és csak a második sikertelen ellenőrzés
+  számít hibapontnak. A felfüggesztés fokozatos (1, 3, majd 7 nap), a lejárta után a hibapontok nullázódnak. A
+  felfüggesztést a szelep TRV eltolásának átállítása (a felhasználó kérése) és a `reset_calibration` szolgáltatás
+  is feloldja: korábban a felfüggesztett szelep az új eltolást sem kapta meg.
 - Próbaüzem: csak naplóz és eseményt küld, a szelepet nem módosítja (függő visszaállítást sem hajt végre).
 
 A szelep állapotkódjai (`status`): off (a szobában ki van kapcsolva), waiting, sampling, verifying,
@@ -111,11 +117,13 @@ from .const import (
     CAL_READING_MAX,
     CAL_READING_MIN,
     CAL_RECHECK_SECONDS,
+    CAL_RETEST_SECONDS,
     CAL_REVERT_TRIES,
     CAL_SAMPLE_MAX_AGE,
     CAL_SAMPLE_SECONDS,
     CAL_SETTLE_SECONDS,
     CAL_SUSPEND_SECONDS,
+    CAL_SUSPEND_STEPS,
     CAL_TARGET_LIMIT,
     CAL_THRESHOLD,
     CAL_USER_SPACING,
@@ -252,6 +260,13 @@ class ValveCal:
     # 2.16: a késői visszaállások (a szám a megerősítés után a régi értékre állt vissza) ideje az utolsó 24 órában. Nem
     # törli a rendben lévő mérés: egy mérés a visszaállás előtt készült, tehát nem bizonyítja, hogy az eszköz megtartja az értéket.
     late_reverts: list[float] = field(default_factory=list)
+    # 2.19: a felfüggesztés fokozata (hányadik felfüggesztés: 1, 3, majd 7 nap), a kívánt eltolás a felfüggesztéskor (ha a
+    # felhasználó átállítja, a felfüggesztés feloldódik), és a felfüggesztés oka (a kártyákhoz)
+    susp_level: int = 0
+    susp_bias: float | None = None
+    susp_why: str | None = None
+    # 2.19: az utolsó lezárt mérés ideje (akkor is, ha módosítás lett belőle); a `last_ok` a rendben talált mérésé
+    last_measured: float | None = None
 
     # --- nem tartós (újraindítás után újraépül)
     guessed: bool = False  # a rögzített igazítás becslésből jön (a naplósorban jelezzük)
@@ -275,6 +290,9 @@ class ValveCal:
     blind_noted: tuple | None = None  # a becslés utoljára naplózott "nincs mit módosítani" magyarázata (nem ismétlődik)
     recheck_bias: float | None = None  # a kívánt eltolás, amikor a mérés lezárult (ha változik, az újramérés nem vár)
     blind_hold_until: float = 0.0  # hatástalan módosítás után eddig nem becsül (a mérés-alapú út időköze érvényes)
+    # 2.19: a még nem igazolt szelep már kapott egy lépésnyi, mérésből számolt finomítást: a következő mérés a széles tűréssel
+    # dönt, hogy a mérési zaj ne léptesse oda-vissza (új eltolásnál, elfelejtett igazításnál és rendben talált mérésnél törlődik)
+    fine_done: bool = False
 
     # ------------------------------------------------------------------ mentés / betöltés
     def to_dict(self) -> dict[str, Any]:
@@ -295,12 +313,17 @@ class ValveCal:
             "aligned": self.aligned,
             "legacy": self.legacy,
             "late_reverts": list(self.late_reverts),
+            "susp_level": self.susp_level,
+            "susp_bias": self.susp_bias,
+            "susp_why": self.susp_why,
+            "last_measured": self.last_measured,
         }
 
     def forget_target(self) -> None:
         """A szelep igazítása már nem ismert (a módosítás nem érvényesült, vagy közben átállították a számot)."""
         self.target = self.target_offset = None
         self.aligned = self.guessed = False
+        self.fine_done = False
 
     def has_state(self) -> bool:
         """Érdemes-e menteni (volt-e már módosítás, függő művelet vagy felfüggesztés)."""
@@ -328,7 +351,7 @@ class ValveCal:
             value = _num(raw.get(key))
             if value is not None and 0 < value <= now_ts + 60:
                 setattr(cal, key, value)
-        for key in ("last_ok", "last_adjusted"):
+        for key in ("last_ok", "last_adjusted", "last_measured"):
             value = _num(raw.get(key))
             if value is not None and 0 < value <= now_ts + 60:
                 setattr(cal, key, value)
@@ -367,6 +390,11 @@ class ValveCal:
                     "judge": pending.get("judge") is not False,  # az eltolás-váltás hatását nem ítéljük meg
                     "bias": bias if bias is not None and abs(bias) <= TRV_OFFSET_MAX else None,
                 }
+                # 2.19: az első sikertelen ellenőrzés után az újramérés ideje (a második sikertelen számít hibapontnak)
+                retest = _num(pending.get("retest"))
+                if pending.get("fails") and retest is not None and 0 < retest <= now_ts + CAL_RETEST_SECONDS + 60:
+                    cal.pending["fails"] = 1
+                    cal.pending["retest"] = retest
         revert = raw.get("revert")
         if isinstance(revert, dict):
             frm, to = _num(revert.get("from")), _num(revert.get("to"))
@@ -393,6 +421,16 @@ class ValveCal:
         until = _num(raw.get("suspended_until"))
         if until is not None and now_ts < until <= now_ts + CAL_SUSPEND_SECONDS + 60:
             cal.suspended_until = until
+        elif until is not None and 0 < until <= now_ts:
+            # 2.19: a felfüggesztés a leállás alatt járt le: a hibapontok ugyanúgy nullázódnak, mintha futás közben járt volna le
+            cal.strikes = 0
+        level = _num(raw.get("susp_level"))
+        cal.susp_level = min(max(int(level), 0), len(CAL_SUSPEND_STEPS)) if level is not None else 0
+        susp_bias = _num(raw.get("susp_bias"))
+        if susp_bias is not None and abs(susp_bias) <= TRV_OFFSET_MAX:
+            cal.susp_bias = susp_bias
+        if isinstance(raw.get("susp_why"), str):
+            cal.susp_why = raw["susp_why"][:40]
         return cal
 
 
@@ -417,6 +455,109 @@ def _is_tracker(entry: Any) -> bool:
     key = (getattr(entry, "translation_key", None) or "").lower()
     uid = (getattr(entry, "unique_id", None) or "").lower()
     return key == "tracked_sensor" or "tracked_sensor" in uid or "tracked_sensor" in entry.entity_id.lower()
+
+
+def discover_entities(hass: Any, valve_id: str) -> dict[str, Any]:
+    """A szelep kalibráció szám-entitása és (ha van) a külső követés választója: {number, tracker, reason}."""
+    info: dict[str, Any] = {"number": None, "tracker": None, "reason": "not_found"}
+    try:
+        registry = er.async_get(hass)
+        entry = registry.async_get(valve_id)
+        device_id = getattr(entry, "device_id", None) if entry is not None else None
+        if not device_id:
+            info["reason"] = "no_device"
+        else:
+            best, best_score, disabled_only = None, 0, False
+            for item in er.async_entries_for_device(registry, device_id, include_disabled_entities=True):
+                disabled = bool(getattr(item, "disabled", False))
+                if item.domain == "number":
+                    score = _number_score(item)
+                    if not score:
+                        continue
+                    if disabled:
+                        disabled_only = True
+                    elif score > best_score:
+                        best, best_score = item.entity_id, score
+                elif item.domain == "select" and not disabled and _is_tracker(item):
+                    info["tracker"] = item.entity_id
+            if best is not None:
+                info["number"], info["reason"] = best, None
+            elif disabled_only:
+                info["reason"] = "disabled"
+    except Exception as err:  # noqa: BLE001
+        _LOGGER.debug("%s: a kalibráció-entitás keresése nem sikerült: %s", valve_id, err)
+        info["reason"] = "error"
+    return info
+
+
+async def async_restore_numbers_on_remove(hass: Any, raw: Any) -> None:
+    """2.19: az integráció törlésekor a szelepek kalibráció-számai visszakapják a plugin első módosítása előtti értéküket.
+
+    Korábban a szelep-emelések visszaálltak, a kalibráció viszont nem: a plugin eltolása (például -1 °C) a szelepben maradt,
+    és a szelep az integráció nélkül melegebbre fűtötte a szobát a beállítottnál. Csak azt a számot állítja vissza, amelyik
+    még a plugin utolsó értékén áll (a rögzített igazítás vagy a függő módosítás értéke): ha közben kézzel máshova
+    állították, nem írja felül. Amit nem tud visszaállítani (nem elérhető szelep, ismeretlen utolsó érték), azt a naplóban
+    szelepenként megnevezi az eredeti értékkel együtt, hogy kézzel visszaállítható legyen."""
+    if not isinstance(raw, dict):
+        return
+    for valve_id, rec in raw.items():
+        if not isinstance(rec, dict):
+            continue
+        orig = _num(rec.get("orig"))
+        if orig is None or abs(orig) > 10:
+            continue  # a plugin ehhez a szelephez nem nyúlt
+        number = discover_entities(hass, valve_id)["number"]
+        state = hass.states.get(number) if number else None
+        current = (
+            None
+            if state is None or state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN)
+            else _num(state.state)
+        )
+        if number is None or current is None:
+            _LOGGER.warning(
+                "%s: a kalibráció-szám most nem érhető el, ezért nem állítottam vissza; az eredeti értéke %+g °C volt "
+                "(a szelep Calibration számán kézzel visszaállítható)",
+                valve_id,
+                orig,
+            )
+            continue
+        if _near(current, orig):
+            continue  # már az eredeti értéken áll
+        pending = rec.get("pending")
+        known = [_num(rec.get("target_offset"))]
+        if isinstance(pending, dict):
+            known.append(_num(pending.get("to")))
+        if not any(value is not None and _near(current, value) for value in known):
+            _LOGGER.warning(
+                "%s: a kalibráció-szám (%s) %+g °C-on áll, ami nem a plugin utolsó értéke (kézzel átállították?), ezért "
+                "nem írom felül; a plugin első módosítása előtt %+g °C volt",
+                valve_id,
+                number,
+                current,
+                orig,
+            )
+            continue
+        try:
+            await hass.services.async_call(
+                "number", "set_value", {"entity_id": number, "value": orig}, blocking=True
+            )
+        except Exception as err:  # noqa: BLE001 - a többi szelep visszaállítása menjen tovább
+            _LOGGER.warning(
+                "%s: a kalibráció-szám (%s) visszaállítása nem sikerült (%s); állítsd vissza kézzel %+g °C-ra",
+                valve_id,
+                number,
+                err if str(err) else type(err).__name__,
+                orig,
+            )
+        else:
+            trvlog.info(
+                True,
+                "%s: az integráció törlése: a kalibráció-szám (%s) visszaállítva %+g -> %+g °C",
+                valve_id,
+                number,
+                current,
+                orig,
+            )
 
 
 class Calibrator:
@@ -477,7 +618,7 @@ class Calibrator:
                 self.cal.setdefault(valve_id, ValveCal()).idle_since = value
 
     def _save_later(self) -> None:
-        self.ctl._store.async_delay_save(self.ctl._data_to_save, 60)
+        self.ctl._delay_save(60)
 
     # ------------------------------------------------------------------ belépési pont
     async def async_run(self, statuses: "list[RoomStatus]", allow: bool, now_ts: float) -> None:
@@ -548,34 +689,7 @@ class Calibrator:
             retry = CAL_DISCOVERY_RETRY if info["number"] is None else 3600
             if now_ts - info["ts"] < retry:
                 return info
-        info = {"number": None, "tracker": None, "reason": "not_found", "ts": now_ts}
-        try:
-            registry = er.async_get(self.ctl.hass)
-            entry = registry.async_get(valve_id)
-            device_id = getattr(entry, "device_id", None) if entry is not None else None
-            if not device_id:
-                info["reason"] = "no_device"
-            else:
-                best, best_score, disabled_only = None, 0, False
-                for item in er.async_entries_for_device(registry, device_id, include_disabled_entities=True):
-                    disabled = bool(getattr(item, "disabled", False))
-                    if item.domain == "number":
-                        score = _number_score(item)
-                        if not score:
-                            continue
-                        if disabled:
-                            disabled_only = True
-                        elif score > best_score:
-                            best, best_score = item.entity_id, score
-                    elif item.domain == "select" and not disabled and _is_tracker(item):
-                        info["tracker"] = item.entity_id
-                if best is not None:
-                    info["number"], info["reason"] = best, None
-                elif disabled_only:
-                    info["reason"] = "disabled"
-        except Exception as err:  # noqa: BLE001
-            _LOGGER.debug("%s: a kalibráció-entitás keresése nem sikerült: %s", valve_id, err)
-            info["reason"] = "error"
+        info = {**discover_entities(self.ctl.hass, valve_id), "ts": now_ts}
         self._ent[valve_id] = info
         return info
 
@@ -603,7 +717,8 @@ class Calibrator:
         if cal is not None and cal.suspended_until > now_ts:
             parts.append(
                 f"FELFÜGGESZTVE még {trvlog.num((cal.suspended_until - now_ts) / 86400)} napig "
-                "(hatástalan módosítások miatt; a Javítások között is látszik)"
+                "(hatástalan módosítások miatt; a Javítások között is látszik; feloldja a TRV eltolás átállítása vagy a "
+                "reset_calibration szolgáltatás)"
             )
         return "; ".join(parts)
 
@@ -663,6 +778,12 @@ class Calibrator:
             # mérés igazolta-e
             "aligned_to": _ui(cal.target),
             "verified": cal.aligned,
+            # 2.19: az utolsó lezárt mérés és az utolsó rendben talált mérés ideje (fűtési időben ritkán jut méréshez: ebből
+            # látszik, mikor mért utoljára), a hibapontok száma és a felfüggesztés oka
+            "last_measured": _iso(cal.last_measured),
+            "last_ok": _iso(cal.last_ok),
+            "strikes": cal.strikes,
+            "suspend_reason": cal.susp_why if cal.suspended_until > now_ts else None,
         }
 
     # az eredmény-jellegű állapotok azonnal kerülnek a naplóba; a "vár / mintavétel" jellegűek ritkábban
@@ -718,6 +839,8 @@ class Calibrator:
             parts.append(f"javasolt kalibráció: {cal.proposed:+g} °C")
         if cal.status == "waiting" and cal.reason in ("interval", "daily_limit", "spacing") and cal.wait_until > now_ts:
             parts.append(f"kb. {trvlog.duration(cal.wait_until - now_ts)} múlva próbálja újra")
+        if cal.status == "verifying" and cal.reason == "retest" and cal.wait_until > now_ts:
+            parts.append(f"kb. {trvlog.duration(cal.wait_until - now_ts)} múlva mér újra")
         if cal.status == "waiting" and cal.reason == "not_quiet":
             ages = [
                 now_ts - since
@@ -728,12 +851,14 @@ class Calibrator:
                 parts.append(f"még kb. {max(CAL_QUIET_SECONDS - max(ages), 0) / 60:.0f} perc")
         return " – " + "; ".join(parts) if parts else ""
 
-    def _sync_issue(self, valve_id: str, room: str, active: bool) -> None:
+    def _sync_issue(self, valve_id: str, room: str, active: bool, seconds: float | None = None) -> None:
+        """`seconds`: a felfüggesztés (hátralévő) hossza; 2.19-től fokozatos (1, 3, 7 nap), ezért az üzenet ezt mutatja."""
+        days = CAL_SUSPEND_SECONDS // 86400 if seconds is None else max(math.ceil(seconds / 86400 - 1e-6), 1)
         self.ctl._sync_issue(
             f"calibration_suspended_{self.ctl.entry_id}_{valve_id}",
             active,
             "calibration_suspended",
-            {"room": room, "valve": valve_id, "days": f"{CAL_SUSPEND_SECONDS // 86400}"},
+            {"room": room, "valve": valve_id, "days": f"{days}"},
             message=f"A szelep kalibrációja felfüggesztve: {valve_id} ({room})",
         )
         if active:
@@ -749,7 +874,7 @@ class Calibrator:
         state = ctl.hass.states.get(valve_id)
         valid = state is not None and state.state not in (STATE_UNAVAILABLE, STATE_UNKNOWN)
         self._track_idle(cal, state if valid else None, now_ts)
-        self._sync_issue(valve_id, st.name, cal.suspended_until > now_ts)
+        self._sync_issue(valve_id, st.name, cal.suspended_until > now_ts, cal.suspended_until - now_ts)
         cal.proposed = None
         cal.drift = None
         if not valid:
@@ -784,12 +909,24 @@ class Calibrator:
         if cal.revert is not None and await self._async_continue_revert(st, valve_id, cal, number, offset, now_ts):
             return
 
-        # 2) felfüggesztés
+        # 2) felfüggesztés. 2.19: ha a felhasználó a felfüggesztés óta átállította a szelep TRV eltolását, a felfüggesztés
+        # feloldódik (az a felhasználó kérése, nem szabályozási kör; korábban a felfüggesztett szelep az új eltolást sem
+        # kapta meg). A lejárat után a hibapontok nullázódnak (korábban egyetlen újabb hiba ismét egy hétre felfüggesztett).
         if cal.suspended_until:
-            if now_ts < cal.suspended_until:
+            early = now_ts < cal.suspended_until
+            if early and not self._bias_changed_since_suspend(cal, st, valve_id):
                 return self._stop(cal, "suspended")
             cal.suspended_until = 0.0
-            cal.strikes = max(CAL_MAX_STRIKES - 1, 0)  # a próba után egyetlen újabb hiba is felfüggeszt
+            cal.strikes = 0
+            if early:
+                cal.susp_level = 0
+                cal.blind_hold_until = 0.0
+                ctl._tlog(
+                    "%s: a TRV eltolás megváltozott (%s °C), a kalibráció felfüggesztése feloldva",
+                    ctl._valve_label(valve_id),
+                    trvlog.signed(st.offset_for(valve_id)),
+                )
+            cal.susp_bias = cal.susp_why = None
             self._sync_issue(valve_id, st.name, False)
             self._save_later()
 
@@ -812,6 +949,11 @@ class Calibrator:
         # 3b) a szoba eltolását közben megváltoztatták: a különbséget mérés nélkül, azonnal alkalmazzuk
         if await self._async_retarget(st, valve_id, cal, number, offset, (low, high, step), now_ts):
             return
+
+        # 3c) 2.19: az első sikertelen ellenőrzés után csak később mér újra (más hőállapotban), addig nem dönt
+        if cal.pending is not None and cal.pending.get("fails") and now_ts < (cal.pending.get("retest") or 0.0):
+            cal.wait_until = cal.pending["retest"]
+            return self._stop(cal, "verifying", "retest")
 
         # 4) mérhetünk-e most?
         reason, ref, reading = self._gate(st, valve_id, state, cal, now_ts)
@@ -857,6 +999,7 @@ class Calibrator:
             return self._set(cal, waiting, "unstable")
         med = median(diffs)
         cal.last_diff = round(med, 2)
+        cal.last_measured = now_ts
 
         # 5) a legutóbbi módosítás hatásának ellenőrzése
         pend = cal.pending
@@ -866,10 +1009,34 @@ class Calibrator:
                 # kisebb változtatás (tartomány- vagy összhatár miatt levágott módosítás) a mérési
                 # zajtól nem különböztethető meg, azt nem ítéljük meg.
                 applied = pend["to"] - pend["from"]
-                improved = abs(applied) < CAL_JUDGE_MIN or (pend["diff"] - med) / applied >= 0.5
+                effect = (pend["diff"] - med) / applied if applied else 1.0  # a kért változás mekkora része látszik (1 = mind)
+                improved = abs(applied) < CAL_JUDGE_MIN or effect >= 0.5
                 if not improved:
+                    if effect > -0.5 and not pend.get("fails"):
+                        # 2.19: az első sikertelen ellenőrzés még nem hibapont. A két mérés (előtte, utána) más hőállapotban
+                        # készül: ha a szelep és a szoba természetes különbsége közben elmozdult (hidegebb éjszaka, hideg
+                        # fal), a jó módosítás is hatástalannak látszik. Később (más csendes időben) újra mér. Ha a mérés
+                        # kifejezetten romlott (a hatás a kért változás felénél is nagyobb, de ellenkező irányú: az eszköz
+                        # fordítva alkalmazza), nem vár: azonnal visszaállít, mint eddig.
+                        pend["fails"] = 1
+                        pend["retest"] = now_ts + CAL_RETEST_SECONDS
+                        cal.samples.clear()
+                        cal.wait_until = pend["retest"]
+                        self._save_later()
+                        ctl._tlog(
+                            "%s: a kalibráció módosítása (%+g -> %+g °C) az első ellenőrzésnél nem látszott a mérésben "
+                            "(előtte %.1f, utána %.1f °C eltérés); nem állítom vissza, %s múlva újra mérek",
+                            ctl._valve_label(valve_id),
+                            pend["from"],
+                            pend["to"],
+                            pend["diff"],
+                            med,
+                            trvlog.duration(CAL_RETEST_SECONDS),
+                        )
+                        return self._set(cal, "verifying", "retest")
                     return await self._async_ineffective(st, valve_id, cal, number, pend, med, now_ts)
                 cal.strikes = 0
+                cal.susp_level = 0  # igazoltan hatásos módosítás: a felfüggesztés fokozata is visszaáll
             # Az eltolás-váltásnak nincs "előtte" mérése (a felhasználó kérte, nem a szabályozás): nem
             # ítéljük meg, nem számít hibapontnak. Ha a szelep nem követi, az alábbi döntés újra módosít,
             # és az már megítélt módosítás.
@@ -881,9 +1048,13 @@ class Calibrator:
         res = med - bias  # a hátralévő korrekció: pozitív, ha a szelep mérését emelni kell
         # Az igazolt szelepnél széles a tűrés (nem ír feleslegesen); amíg egy mérés nem igazolta az igazítást (első
         # beállítás, módosítás, becslés után), szűk, hogy a 0,5 °C-os eltolás ne vesszen el a tűrésben.
-        tolerance = CAL_THRESHOLD if cal.aligned and cal.target is not None else CAL_FIRST_THRESHOLD
+        # 2.19: a még nem igazolt szelep egy lépésnyi finomítása után is a széles tűrés dönt: a szűk tűrésnél a ±0,5 °C-os
+        # mérési bizonytalanság naponta többször oda-vissza léptethette a szelepet.
+        verified = cal.aligned and cal.target is not None
+        tolerance = CAL_THRESHOLD if verified or cal.fine_done else CAL_FIRST_THRESHOLD
         if abs(res) < tolerance:
             cal.strikes = 0
+            cal.fine_done = False
             self._remember_target(cal, bias, offset, verified=True)
             return self._done(cal, "ok", None, now_ts, healthy=True, bias=bias)
         if abs(res) > CAL_MAX_DIFF:
@@ -899,6 +1070,8 @@ class Calibrator:
         if ctl.cal_dry_run:
             return self._propose(st, valve_id, cal, offset, new, med, now_ts)
         await self._async_write(valve_id, cal, number, offset, new, med, now_ts, bias)
+        if cal.pending is not None and cal.pending.get("sent"):
+            cal.fine_done = not verified and abs(new - offset) <= step + 1e-9
 
     def _done(
         self, cal: ValveCal, status: str, reason: str | None, now_ts: float, *, healthy: bool = False, bias: float | None = None
@@ -1499,6 +1672,7 @@ class Calibrator:
             cal.guessed = False  # mérésből számolt módosítás: a kiinduló érték már nem becsült
         else:
             cal.recheck_until = 0.0  # az új, még igazolatlan igazítást a következő csendes mérés ne várja ki az újramérés idejét
+            cal.fine_done = False  # új eltolás: új igazítási kör (újra jár egy szűk tűrésű finomítás)
         self._set(cal, "verifying", "confirm")
         if retarget_from is None:
             self.ctl._tlog(
@@ -1542,15 +1716,63 @@ class Calibrator:
         return True
 
     def _suspend(self, st: "RoomStatus", valve_id: str, cal: ValveCal, now_ts: float, why: str) -> None:
-        cal.suspended_until = now_ts + CAL_SUSPEND_SECONDS
-        self._sync_issue(valve_id, st.name, True)
+        """2.19: fokozatos felfüggesztés (1, 3, majd 7 nap). Megjegyzi a kívánt eltolást: ha a felhasználó átállítja,
+        a felfüggesztés feloldódik (lásd `_bias_changed_since_suspend`)."""
+        seconds = CAL_SUSPEND_STEPS[min(max(cal.susp_level, 0), len(CAL_SUSPEND_STEPS) - 1)]
+        cal.susp_level = min(max(cal.susp_level, 0) + 1, len(CAL_SUSPEND_STEPS))
+        cal.suspended_until = now_ts + seconds
+        cal.susp_bias = st.bias_for(valve_id)
+        cal.susp_why = why
+        days = max(round(seconds / 86400), 1)
+        self._sync_issue(valve_id, st.name, True, seconds)
         _LOGGER.warning(
-            "%s: a kalibráció %d napra felfüggesztve (ok: %s)", valve_id, CAL_SUSPEND_SECONDS // 86400, why
+            "%s: a kalibráció %d napra felfüggesztve (ok: %s); feloldható a szelep TRV eltolásának átállításával vagy a "
+            "meross_boiler_sync.reset_calibration szolgáltatással",
+            valve_id,
+            days,
+            why,
         )
-        self.ctl._emit(
-            "valve_calibration_suspended", st, valve=valve_id, days=CAL_SUSPEND_SECONDS // 86400, reason=why
-        )
+        self.ctl._emit("valve_calibration_suspended", st, valve=valve_id, days=days, reason=why)
         self._save_later()
+
+    @staticmethod
+    def _bias_changed_since_suspend(cal: ValveCal, st: "RoomStatus", valve_id: str) -> bool:
+        """A felhasználó a felfüggesztés óta átállította-e a szelep TRV eltolását.
+
+        A 2.19 előtt felfüggesztett szelepnél nincs rögzítve a felfüggesztéskori eltolás: ott az a viszonyítás, amihez a
+        szelep igazítva van (ha a kívánt eltolás ettől eltér, a felhasználó kérése még nem teljesült); ha ez sem ismert,
+        a mostani eltolást jegyezzük meg, és az ezutáni változás számít."""
+        bias = st.bias_for(valve_id)
+        if cal.susp_bias is not None:
+            return abs(bias - cal.susp_bias) >= CAL_BIAS_MIN_SHIFT
+        if cal.target is not None:
+            return abs(bias - cal.target) >= CAL_BIAS_MIN_SHIFT
+        cal.susp_bias = bias
+        return False
+
+    def reset(self, valve_ids: list[str]) -> list[str]:
+        """2.19 (`reset_calibration` szolgáltatás): a megadott szelepek kalibrációs hibaállapotának törlése: hibapontok,
+        felfüggesztés (és a fokozata), függő ellenőrzés és visszaállítás, késői visszaállások, várakozások. Az eredeti
+        kalibráció, a szelep ismert igazítása és a módosítások napi kerete megmarad. Visszaadja az érintett szelepeket."""
+        done: list[str] = []
+        for valve_id in valve_ids:
+            cal = self.cal.get(valve_id)
+            if cal is None:
+                continue
+            cal.strikes = 0
+            cal.suspended_until = 0.0
+            cal.susp_level = 0
+            cal.susp_bias = cal.susp_why = None
+            cal.pending = None
+            cal.revert = None
+            cal.late_reverts = []
+            cal.blind_hold_until = cal.recheck_until = cal.settle_until = cal.wait_until = 0.0
+            cal.fine_done = False
+            cal.samples.clear()
+            self._set(cal, "waiting", None)
+            self.ctl._cmd_fail.pop(self._ent.get(valve_id, {}).get("number") or "", None)
+            done.append(valve_id)
+        return done
 
     async def _async_ineffective(
         self,

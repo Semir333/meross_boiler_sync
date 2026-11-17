@@ -41,7 +41,9 @@
           "valve_boost_delay": "Gaidīšanas laiks pirms vārsta pacelšanas – šī telpa, minūtes (tukšs = globālā vērtība)",
           "valve_release_margin": "Vārsta atbrīvošana pirms mērķa – šī telpa (tukšs = globālā vērtība)",
           "valve_demand_link": "Sasaistīt katla pieprasījumu ar vārsta stāvokli",
+          "valve_cut": "Aizvērt vārstus pret pārkaršanu un pie atvērta loga",
           "humidity_sensor": "Telpas mitruma sensors (neobligāts)",
+          "humidity_max_boost": "Maks. paaugstinājums mitruma dēļ šajā telpā (°C)",
           "window_sensors": "Loga / durvju sensors(-i) (neobligāts)",
           "window_open_delay": "Atvērta loga aizkave – šī telpa, minūtes (tukšs = globālā vērtība)",
           "calibrate_valves": "Automātiska vārstu kalibrēšana (ja ieslēgta sadaļā Funkcijas)",
@@ -56,7 +58,9 @@
           "valve_boost_delay": "Cik ilgi novirzei jāsaglabājas pirms pacelšanas. 0 = nekavējoties. Ja tukšs, tiek izmantota globālā vērtība.",
           "valve_release_margin": "Vārsts atgūst savu sākotnējo mērķa temperatūru par šādu starpību pirms mērķa. Jābūt mazākai par slieksni. Ja tukšs, tiek izmantota globālā vērtība.",
           "valve_demand_link": "Ja ieslēgts, telpa pieprasa siltumu no katla tikai tad, kad tās vārsts ir atvērts (paša vārsta mērījums ir zem tā mērķa) vai kad spraudnis to piespiedu kārtā atver. Tā katls nekurina pret aizvērtiem vārstiem pie nelielām novirzēm. Nebloķē apkuri, ja vārsta dati nav pieejami.",
+          "valve_cut": "Ja telpas termometrs rāda, ka telpa ir vismaz 0,3 °C virs mērķa un telpa nepieprasa siltumu, kamēr katls strādā citai telpai, telpas atvērto vārstu mērķa temperatūra īslaicīgi tiek pazemināta par 3 °C (vārsts aizveras) un atjaunota, tiklīdz katls apstājas, telpa atdziest līdz mērķim vai pieprasa siltumu. Pie atvērta loga (ja ir loga sensors) vārsti tiek aizvērti tāpat. Paredzēts pret pārkaršanu, ko rada TRV nobīde. Viena aizvēršana ilgst ne vairāk kā 30 minūtes, pēc tam vārsts uz dažām minūtēm atgūst savu grafiku. Nepieciešams telpas termometrs. Vārsts kustas biežāk (baterija); vispirms to var izmēģināt ar slēdzi “Vārstu vadības izmēģinājuma režīms”.",
           "humidity_sensor": "Pie augsta mitruma telpas mērķa temperatūra tiek nedaudz paaugstināta (skatīt Pamatiestatījumus).",
+          "humidity_max_boost": "Atstājiet tukšu, lai izmantotu vērtību no pamatiestatījumiem. 0 = šajā telpā nav paaugstinājuma mitruma dēļ.",
           "window_sensors": "Kamēr logs vai durvis ir atvērtas ilgāk par aizkavi, telpa nepieprasa siltumu un vārsta pacelšana tiek atbrīvota. Ja sensoru ir vairāki, pietiek ar vienu atvērtu.",
           "window_open_delay": "Cik ilgi logam jābūt atvērtam, pirms telpa reaģē, lai īsa vēdināšana neko nepārslēgtu. 0 = nekavējoties. Ja tukšs, tiek izmantota globālā vērtība.",
           "calibrate_valves": "Koriģē vārstu temperatūras mērījumu, izmantojot istabas termometru. Darbojas tikai ar istabas temperatūras sensoru. Kad izslēgta, šīs istabas vārsti netiek skarti.",
@@ -80,7 +84,9 @@
           "valve_boost_delay": "Gaidīšanas laiks pirms vārsta pacelšanas – šī telpa, minūtes (tukšs = globālā vērtība)",
           "valve_release_margin": "Vārsta atbrīvošana pirms mērķa – šī telpa (tukšs = globālā vērtība)",
           "valve_demand_link": "Sasaistīt katla pieprasījumu ar vārsta stāvokli",
+          "valve_cut": "Aizvērt vārstus pret pārkaršanu un pie atvērta loga",
           "humidity_sensor": "Telpas mitruma sensors (neobligāts)",
+          "humidity_max_boost": "Maks. paaugstinājums mitruma dēļ šajā telpā (°C)",
           "window_sensors": "Loga / durvju sensors(-i) (neobligāts)",
           "window_open_delay": "Atvērta loga aizkave – šī telpa, minūtes (tukšs = globālā vērtība)",
           "calibrate_valves": "Automātiska vārstu kalibrēšana (ja ieslēgta sadaļā Funkcijas)",
@@ -95,7 +101,9 @@
           "valve_boost_delay": "Cik ilgi novirzei jāsaglabājas pirms pacelšanas. 0 = nekavējoties. Ja tukšs, tiek izmantota globālā vērtība.",
           "valve_release_margin": "Vārsts atgūst savu sākotnējo mērķa temperatūru par šādu starpību pirms mērķa. Jābūt mazākai par slieksni. Ja tukšs, tiek izmantota globālā vērtība.",
           "valve_demand_link": "Ja ieslēgts, telpa pieprasa siltumu no katla tikai tad, kad tās vārsts ir atvērts (paša vārsta mērījums ir zem tā mērķa) vai kad spraudnis to piespiedu kārtā atver. Tā katls nekurina pret aizvērtiem vārstiem pie nelielām novirzēm. Nebloķē apkuri, ja vārsta dati nav pieejami.",
+          "valve_cut": "Ja telpas termometrs rāda, ka telpa ir vismaz 0,3 °C virs mērķa un telpa nepieprasa siltumu, kamēr katls strādā citai telpai, telpas atvērto vārstu mērķa temperatūra īslaicīgi tiek pazemināta par 3 °C (vārsts aizveras) un atjaunota, tiklīdz katls apstājas, telpa atdziest līdz mērķim vai pieprasa siltumu. Pie atvērta loga (ja ir loga sensors) vārsti tiek aizvērti tāpat. Paredzēts pret pārkaršanu, ko rada TRV nobīde. Viena aizvēršana ilgst ne vairāk kā 30 minūtes, pēc tam vārsts uz dažām minūtēm atgūst savu grafiku. Nepieciešams telpas termometrs. Vārsts kustas biežāk (baterija); vispirms to var izmēģināt ar slēdzi “Vārstu vadības izmēģinājuma režīms”.",
           "humidity_sensor": "Pie augsta mitruma telpas mērķa temperatūra tiek nedaudz paaugstināta (skatīt Pamatiestatījumus).",
+          "humidity_max_boost": "Atstājiet tukšu, lai izmantotu vērtību no pamatiestatījumiem. 0 = šajā telpā nav paaugstinājuma mitruma dēļ.",
           "window_sensors": "Kamēr logs vai durvis ir atvērtas ilgāk par aizkavi, telpa nepieprasa siltumu un vārsta pacelšana tiek atbrīvota. Ja sensoru ir vairāki, pietiek ar vienu atvērtu.",
           "window_open_delay": "Cik ilgi logam jābūt atvērtam, pirms telpa reaģē, lai īsa vēdināšana neko nepārslēgtu. 0 = nekavējoties. Ja tukšs, tiek izmantota globālā vērtība.",
           "calibrate_valves": "Koriģē vārstu temperatūras mērījumu, izmantojot istabas termometru. Darbojas tikai ar istabas temperatūras sensoru. Kad izslēgta, šīs istabas vārsti netiek skarti.",
@@ -144,6 +152,7 @@
           "max_boost_hours": "Maks. vārsta pacelšanas ilgums (stundas)",
           "max_boost_rest_minutes": "Pauze pēc maks. ilguma (minūtes)",
           "window_open_delay": "Atvērta loga aizkave – noklusējums (minūtes)",
+          "frost_temp": "Pretsasalšanas aizsardzības slieksnis (°C, 0 = izslēgts)",
           "valve_dry_run": "Vārstu vadības izmēģinājuma režīms (tikai žurnāls, bez rakstīšanas vārstos)",
           "register_card": "Ielādēt Lovelace karti"
         },
@@ -161,7 +170,8 @@
           "max_boost_hours": "Pēc šī laika vārsts atgūst sākotnējo mērķa temperatūru, pat ja telpa nav sasniegusi mērķi.",
           "max_boost_rest_minutes": "Cik ilgi pēc maksimālā ilguma sasniegšanas netiek sākta jauna pacelšana. Tiek atiestatīts, kad telpa sasniedz savu mērķi.",
           "window_open_delay": "Noklusējums visām telpām: cik ilgi logam jābūt atvērtam, pirms šīs telpas apkure tiek apturēta. Īsāka vēdināšana neko nemaina.",
-          "valve_dry_run": "Ja ieslēgts, vārstu vadība tikai ieraksta žurnālā, ko tā darītu (priedēklis [PRÓBAÜZEM]), un neko nemaina vārstos. Ieteicams pirmajam darbības testam.",
+          "frost_temp": "Ja telpa ilgāk par 5 minūtēm ir aukstāka par šo vērtību, tā pieprasa siltumu neatkarīgi no vārsta stāvokļa, atvērta loga un vasaras režīma, līdz ir 1 °C virs sliekšņa. Izslēgts vārsts tiek ieslēgts, un tā mērķis ir slieksnis + 1 °C. Par to saņemsiet paziņojumu.",
+          "valve_dry_run": "Ja ieslēgts, vārstu vadība tikai ieraksta žurnālā, ko tā darītu (priedēklis [PRÓBAÜZEM]), un neko nemaina vārstos. Ieteicams pirmajam darbības testam. Attiecas arī uz vārstu aizvēršanu pret pārkaršanu.",
           "register_card": "Ja ieslēgts, integrācija pievieno kartes failu informācijas paneļa resursiem (Iestatījumi → Informācijas paneļi → Resursi) un uztur tā versiju aktuālu, lai tā parādītos sarakstā “Pievienot karti” (tā nekad pati nepievieno karti informācijas panelim). Informācijas paneļiem YAML režīmā resurss jāpievieno manuāli (skatiet README). Ja izslēgts, integrācija resursiem nepieskaras."
         }
       },
@@ -348,6 +358,21 @@
           "temperature_sensor_unreliable": {
             "name": "Telpas temperatūras sensors ir neuzticams (neiespējamas vai lēkājošas vērtības)"
           },
+          "temperature_sensor_stuck": {
+            "name": "Telpas termometrs apkures laikā nesūta datus (iestrēdzis)"
+          },
+          "valves_unreachable": {
+            "name": "Vārsti nav sasniedzami (vada telpas termometrs)"
+          },
+          "valves_unreachable_paused": {
+            "name": "Rezerves vadība apturēta (telpa nesasilst)"
+          },
+          "frost_protection": {
+            "name": "Pretsasalšanas aizsardzība aktīva"
+          },
+          "valve_cut": {
+            "name": "Vārstu aizvēršana aktīva (vārsta mērķis pazemināts)"
+          },
           "valve_boost_resting": {
             "name": "Vārsta pacelšana pauzē pēc maksimālā ilguma"
           },
@@ -428,6 +453,9 @@
           },
           "heating_rate_learned": {
             "name": "Sildīšanas ātrums ir apgūts"
+          },
+          "heating_rate_samples": {
+            "name": "Sildīšanas ātruma mērījumi (apkures reizes)"
           },
           "calibration_enabled": {
             "name": "Vārstu kalibrēšana ir ieslēgta"
@@ -565,13 +593,33 @@
       "title": "Telpas temperatūras sensors nav uzticams",
       "description": "Telpas {room} temperatūras sensors {sensor} nosūtīja neiespējamu vai lēkājošu vērtību (piemēram, kļūdas vērtību vai strauju lēkāšanu augšup un lejup), tāpēc tas tiek ignorēts {minutes} minūtes. Telpa tagad izmanto vārstu paša mērījumu, un automātiskā vārstu vadība un vārstu kalibrēšana ir apturētas. Šis paziņojums pazudīs, tiklīdz sensors atkal sūtīs ticamas vērtības."
     },
+    "stuck_room_temp": {
+      "title": "Telpas termometrs apkures laikā nesūta datus",
+      "description": "Telpas {room} termometrs {sensor} nav sūtījis datus {minutes} minūtes, lai gan telpa pieprasa siltumu un katls darbojas (iespējams, tas ir iestrēdzis pie vienas vērtības: vāja baterija vai savienojuma problēma). Telpa tagad izmanto vārstu paša mērījumu. Šis paziņojums pazudīs, tiklīdz termometrs atkal sūtīs datus."
+    },
+    "valves_unreachable": {
+      "title": "Telpas vārsti nav sasniedzami",
+      "description": "Telpas {room} vārsti nav sasniedzami vairāk nekā {minutes} minūtes (centrmezgls, Wi-Fi vai Meross LAN). Līdz to atgriešanās brīdim telpas siltuma pieprasījumu nosaka telpas termometrs un pēdējais vārstos redzētais mērķis ({target} °C); vārsti turpina regulēt pēc saviem iestatījumiem. Ja, katlam darbojoties, telpa 2 stundu laikā nesasilst (vārsts, iespējams, palicis aizvērts), telpas siltuma pieprasījums tiek apturēts uz 6 stundām un pēc tam mēģināts vēlreiz. Šis paziņojums pazudīs, tiklīdz vārsti atkal būs sasniedzami."
+    },
+    "heating_blind": {
+      "title": "Nevienu telpu nevar novērtēt – katls izslēgts",
+      "description": "Vairāk nekā {minutes} minūtes nav sasniedzams neviens vārsts, un nevienu telpu nevar vadīt pēc tās termometra (nav telpas termometra vai zināma mērķa). Integrācija neapkurina akli: katls ir izslēgts. Pretsasalšanas aizsardzība joprojām darbojas telpās ar termometru. Pārbaudiet Meross centrmezglu un integrāciju Meross LAN. Šis paziņojums pazudīs, tiklīdz atkal varēs novērtēt vismaz vienu telpu."
+    },
+    "frost_protection": {
+      "title": "Pretsasalšanas aizsardzība aktīva",
+      "description": "Telpā {room} ir {temperature} °C, zem pretsasalšanas aizsardzības sliekšņa ({threshold} °C). Telpa pieprasa siltumu neatkarīgi no vārsta stāvokļa, atvērta loga un vasaras režīma, līdz kļūst siltāka par {target} °C; izslēgtie vārsti ir ieslēgti ar šo mērķi (tie paliks tādi, līdz tos mainīsiet). Šis paziņojums pazudīs, kad telpa būs sasilusi. Slieksni var mainīt pamatiestatījumos (0 = izslēgts)."
+    },
+    "boiler_command_failed": {
+      "title": "Katla termostats neizpilda komandas",
+      "description": "Katla termostats ({boiler}) {count} reizes pēc kārtas noraidīja ieslēgšanas/izslēgšanas komandu vai to neizpildīja. Integrācija mēģina vēlreiz katru minūti. Pārbaudiet, vai termostats ir pieejams Home Assistant un — Meross MTS200 gadījumā — vai slēdzis “Summer mode” ir izslēgts. Šis paziņojums pazudīs, tiklīdz termostats atkal izpildīs komandu."
+    },
     "stale_outdoor": {
       "title": "Ārā temperatūras sensors vairs nesūta datus",
       "description": "Ārējais sensors {sensor} nav sūtījis datus vairāk nekā {hours} stundas (iespējams, baterija ir tukša). Vasaras režīms paliek izslēgts, kamēr sensors atkal sūta datus, tāpēc apkure ir atļauta. Šis paziņojums pazudīs, tiklīdz sensors atkal sūtīs datus."
     },
     "calibration_suspended": {
       "title": "Vārsta kalibrēšana apturēta",
-      "description": "Vārstam {valve} istabā {room} divas kalibrēšanas izmaiņas pēc kārtas nepietuvināja vārsta mērījumu istabas termometram (vai kalibrēšanas skaitlis divreiz 24 stundu laikā atgriezās pie vecās vērtības: ierīce to nesaglabāja, vai arī tas tika atiestatīts ar roku). Tāpēc automātiskā kalibrēšana šim vārstam ir apturēta uz {days} dienām. Ja izmaiņa mērījumu nepietuvināja, iepriekšējā vērtība ir atjaunota. Pārbaudiet vārsta skaitli *Kalibrēšana* un to, vai vārsts to tiešām izmanto. Paziņojums pazūd, kad apturēšana beidzas vai funkcija tiek izslēgta."
+      "description": "Vārstam {valve} istabā {room} divas kalibrēšanas izmaiņas pēc kārtas nepietuvināja vārsta mērījumu istabas termometram (vai kalibrēšanas skaitlis divreiz 24 stundu laikā atgriezās pie vecās vērtības: ierīce to nesaglabāja, vai arī tas tika atiestatīts ar roku). Tāpēc automātiskā kalibrēšana šim vārstam ir apturēta uz {days} dienām. Ja izmaiņa mērījumu nepietuvināja, iepriekšējā vērtība ir atjaunota. Pārbaudiet vārsta skaitli *Kalibrēšana* un to, vai vārsts to tiešām izmanto. Paziņojums pazūd, kad apturēšana beidzas vai funkcija tiek izslēgta. Apturēšanu var atcelt uzreiz, mainot vārsta TRV nobīdi vai izsaucot pakalpojumu `meross_boiler_sync.reset_calibration`."
     }
   },
   "selector": {
@@ -627,6 +675,10 @@
     "cancel_preheat": {
       "name": "Atcelt priekšsildīšanu",
       "description": "Dzēš vienreizējo pieprasījumu un izlaiž notiekošo vai nākamo ieplānoto priekšsildīšanu."
+    },
+    "reset_calibration": {
+      "name": "Atiestatīt kalibrēšanu",
+      "description": "Notīra telpas vārstu kalibrēšanas kļūdu stāvokli (kļūdu punktus, apturēšanu, gaidošo pārbaudi), lai apturētais vārsts uzreiz atkal piedalītos kalibrēšanā. Vārsta kalibrēšanas skaitlis netiek mainīts."
     }
   },
   "exceptions": {

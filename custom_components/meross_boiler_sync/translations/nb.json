@@ -41,7 +41,9 @@
           "valve_boost_delay": "Ventetid før ventilløft – dette rommet, minutter (tom = global verdi)",
           "valve_release_margin": "Ventilfrigjøring før målet – dette rommet (tom = global verdi)",
           "valve_demand_link": "Koble kjelens varmebehov til ventilens tilstand",
+          "valve_cut": "Steng ventiler mot overoppheting og ved åpent vindu",
           "humidity_sensor": "Romfuktsensor (valgfri)",
+          "humidity_max_boost": "Maks. økning ved fuktighet i dette rommet (°C)",
           "window_sensors": "Vindus-/dørsensor(er) (valgfri)",
           "window_open_delay": "Forsinkelse for åpent vindu – dette rommet, minutter (tom = global verdi)",
           "calibrate_valves": "Automatisk ventilkalibrering (hvis slått på under Funksjoner)",
@@ -56,7 +58,9 @@
           "valve_boost_delay": "Hvor lenge avviket må vare før ventilen løftes. 0 = umiddelbart. Hvis tom, gjelder den globale verdien.",
           "valve_release_margin": "Ventilen får tilbake sin opprinnelige måltemperatur så langt før målet. Må være mindre enn terskelen. Hvis tom, gjelder den globale verdien.",
           "valve_demand_link": "Når dette er på, ber rommet bare om varme fra kjelen når ventilen er åpen (ventilens egen måling ligger under målet) eller når tillegget tvinger den opp. Da fyrer ikke kjelen mot stengte ventiler ved små avvik. Blokkerer ikke oppvarmingen hvis ventildata mangler.",
+          "valve_cut": "Hvis romtermometeret viser at rommet er minst 0,3 °C over målet og rommet ikke ber om varme mens kjelen går for et annet rom, senkes måltemperaturen for rommets åpne ventiler midlertidig med 3 °C (ventilen stenger) og settes tilbake så snart kjelen stopper, rommet er nede på målet eller ber om varme. Ved åpent vindu (hvis det finnes en vindussensor) stenges ventilene på samme måte. Ment mot overopphetingen som TRV-forskyvningen gir. Én stenging varer høyst 30 minutter, deretter får ventilen tilbake sin egen tidsplan i noen minutter. Krever et romtermometer. Ventilen beveger seg oftere (batteri); du kan prøve først med bryteren «Prøvekjøring av ventilstyring».",
           "humidity_sensor": "Ved høy luftfuktighet heves rommets måltemperatur litt (se Grunninnstillinger).",
+          "humidity_max_boost": "La stå tomt for å bruke verdien i Grunninnstillinger. 0 = ingen økning ved fuktighet i dette rommet.",
           "window_sensors": "Så lenge et vindu eller en dør står åpen lenger enn forsinkelsen, ber ikke rommet om varme, og ventilløftet slippes. Med flere sensorer teller hver åpen sensor.",
           "window_open_delay": "Hvor lenge vinduet må stå åpent før rommet reagerer, slik at kort lufting ikke endrer noe. 0 = umiddelbart. Hvis tom, gjelder den globale verdien.",
           "calibrate_valves": "Korrigerer temperaturmålingen til ventilene med romtermometeret. Fungerer bare med en romtemperatursensor. Når den er av, røres ikke ventilene i dette rommet.",
@@ -80,7 +84,9 @@
           "valve_boost_delay": "Ventetid før ventilløft – dette rommet, minutter (tom = global verdi)",
           "valve_release_margin": "Ventilfrigjøring før målet – dette rommet (tom = global verdi)",
           "valve_demand_link": "Koble kjelens varmebehov til ventilens tilstand",
+          "valve_cut": "Steng ventiler mot overoppheting og ved åpent vindu",
           "humidity_sensor": "Romfuktsensor (valgfri)",
+          "humidity_max_boost": "Maks. økning ved fuktighet i dette rommet (°C)",
           "window_sensors": "Vindus-/dørsensor(er) (valgfri)",
           "window_open_delay": "Forsinkelse for åpent vindu – dette rommet, minutter (tom = global verdi)",
           "calibrate_valves": "Automatisk ventilkalibrering (hvis slått på under Funksjoner)",
@@ -95,7 +101,9 @@
           "valve_boost_delay": "Hvor lenge avviket må vare før ventilen løftes. 0 = umiddelbart. Hvis tom, gjelder den globale verdien.",
           "valve_release_margin": "Ventilen får tilbake sin opprinnelige måltemperatur så langt før målet. Må være mindre enn terskelen. Hvis tom, gjelder den globale verdien.",
           "valve_demand_link": "Når dette er på, ber rommet bare om varme fra kjelen når ventilen er åpen (ventilens egen måling ligger under målet) eller når tillegget tvinger den opp. Da fyrer ikke kjelen mot stengte ventiler ved små avvik. Blokkerer ikke oppvarmingen hvis ventildata mangler.",
+          "valve_cut": "Hvis romtermometeret viser at rommet er minst 0,3 °C over målet og rommet ikke ber om varme mens kjelen går for et annet rom, senkes måltemperaturen for rommets åpne ventiler midlertidig med 3 °C (ventilen stenger) og settes tilbake så snart kjelen stopper, rommet er nede på målet eller ber om varme. Ved åpent vindu (hvis det finnes en vindussensor) stenges ventilene på samme måte. Ment mot overopphetingen som TRV-forskyvningen gir. Én stenging varer høyst 30 minutter, deretter får ventilen tilbake sin egen tidsplan i noen minutter. Krever et romtermometer. Ventilen beveger seg oftere (batteri); du kan prøve først med bryteren «Prøvekjøring av ventilstyring».",
           "humidity_sensor": "Ved høy luftfuktighet heves rommets måltemperatur litt (se Grunninnstillinger).",
+          "humidity_max_boost": "La stå tomt for å bruke verdien i Grunninnstillinger. 0 = ingen økning ved fuktighet i dette rommet.",
           "window_sensors": "Så lenge et vindu eller en dør står åpen lenger enn forsinkelsen, ber ikke rommet om varme, og ventilløftet slippes. Med flere sensorer teller hver åpen sensor.",
           "window_open_delay": "Hvor lenge vinduet må stå åpent før rommet reagerer, slik at kort lufting ikke endrer noe. 0 = umiddelbart. Hvis tom, gjelder den globale verdien.",
           "calibrate_valves": "Korrigerer temperaturmålingen til ventilene med romtermometeret. Fungerer bare med en romtemperatursensor. Når den er av, røres ikke ventilene i dette rommet.",
@@ -144,6 +152,7 @@
           "max_boost_hours": "Maks. varighet for ventilløft (timer)",
           "max_boost_rest_minutes": "Pause etter maks. varighet (minutter)",
           "window_open_delay": "Forsinkelse for åpent vindu – standard (minutter)",
+          "frost_temp": "Terskel for frostsikring (°C, 0 = av)",
           "valve_dry_run": "Prøvekjøring av ventilstyring (kun logg, ingen skriving til ventilene)",
           "register_card": "Last inn Lovelace-kortet"
         },
@@ -161,7 +170,8 @@
           "max_boost_hours": "Etter denne tiden får ventilen tilbake sin opprinnelige måltemperatur, selv om rommet ikke har nådd målet.",
           "max_boost_rest_minutes": "Hvor lenge ingen nytt løft startes etter at maksimal varighet er nådd. Nullstilles når rommet når målet.",
           "window_open_delay": "Standard for alle rom: hvor lenge et vindu må stå åpent før oppvarmingen i det rommet settes på pause. Kortere lufting endrer ingenting.",
-          "valve_dry_run": "Når dette er på, logger ventilstyringen bare hva den ville gjort (prefiks [PRÓBAÜZEM]) og endrer ingenting på ventilene. Anbefalt for den første ekte testen.",
+          "frost_temp": "Hvis et rom er kaldere enn denne verdien i mer enn 5 minutter, ber det om varme uavhengig av ventilens tilstand, åpent vindu og sommermodus, til det er 1 °C over terskelen. En avslått ventil slås på og får terskelen + 1 °C som mål. Du får et reparasjonsvarsel om det.",
+          "valve_dry_run": "Når dette er på, logger ventilstyringen bare hva den ville gjort (prefiks [PRÓBAÜZEM]) og endrer ingenting på ventilene. Anbefalt for den første ekte testen. Gjelder også stenging av ventiler mot overoppheting.",
           "register_card": "Når dette er på, legger integrasjonen kortfilen til i dashbordressursene (Innstillinger → Dashbord → Ressurser) og holder versjonen oppdatert, slik at kortet vises i listen «Legg til kort» (den legger aldri selv til et kort på et dashbord). Med dashbord i YAML-modus må du legge til ressursen manuelt (se README). Når det er av, rører ikke integrasjonen ressursene."
         }
       },
@@ -348,6 +358,21 @@
           "temperature_sensor_unreliable": {
             "name": "Romtemperatursensoren er upålitelig (umulige eller ustabile verdier)"
           },
+          "temperature_sensor_stuck": {
+            "name": "Romtermometeret rapporterer ikke under oppvarming (henger)"
+          },
+          "valves_unreachable": {
+            "name": "Ventilene kan ikke nås (romtermometeret styrer)"
+          },
+          "valves_unreachable_paused": {
+            "name": "Reservestyring satt på pause (rommet blir ikke varmere)"
+          },
+          "frost_protection": {
+            "name": "Frostsikring aktiv"
+          },
+          "valve_cut": {
+            "name": "Ventilstenging aktiv (ventilens mål senket)"
+          },
           "valve_boost_resting": {
             "name": "Ventilløft på pause etter maksimal varighet"
           },
@@ -428,6 +453,9 @@
           },
           "heating_rate_learned": {
             "name": "Oppvarmingshastigheten er lært"
+          },
+          "heating_rate_samples": {
+            "name": "Målinger av oppvarmingshastighet (oppvarmingsøkter)"
           },
           "calibration_enabled": {
             "name": "Ventilkalibrering er på"
@@ -565,13 +593,33 @@
       "title": "Romtemperatursensoren er ikke pålitelig",
       "description": "Temperatursensoren {sensor} i rommet {room} rapporterte en umulig eller ustabil verdi (for eksempel en feilverdi eller raske hopp opp og ned), og ignoreres derfor i {minutes} minutter. Rommet bruker nå ventilenes egen måling, og den automatiske ventilstyringen og ventilkalibreringen er satt på pause. Dette varselet forsvinner når sensoren igjen gir rimelige verdier."
     },
+    "stuck_room_temp": {
+      "title": "Romtermometeret rapporterer ikke under oppvarming",
+      "description": "Termometeret {sensor} i rommet {room} har ikke rapportert på {minutes} minutter selv om rommet ber om varme og kjelen går (det kan ha hengt seg på én verdi: svakt batteri eller forbindelsesproblem). Rommet bruker nå ventilenes egen måling. Dette varselet forsvinner når termometeret rapporterer igjen."
+    },
+    "valves_unreachable": {
+      "title": "Rommets ventiler kan ikke nås",
+      "description": "Ventilene i rommet {room} har ikke vært tilgjengelige på over {minutes} minutter (hub, Wi-Fi eller Meross LAN). Til de er tilbake, styres rommets varmebehov av romtermometeret og det siste målet som ble sett på ventilene ({target} °C); ventilene fortsetter å regulere etter sine egne innstillinger. Hvis rommet ikke blir varmere innen 2 timer mens kjelen går (ventilen kan ha blitt stående stengt), settes rommets varmebehov på pause i 6 timer og prøves deretter på nytt. Dette varselet forsvinner når ventilene kan nås igjen."
+    },
+    "heating_blind": {
+      "title": "Ingen rom kan vurderes – kjelen er slått av",
+      "description": "Ingen ventil har vært tilgjengelig på over {minutes} minutter, og ingen rom kan styres via sitt eget termometer (ikke noe romtermometer eller ikke noe kjent mål). Integrasjonen fyrer ikke i blinde: kjelen er slått av. Frostsikringen virker fortsatt i rom med termometer. Kontroller Meross-huben og integrasjonen Meross LAN. Dette varselet forsvinner når minst ett rom kan vurderes igjen."
+    },
+    "frost_protection": {
+      "title": "Frostsikring aktiv",
+      "description": "Rommet {room} har {temperature} °C, under terskelen for frostsikring ({threshold} °C). Rommet ber om varme uavhengig av ventilens tilstand, åpent vindu og sommermodus til det er varmere enn {target} °C; avslåtte ventiler er slått på med dette målet (de forblir slik til du endrer dem). Dette varselet forsvinner når rommet er varmet opp. Terskelen endres i Grunninnstillinger (0 = av)."
+    },
+    "boiler_command_failed": {
+      "title": "Kjelens termostat følger ikke kommandoene",
+      "description": "Kjelens termostat ({boiler}) har {count} ganger på rad avvist eller ikke fulgt på/av-kommandoen. Integrasjonen prøver igjen hvert minutt. Kontroller at termostaten er tilgjengelig i Home Assistant og, for en Meross MTS200, at bryteren «Summer mode» er av. Dette varselet forsvinner når termostaten følger kommandoen igjen."
+    },
     "stale_outdoor": {
       "title": "Utetemperatursensoren rapporterer ikke lenger",
       "description": "Utesensoren {sensor} har ikke rapportert på over {hours} timer (batteriet kan være tomt). Sommermodus forblir av til den rapporterer igjen, så oppvarming er fortsatt tillatt. Dette varselet forsvinner når sensoren rapporterer igjen."
     },
     "calibration_suspended": {
       "title": "Ventilkalibrering satt på pause",
-      "description": "På ventilen {valve} i {room} førte to kalibreringsendringer på rad ikke til at ventilens måling kom nærmere romtermometeret (eller kalibreringstallet gikk to ganger innen 24 timer tilbake til den gamle verdien: enheten beholdt det ikke, eller det ble tilbakestilt for hånd). Derfor er den automatiske kalibreringen satt på pause for denne ventilen i {days} dager. Hvis en endring ikke førte målingen nærmere, er forrige verdi gjenopprettet. Kontroller tallet *Kalibrering* på ventilen og om ventilen faktisk bruker det. Varselet forsvinner når pausen er over eller funksjonen slås av."
+      "description": "På ventilen {valve} i {room} førte to kalibreringsendringer på rad ikke til at ventilens måling kom nærmere romtermometeret (eller kalibreringstallet gikk to ganger innen 24 timer tilbake til den gamle verdien: enheten beholdt det ikke, eller det ble tilbakestilt for hånd). Derfor er den automatiske kalibreringen satt på pause for denne ventilen i {days} dager. Hvis en endring ikke førte målingen nærmere, er forrige verdi gjenopprettet. Kontroller tallet *Kalibrering* på ventilen og om ventilen faktisk bruker det. Varselet forsvinner når pausen er over eller funksjonen slås av. Pausen kan oppheves med en gang ved å endre ventilens TRV-forskyvning eller med tjenesten `meross_boiler_sync.reset_calibration`."
     }
   },
   "selector": {
@@ -627,6 +675,10 @@
     "cancel_preheat": {
       "name": "Avbryt forvarming",
       "description": "Fjerner engangsforespørselen og hopper over den pågående eller neste planlagte forvarmingen."
+    },
+    "reset_calibration": {
+      "name": "Tilbakestill kalibrering",
+      "description": "Fjerner feiltilstanden for kalibreringen av rommets ventiler (feilpoeng, pause, ventende kontroll), slik at en ventil på pause straks deltar i kalibreringen igjen. Ventilens kalibreringstall endres ikke."
     }
   },
   "exceptions": {

@@ -41,7 +41,9 @@
           "valve_boost_delay": "Czas oczekiwania przed wymuszeniem zaworu – to pomieszczenie, minuty (puste = wartość globalna)",
           "valve_release_margin": "Zwolnienie zaworu przed osiągnięciem celu – to pomieszczenie (puste = wartość globalna)",
           "valve_demand_link": "Powiąż zapotrzebowanie kotła ze stanem zaworu",
+          "valve_cut": "Zamykaj zawory przy przegrzaniu i otwartym oknie",
           "humidity_sensor": "Czujnik wilgotności pomieszczenia (opcjonalnie)",
+          "humidity_max_boost": "Maks. podwyższenie z powodu wilgotności w tym pomieszczeniu (°C)",
           "window_sensors": "Czujnik(i) okna / drzwi (opcjonalnie)",
           "window_open_delay": "Opóźnienie otwartego okna – to pomieszczenie, minuty (puste = wartość globalna)",
           "calibrate_valves": "Automatyczna kalibracja zaworów (jeśli włączona w Funkcjach)",
@@ -56,7 +58,9 @@
           "valve_boost_delay": "Jak długo odchyłka musi się utrzymywać przed wymuszeniem. 0 = natychmiast. Jeśli puste, obowiązuje wartość globalna.",
           "valve_release_margin": "Zawór odzyskuje pierwotną temperaturę docelową z takim wyprzedzeniem przed celem. Musi być mniejsze niż próg. Jeśli puste, obowiązuje wartość globalna.",
           "valve_demand_link": "Gdy włączone, pomieszczenie zgłasza zapotrzebowanie na ciepło do kotła tylko wtedy, gdy jego zawór jest otwarty (własny pomiar zaworu jest poniżej jego celu) lub gdy wtyczka właśnie go wymusza. Dzięki temu kocioł nie pracuje na zamknięte zawory przy małych odchyłkach. Nie blokuje ogrzewania, gdy brakuje danych zaworu.",
+          "valve_cut": "Jeśli termometr wskazuje, że pomieszczenie jest co najmniej 0,3 °C powyżej celu i nie zgłasza zapotrzebowania na ciepło, a kocioł pracuje dla innego pomieszczenia, temperatura docelowa otwartych zaworów pomieszczenia jest tymczasowo obniżana o 3 °C (zawór się zamyka) i przywracana, gdy kocioł się wyłączy, pomieszczenie wróci do celu lub zgłosi zapotrzebowanie. Przy otwartym oknie (jeśli jest czujnik okna) zawory są zamykane tak samo. Służy przeciw przegrzewaniu spowodowanemu przesunięciem TRV. Jedno zamknięcie trwa najwyżej 30 minut, potem zawór na kilka minut odzyskuje własny harmonogram. Wymaga termometru w pomieszczeniu. Zawór porusza się częściej (bateria); można to najpierw wypróbować przełącznikiem „Tryb próbny regulacji zaworów”.",
           "humidity_sensor": "Przy wysokiej wilgotności temperatura docelowa pomieszczenia jest lekko podnoszona (patrz Ustawienia podstawowe).",
+          "humidity_max_boost": "Pozostaw puste, aby użyć wartości z Ustawień podstawowych. 0 = bez podwyższenia z powodu wilgotności w tym pomieszczeniu.",
           "window_sensors": "Dopóki okno lub drzwi są otwarte dłużej niż opóźnienie, pomieszczenie nie zgłasza zapotrzebowania na ciepło, a wymuszanie zaworu jest zwalniane. Przy kilku czujnikach liczy się każdy otwarty.",
           "window_open_delay": "Jak długo okno musi być otwarte, zanim pomieszczenie zareaguje, aby krótkie wietrzenie niczego nie przełączało. 0 = natychmiast. Jeśli puste, obowiązuje wartość globalna.",
           "calibrate_valves": "Koryguje pomiar temperatury zaworów za pomocą termometru w pomieszczeniu. Działa tylko z czujnikiem temperatury pomieszczenia. Po wyłączeniu zawory tego pomieszczenia pozostają nietknięte.",
@@ -80,7 +84,9 @@
           "valve_boost_delay": "Czas oczekiwania przed wymuszeniem zaworu – to pomieszczenie, minuty (puste = wartość globalna)",
           "valve_release_margin": "Zwolnienie zaworu przed osiągnięciem celu – to pomieszczenie (puste = wartość globalna)",
           "valve_demand_link": "Powiąż zapotrzebowanie kotła ze stanem zaworu",
+          "valve_cut": "Zamykaj zawory przy przegrzaniu i otwartym oknie",
           "humidity_sensor": "Czujnik wilgotności pomieszczenia (opcjonalnie)",
+          "humidity_max_boost": "Maks. podwyższenie z powodu wilgotności w tym pomieszczeniu (°C)",
           "window_sensors": "Czujnik(i) okna / drzwi (opcjonalnie)",
           "window_open_delay": "Opóźnienie otwartego okna – to pomieszczenie, minuty (puste = wartość globalna)",
           "calibrate_valves": "Automatyczna kalibracja zaworów (jeśli włączona w Funkcjach)",
@@ -95,7 +101,9 @@
           "valve_boost_delay": "Jak długo odchyłka musi się utrzymywać przed wymuszeniem. 0 = natychmiast. Jeśli puste, obowiązuje wartość globalna.",
           "valve_release_margin": "Zawór odzyskuje pierwotną temperaturę docelową z takim wyprzedzeniem przed celem. Musi być mniejsze niż próg. Jeśli puste, obowiązuje wartość globalna.",
           "valve_demand_link": "Gdy włączone, pomieszczenie zgłasza zapotrzebowanie na ciepło do kotła tylko wtedy, gdy jego zawór jest otwarty (własny pomiar zaworu jest poniżej jego celu) lub gdy wtyczka właśnie go wymusza. Dzięki temu kocioł nie pracuje na zamknięte zawory przy małych odchyłkach. Nie blokuje ogrzewania, gdy brakuje danych zaworu.",
+          "valve_cut": "Jeśli termometr wskazuje, że pomieszczenie jest co najmniej 0,3 °C powyżej celu i nie zgłasza zapotrzebowania na ciepło, a kocioł pracuje dla innego pomieszczenia, temperatura docelowa otwartych zaworów pomieszczenia jest tymczasowo obniżana o 3 °C (zawór się zamyka) i przywracana, gdy kocioł się wyłączy, pomieszczenie wróci do celu lub zgłosi zapotrzebowanie. Przy otwartym oknie (jeśli jest czujnik okna) zawory są zamykane tak samo. Służy przeciw przegrzewaniu spowodowanemu przesunięciem TRV. Jedno zamknięcie trwa najwyżej 30 minut, potem zawór na kilka minut odzyskuje własny harmonogram. Wymaga termometru w pomieszczeniu. Zawór porusza się częściej (bateria); można to najpierw wypróbować przełącznikiem „Tryb próbny regulacji zaworów”.",
           "humidity_sensor": "Przy wysokiej wilgotności temperatura docelowa pomieszczenia jest lekko podnoszona (patrz Ustawienia podstawowe).",
+          "humidity_max_boost": "Pozostaw puste, aby użyć wartości z Ustawień podstawowych. 0 = bez podwyższenia z powodu wilgotności w tym pomieszczeniu.",
           "window_sensors": "Dopóki okno lub drzwi są otwarte dłużej niż opóźnienie, pomieszczenie nie zgłasza zapotrzebowania na ciepło, a wymuszanie zaworu jest zwalniane. Przy kilku czujnikach liczy się każdy otwarty.",
           "window_open_delay": "Jak długo okno musi być otwarte, zanim pomieszczenie zareaguje, aby krótkie wietrzenie niczego nie przełączało. 0 = natychmiast. Jeśli puste, obowiązuje wartość globalna.",
           "calibrate_valves": "Koryguje pomiar temperatury zaworów za pomocą termometru w pomieszczeniu. Działa tylko z czujnikiem temperatury pomieszczenia. Po wyłączeniu zawory tego pomieszczenia pozostają nietknięte.",
@@ -144,6 +152,7 @@
           "max_boost_hours": "Maks. czas wymuszenia zaworu (godziny)",
           "max_boost_rest_minutes": "Przerwa po maks. czasie (minuty)",
           "window_open_delay": "Opóźnienie otwartego okna – domyślne (minuty)",
+          "frost_temp": "Próg ochrony przed zamarzaniem (°C, 0 = wyłączona)",
           "valve_dry_run": "Tryb próbny regulacji zaworów (tylko dziennik, bez zapisu do zaworów)",
           "register_card": "Wczytaj kartę Lovelace"
         },
@@ -161,7 +170,8 @@
           "max_boost_hours": "Po tym czasie zawór odzyskuje pierwotną temperaturę docelową, nawet jeśli pomieszczenie nie osiągnęło celu.",
           "max_boost_rest_minutes": "Jak długo po osiągnięciu maksymalnego czasu nie rozpoczyna się nowe wymuszanie. Gdy pomieszczenie osiągnie cel, odliczanie jest zerowane.",
           "window_open_delay": "Wartość domyślna dla wszystkich pomieszczeń: jak długo okno musi być otwarte, zanim ogrzewanie tego pomieszczenia zostanie wstrzymane. Krótsze wietrzenie niczego nie zmienia.",
-          "valve_dry_run": "Gdy włączone, regulacja zaworów tylko zapisuje w dzienniku, co by zrobiła (prefiks [PRÓBAÜZEM]), i niczego nie zmienia na zaworach. Zalecane przy pierwszym teście na żywo.",
+          "frost_temp": "Jeśli pomieszczenie jest dłużej niż 5 minut zimniejsze od tej wartości, zgłasza zapotrzebowanie na ciepło niezależnie od stanu zaworu, otwartego okna i trybu letniego, aż będzie o 1 °C powyżej progu. Wyłączony zawór jest włączany, a jego celem staje się próg + 1 °C. Otrzymasz o tym powiadomienie naprawcze.",
+          "valve_dry_run": "Gdy włączone, regulacja zaworów tylko zapisuje w dzienniku, co by zrobiła (prefiks [PRÓBAÜZEM]), i niczego nie zmienia na zaworach. Zalecane przy pierwszym teście na żywo. Dotyczy także zamykania zaworów przy przegrzaniu.",
           "register_card": "Po włączeniu integracja dodaje plik karty do zasobów pulpitu (Ustawienia → Pulpity → Zasoby) i dba o aktualność jego wersji, dzięki czemu karta pojawia się na liście „Dodaj kartę” (integracja nigdy sama nie dodaje karty do pulpitu). W pulpitach w trybie YAML zasób trzeba dodać ręcznie (zobacz README). Po wyłączeniu integracja nie dotyka zasobów."
         }
       },
@@ -348,6 +358,21 @@
           "temperature_sensor_unreliable": {
             "name": "Czujnik temperatury pomieszczenia niewiarygodny (niemożliwe lub skaczące wartości)"
           },
+          "temperature_sensor_stuck": {
+            "name": "Termometr pomieszczenia nie raportuje podczas ogrzewania (zawieszony)"
+          },
+          "valves_unreachable": {
+            "name": "Zawory niedostępne (steruje termometr pomieszczenia)"
+          },
+          "valves_unreachable_paused": {
+            "name": "Sterowanie zastępcze wstrzymane (pomieszczenie się nie ogrzewa)"
+          },
+          "frost_protection": {
+            "name": "Ochrona przed zamarzaniem aktywna"
+          },
+          "valve_cut": {
+            "name": "Zamknięcie zaworów aktywne (cel zaworu obniżony)"
+          },
           "valve_boost_resting": {
             "name": "Wymuszanie zaworu wstrzymane po maksymalnym czasie"
           },
@@ -428,6 +453,9 @@
           },
           "heating_rate_learned": {
             "name": "Szybkość ogrzewania została wyuczona"
+          },
+          "heating_rate_samples": {
+            "name": "Próbki szybkości ogrzewania (sesje grzania)"
           },
           "calibration_enabled": {
             "name": "Kalibracja zaworów jest włączona"
@@ -565,13 +593,33 @@
       "title": "Czujnik temperatury pomieszczenia jest niewiarygodny",
       "description": "Czujnik temperatury {sensor} w pomieszczeniu {room} podał niemożliwą lub skaczącą wartość (na przykład wartość błędu albo szybkie skoki w górę i w dół), dlatego jest ignorowany przez {minutes} min. Pomieszczenie używa teraz własnego pomiaru zaworów, a automatyczna regulacja i kalibracja zaworów są wstrzymane. To powiadomienie zniknie, gdy czujnik znów zacznie podawać wiarygodne wartości."
     },
+    "stuck_room_temp": {
+      "title": "Termometr pomieszczenia nie raportuje podczas ogrzewania",
+      "description": "Termometr {sensor} w pomieszczeniu {room} nie raportował od {minutes} minut, choć pomieszczenie zgłasza zapotrzebowanie na ciepło, a kocioł pracuje (mógł utknąć na jednej wartości: słaba bateria lub problem z połączeniem). Pomieszczenie używa teraz własnego pomiaru zaworów. To powiadomienie zniknie, gdy termometr znów zacznie raportować."
+    },
+    "valves_unreachable": {
+      "title": "Zawory pomieszczenia są niedostępne",
+      "description": "Zawory w pomieszczeniu {room} są niedostępne od ponad {minutes} minut (hub, Wi-Fi lub Meross LAN). Do ich powrotu zapotrzebowanie pomieszczenia na ciepło wynika z termometru pomieszczenia i ostatniego celu widzianego na zaworach ({target} °C); zawory dalej regulują według własnych ustawień. Jeśli przy pracującym kotle pomieszczenie nie ogrzeje się w ciągu 2 godzin (zawór mógł pozostać zamknięty), jego zapotrzebowanie na ciepło jest wstrzymywane na 6 godzin, po czym następuje ponowna próba. To powiadomienie zniknie, gdy zawory znów będą dostępne."
+    },
+    "heating_blind": {
+      "title": "Żadnego pomieszczenia nie da się ocenić – kocioł wyłączony",
+      "description": "Od ponad {minutes} minut żaden zawór nie jest dostępny i żadne pomieszczenie nie może być sterowane własnym termometrem (brak termometru lub znanego celu). Integracja nie grzeje na ślepo: kocioł został wyłączony. Ochrona przed zamarzaniem nadal działa w pomieszczeniach z termometrem. Sprawdź hub Meross i integrację Meross LAN. To powiadomienie zniknie, gdy znów da się ocenić co najmniej jedno pomieszczenie."
+    },
+    "frost_protection": {
+      "title": "Ochrona przed zamarzaniem aktywna",
+      "description": "W pomieszczeniu {room} jest {temperature} °C, poniżej progu ochrony przed zamarzaniem ({threshold} °C). Pomieszczenie zgłasza zapotrzebowanie na ciepło niezależnie od stanu zaworu, otwartego okna i trybu letniego, aż będzie cieplej niż {target} °C; wyłączone zawory zostały włączone z tym celem (pozostaną tak, dopóki ich nie zmienisz). To powiadomienie zniknie, gdy pomieszczenie się ogrzeje. Próg można zmienić w Ustawieniach podstawowych (0 = wyłączona)."
+    },
+    "boiler_command_failed": {
+      "title": "Termostat kotła nie wykonuje poleceń",
+      "description": "Termostat kotła ({boiler}) {count} razy z rzędu odrzucił polecenie włączenia/wyłączenia lub go nie wykonał. Integracja ponawia próbę co minutę. Sprawdź, czy termostat jest dostępny w Home Assistant, a w przypadku Meross MTS200 – czy przełącznik „Summer mode” jest wyłączony. To powiadomienie zniknie, gdy termostat znów wykona polecenie."
+    },
     "stale_outdoor": {
       "title": "Czujnik temperatury zewnętrznej przestał raportować",
       "description": "Czujnik zewnętrzny {sensor} nie raportował od ponad {hours} godz. (bateria może być rozładowana). Tryb letni pozostaje wyłączony, dopóki czujnik nie zacznie znów raportować, więc ogrzewanie pozostaje dozwolone. To powiadomienie zniknie, gdy czujnik znów zacznie raportować."
     },
     "calibration_suspended": {
       "title": "Kalibracja zaworu zawieszona",
-      "description": "Na zaworze {valve} w pomieszczeniu {room} dwie kolejne zmiany kalibracji nie przybliżyły pomiaru zaworu do termometru w pomieszczeniu (albo liczba kalibracji dwukrotnie w ciągu 24 godzin wróciła do starej wartości: urządzenie jej nie zachowało lub ktoś cofnął ją ręcznie). Dlatego automatyczna kalibracja tego zaworu jest zawieszona na {days} dni. Jeśli zmiana nie przybliżyła pomiaru, przywrócono poprzednią wartość. Sprawdź liczbę *Kalibracja* zaworu i czy zawór faktycznie ją stosuje. Powiadomienie zniknie po zakończeniu zawieszenia lub po wyłączeniu funkcji."
+      "description": "Na zaworze {valve} w pomieszczeniu {room} dwie kolejne zmiany kalibracji nie przybliżyły pomiaru zaworu do termometru w pomieszczeniu (albo liczba kalibracji dwukrotnie w ciągu 24 godzin wróciła do starej wartości: urządzenie jej nie zachowało lub ktoś cofnął ją ręcznie). Dlatego automatyczna kalibracja tego zaworu jest zawieszona na {days} dni. Jeśli zmiana nie przybliżyła pomiaru, przywrócono poprzednią wartość. Sprawdź liczbę *Kalibracja* zaworu i czy zawór faktycznie ją stosuje. Powiadomienie zniknie po zakończeniu zawieszenia lub po wyłączeniu funkcji. Zawieszenie można od razu znieść, zmieniając przesunięcie TRV zaworu lub wywołując usługę `meross_boiler_sync.reset_calibration`."
     }
   },
   "selector": {
@@ -627,6 +675,10 @@
     "cancel_preheat": {
       "name": "Anuluj wstępne ogrzewanie",
       "description": "Czyści jednorazowe żądanie i pomija trwające lub następne zaplanowane wstępne ogrzewanie."
+    },
+    "reset_calibration": {
+      "name": "Resetuj kalibrację",
+      "description": "Czyści stan błędu kalibracji zaworów pomieszczenia (punkty błędów, zawieszenie, oczekująca weryfikacja), dzięki czemu zawieszony zawór od razu znów bierze udział w kalibracji. Nie zmienia liczby kalibracji zaworu."
     }
   },
   "exceptions": {

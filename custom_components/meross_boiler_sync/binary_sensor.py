@@ -136,6 +136,13 @@ class RoomDemandSensor(_BaseSensor):
             "window_sensors": st.window_sensors,
             "temperature_sensor_stale": st.sensor_stale,
             "temperature_sensor_unreliable": st.sensor_bad is not None,
+            # 2.19: fűtés közben nem jelentő (elakadt) hőmérő; a szelepek nem elérhetők (a szoba hőmérője és az utolsó
+            # ismert cél vezérel); fagyvédelem; szelep-zárás túlfűtés ellen
+            "temperature_sensor_stuck": st.sensor_stuck,
+            "valves_unreachable": st.fallback,
+            "valves_unreachable_paused": st.fallback_paused,
+            "frost_protection": st.frost,
+            "valve_cut": st.cut_active,
             "window_open": st.window_open,
             "window_open_pending": st.window_open_since is not None and not st.window_open,
             "valve_boost_resting": st.rest_until is not None,
@@ -164,6 +171,7 @@ class RoomDemandSensor(_BaseSensor):
             "preheat_source": st.preheat_source,
             "heating_rate": None if st.heating_rate is None else round(st.heating_rate, 2),
             "heating_rate_learned": st.heating_samples >= HEATING_RATE_MIN_SAMPLES,
+            "heating_rate_samples": st.heating_samples,
             # 2.11: a szelepek hőmérőjének automata kalibrációja (szelepenként egy elem)
             "calibration_enabled": c.cal_enabled,
             "calibration_dry_run": c.cal_dry_run,

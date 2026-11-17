@@ -65,3 +65,8 @@ cancel_preheat:
     entity:
       integration: meross_boiler_sync
       domain: binary_sensor
+reset_calibration:
+  target:
+    entity:
+      integration: meross_boiler_sync
+      domain: binary_sensor

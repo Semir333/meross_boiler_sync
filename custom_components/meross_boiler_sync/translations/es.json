@@ -41,7 +41,9 @@
           "valve_boost_delay": "Espera antes del refuerzo de la válvula – esta habitación, minutos (vacío = valor global)",
           "valve_release_margin": "Liberación de la válvula antes del objetivo – esta habitación (vacío = valor global)",
           "valve_demand_link": "Vincular la demanda de la caldera al estado de la válvula",
+          "valve_cut": "Cerrar válvulas contra el sobrecalentamiento y con ventana abierta",
           "humidity_sensor": "Sensor de humedad de la habitación (opcional)",
+          "humidity_max_boost": "Aumento máx. por humedad en esta habitación (°C)",
           "window_sensors": "Sensor(es) de ventana / puerta (opcional)",
           "window_open_delay": "Retardo de ventana abierta – esta habitación, minutos (vacío = valor global)",
           "calibrate_valves": "Calibración automática de válvulas (si está activada en Funciones)",
@@ -56,7 +58,9 @@
           "valve_boost_delay": "Cuánto tiempo debe mantenerse la desviación antes del refuerzo. 0 = inmediato. Si está vacío, se aplica el valor global.",
           "valve_release_margin": "La válvula recupera su objetivo original con esta antelación respecto al objetivo. Debe ser menor que el umbral. Si está vacío, se aplica el valor global.",
           "valve_demand_link": "Si está activado, la habitación solo pide calor a la caldera cuando su válvula está abierta (la medición propia de la válvula está por debajo de su objetivo) o cuando el plugin la está forzando a abrir. Así la caldera no quema contra válvulas cerradas ante pequeñas desviaciones. No bloquea la calefacción si faltan datos de la válvula.",
+          "valve_cut": "Si el termómetro indica que la habitación está al menos 0,3 °C por encima de su objetivo y la habitación no pide calor mientras la caldera funciona para otra habitación, la temperatura objetivo de las válvulas abiertas de la habitación se baja temporalmente 3 °C (la válvula se cierra) y se restablece en cuanto la caldera se detiene, la habitación vuelve a su objetivo o pide calor. Con una ventana abierta (si hay sensor de ventana) las válvulas se cierran del mismo modo. Pensado contra el sobrecalentamiento causado por el desfase TRV. Cada cierre dura como máximo 30 minutos; después la válvula recupera su propia programación durante unos minutos. Requiere un termómetro en la habitación. La válvula se mueve más a menudo (batería); se puede probar antes con el interruptor «Prueba del control de válvulas».",
           "humidity_sensor": "Con humedad alta, la temperatura objetivo de la habitación se eleva ligeramente (ver Ajustes básicos).",
+          "humidity_max_boost": "Déjalo vacío para usar el valor de Ajustes básicos. 0 = sin aumento por humedad en esta habitación.",
           "window_sensors": "Mientras una ventana o puerta permanezca abierta más tiempo que el retardo, la habitación deja de pedir calor y se libera el refuerzo de la válvula. Con varios sensores basta con uno abierto.",
           "window_open_delay": "Cuánto tiempo debe estar abierta la ventana antes de que la habitación reaccione, para que una ventilación breve no cambie nada. 0 = inmediato. Si está vacío, se aplica el valor global.",
           "calibrate_valves": "Corrige la lectura de temperatura de las válvulas con el termómetro de la habitación. Solo funciona con un sensor de temperatura de la habitación. Desactivada, las válvulas de esta habitación no se tocan.",
@@ -80,7 +84,9 @@
           "valve_boost_delay": "Espera antes del refuerzo de la válvula – esta habitación, minutos (vacío = valor global)",
           "valve_release_margin": "Liberación de la válvula antes del objetivo – esta habitación (vacío = valor global)",
           "valve_demand_link": "Vincular la demanda de la caldera al estado de la válvula",
+          "valve_cut": "Cerrar válvulas contra el sobrecalentamiento y con ventana abierta",
           "humidity_sensor": "Sensor de humedad de la habitación (opcional)",
+          "humidity_max_boost": "Aumento máx. por humedad en esta habitación (°C)",
           "window_sensors": "Sensor(es) de ventana / puerta (opcional)",
           "window_open_delay": "Retardo de ventana abierta – esta habitación, minutos (vacío = valor global)",
           "calibrate_valves": "Calibración automática de válvulas (si está activada en Funciones)",
@@ -95,7 +101,9 @@
           "valve_boost_delay": "Cuánto tiempo debe mantenerse la desviación antes del refuerzo. 0 = inmediato. Si está vacío, se aplica el valor global.",
           "valve_release_margin": "La válvula recupera su objetivo original con esta antelación respecto al objetivo. Debe ser menor que el umbral. Si está vacío, se aplica el valor global.",
           "valve_demand_link": "Si está activado, la habitación solo pide calor a la caldera cuando su válvula está abierta (la medición propia de la válvula está por debajo de su objetivo) o cuando el plugin la está forzando a abrir. Así la caldera no quema contra válvulas cerradas ante pequeñas desviaciones. No bloquea la calefacción si faltan datos de la válvula.",
+          "valve_cut": "Si el termómetro indica que la habitación está al menos 0,3 °C por encima de su objetivo y la habitación no pide calor mientras la caldera funciona para otra habitación, la temperatura objetivo de las válvulas abiertas de la habitación se baja temporalmente 3 °C (la válvula se cierra) y se restablece en cuanto la caldera se detiene, la habitación vuelve a su objetivo o pide calor. Con una ventana abierta (si hay sensor de ventana) las válvulas se cierran del mismo modo. Pensado contra el sobrecalentamiento causado por el desfase TRV. Cada cierre dura como máximo 30 minutos; después la válvula recupera su propia programación durante unos minutos. Requiere un termómetro en la habitación. La válvula se mueve más a menudo (batería); se puede probar antes con el interruptor «Prueba del control de válvulas».",
           "humidity_sensor": "Con humedad alta, la temperatura objetivo de la habitación se eleva ligeramente (ver Ajustes básicos).",
+          "humidity_max_boost": "Déjalo vacío para usar el valor de Ajustes básicos. 0 = sin aumento por humedad en esta habitación.",
           "window_sensors": "Mientras una ventana o puerta permanezca abierta más tiempo que el retardo, la habitación deja de pedir calor y se libera el refuerzo de la válvula. Con varios sensores basta con uno abierto.",
           "window_open_delay": "Cuánto tiempo debe estar abierta la ventana antes de que la habitación reaccione, para que una ventilación breve no cambie nada. 0 = inmediato. Si está vacío, se aplica el valor global.",
           "calibrate_valves": "Corrige la lectura de temperatura de las válvulas con el termómetro de la habitación. Solo funciona con un sensor de temperatura de la habitación. Desactivada, las válvulas de esta habitación no se tocan.",
@@ -144,6 +152,7 @@
           "max_boost_hours": "Duración máx. del refuerzo de la válvula (horas)",
           "max_boost_rest_minutes": "Pausa tras la duración máx. (minutos)",
           "window_open_delay": "Retardo de ventana abierta – predeterminado (minutos)",
+          "frost_temp": "Umbral de protección antiheladas (°C, 0 = desactivado)",
           "valve_dry_run": "Prueba del control de válvulas (solo registro, sin escribir en las válvulas)",
           "register_card": "Cargar la tarjeta de Lovelace"
         },
@@ -161,7 +170,8 @@
           "max_boost_hours": "Pasado este tiempo, la válvula recupera su objetivo original aunque la habitación no haya alcanzado el objetivo.",
           "max_boost_rest_minutes": "Cuánto tiempo no se inicia un nuevo refuerzo tras alcanzar la duración máxima. Se reinicia cuando la habitación alcanza su objetivo.",
           "window_open_delay": "Predeterminado para todas las habitaciones: cuánto tiempo debe estar abierta una ventana antes de pausar la calefacción de esa habitación. Una ventilación más corta no cambia nada.",
-          "valve_dry_run": "Si está activado, el control de válvulas solo registra lo que haría (prefijo [PRÓBAÜZEM]) y no modifica nada en las válvulas. Recomendado para la primera prueba real.",
+          "frost_temp": "Si una habitación permanece más fría que este valor durante más de 5 minutos, pide calor con independencia del estado de la válvula, de una ventana abierta y del modo verano, hasta estar 1 °C por encima del umbral. Una válvula apagada se enciende y recibe como objetivo el umbral + 1 °C. Recibirás un aviso de reparación.",
+          "valve_dry_run": "Si está activado, el control de válvulas solo registra lo que haría (prefijo [PRÓBAÜZEM]) y no modifica nada en las válvulas. Recomendado para la primera prueba real. También se aplica al cierre de válvulas contra el sobrecalentamiento.",
           "register_card": "Si está activado, la integración añade el archivo de la tarjeta a los recursos del panel (Ajustes → Paneles → Recursos) y mantiene su versión actualizada, para que aparezca en la lista «Añadir tarjeta» (nunca añade una tarjeta a un panel por sí misma). Con paneles en modo YAML tienes que añadir el recurso manualmente (consulta el README). Si está desactivado, la integración no toca los recursos."
         }
       },
@@ -348,6 +358,21 @@
           "temperature_sensor_unreliable": {
             "name": "Sensor de temperatura de la habitación poco fiable (valores imposibles o inestables)"
           },
+          "temperature_sensor_stuck": {
+            "name": "El termómetro de la habitación no informa durante la calefacción (atascado)"
+          },
+          "valves_unreachable": {
+            "name": "Válvulas no accesibles (regula el termómetro de la habitación)"
+          },
+          "valves_unreachable_paused": {
+            "name": "Regulación de reserva en pausa (la habitación no se calienta)"
+          },
+          "frost_protection": {
+            "name": "Protección antiheladas activa"
+          },
+          "valve_cut": {
+            "name": "Cierre de válvulas activo (objetivo de la válvula reducido)"
+          },
           "valve_boost_resting": {
             "name": "Refuerzo de la válvula en pausa tras la duración máxima"
           },
@@ -428,6 +453,9 @@
           },
           "heating_rate_learned": {
             "name": "Se ha aprendido la velocidad de calentamiento"
+          },
+          "heating_rate_samples": {
+            "name": "Muestras de velocidad de calentamiento (sesiones de calefacción)"
           },
           "calibration_enabled": {
             "name": "La calibración de válvulas está activada"
@@ -565,13 +593,33 @@
       "title": "El sensor de temperatura de la habitación no es fiable",
       "description": "El sensor de temperatura {sensor} de la habitación {room} informó de un valor imposible o inestable (por ejemplo un valor de error o saltos rápidos arriba y abajo), por lo que se ignora durante {minutes} minutos. La habitación usa ahora la medición propia de las válvulas; el control automático y la calibración de las válvulas están en pausa. Este aviso desaparece en cuanto el sensor vuelva a dar valores creíbles."
     },
+    "stuck_room_temp": {
+      "title": "El termómetro de la habitación no informa durante la calefacción",
+      "description": "El termómetro {sensor} de la habitación {room} lleva {minutes} minutos sin informar mientras la habitación pide calor y la caldera funciona (puede haberse quedado en un valor: batería baja o problema de conexión). La habitación usa ahora la medición propia de las válvulas. Este aviso desaparece en cuanto el termómetro vuelva a informar."
+    },
+    "valves_unreachable": {
+      "title": "Las válvulas de la habitación no están accesibles",
+      "description": "Las válvulas de la habitación {room} llevan más de {minutes} minutos sin estar accesibles (hub, Wi-Fi o Meross LAN). Hasta que vuelvan, la demanda de calor de la habitación se calcula con el termómetro de la habitación y el último objetivo visto en las válvulas ({target} °C); las válvulas siguen regulando con sus propios ajustes. Si la habitación no se calienta en 2 horas con la caldera en marcha (la válvula puede haberse quedado cerrada), su demanda de calor se pausa durante 6 horas y después se vuelve a intentar. Este aviso desaparece en cuanto las válvulas vuelvan a estar accesibles."
+    },
+    "heating_blind": {
+      "title": "Ninguna habitación evaluable: caldera apagada",
+      "description": "Ninguna válvula está accesible desde hace más de {minutes} minutos y ninguna habitación puede regularse con su termómetro (sin termómetro o sin objetivo conocido). La integración no calienta a ciegas: la caldera se ha apagado. La protección antiheladas sigue funcionando en las habitaciones con termómetro. Revisa el hub Meross y la integración Meross LAN. Este aviso desaparece en cuanto al menos una habitación vuelva a ser evaluable."
+    },
+    "frost_protection": {
+      "title": "Protección antiheladas activa",
+      "description": "La habitación {room} está a {temperature} °C, por debajo del umbral de protección antiheladas ({threshold} °C). La habitación pide calor con independencia del estado de la válvula, de una ventana abierta y del modo verano hasta superar {target} °C; las válvulas apagadas se han encendido con ese objetivo (seguirán así hasta que las cambies). Este aviso desaparece cuando la habitación se haya calentado. El umbral se puede cambiar en Ajustes básicos (0 = desactivado)."
+    },
+    "boiler_command_failed": {
+      "title": "El termostato de la caldera no sigue las órdenes",
+      "description": "El termostato de la caldera ({boiler}) rechazó o no siguió la orden de encendido/apagado {count} veces seguidas. La integración lo reintenta cada minuto. Comprueba que el termostato esté disponible en Home Assistant y, si es un Meross MTS200, que su interruptor «Summer mode» esté apagado. Este aviso desaparece en cuanto el termostato vuelva a seguir la orden."
+    },
     "stale_outdoor": {
       "title": "El sensor de temperatura exterior no se actualiza",
       "description": "El sensor exterior {sensor} no ha informado desde hace más de {hours} horas (puede que la batería esté agotada). El modo verano permanece desactivado hasta que vuelva a informar, por lo que la calefacción sigue permitida. Este aviso desaparece en cuanto el sensor vuelva a informar."
     },
     "calibration_suspended": {
       "title": "Calibración de válvulas suspendida",
-      "description": "En la válvula {valve} de {room}, dos cambios de calibración seguidos no acercaron la lectura de la válvula al termómetro de la habitación (o el número de calibración volvió dos veces al valor anterior en 24 horas: el dispositivo no lo conservó, o se restableció a mano). Por eso la calibración automática está suspendida para esta válvula durante {days} días. Si un cambio no acercó la lectura, se restauró el valor anterior. Revisa el número *Calibración* de la válvula y si la válvula realmente lo aplica. El aviso desaparece cuando termina la suspensión o se desactiva la función."
+      "description": "En la válvula {valve} de {room}, dos cambios de calibración seguidos no acercaron la lectura de la válvula al termómetro de la habitación (o el número de calibración volvió dos veces al valor anterior en 24 horas: el dispositivo no lo conservó, o se restableció a mano). Por eso la calibración automática está suspendida para esta válvula durante {days} días. Si un cambio no acercó la lectura, se restauró el valor anterior. Revisa el número *Calibración* de la válvula y si la válvula realmente lo aplica. El aviso desaparece cuando termina la suspensión o se desactiva la función. La suspensión se puede levantar de inmediato cambiando el desfase TRV de la válvula o con el servicio `meross_boiler_sync.reset_calibration`."
     }
   },
   "selector": {
@@ -627,6 +675,10 @@
     "cancel_preheat": {
       "name": "Cancelar precalentamiento",
       "description": "Borra la solicitud puntual y omite el precalentamiento programado en curso o el siguiente."
+    },
+    "reset_calibration": {
+      "name": "Restablecer calibración",
+      "description": "Borra el estado de error de calibración de las válvulas de la habitación (fallos, suspensión, comprobación pendiente), de modo que una válvula suspendida vuelve a participar en la calibración de inmediato. No cambia el número de calibración de la válvula."
     }
   },
   "exceptions": {

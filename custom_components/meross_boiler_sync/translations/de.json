@@ -41,7 +41,9 @@
           "valve_boost_delay": "Wartezeit vor Ventil-Anhebung – dieser Raum, Minuten (leer = globaler Wert)",
           "valve_release_margin": "Ventil-Freigabe vor dem Ziel – dieser Raum (leer = globaler Wert)",
           "valve_demand_link": "Kesselanforderung an den Ventilzustand koppeln",
+          "valve_cut": "Ventile gegen Überheizen und bei offenem Fenster schließen",
           "humidity_sensor": "Raum-Feuchtesensor (optional)",
+          "humidity_max_boost": "Max. Anhebung bei Feuchtigkeit in diesem Raum (°C)",
           "window_sensors": "Fenster-/Türsensor(en) (optional)",
           "window_open_delay": "Verzögerung bei offenem Fenster – dieser Raum, Minuten (leer = globaler Wert)",
           "calibrate_valves": "Automatische Ventilkalibrierung (wenn unter Funktionen aktiv)",
@@ -56,7 +58,9 @@
           "valve_boost_delay": "Wie lange die Abweichung bestehen muss, bevor angehoben wird. 0 = sofort. Wenn leer, gilt der globale Wert.",
           "valve_release_margin": "Das Ventil erhält seine ursprüngliche Zieltemperatur so weit vor dem Ziel zurück. Muss kleiner als die Schwelle sein. Wenn leer, gilt der globale Wert.",
           "valve_demand_link": "Wenn aktiv, fordert der Raum den Kessel nur an, wenn sein Ventil offen ist (die eigene Messung des Ventils liegt unter seinem Ziel) oder wenn das Plugin es gerade öffnet. So feuert der Kessel bei kleinen Abweichungen nicht gegen geschlossene Ventile. Blockiert die Heizung nicht, wenn Ventildaten fehlen.",
+          "valve_cut": "Zeigt das Raumthermometer den Raum mindestens 0,3 °C über seinem Ziel und fordert der Raum keine Wärme an, während der Kessel für einen anderen Raum läuft, wird die Zieltemperatur der offenen Ventile des Raums vorübergehend um 3 °C abgesenkt (das Ventil schließt) und wiederhergestellt, sobald der Kessel stoppt, der Raum auf sein Ziel abkühlt oder Wärme anfordert. Bei offenem Fenster (mit Fenstersensor) werden die Ventile genauso geschlossen. Gedacht gegen das Überheizen durch den TRV-Versatz. Eine Absenkung dauert höchstens 30 Minuten, danach bekommt das Ventil für einige Minuten seinen eigenen Zeitplan zurück. Erfordert ein Raumthermometer. Das Ventil bewegt sich häufiger (Batterie); mit dem Schalter „Testlauf der Ventilregelung“ lässt es sich vorher ausprobieren.",
           "humidity_sensor": "Bei hoher Luftfeuchtigkeit wird die Zieltemperatur des Raums leicht angehoben (siehe Grundeinstellungen).",
+          "humidity_max_boost": "Leer lassen, um den Wert aus den Grundeinstellungen zu verwenden. 0 = in diesem Raum keine Anhebung bei Feuchtigkeit.",
           "window_sensors": "Solange ein Fenster oder eine Tür länger als die Verzögerung offen ist, fordert der Raum keine Wärme an und die Ventil-Anhebung wird beendet. Bei mehreren Sensoren zählt jeder offene.",
           "window_open_delay": "Wie lange das Fenster offen sein muss, bevor der Raum reagiert, damit kurzes Lüften nichts schaltet. 0 = sofort. Wenn leer, gilt der globale Wert.",
           "calibrate_valves": "Korrigiert die Temperaturmessung der Ventile anhand des Raumthermometers. Funktioniert nur mit einem Raumtemperatursensor. Ausgeschaltet bleiben die Ventile dieses Raums unangetastet.",
@@ -80,7 +84,9 @@
           "valve_boost_delay": "Wartezeit vor Ventil-Anhebung – dieser Raum, Minuten (leer = globaler Wert)",
           "valve_release_margin": "Ventil-Freigabe vor dem Ziel – dieser Raum (leer = globaler Wert)",
           "valve_demand_link": "Kesselanforderung an den Ventilzustand koppeln",
+          "valve_cut": "Ventile gegen Überheizen und bei offenem Fenster schließen",
           "humidity_sensor": "Raum-Feuchtesensor (optional)",
+          "humidity_max_boost": "Max. Anhebung bei Feuchtigkeit in diesem Raum (°C)",
           "window_sensors": "Fenster-/Türsensor(en) (optional)",
           "window_open_delay": "Verzögerung bei offenem Fenster – dieser Raum, Minuten (leer = globaler Wert)",
           "calibrate_valves": "Automatische Ventilkalibrierung (wenn unter Funktionen aktiv)",
@@ -95,7 +101,9 @@
           "valve_boost_delay": "Wie lange die Abweichung bestehen muss, bevor angehoben wird. 0 = sofort. Wenn leer, gilt der globale Wert.",
           "valve_release_margin": "Das Ventil erhält seine ursprüngliche Zieltemperatur so weit vor dem Ziel zurück. Muss kleiner als die Schwelle sein. Wenn leer, gilt der globale Wert.",
           "valve_demand_link": "Wenn aktiv, fordert der Raum den Kessel nur an, wenn sein Ventil offen ist (die eigene Messung des Ventils liegt unter seinem Ziel) oder wenn das Plugin es gerade öffnet. So feuert der Kessel bei kleinen Abweichungen nicht gegen geschlossene Ventile. Blockiert die Heizung nicht, wenn Ventildaten fehlen.",
+          "valve_cut": "Zeigt das Raumthermometer den Raum mindestens 0,3 °C über seinem Ziel und fordert der Raum keine Wärme an, während der Kessel für einen anderen Raum läuft, wird die Zieltemperatur der offenen Ventile des Raums vorübergehend um 3 °C abgesenkt (das Ventil schließt) und wiederhergestellt, sobald der Kessel stoppt, der Raum auf sein Ziel abkühlt oder Wärme anfordert. Bei offenem Fenster (mit Fenstersensor) werden die Ventile genauso geschlossen. Gedacht gegen das Überheizen durch den TRV-Versatz. Eine Absenkung dauert höchstens 30 Minuten, danach bekommt das Ventil für einige Minuten seinen eigenen Zeitplan zurück. Erfordert ein Raumthermometer. Das Ventil bewegt sich häufiger (Batterie); mit dem Schalter „Testlauf der Ventilregelung“ lässt es sich vorher ausprobieren.",
           "humidity_sensor": "Bei hoher Luftfeuchtigkeit wird die Zieltemperatur des Raums leicht angehoben (siehe Grundeinstellungen).",
+          "humidity_max_boost": "Leer lassen, um den Wert aus den Grundeinstellungen zu verwenden. 0 = in diesem Raum keine Anhebung bei Feuchtigkeit.",
           "window_sensors": "Solange ein Fenster oder eine Tür länger als die Verzögerung offen ist, fordert der Raum keine Wärme an und die Ventil-Anhebung wird beendet. Bei mehreren Sensoren zählt jeder offene.",
           "window_open_delay": "Wie lange das Fenster offen sein muss, bevor der Raum reagiert, damit kurzes Lüften nichts schaltet. 0 = sofort. Wenn leer, gilt der globale Wert.",
           "calibrate_valves": "Korrigiert die Temperaturmessung der Ventile anhand des Raumthermometers. Funktioniert nur mit einem Raumtemperatursensor. Ausgeschaltet bleiben die Ventile dieses Raums unangetastet.",
@@ -144,6 +152,7 @@
           "max_boost_hours": "Max. Dauer der Ventil-Anhebung (Stunden)",
           "max_boost_rest_minutes": "Pause nach max. Anhebung (Minuten)",
           "window_open_delay": "Verzögerung bei offenem Fenster – Standard (Minuten)",
+          "frost_temp": "Frostschutz-Schwelle (°C, 0 = aus)",
           "valve_dry_run": "Testlauf der Ventilregelung (nur Protokoll, keine Schreibzugriffe auf Ventile)",
           "register_card": "Lovelace-Karte laden"
         },
@@ -161,7 +170,8 @@
           "max_boost_hours": "Nach dieser Zeit erhält das Ventil seine ursprüngliche Zieltemperatur zurück, auch wenn der Raum das Ziel nicht erreicht hat.",
           "max_boost_rest_minutes": "Wie lange nach Erreichen der Höchstdauer keine neue Anhebung gestartet wird. Erreicht der Raum sein Ziel, wird dies zurückgesetzt.",
           "window_open_delay": "Standard für alle Räume: wie lange ein Fenster offen sein muss, bevor die Heizung für diesen Raum pausiert. Kürzeres Lüften ändert nichts.",
-          "valve_dry_run": "Wenn aktiv, protokolliert die Ventilregelung nur, was sie tun würde (Präfix [PRÓBAÜZEM]), und ändert nichts an den Ventilen. Empfohlen für den ersten Live-Test.",
+          "frost_temp": "Ist ein Raum länger als 5 Minuten kälter als dieser Wert, fordert er unabhängig vom Ventilzustand, von einem offenen Fenster und vom Sommermodus Wärme an, bis er 1 °C über der Schwelle liegt. Ein ausgeschaltetes Ventil wird eingeschaltet und erhält die Schwelle + 1 °C als Ziel. Dazu erscheint ein Reparaturhinweis.",
+          "valve_dry_run": "Wenn aktiv, protokolliert die Ventilregelung nur, was sie tun würde (Präfix [PRÓBAÜZEM]), und ändert nichts an den Ventilen. Empfohlen für den ersten Live-Test. Gilt auch für das Schließen der Ventile gegen Überheizen.",
           "register_card": "Wenn aktiv, trägt die Integration die Kartendatei in die Dashboard-Ressourcen ein (Einstellungen → Dashboards → Ressourcen) und hält deren Version aktuell, sodass sie in der Liste „Karte hinzufügen“ erscheint (sie fügt nie selbstständig eine Karte zu einem Dashboard hinzu). Bei Dashboards im YAML-Modus musst du die Ressource manuell hinzufügen (siehe README). Wenn deaktiviert, rührt die Integration die Ressourcen nicht an."
         }
       },
@@ -348,6 +358,21 @@
           "temperature_sensor_unreliable": {
             "name": "Raum-Temperatursensor unzuverlässig (unmögliche oder sprunghafte Werte)"
           },
+          "temperature_sensor_stuck": {
+            "name": "Raumthermometer meldet während des Heizens nicht (hängt)"
+          },
+          "valves_unreachable": {
+            "name": "Ventile nicht erreichbar (Raumthermometer regelt)"
+          },
+          "valves_unreachable_paused": {
+            "name": "Ersatzregelung pausiert (Raum wird trotz Heizen nicht wärmer)"
+          },
+          "frost_protection": {
+            "name": "Frostschutz aktiv"
+          },
+          "valve_cut": {
+            "name": "Ventil-Absenkung aktiv (Ventilziel abgesenkt)"
+          },
           "valve_boost_resting": {
             "name": "Ventil-Anhebung pausiert nach Höchstdauer"
           },
@@ -428,6 +453,9 @@
           },
           "heating_rate_learned": {
             "name": "Aufheizrate wurde gelernt"
+          },
+          "heating_rate_samples": {
+            "name": "Aufheizraten-Messungen (Heizphasen)"
           },
           "calibration_enabled": {
             "name": "Ventilkalibrierung ist aktiv"
@@ -565,13 +593,33 @@
       "title": "Raum-Temperatursensor ist nicht zuverlässig",
       "description": "Der Temperatursensor {sensor} von Raum {room} hat einen unmöglichen oder sprunghaften Wert gemeldet (zum Beispiel einen Fehlerwert oder schnelles Auf und Ab) und wird deshalb {minutes} Minuten lang ignoriert. Der Raum nutzt jetzt die Eigenmessung der Ventile, die automatische Ventilregelung und die Ventilkalibrierung sind pausiert. Dieser Hinweis verschwindet, sobald der Sensor wieder plausible Werte liefert."
     },
+    "stuck_room_temp": {
+      "title": "Das Raumthermometer meldet während des Heizens nicht",
+      "description": "Das Thermometer {sensor} von Raum {room} hat seit {minutes} Minuten nichts gemeldet, obwohl der Raum Wärme anfordert und der Kessel läuft (es hängt möglicherweise auf einem Wert fest: schwache Batterie oder Verbindungsproblem). Der Raum nutzt jetzt die Eigenmessung der Ventile. Dieser Hinweis verschwindet, sobald das Thermometer wieder meldet."
+    },
+    "valves_unreachable": {
+      "title": "Die Ventile des Raums sind nicht erreichbar",
+      "description": "Die Ventile von Raum {room} sind seit über {minutes} Minuten nicht erreichbar (Hub, WLAN oder Meross LAN). Bis sie zurück sind, richtet sich die Wärmeanforderung des Raums nach dem Raumthermometer und dem zuletzt an den Ventilen gesehenen Ziel ({target} °C); die Ventile regeln nach ihren eigenen Einstellungen weiter. Wird der Raum bei laufendem Kessel innerhalb von 2 Stunden nicht wärmer (das Ventil ist möglicherweise geschlossen geblieben), wird die Wärmeanforderung des Raums für 6 Stunden ausgesetzt und danach erneut versucht. Dieser Hinweis verschwindet, sobald die Ventile wieder erreichbar sind."
+    },
+    "heating_blind": {
+      "title": "Kein Raum auswertbar – Kessel ausgeschaltet",
+      "description": "Seit über {minutes} Minuten ist kein Ventil erreichbar, und kein Raum kann ersatzweise über sein Thermometer geregelt werden (kein Raumthermometer oder kein bekanntes Ziel). Die Integration heizt nicht blind weiter: Der Kessel wurde ausgeschaltet. Der Frostschutz funktioniert in Räumen mit Thermometer weiterhin. Prüfe den Meross-Hub und die Integration Meross LAN. Dieser Hinweis verschwindet, sobald wieder mindestens ein Raum auswertbar ist."
+    },
+    "frost_protection": {
+      "title": "Frostschutz aktiv",
+      "description": "Raum {room} hat {temperature} °C und liegt damit unter der Frostschutz-Schwelle ({threshold} °C). Der Raum fordert unabhängig vom Ventilzustand, von einem offenen Fenster und vom Sommermodus Wärme an, bis er wärmer als {target} °C ist; ausgeschaltete Ventile wurden mit diesem Ziel eingeschaltet (sie bleiben so, bis du sie änderst). Dieser Hinweis verschwindet, sobald der Raum aufgewärmt ist. Die Schwelle lässt sich in den Grundeinstellungen ändern (0 = aus)."
+    },
+    "boiler_command_failed": {
+      "title": "Der Kesselthermostat folgt den Befehlen nicht",
+      "description": "Der Kesselthermostat ({boiler}) hat den Ein-/Aus-Befehl {count}-mal nacheinander nicht angenommen oder nicht befolgt. Die Integration versucht es jede Minute erneut. Prüfe, ob der Thermostat in Home Assistant verfügbar ist und – bei einem Meross MTS200 – ob der Schalter „Summer mode“ ausgeschaltet ist. Dieser Hinweis verschwindet, sobald der Thermostat dem Befehl wieder folgt."
+    },
     "stale_outdoor": {
       "title": "Außentemperatursensor meldet nicht mehr",
       "description": "Der Außensensor {sensor} hat seit über {hours} Stunden nichts gemeldet (möglicherweise ist die Batterie leer). Der Sommermodus bleibt ausgeschaltet, bis er wieder meldet, daher bleibt das Heizen erlaubt. Dieser Hinweis verschwindet, sobald der Sensor wieder meldet."
     },
     "calibration_suspended": {
       "title": "Ventilkalibrierung pausiert",
-      "description": "Beim Ventil {valve} im Raum {room} haben zwei Kalibrierungsänderungen nacheinander die Messung des Ventils nicht näher an das Raumthermometer gebracht (oder die Kalibrierzahl ist innerhalb von 24 Stunden zweimal auf den alten Wert zurückgesprungen: das Gerät hat ihn nicht behalten, oder er wurde von Hand zurückgesetzt). Die automatische Kalibrierung ist für dieses Ventil daher {days} Tage pausiert. Brachte eine Änderung die Messung nicht näher, wurde der vorherige Wert wiederhergestellt. Prüfe die Zahl *Kalibrierung* des Ventils und ob das Ventil sie wirklich anwendet. Der Hinweis verschwindet, wenn die Pause endet oder die Funktion ausgeschaltet wird."
+      "description": "Beim Ventil {valve} im Raum {room} haben zwei Kalibrierungsänderungen nacheinander die Messung des Ventils nicht näher an das Raumthermometer gebracht (oder die Kalibrierzahl ist innerhalb von 24 Stunden zweimal auf den alten Wert zurückgesprungen: das Gerät hat ihn nicht behalten, oder er wurde von Hand zurückgesetzt). Die automatische Kalibrierung ist für dieses Ventil daher {days} Tage pausiert. Brachte eine Änderung die Messung nicht näher, wurde der vorherige Wert wiederhergestellt. Prüfe die Zahl *Kalibrierung* des Ventils und ob das Ventil sie wirklich anwendet. Der Hinweis verschwindet, wenn die Pause endet oder die Funktion ausgeschaltet wird. Die Pause lässt sich sofort aufheben, indem der TRV-Versatz des Ventils geändert oder der Dienst `meross_boiler_sync.reset_calibration` aufgerufen wird."
     }
   },
   "selector": {
@@ -627,6 +675,10 @@
     "cancel_preheat": {
       "name": "Vorheizen abbrechen",
       "description": "Löscht die einmalige Anfrage und überspringt das laufende oder nächste geplante Vorheizen."
+    },
+    "reset_calibration": {
+      "name": "Kalibrierung zurücksetzen",
+      "description": "Löscht den Fehlerzustand der Kalibrierung für die Ventile des Raums (Fehlerpunkte, Pause, ausstehende Prüfung), sodass ein pausiertes Ventil sofort wieder an der Kalibrierung teilnimmt. Die Kalibrierzahl des Ventils wird nicht geändert."
     }
   },
   "exceptions": {

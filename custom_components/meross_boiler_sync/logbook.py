@@ -69,7 +69,13 @@ def describe(language: str, data: dict[str, Any]) -> tuple[str, str]:
     """(név, üzenet) az eseményhez; magyar vagy angol (a HA nyelve szerint)."""
     hu = (language or "").lower().startswith("hu")
     kind = data.get("type", "")
-    room = data.get("room") or ("Meross Boiler Sync" if kind in ("short_cycling", "valve_command_failed") else "")
+    room = data.get("room") or (
+        "Meross Boiler Sync" if kind in ("short_cycling", "valve_command_failed", "boiler_command_failed") else ""
+    )
+    temp = data.get("temperature")
+    temp_hu = f" ({temp:.1f} °C)" if isinstance(temp, (int, float)) else ""
+    target = data.get("target_temperature")
+    dry = bool(data.get("dry_run"))
     reasons = _HU_REASON if hu else _EN_REASON
     dev = data.get("deviation")
     if hu:
@@ -92,6 +98,24 @@ def describe(language: str, data: dict[str, Any]) -> tuple[str, str]:
             "valve_command_failed": f"a szelep nem fogadta el a parancsot ({data.get('valve')}), egyre ritkábban próbálom újra",
             "valve_calibrated": _cal_text_hu(data),
             "valve_calibration_suspended": f"a szelep kalibrációja felfüggesztve {data.get('days', 7)} napra ({data.get('valve')})",
+            # 2.19
+            "valves_unreachable": "a szelepek nem elérhetők, a szoba hőmérője és az utolsó ismert cél vezérel"
+            + (f" ({target:g} °C)" if isinstance(target, (int, float)) else ""),
+            "valves_reachable": "a szelepek újra elérhetők",
+            "fallback_paused": "a szelepek nem elérhetők, és a szoba a fűtés ellenére sem melegszik: a hőigénye"
+            + (f" {data['hours']:g} órára" if isinstance(data.get("hours"), (int, float)) else "")
+            + " szünetel",
+            "frost_protection_started": "fagyvédelem: a szoba a szelep állapotától függetlenül hőt kér" + temp_hu,
+            "frost_protection_ended": "a fagyvédelem véget ért" + temp_hu,
+            "sensor_stuck": "a szoba hőmérő fűtés közben"
+            + (f" {data['minutes']} perce" if data.get("minutes") is not None else "")
+            + " nem jelentett, a szelepek saját mérésére váltok",
+            "sensor_unstuck": "a szoba hőmérő újra jelent",
+            "boiler_command_failed": "a kazán termosztátja többször nem fogadta el vagy nem követte a parancsot"
+            + (f" ({data.get('boiler')}, kívánt állapot: {'BE' if data.get('wanted') == 'on' else 'KI'})" if data.get("boiler") else ""),
+            "valve_cut_started": ("próbaüzem: lezárnám a szelepeket" if dry else "szelep-zárás indult")
+            + (": nyitott ablak" if data.get("reason") == "window" else ": a szoba a cél fölött van, a kazán másnak fűt"),
+            "valve_cut_ended": "próbaüzem: a szelep-zárás véget érne" if dry else "a szelep-zárás véget ért",
         }
     else:
         msgs = {
@@ -113,6 +137,23 @@ def describe(language: str, data: dict[str, Any]) -> tuple[str, str]:
             "valve_command_failed": f"the valve rejected a command ({data.get('valve')}), retrying less and less often",
             "valve_calibrated": _cal_text_en(data),
             "valve_calibration_suspended": f"valve calibration suspended for {data.get('days', 7)} days ({data.get('valve')})",
+            # 2.19
+            "valves_unreachable": "valves unreachable, the room thermometer and the last known target are in control"
+            + (f" ({target:g} °C)" if isinstance(target, (int, float)) else ""),
+            "valves_reachable": "the valves are reachable again",
+            "fallback_paused": "valves unreachable and the room is not warming despite heating: its heat demand is paused"
+            + (f" for {data['hours']:g} h" if isinstance(data.get("hours"), (int, float)) else ""),
+            "frost_protection_started": "frost protection: the room calls for heat regardless of the valve state" + temp_hu,
+            "frost_protection_ended": "frost protection ended" + temp_hu,
+            "sensor_stuck": "the room thermometer has not reported"
+            + (f" for {data['minutes']} min" if data.get("minutes") is not None else "")
+            + " while heating, switching to the valves' own readings",
+            "sensor_unstuck": "the room thermometer is reporting again",
+            "boiler_command_failed": "the boiler thermostat repeatedly rejected or did not follow the command"
+            + (f" ({data.get('boiler')}, wanted: {'ON' if data.get('wanted') == 'on' else 'OFF'})" if data.get("boiler") else ""),
+            "valve_cut_started": ("dry run: would close the valves" if dry else "valve cut started")
+            + (": window open" if data.get("reason") == "window" else ": the room is above target while the boiler heats other rooms"),
+            "valve_cut_ended": "dry run: the valve cut would end" if dry else "valve cut ended",
         }
     return room, msgs.get(kind, kind)
 

@@ -41,7 +41,9 @@
           "valve_boost_delay": "Délai avant relance de la vanne – cette pièce, minutes (vide = valeur globale)",
           "valve_release_margin": "Relâchement de la vanne avant la consigne – cette pièce (vide = valeur globale)",
           "valve_demand_link": "Lier la demande de chaudière à l’état de la vanne",
+          "valve_cut": "Fermer les vannes contre la surchauffe et fenêtre ouverte",
           "humidity_sensor": "Capteur d’humidité de la pièce (facultatif)",
+          "humidity_max_boost": "Relèvement max. selon l’humidité dans cette pièce (°C)",
           "window_sensors": "Capteur(s) de fenêtre / porte (facultatif)",
           "window_open_delay": "Délai fenêtre ouverte – cette pièce, minutes (vide = valeur globale)",
           "calibrate_valves": "Calibration automatique des vannes (si activée dans Fonctions)",
@@ -56,7 +58,9 @@
           "valve_boost_delay": "Durée pendant laquelle l’écart doit persister avant la relance. 0 = immédiat. Si vide, la valeur globale s’applique.",
           "valve_release_margin": "La vanne retrouve sa consigne d’origine à cet écart avant la consigne de la pièce. Doit être inférieur au seuil. Si vide, la valeur globale s’applique.",
           "valve_demand_link": "Si activé, la pièce ne sollicite la chaudière que lorsque sa vanne est ouverte (la mesure propre de la vanne est sous sa consigne) ou lorsque le plugin la force à s’ouvrir. Évite que la chaudière chauffe contre des vannes fermées en cas de petit écart. Ne bloque pas le chauffage si les données de la vanne manquent.",
+          "valve_cut": "Si le thermomètre indique que la pièce dépasse sa consigne d’au moins 0,3 °C et que la pièce ne demande pas de chaleur alors que la chaudière fonctionne pour une autre pièce, la consigne des vannes ouvertes de la pièce est abaissée temporairement de 3 °C (la vanne se ferme), puis rétablie dès que la chaudière s’arrête, que la pièce revient à sa consigne ou qu’elle demande de la chaleur. Avec une fenêtre ouverte (s’il y a un capteur de fenêtre), les vannes sont fermées de la même façon. Conçu contre la surchauffe due au décalage TRV. Une fermeture dure au plus 30 minutes, puis la vanne retrouve sa propre programmation pendant quelques minutes. Nécessite un thermomètre dans la pièce. La vanne bouge plus souvent (pile) ; l’option « Simulation de la régulation des vannes » permet d’essayer d’abord.",
           "humidity_sensor": "En cas d’humidité élevée, la consigne de la pièce est légèrement relevée (voir Paramètres de base).",
+          "humidity_max_boost": "Laisser vide pour utiliser la valeur des Paramètres de base. 0 = pas de relèvement selon l’humidité dans cette pièce.",
           "window_sensors": "Tant qu’une fenêtre ou une porte reste ouverte plus longtemps que le délai, la pièce ne demande plus de chaleur et la relance de la vanne est relâchée. Avec plusieurs capteurs, un seul ouvert suffit.",
           "window_open_delay": "Durée pendant laquelle la fenêtre doit rester ouverte avant que la pièce réagisse, afin qu’une courte aération ne déclenche rien. 0 = immédiat. Si vide, la valeur globale s’applique.",
           "calibrate_valves": "Corrige la mesure de température des vannes à l’aide du thermomètre de la pièce. Ne fonctionne qu’avec un capteur de température de la pièce. Désactivée, les vannes de cette pièce ne sont pas touchées.",
@@ -80,7 +84,9 @@
           "valve_boost_delay": "Délai avant relance de la vanne – cette pièce, minutes (vide = valeur globale)",
           "valve_release_margin": "Relâchement de la vanne avant la consigne – cette pièce (vide = valeur globale)",
           "valve_demand_link": "Lier la demande de chaudière à l’état de la vanne",
+          "valve_cut": "Fermer les vannes contre la surchauffe et fenêtre ouverte",
           "humidity_sensor": "Capteur d’humidité de la pièce (facultatif)",
+          "humidity_max_boost": "Relèvement max. selon l’humidité dans cette pièce (°C)",
           "window_sensors": "Capteur(s) de fenêtre / porte (facultatif)",
           "window_open_delay": "Délai fenêtre ouverte – cette pièce, minutes (vide = valeur globale)",
           "calibrate_valves": "Calibration automatique des vannes (si activée dans Fonctions)",
@@ -95,7 +101,9 @@
           "valve_boost_delay": "Durée pendant laquelle l’écart doit persister avant la relance. 0 = immédiat. Si vide, la valeur globale s’applique.",
           "valve_release_margin": "La vanne retrouve sa consigne d’origine à cet écart avant la consigne de la pièce. Doit être inférieur au seuil. Si vide, la valeur globale s’applique.",
           "valve_demand_link": "Si activé, la pièce ne sollicite la chaudière que lorsque sa vanne est ouverte (la mesure propre de la vanne est sous sa consigne) ou lorsque le plugin la force à s’ouvrir. Évite que la chaudière chauffe contre des vannes fermées en cas de petit écart. Ne bloque pas le chauffage si les données de la vanne manquent.",
+          "valve_cut": "Si le thermomètre indique que la pièce dépasse sa consigne d’au moins 0,3 °C et que la pièce ne demande pas de chaleur alors que la chaudière fonctionne pour une autre pièce, la consigne des vannes ouvertes de la pièce est abaissée temporairement de 3 °C (la vanne se ferme), puis rétablie dès que la chaudière s’arrête, que la pièce revient à sa consigne ou qu’elle demande de la chaleur. Avec une fenêtre ouverte (s’il y a un capteur de fenêtre), les vannes sont fermées de la même façon. Conçu contre la surchauffe due au décalage TRV. Une fermeture dure au plus 30 minutes, puis la vanne retrouve sa propre programmation pendant quelques minutes. Nécessite un thermomètre dans la pièce. La vanne bouge plus souvent (pile) ; l’option « Simulation de la régulation des vannes » permet d’essayer d’abord.",
           "humidity_sensor": "En cas d’humidité élevée, la consigne de la pièce est légèrement relevée (voir Paramètres de base).",
+          "humidity_max_boost": "Laisser vide pour utiliser la valeur des Paramètres de base. 0 = pas de relèvement selon l’humidité dans cette pièce.",
           "window_sensors": "Tant qu’une fenêtre ou une porte reste ouverte plus longtemps que le délai, la pièce ne demande plus de chaleur et la relance de la vanne est relâchée. Avec plusieurs capteurs, un seul ouvert suffit.",
           "window_open_delay": "Durée pendant laquelle la fenêtre doit rester ouverte avant que la pièce réagisse, afin qu’une courte aération ne déclenche rien. 0 = immédiat. Si vide, la valeur globale s’applique.",
           "calibrate_valves": "Corrige la mesure de température des vannes à l’aide du thermomètre de la pièce. Ne fonctionne qu’avec un capteur de température de la pièce. Désactivée, les vannes de cette pièce ne sont pas touchées.",
@@ -144,6 +152,7 @@
           "max_boost_hours": "Durée max. de relance de la vanne (heures)",
           "max_boost_rest_minutes": "Pause après la durée max. (minutes)",
           "window_open_delay": "Délai fenêtre ouverte – par défaut (minutes)",
+          "frost_temp": "Seuil de protection antigel (°C, 0 = désactivé)",
           "valve_dry_run": "Simulation de la régulation des vannes (journal uniquement, aucune écriture sur les vannes)",
           "register_card": "Charger la carte Lovelace"
         },
@@ -161,7 +170,8 @@
           "max_boost_hours": "Passé ce délai, la vanne retrouve sa consigne d’origine, même si la pièce n’a pas atteint la consigne.",
           "max_boost_rest_minutes": "Durée pendant laquelle aucune nouvelle relance n’est lancée après avoir atteint la durée maximale. Elle est réinitialisée quand la pièce atteint sa consigne.",
           "window_open_delay": "Valeur par défaut pour toutes les pièces : durée pendant laquelle une fenêtre doit rester ouverte avant que le chauffage de cette pièce soit mis en pause. Une aération plus courte ne change rien.",
-          "valve_dry_run": "Si activé, la régulation des vannes se contente d’indiquer dans le journal ce qu’elle ferait (préfixe [PRÓBAÜZEM]) et ne modifie rien sur les vannes. Recommandé pour le premier essai réel.",
+          "frost_temp": "Si une pièce reste plus froide que cette valeur pendant plus de 5 minutes, elle demande de la chaleur quels que soient l’état de la vanne, une fenêtre ouverte et le mode été, jusqu’à dépasser le seuil de 1 °C. Une vanne éteinte est rallumée avec pour consigne le seuil + 1 °C. Une notification de réparation vous en informe.",
+          "valve_dry_run": "Si activé, la régulation des vannes se contente d’indiquer dans le journal ce qu’elle ferait (préfixe [PRÓBAÜZEM]) et ne modifie rien sur les vannes. Recommandé pour le premier essai réel. S’applique aussi à la fermeture des vannes contre la surchauffe.",
           "register_card": "Si activé, l’intégration ajoute le fichier de la carte aux ressources du tableau de bord (Paramètres → Tableaux de bord → Ressources) et tient sa version à jour, pour qu’elle apparaisse dans la liste « Ajouter une carte » (elle n’ajoute jamais de carte à un tableau de bord d’elle-même). Avec les tableaux de bord en mode YAML, vous devez ajouter la ressource manuellement (voir README). Si désactivé, l’intégration ne touche pas aux ressources."
         }
       },
@@ -348,6 +358,21 @@
           "temperature_sensor_unreliable": {
             "name": "Capteur de température de la pièce peu fiable (valeurs impossibles ou instables)"
           },
+          "temperature_sensor_stuck": {
+            "name": "Thermomètre de la pièce muet pendant le chauffage (bloqué)"
+          },
+          "valves_unreachable": {
+            "name": "Vannes injoignables (le thermomètre de la pièce régule)"
+          },
+          "valves_unreachable_paused": {
+            "name": "Régulation de secours en pause (la pièce ne se réchauffe pas)"
+          },
+          "frost_protection": {
+            "name": "Protection antigel active"
+          },
+          "valve_cut": {
+            "name": "Fermeture des vannes active (consigne de la vanne abaissée)"
+          },
           "valve_boost_resting": {
             "name": "Relance de la vanne en pause après la durée maximale"
           },
@@ -428,6 +453,9 @@
           },
           "heating_rate_learned": {
             "name": "La vitesse de chauffe a été apprise"
+          },
+          "heating_rate_samples": {
+            "name": "Mesures de vitesse de chauffe (séances de chauffage)"
           },
           "calibration_enabled": {
             "name": "Calibration des vannes activée"
@@ -565,13 +593,33 @@
       "title": "Le capteur de température de la pièce n’est pas fiable",
       "description": "Le capteur de température {sensor} de la pièce {room} a transmis une valeur impossible ou instable (par exemple une valeur d’erreur ou de rapides allers-retours) ; il est donc ignoré pendant {minutes} minutes. La pièce utilise maintenant la mesure propre des vannes ; la régulation automatique et la calibration des vannes sont suspendues. Cette notification disparaît dès que le capteur transmet à nouveau des valeurs plausibles."
     },
+    "stuck_room_temp": {
+      "title": "Le thermomètre de la pièce ne transmet pas pendant le chauffage",
+      "description": "Le thermomètre {sensor} de la pièce {room} n’a rien transmis depuis {minutes} minutes alors que la pièce demande de la chaleur et que la chaudière fonctionne (il est peut-être bloqué sur une valeur : pile faible ou problème de connexion). La pièce utilise maintenant la mesure propre des vannes. Cette notification disparaît dès que le thermomètre transmet à nouveau."
+    },
+    "valves_unreachable": {
+      "title": "Les vannes de la pièce sont injoignables",
+      "description": "Les vannes de la pièce {room} sont injoignables depuis plus de {minutes} minutes (hub, Wi-Fi ou Meross LAN). En attendant, la demande de chaleur de la pièce est calculée à partir du thermomètre de la pièce et de la dernière consigne vue sur les vannes ({target} °C) ; les vannes continuent de réguler selon leurs propres réglages. Si la pièce ne se réchauffe pas en 2 heures alors que la chaudière fonctionne (la vanne est peut-être restée fermée), sa demande de chaleur est suspendue pendant 6 heures, puis retentée. Cette notification disparaît dès que les vannes sont de nouveau joignables."
+    },
+    "heating_blind": {
+      "title": "Aucune pièce évaluable – chaudière arrêtée",
+      "description": "Aucune vanne n’est joignable depuis plus de {minutes} minutes et aucune pièce ne peut être régulée par son thermomètre (pas de thermomètre ou pas de consigne connue). L’intégration ne chauffe pas à l’aveugle : la chaudière a été arrêtée. La protection antigel reste active dans les pièces dotées d’un thermomètre. Vérifiez le hub Meross et l’intégration Meross LAN. Cette notification disparaît dès qu’au moins une pièce est de nouveau évaluable."
+    },
+    "frost_protection": {
+      "title": "Protection antigel active",
+      "description": "La pièce {room} est à {temperature} °C, sous le seuil de protection antigel ({threshold} °C). La pièce demande de la chaleur quels que soient l’état de la vanne, une fenêtre ouverte et le mode été, jusqu’à dépasser {target} °C ; les vannes éteintes ont été rallumées avec cette consigne (elles restent ainsi jusqu’à ce que vous les modifiiez). Cette notification disparaît une fois la pièce réchauffée. Le seuil se règle dans les Paramètres de base (0 = désactivé)."
+    },
+    "boiler_command_failed": {
+      "title": "Le thermostat de la chaudière ne suit pas les commandes",
+      "description": "Le thermostat de la chaudière ({boiler}) a refusé ou n’a pas suivi la commande marche/arrêt {count} fois de suite. L’intégration réessaie chaque minute. Vérifiez que le thermostat est disponible dans Home Assistant et, pour un Meross MTS200, que son interrupteur « Summer mode » est désactivé. Cette notification disparaît dès que le thermostat suit à nouveau la commande."
+    },
     "stale_outdoor": {
       "title": "Le capteur de température extérieure ne transmet plus",
       "description": "Le capteur extérieur {sensor} n’a rien transmis depuis plus de {hours} heures (la pile est peut-être vide). Le mode été reste désactivé jusqu’à ce qu’il transmette à nouveau, le chauffage reste donc autorisé. Cette notification disparaît dès que le capteur transmet à nouveau."
     },
     "calibration_suspended": {
       "title": "Calibration des vannes suspendue",
-      "description": "Sur la vanne {valve} de {room}, deux modifications de calibration consécutives n’ont pas rapproché la mesure de la vanne de celle du thermomètre de la pièce (ou le nombre de calibration est revenu deux fois à l’ancienne valeur en 24 heures : l’appareil ne l’a pas conservée, ou elle a été remise à la main). La calibration automatique est donc suspendue pour cette vanne pendant {days} jours. Si une modification n’a pas rapproché la mesure, la valeur précédente a été rétablie. Vérifiez le nombre *Calibration* de la vanne et si la vanne en tient réellement compte. La notification disparaît à la fin de la suspension ou lorsque la fonction est désactivée."
+      "description": "Sur la vanne {valve} de {room}, deux modifications de calibration consécutives n’ont pas rapproché la mesure de la vanne de celle du thermomètre de la pièce (ou le nombre de calibration est revenu deux fois à l’ancienne valeur en 24 heures : l’appareil ne l’a pas conservée, ou elle a été remise à la main). La calibration automatique est donc suspendue pour cette vanne pendant {days} jours. Si une modification n’a pas rapproché la mesure, la valeur précédente a été rétablie. Vérifiez le nombre *Calibration* de la vanne et si la vanne en tient réellement compte. La notification disparaît à la fin de la suspension ou lorsque la fonction est désactivée. La suspension peut être levée immédiatement en modifiant le décalage TRV de la vanne ou avec le service `meross_boiler_sync.reset_calibration`."
     }
   },
   "selector": {
@@ -627,6 +675,10 @@
     "cancel_preheat": {
       "name": "Annuler le préchauffage",
       "description": "Efface la demande ponctuelle et ignore le préchauffage programmé en cours ou suivant."
+    },
+    "reset_calibration": {
+      "name": "Réinitialiser la calibration",
+      "description": "Efface l’état d’erreur de calibration des vannes de la pièce (échecs, suspension, vérification en attente) : une vanne suspendue participe de nouveau immédiatement à la calibration. Le nombre de calibration de la vanne n’est pas modifié."
     }
   },
   "exceptions": {

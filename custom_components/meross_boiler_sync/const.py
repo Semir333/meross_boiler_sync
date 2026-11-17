@@ -55,6 +55,8 @@ CONF_CALIBRATION_DRY_RUN = "calibration_dry_run"
 # 2.13: a maradékhő (a hőigény megszűnése utáni további melegedés) szobánkénti tanulása és kompenzálása
 CONF_RESIDUAL_COMP = "residual_comp"
 CONF_RESIDUAL_ALLOW = "residual_allow"
+# 2.19: fagyvédelem: ez alatt a szoba a szelep állapotától függetlenül hőt kér (0 = kikapcsolva)
+CONF_FROST_TEMP = "frost_temp"
 
 # --- szoba kulcsok
 CONF_ROOM_ID = "id"
@@ -77,14 +79,17 @@ CONF_ROOM_TRV_OFFSET_SIGNED = "trv_offset_signed"
 # 2.18: szelepenkénti (egyedi) TRV eltolás, a több szelepes szobákhoz: {szelep entitás-azonosító: előjeles eltolás}, ugyanabban az
 # alakban, mint a szoba eltolása. Csak a megadott szelepeknek van bejegyzése; amelyiknek nincs, az a szoba eltolását használja.
 CONF_ROOM_VALVE_OFFSETS = "valve_trv_offsets"
+# 2.19: szelep-zárás túlfűtés ellen (szobánként kapcsolható): ha a szoba a célja fölött van, nem kér hőt, és a kazán más szobának
+# fűt, a plugin a szelep célját ideiglenesen lejjebb állítja (a szelep-emelés tükörképe); nyitott ablaknál is
+CONF_ROOM_VALVE_CUT = "valve_cut"
 # Az űrlap legfeljebb ennyi szelep eltolását teszi szerkeszthetővé (a mezők kulcsa és fordítása szám szerinti: `valve_offset_1`, ...)
 MAX_VALVE_OFFSET_FIELDS = 8
 
 # --- alapértékek
 DEFAULT_HYSTERESIS = 0.3  # °C
-DEFAULT_MIN_SWITCH_TIME = 3  # perc
+DEFAULT_MIN_SWITCH_TIME = 5  # perc (2.19: 3 helyett 5; a rövid ciklus a gázkazánnak árt)
 DEFAULT_BOILER_ON_TEMP = 35  # °C, 0 = nem módosítjuk a kazán célhőmérsékletét
-DEFAULT_HUMIDITY_MAX_BOOST = 1.0  # °C, 0 = kikapcsolva
+DEFAULT_HUMIDITY_MAX_BOOST = 0.5  # °C, 0 = kikapcsolva (2.19: 1,0 helyett 0,5; szobánként felülírható)
 DEFAULT_SUMMER_TEMP = 17.0  # °C (24 órás átlag)
 DEFAULT_VALVE_DRY_RUN = False
 DEFAULT_WINDOW_DELAY = 5  # perc: ennyi ideig kell nyitva lennie az ablaknak
@@ -102,8 +107,8 @@ DEFAULT_TRV_LOG = True
 DEFAULT_CYCLE_MONITOR = True
 DEFAULT_CYCLE_MAX_STARTS = 5  # indítás / óra: ennyitől számít gyakori kapcsolgatásnak
 DEFAULT_CYCLE_MIN_AVG_ON = 4  # perc: ennél rövidebb átlagos bekapcsolt idő gyakori kapcsolgatás
-DEFAULT_CYCLE_PROTECTION = False  # a védelem beavatkozik, ezért alapból ki van kapcsolva
-DEFAULT_BOILER_MIN_ON = 5  # perc: a védelem bekapcsolva ennyi ideig nem kapcsolja ki a kazánt
+DEFAULT_CYCLE_PROTECTION = True  # 2.19: alapból bekapcsolva (a kazán minimális be- és kikapcsolt ideje)
+DEFAULT_BOILER_MIN_ON = 10  # perc: a védelem bekapcsolva ennyi ideig nem kapcsolja ki a kazánt (2.19: 5 helyett 10)
 DEFAULT_BOILER_MIN_OFF = 5  # perc: a védelem bekapcsolva ennyi ideig nem kapcsolja be újra
 DEFAULT_MANUAL_BOOST_ENABLED = True
 DEFAULT_MANUAL_BOOST_MINUTES = 60  # perc: a "Fűts most" alap időtartama
@@ -124,6 +129,10 @@ DEFAULT_ROOM_CALIBRATE = True  # a globális kapcsoló bekapcsolása után minde
 # 2.17: az eltolás előjeles (szelep mérése - szoba hőmérője): a mínusz hidegebbet, a plusz melegebbet mutat a szelep. Az
 # alapérték ugyanaz, mint korábban (1 °C-kal hidegebb), csak az előjele változott.
 DEFAULT_TRV_OFFSET = -1.0  # °C
+# 2.19: az ÚJ szoba űrlapján felajánlott eltolás 0: a kalibráció így mérés nélkül semmit nem ír a szelepbe (a negatív eltolás
+# a cél fölé fűtheti a szobát, ha a kazán más szobának megy). A már mentett szobák értéke nem változik, és a mentett érték
+# nélküli (2.12 előtti) szobáknál a fenti alapérték marad érvényes, hogy a frissítés ne állítsa át a szelepeket.
+DEFAULT_NEW_ROOM_TRV_OFFSET = 0.0  # °C
 TRV_OFFSET_MAX = 3.0  # °C: az eltolás abszolút értéke legfeljebb ennyi (mindkét előjellel)
 # 2.15: 0,5 °C is lehet. A nulla és a 0,5 megkülönböztetéséhez a még nem igazolt igazítás szűkebb tűréssel
 # dolgozik (`CAL_FIRST_THRESHOLD`); az igazolt szelepnél marad a széles tűrés (`CAL_THRESHOLD`).
@@ -132,6 +141,9 @@ TRV_OFFSET_MIN_ACTIVE = 0.5  # °C: ennél kisebb abszolút értékű (de nem nu
 # ha a szoba ennél többel melegedne a cél fölé, a hőigényt ennyivel előbb szünteti meg.
 DEFAULT_RESIDUAL_COMP = True  # a kompenzáció korlátos és csak a megengedett túllövés fölötti részt érinti
 DEFAULT_RESIDUAL_ALLOW = 0.3  # °C: ennyi túllövést megengedünk (ennyit nem kompenzálunk)
+DEFAULT_FROST_TEMP = 7.0  # °C: fagyvédelem (2.19); 0 = kikapcsolva
+FROST_TEMP_MAX = 12.0  # °C: a fagyvédelem küszöbe legfeljebb ennyi lehet
+DEFAULT_ROOM_VALVE_CUT = False  # a szelep-zárás a szelep célját írja, ezért szobánként külön kell bekapcsolni
 DEFAULT_SUMMER_START = "05-15"
 DEFAULT_SUMMER_END = "09-15"
 
@@ -165,15 +177,19 @@ MANUAL_BOOST_MAX_OFFSET = 5.0
 MAX_RAISED_TARGET = 30.0  # °C: a megemelt (kézi / előfűtési) cél felső határa
 HEATING_RATE_MIN = 0.1  # °C/óra: ennél lassabb / gyorsabb mintát nem tanul meg
 HEATING_RATE_MAX = 5.0
-HEATING_RATE_MIN_SAMPLES = 20  # ennyi percnyi fűtés után használja a tanult sebességet
+# 2.19: a sebességet fűtési alkalmanként egy minta adja (a hőigény alatti emelkedés osztva az idővel), az utolsó
+# `HEATING_RATE_KEEP` alkalom mediánja a tanult érték. A korábbi, percenkénti 30 perces trend átlaga késett (a fűtés elején még a
+# hűlést látta), és a gyorsan melegedő szobára kisebb számot tanult.
+HEATING_RATE_MIN_SAMPLES = 3  # ennyi fűtési alkalom után használja a tanult sebességet
+HEATING_RATE_KEEP = 10  # az utolsó ennyi alkalom mediánja
+HEATING_SESSION_MIN_SECONDS = 20 * 60  # ennél rövidebb fűtési alkalom nem minta (a radiátor felfűtése dominál)
+HEATING_SESSION_MIN_RISE = 0.2  # °C: ennél kisebb emelkedés nem minta (a hőmérő felbontása)
 
 # --- becsült gázfogyasztás (2.10)
 GAS_M3_PER_HOUR_MIN = 0.1
 GAS_M3_PER_HOUR_MAX = 20.0
 GAS_MAX_GAP_SECONDS = 600  # ennél hosszabb kihagyás (újraindítás, elérhetetlen kazán) alatt nem számolunk fogyasztást
 GAS_SAVE_SECONDS = 300  # a számlálót legfeljebb ilyen gyakran mentjük
-HEATING_RATE_WINDOW = 240  # a tanulás ennyi minta után "állandó ablakú" átlag
-HEATING_RATE_MIN_TREND = 0.15  # °C/óra: ennél kisebb melegedés nem számít mintának
 PREHEAT_SAFETY = 1.15  # a becsült felfűtési időt ennyivel szorozza
 PREHEAT_GRACE_SECONDS = 300  # ennyivel később érhető el a cél, ez még nem "nem éri el"
 PREHEAT_DONE_TOLERANCE = 0.2  # °C: ennyire a céltól már "kész"
@@ -219,6 +235,9 @@ CAL_THRESHOLD = 0.8  # °C: az igazolt (már rendben mért) szelepnél ennél ki
 # 2.15: A még nem igazolt igazításnál (első beállítás, módosítás vagy becslés után) szűkebb a tűrés, különben a 0,5 °C-os
 # eltolás "rendben"-ként elveszne. A kalibráció lépésköze 0,5 °C, így az igazítás után a maradék legfeljebb 0,25 °C;
 # a 0,4 °C ehhez még ~0,15 °C mérési zajt enged anélkül, hogy felesleges módosítás indulna.
+# 2.19: a szűk tűrés nem változott (0,5-re emelve a 0,5 °C-os eltolás mérési zaj mellett "rendben"-ként elveszne). A még nem
+# igazolt szelep oda-vissza lépkedését (a ±0,5 °C-os mérési bizonytalanság miatt) külön szabály szünteti meg: egy lépésnyi
+# finomítás után a következő mérés már a széles tűréssel (`CAL_THRESHOLD`) dönt (`ValveCal.fine_done`).
 CAL_FIRST_THRESHOLD = 0.4  # °C
 CAL_JUDGE_MIN = 1.0  # °C: ennél kisebb módosítás hatását nem ítéli meg (a mérési zajtól nem különböztethető meg)
 CAL_MAX_DIFF = 3.0  # °C: ennél nagyobb eltérés rossz hőmérő-elhelyezésre utal, ahhoz nem nyúl
@@ -238,7 +257,14 @@ CAL_CONFIRM_SECONDS = 60  # ennyi idő után nézi meg, hogy a szám-entitás me
 CAL_REVERT_TRIES = 3  # a visszaállítást ennyiszer próbálja, mielőtt feladja és felfüggeszt
 CAL_MAX_RANGE = 30.0  # °C: ennél nagyobb tartományú szám-entitás nem kalibráció (nem nyúl hozzá)
 CAL_MAX_STRIKES = 2  # ennyi egymás utáni hatástalan módosítás után felfüggeszti a szelepet
-CAL_SUSPEND_SECONDS = 7 * 24 * 3600  # a felfüggesztés ideje
+# 2.19: fokozatos felfüggesztés: az első 1 nap, a második 3 nap, a további 7 nap. A fokozat akkor áll vissza, ha egy módosítás
+# igazoltan hatásos volt, ha a felhasználó átállítja a szelep TRV eltolását, vagy a `reset_calibration` szolgáltatás hívásakor.
+CAL_SUSPEND_STEPS = (1 * 24 * 3600, 3 * 24 * 3600, 7 * 24 * 3600)
+CAL_SUSPEND_SECONDS = CAL_SUSPEND_STEPS[-1]  # a felfüggesztés leghosszabb ideje
+# 2.19: a hatástalannak mért módosítást nem állítja vissza azonnal: a két mérés más hőállapotban készül, és a szelep és a szoba
+# természetes különbségének elmozdulása (hidegebb éjszaka, hideg fal) egy jó módosítást is hatástalannak mutathat. Az első
+# sikertelen ellenőrzés után legalább ennyi idő múlva újra mér, és csak a második sikertelen ellenőrzés számít hibapontnak.
+CAL_RETEST_SECONDS = 2 * 3600
 CAL_RECHECK_SECONDS = 6 * 3600  # rendben lévő szelepet ennyi időnként mér újra
 CAL_DISCOVERY_RETRY = 600  # hiányzó kalibráció-entitást ennyi időnként keres újra
 CAL_READING_MIN = 5.0  # °C: ezen kívüli szelepmérést nem használ
@@ -272,12 +298,21 @@ RESIDUAL_MIN_ON_SECONDS = 180  # ennél rövidebb hőigény után nem mérünk (
 RESIDUAL_WINDOW_SECONDS = 60 * 60  # ennyi ideig figyeli a csúcsot a leállás után
 RESIDUAL_MIN_WINDOW_SECONDS = 10 * 60  # a csúcs elmúltát legkorábban ennyi idő után fogadja el
 RESIDUAL_FALL = 0.2  # °C: a csúcshoz képest ennyi esés = a csúcs elmúlt
-RESIDUAL_BOILER_GRACE_SECONDS = 15 * 60  # a leállás után ennyi ideig járhat még a kazán (kapcsolási késleltetés)
+# 2.19: a leállás után a kazán a kapcsolási késleltetés miatt járhat még (minimális kapcsolási idő, illetve a ciklusvédelem
+# minimális bekapcsolt ideje) + `RESIDUAL_BOILER_GRACE_EXTRA`, de legfeljebb `RESIDUAL_BOILER_GRACE_SECONDS` ideig. Korábban
+# rögzített 15 perc volt: ennyi idő alatt egy másik szoba miatt járó kazán a nyitott szelepen át rendes fűtést adott a méréshez.
+RESIDUAL_BOILER_GRACE_SECONDS = 15 * 60  # a türelmi idő felső határa
+RESIDUAL_BOILER_GRACE_EXTRA = 2 * 60
+# 2.19: ha a csúcs után nincs visszaesés (60 perc telt el), a mérés csak akkor érvényes, ha a legmagasabb értéket az első
+# ennyi időben érte el a szoba, vagyis az ablak utolsó negyedórájában már nem melegedett tovább. A lassú (nagy tömegű)
+# radiátor maradékhője is átadódik ennyi idő alatt; ami az ablak végén is melegíti a szobát, az más hőforrás (napsütés, főzés).
+RESIDUAL_PEAK_MAX_SECONDS = 45 * 60
+RESIDUAL_SAMPLE_MAX_AGE = 30 * 24 * 3600  # ennél régebbi mérés nem számít (évszakváltás)
 RESIDUAL_TARGET_TOLERANCE = 0.05  # °C: a szelepek célja ennyinél jobban nem változhat a mérés alatt
 RESIDUAL_SAMPLE_MAX = 1.5  # °C: ennél nagyobb emelkedés nem hihető maradékhőnek (napsütés, kézi fűtés), erre vágjuk
 RESIDUAL_KEEP = 9  # az utolsó ennyi mérés mediánját használja
 RESIDUAL_MIN_SAMPLES = 4  # ennyi mérés kell, mielőtt a tanult érték számít
-RESIDUAL_LEAD_MAX = 0.8  # °C: ennél többel soha nem állítja le előbb a hőigényt
+RESIDUAL_LEAD_MAX = 0.5  # °C: ennél többel soha nem állítja le előbb a hőigényt (2.19: 0,8 helyett 0,5: a bekapcsolási küszöb is ennyivel csúszik)
 RESIDUAL_LEAD_MIN = 0.1  # °C: ennél kisebb korrekciót nem alkalmaz (a hőmérő felbontásán belül van)
 RESIDUAL_LEAD_STEP = 0.05  # °C: a korrekció ilyen lépésekre kerekített (ne ugráljon)
 
@@ -286,6 +321,38 @@ STARTUP_SETTLE_SECONDS = 90 # a HA indulása után ennyi ideig a vezérlő csak 
 RESUME_WINDOW_SECONDS = 600  # indulás után ennyi ideig folytatja a fűtés hiszterézisét a kazán állapotából
 SAMPLE_TEMP_MIN = -60.0  # °C: a tárolt kinti minták ésszerű tartománya
 SAMPLE_TEMP_MAX = 60.0
+
+# --- 2.19: kiesés-kezelés, fagyvédelem, kazánparancs, elakadt hőmérő, szelep-zárás
+EVENT_DEBOUNCE_SECONDS = 0.5  # az egyszerre érkező állapotváltozásokat ennyi idő alatt egy kiértékelésbe vonja össze
+# Ha a szoba egyik szelepe sem érhető el (hub, Wi-Fi, Meross LAN hiba), a szelep a saját céljával tovább szabályoz, csak a HA nem
+# látja. Ennyi idő után a szoba a hőmérője és az utolsó ismert célja alapján kér tovább hőt (rövid újracsatlakozás nem számít).
+VALVE_LOST_GRACE_SECONDS = 10 * 60
+# Ha egyetlen szoba sem értékelhető (nincs elérhető szelep, és hőmérő + utolsó ismert cél sincs), ennyi idő után a kazán kikapcsol.
+BLIND_OFF_SECONDS = 30 * 60
+# A tartalék vezérlés (elérhetetlen szelepek) csak akkor kérhet tartósan hőt, ha a szoba melegszik is: ha a szelep zárva maradt
+# (például lemerült az eleme), a szoba a végtelenségig járatná a kazánt. Ha a szoba járó kazán mellett ennyi idő alatt sem
+# melegszik legalább `FALLBACK_MIN_RISE` fokot, a hőigénye `FALLBACK_REST_SECONDS` időre szünetel, utána újra próbálja.
+FALLBACK_STALL_SECONDS = 2 * 3600
+FALLBACK_MIN_RISE = 0.3  # °C
+FALLBACK_REST_SECONDS = 6 * 3600
+LAST_TARGET_MIN = 5.0  # °C: a mentett utolsó cél hihető tartománya
+LAST_TARGET_MAX = 35.0
+FROST_HYSTERESIS = 1.0  # °C: a fagyvédelem ennyivel a küszöb fölött enged el (és ez a fagyvédelmi cél is)
+FROST_CONFIRM_SECONDS = 5 * 60  # ennyi ideig kell a küszöb alatt lennie (egyetlen hibás mérés ne indítson fűtést)
+FROST_READING_MIN = -30.0  # °C: ennél hidegebb mérés már nem hihető fagynak sem (hibaérték)
+# a kazán termosztátjának küldött parancs
+BOILER_RETRY_SECONDS = 60  # sikertelen (vagy nem követett) parancs után leghamarabb ennyi idő múlva próbálja újra
+BOILER_FAIL_ISSUE_AFTER = 3  # ennyi egymás utáni sikertelen / nem követett parancs után jelez a Javítások között
+# Elakadt szoba hőmérő: a szoba hőt kér, a kazán ennyi ideje megy, és a hőmérő közben egyszer sem jelentett. A fűtött szobában
+# a hőmérsékletnek változnia kell; ha ugyanazon az eszközön a páratartalom-mérő jelent, az eszköz él (a hőmérséklet tényleg áll).
+SENSOR_STUCK_SECONDS = 45 * 60
+# szelep-zárás (a szelep-emelés tükörképe)
+CUT_START_MARGIN = 0.3  # °C: ennyivel a (tényleges) cél fölött indul
+CUT_RELEASE_MARGIN = 0.1  # °C: eddig tart (hiszterézis)
+CUT_DROP = 3.0  # °C: ennyivel állítja lejjebb a szelep célját (a legnagyobb TRV eltolás mellett is zár)
+CUT_MAX_SECONDS = 30 * 60  # legfeljebb ennyi ideig tartja egyben: utána visszaállít, hogy a szelep saját menetrendje érvényesülhessen
+CUT_PAUSE_SECONDS = 5 * 60  # visszaállítás után ennyi ideig nem zár újra (a szelep jelentse a valódi célját)
+CUT_SETTLE_SECONDS = 120  # a preset visszaállítása után ennyi idő múlva fogadja el a szelep célját akkor is, ha az egyezik a zárás értékével
 
 # --- szenzor hihetőségi ellenőrzés (2.11.1)
 # Egy hibás szenzor (kimerülő elem, hibaérték, ugráló mérés) hideget vagy meleget hazudna, és a kazánt

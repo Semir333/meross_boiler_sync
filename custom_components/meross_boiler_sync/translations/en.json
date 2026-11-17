@@ -41,7 +41,9 @@
           "valve_boost_delay": "Valve boost wait – this room, minutes (empty = global value)",
           "valve_release_margin": "Valve release before target – this room (empty = global value)",
           "valve_demand_link": "Tie boiler demand to valve state",
+          "valve_cut": "Close valves against overheating and open windows",
           "humidity_sensor": "Room humidity sensor (optional)",
+          "humidity_max_boost": "Max. humidity boost in this room (°C)",
           "window_sensors": "Window / door sensor(s) (optional)",
           "window_open_delay": "Window open delay – this room, minutes (empty = global value)",
           "calibrate_valves": "Automatic valve calibration (if enabled under Features)",
@@ -56,7 +58,9 @@
           "valve_boost_delay": "How long the deviation must persist before boosting. 0 = immediately. If empty, the global value applies.",
           "valve_release_margin": "The valve gets its original target back this far before the target. Must be below the threshold. If empty, the global value applies.",
           "valve_demand_link": "When on, the room only calls the boiler when its valve is open (valve's own reading is below its target) or when the plugin is forcing it open. Avoids firing the boiler into closed valves for small deviations. Does not block heating if valve data is missing.",
+          "valve_cut": "When the room thermometer shows the room at least 0.3 °C above its target and the room is not calling for heat while the boiler runs for another room, the target of the room's open valves is temporarily lowered by 3 °C (the valve closes) and restored as soon as the boiler stops, the room cools back to its target or calls for heat. With an open window (if there is a window sensor) the valves are closed the same way. Meant against the overheating caused by the TRV offset. One closure lasts at most 30 minutes, then the valve gets its own schedule back for a few minutes. Requires a room thermometer. The valve moves more often (battery); you can try it first with the \"Valve control dry run\" switch.",
           "humidity_sensor": "At high humidity the room target is raised slightly (see Settings).",
+          "humidity_max_boost": "Leave empty to use the value from Settings. 0 = no humidity boost in this room.",
           "window_sensors": "While a window or door stays open longer than the delay, the room stops calling for heat and the valve boost is released. With several sensors, any open one counts.",
           "window_open_delay": "How long the window must stay open before the room reacts, so short airing changes nothing. 0 = immediately. If empty, the global value applies.",
           "calibrate_valves": "Corrects the valves' temperature readings using the room thermometer. Only works with a room temperature sensor. When off, this room's valves are left alone.",
@@ -80,7 +84,9 @@
           "valve_boost_delay": "Valve boost wait – this room, minutes (empty = global value)",
           "valve_release_margin": "Valve release before target – this room (empty = global value)",
           "valve_demand_link": "Tie boiler demand to valve state",
+          "valve_cut": "Close valves against overheating and open windows",
           "humidity_sensor": "Room humidity sensor (optional)",
+          "humidity_max_boost": "Max. humidity boost in this room (°C)",
           "window_sensors": "Window / door sensor(s) (optional)",
           "window_open_delay": "Window open delay – this room, minutes (empty = global value)",
           "calibrate_valves": "Automatic valve calibration (if enabled under Features)",
@@ -95,7 +101,9 @@
           "valve_boost_delay": "How long the deviation must persist before boosting. 0 = immediately. If empty, the global value applies.",
           "valve_release_margin": "The valve gets its original target back this far before the target. Must be below the threshold. If empty, the global value applies.",
           "valve_demand_link": "When on, the room only calls the boiler when its valve is open (valve's own reading is below its target) or when the plugin is forcing it open. Avoids firing the boiler into closed valves for small deviations. Does not block heating if valve data is missing.",
+          "valve_cut": "When the room thermometer shows the room at least 0.3 °C above its target and the room is not calling for heat while the boiler runs for another room, the target of the room's open valves is temporarily lowered by 3 °C (the valve closes) and restored as soon as the boiler stops, the room cools back to its target or calls for heat. With an open window (if there is a window sensor) the valves are closed the same way. Meant against the overheating caused by the TRV offset. One closure lasts at most 30 minutes, then the valve gets its own schedule back for a few minutes. Requires a room thermometer. The valve moves more often (battery); you can try it first with the \"Valve control dry run\" switch.",
           "humidity_sensor": "At high humidity the room target is raised slightly (see Settings).",
+          "humidity_max_boost": "Leave empty to use the value from Settings. 0 = no humidity boost in this room.",
           "window_sensors": "While a window or door stays open longer than the delay, the room stops calling for heat and the valve boost is released. With several sensors, any open one counts.",
           "window_open_delay": "How long the window must stay open before the room reacts, so short airing changes nothing. 0 = immediately. If empty, the global value applies.",
           "calibrate_valves": "Corrects the valves' temperature readings using the room thermometer. Only works with a room temperature sensor. When off, this room's valves are left alone.",
@@ -144,6 +152,7 @@
           "max_boost_hours": "Max. valve boost duration (hours)",
           "max_boost_rest_minutes": "Rest after max. boost (minutes)",
           "window_open_delay": "Window open delay – default (minutes)",
+          "frost_temp": "Frost protection threshold (°C, 0 = off)",
           "valve_dry_run": "Valve control dry run (log only, no writes to valves)",
           "register_card": "Load the Lovelace card"
         },
@@ -161,7 +170,8 @@
           "max_boost_hours": "After this long the valve gets its original target back, even if the room has not reached the target.",
           "max_boost_rest_minutes": "How long no new boost is started after reaching the maximum duration. The room reaching its target resets this.",
           "window_open_delay": "Default for all rooms: how long a window must stay open before heating for that room is paused. Shorter airing changes nothing.",
-          "valve_dry_run": "When on, valve control only logs what it would do ([PRÓBAÜZEM] prefix) and changes nothing on the valves. Recommended for the first live test.",
+          "frost_temp": "If a room stays colder than this for more than 5 minutes, it calls for heat regardless of the valve state, an open window and summer mode until it is 1 °C above the threshold. A valve that is switched off is turned on with the threshold + 1 °C as its target. You get a repair notice about it.",
+          "valve_dry_run": "When on, valve control only logs what it would do ([PRÓBAÜZEM] prefix) and changes nothing on the valves. Recommended for the first live test. It also applies to closing valves against overheating.",
           "register_card": "When on, the integration adds the card file to the dashboard resources (Settings → Dashboards → Resources) and keeps its version up to date, so it appears in the 'Add card' list (it never adds a card to a dashboard by itself). With YAML-mode dashboards you have to add the resource manually (see README). When off, the integration does not touch the resources."
         }
       },
@@ -348,6 +358,21 @@
           "temperature_sensor_unreliable": {
             "name": "Room thermometer is unreliable (impossible or erratic readings)"
           },
+          "temperature_sensor_stuck": {
+            "name": "Room thermometer not reporting while heating (stuck)"
+          },
+          "valves_unreachable": {
+            "name": "Valves unreachable (room thermometer in control)"
+          },
+          "valves_unreachable_paused": {
+            "name": "Fallback heating paused (room not warming while heating)"
+          },
+          "frost_protection": {
+            "name": "Frost protection active"
+          },
+          "valve_cut": {
+            "name": "Valve closure active (valve target lowered)"
+          },
           "valve_boost_resting": {
             "name": "Valve boost resting after maximum duration"
           },
@@ -428,6 +453,9 @@
           },
           "heating_rate_learned": {
             "name": "Heating rate has been learned"
+          },
+          "heating_rate_samples": {
+            "name": "Heating rate samples (heating sessions)"
           },
           "calibration_enabled": {
             "name": "Valve calibration is on"
@@ -565,13 +593,33 @@
       "title": "Room thermometer is not reliable",
       "description": "The temperature sensor {sensor} of room {room} reported an impossible or erratic value (for example an error value or fast up-and-down jumps), so it is ignored for {minutes} minutes. The room now uses the valves' own reading, and automatic valve control and valve calibration are paused. This notice disappears once the sensor gives plausible readings again."
     },
+    "stuck_room_temp": {
+      "title": "The room thermometer is not reporting while heating",
+      "description": "The thermometer {sensor} of room {room} has not reported for {minutes} minutes while the room is calling for heat and the boiler is running (it may be stuck on one value: low battery or a connection problem). The room now uses the valves' own readings. This notice disappears once the thermometer reports again."
+    },
+    "valves_unreachable": {
+      "title": "The room's valves are unreachable",
+      "description": "The valves of room {room} have been unreachable for more than {minutes} minutes (hub, Wi-Fi or Meross LAN problem). Until they return, the room's heat demand comes from the room thermometer and the last target seen on the valves ({target} °C); the valves keep regulating by their own settings. If the room does not warm up within 2 hours while the boiler is running (the valve may have stayed closed), the room's heat demand is paused for 6 hours and then tried again. This notice disappears once the valves are reachable again."
+    },
+    "heating_blind": {
+      "title": "No room can be evaluated – boiler switched off",
+      "description": "None of the valves has been reachable for more than {minutes} minutes, and no room can fall back to its thermometer (no room thermometer or no known target). The integration does not heat blindly: the boiler has been switched off. Frost protection still works in rooms with a thermometer. Check the Meross hub and the Meross LAN integration. This notice disappears once at least one room can be evaluated again."
+    },
+    "frost_protection": {
+      "title": "Frost protection is active",
+      "description": "Room {room} is at {temperature} °C, below the frost protection threshold ({threshold} °C). The room calls for heat regardless of the valve state, an open window and summer mode until it is warmer than {target} °C; valves that were switched off have been turned on with this target (they stay that way until you change them). This notice disappears once the room has warmed up. The threshold can be changed in Settings (0 = off)."
+    },
+    "boiler_command_failed": {
+      "title": "The boiler thermostat does not follow commands",
+      "description": "The boiler thermostat ({boiler}) rejected or did not follow the on/off command {count} times in a row. The integration retries every minute. Check that the thermostat is available in Home Assistant and, for a Meross MTS200, that its \"Summer mode\" switch is off. This notice disappears once the thermostat follows the command again."
+    },
     "stale_outdoor": {
       "title": "Outdoor temperature sensor is not updating",
       "description": "The outdoor sensor {sensor} has not reported for over {hours} hours (its battery may be empty). Summer mode is switched off until it reports again, so heating stays allowed. This notice disappears once the sensor reports again."
     },
     "calibration_suspended": {
       "title": "Valve calibration suspended",
-      "description": "On the {valve} valve in {room}, two calibration changes in a row did not bring the valve's reading closer to the room thermometer (or the calibration number went back to the old value twice within 24 hours: the device did not keep it, or it was reset by hand), so automatic calibration is suspended for this valve for {days} days. If a change did not bring the reading closer, the previous value was restored. Check the valve's *Calibration* number and whether the valve really applies it. The notice disappears when the suspension ends or the feature is turned off."
+      "description": "On the {valve} valve in {room}, two calibration changes in a row did not bring the valve's reading closer to the room thermometer (or the calibration number went back to the old value twice within 24 hours: the device did not keep it, or it was reset by hand), so automatic calibration is suspended for this valve for {days} days. If a change did not bring the reading closer, the previous value was restored. Check the valve's *Calibration* number and whether the valve really applies it. The notice disappears when the suspension ends or the feature is turned off. The suspension can be lifted right away by changing the valve's TRV offset or with the `meross_boiler_sync.reset_calibration` service."
     }
   },
   "selector": {
@@ -627,6 +675,10 @@
     "cancel_preheat": {
       "name": "Cancel preheat",
       "description": "Clears the one-off request and skips the running or next scheduled preheat."
+    },
+    "reset_calibration": {
+      "name": "Reset calibration",
+      "description": "Clears the calibration error state of the room's valves (strikes, suspension, pending check), so a suspended valve takes part in calibration again right away. It does not change the valve's calibration number."
     }
   },
   "exceptions": {

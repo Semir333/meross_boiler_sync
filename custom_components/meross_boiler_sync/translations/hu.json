@@ -41,7 +41,9 @@
           "valve_boost_delay": "Szelep emelés várakozás – ennél a szobánál, perc (üres = általános érték)",
           "valve_release_margin": "Szelep visszaengedés a cél előtt – ennél a szobánál (üres = általános érték)",
           "valve_demand_link": "Kazán hőigény a szelep állapotához kötve",
+          "valve_cut": "Szelep-zárás túlfűtés és nyitott ablak ellen",
           "humidity_sensor": "Szoba páratartalom szenzor (opcionális)",
+          "humidity_max_boost": "Páratartalom miatti max. emelés ebben a szobában (°C)",
           "window_sensors": "Ablak- / ajtóérzékelő(k) (opcionális)",
           "window_open_delay": "Ablak nyitva késleltetés – ennél a szobánál, perc (üres = általános érték)",
           "calibrate_valves": "Szelepek automata kalibrációja (ha a Funkciókban be van kapcsolva)",
@@ -56,7 +58,9 @@
           "valve_boost_delay": "Mennyi ideig kell fennállnia az eltérésnek az emelés előtt. 0 = azonnal. Üresen az általános érték érvényes.",
           "valve_release_margin": "A szelep ennyivel a cél előtt kapja vissza az eredeti célhőmérsékletét. Kisebbnek kell lennie a küszöbnél. Üresen az általános érték érvényes.",
           "valve_demand_link": "Bekapcsolva a szoba csak akkor kér hőt a kazántól, ha a szelep nyitva van (a szelep saját mérése a cél alatt van), vagy ha a plugin éppen kinyitotta. Így kis eltérésnél a kazán nem tüzel zárt szelepekbe. Szelep adat hiányában nem blokkolja a fűtést.",
+          "valve_cut": "Ha a szoba a hőmérője szerint legalább 0,3 °C-kal a célja fölött van és nem kér hőt, miközben a kazán egy másik szoba miatt megy, a szoba nyitott szelepeinek célhőmérsékletét ideiglenesen 3 °C-kal lejjebb állítja (a szelep bezár), és visszaállítja, amint a kazán leáll, a szoba visszahűl a céljára vagy hőt kér. Nyitott ablaknál (ha van ablakérzékelő) ugyanígy zár. A TRV eltolás miatti túlfűtés ellen való. Egyben legfeljebb 30 percig tart, utána a szelep néhány percre visszakapja a saját menetrendjét. Szoba hőmérő kell hozzá. Több szelepmozgással jár (elem); a „Szelep szabályzás próbaüzem” kapcsolóval előbb kipróbálható.",
           "humidity_sensor": "Magas páratartalomnál enyhén megemeli a szoba célhőmérsékletét (lásd Alapbeállítások).",
+          "humidity_max_boost": "Üresen hagyva az Alapbeállítások értéke érvényes. 0 = ebben a szobában nincs páratartalom miatti emelés.",
           "window_sensors": "Amíg egy ablak vagy ajtó a késleltetésnél tovább nyitva van, a szoba nem kér hőt, és a szelep emelés leáll. Több érzékelőnél bármelyik nyitott elég.",
           "window_open_delay": "Mennyi ideig kell nyitva lennie az ablaknak, mielőtt a szoba reagál, így a rövid szellőztetés nem kapcsol semmit. 0 = azonnal. Üresen az általános érték érvényes.",
           "calibrate_valves": "A szoba hőmérője alapján korrigálja a szelepek hőmérőjét. Csak megadott szoba hőmérővel működik. Kikapcsolva ennek a szobának a szelepeihez nem nyúl.",
@@ -80,7 +84,9 @@
           "valve_boost_delay": "Szelep emelés várakozás – ennél a szobánál, perc (üres = általános érték)",
           "valve_release_margin": "Szelep visszaengedés a cél előtt – ennél a szobánál (üres = általános érték)",
           "valve_demand_link": "Kazán hőigény a szelep állapotához kötve",
+          "valve_cut": "Szelep-zárás túlfűtés és nyitott ablak ellen",
           "humidity_sensor": "Szoba páratartalom szenzor (opcionális)",
+          "humidity_max_boost": "Páratartalom miatti max. emelés ebben a szobában (°C)",
           "window_sensors": "Ablak- / ajtóérzékelő(k) (opcionális)",
           "window_open_delay": "Ablak nyitva késleltetés – ennél a szobánál, perc (üres = általános érték)",
           "calibrate_valves": "Szelepek automata kalibrációja (ha a Funkciókban be van kapcsolva)",
@@ -95,7 +101,9 @@
           "valve_boost_delay": "Mennyi ideig kell fennállnia az eltérésnek az emelés előtt. 0 = azonnal. Üresen az általános érték érvényes.",
           "valve_release_margin": "A szelep ennyivel a cél előtt kapja vissza az eredeti célhőmérsékletét. Kisebbnek kell lennie a küszöbnél. Üresen az általános érték érvényes.",
           "valve_demand_link": "Bekapcsolva a szoba csak akkor kér hőt a kazántól, ha a szelep nyitva van (a szelep saját mérése a cél alatt van), vagy ha a plugin éppen kinyitotta. Így kis eltérésnél a kazán nem tüzel zárt szelepekbe. Szelep adat hiányában nem blokkolja a fűtést.",
+          "valve_cut": "Ha a szoba a hőmérője szerint legalább 0,3 °C-kal a célja fölött van és nem kér hőt, miközben a kazán egy másik szoba miatt megy, a szoba nyitott szelepeinek célhőmérsékletét ideiglenesen 3 °C-kal lejjebb állítja (a szelep bezár), és visszaállítja, amint a kazán leáll, a szoba visszahűl a céljára vagy hőt kér. Nyitott ablaknál (ha van ablakérzékelő) ugyanígy zár. A TRV eltolás miatti túlfűtés ellen való. Egyben legfeljebb 30 percig tart, utána a szelep néhány percre visszakapja a saját menetrendjét. Szoba hőmérő kell hozzá. Több szelepmozgással jár (elem); a „Szelep szabályzás próbaüzem” kapcsolóval előbb kipróbálható.",
           "humidity_sensor": "Magas páratartalomnál enyhén megemeli a szoba célhőmérsékletét (lásd Alapbeállítások).",
+          "humidity_max_boost": "Üresen hagyva az Alapbeállítások értéke érvényes. 0 = ebben a szobában nincs páratartalom miatti emelés.",
           "window_sensors": "Amíg egy ablak vagy ajtó a késleltetésnél tovább nyitva van, a szoba nem kér hőt, és a szelep emelés leáll. Több érzékelőnél bármelyik nyitott elég.",
           "window_open_delay": "Mennyi ideig kell nyitva lennie az ablaknak, mielőtt a szoba reagál, így a rövid szellőztetés nem kapcsol semmit. 0 = azonnal. Üresen az általános érték érvényes.",
           "calibrate_valves": "A szoba hőmérője alapján korrigálja a szelepek hőmérőjét. Csak megadott szoba hőmérővel működik. Kikapcsolva ennek a szobának a szelepeihez nem nyúl.",
@@ -144,6 +152,7 @@
           "max_boost_hours": "Szelep emelés max. időtartama (óra)",
           "max_boost_rest_minutes": "Pihenő a max. idő után (perc)",
           "window_open_delay": "Ablak nyitva késleltetés – alapértelmezés (perc)",
+          "frost_temp": "Fagyvédelem küszöbe (°C, 0 = ki)",
           "valve_dry_run": "Szelep szabályzás próbaüzem (csak naplóz, nem ír a szelepekbe)",
           "register_card": "Lovelace kártya betöltése"
         },
@@ -161,7 +170,8 @@
           "max_boost_hours": "Ennyi idő után a szelep akkor is visszakapja az eredeti célhőmérsékletét, ha a szoba nem érte el a célt.",
           "max_boost_rest_minutes": "A maximális idő elérése után ennyi ideig nem indul új emelés. Ha a szoba eléri a célját, ez nullázódik.",
           "window_open_delay": "Alapértelmezés minden szobára: mennyi ideig kell nyitva lennie az ablaknak, mielőtt a szoba fűtése szünetel. A rövidebb szellőztetés nem változtat semmit.",
-          "valve_dry_run": "Bekapcsolva a szelep szabályzás csak a naplóba írja, mit tenne ([PRÓBAÜZEM] előtaggal), de nem módosít semmit a szelepeken. Az első élő teszthez ajánlott.",
+          "frost_temp": "Ha egy szoba 5 percnél tovább ennél hidegebb, a szoba a szelep állapotától, a nyitott ablaktól és a nyári módtól függetlenül hőt kér, amíg 1 °C-kal a küszöb fölé nem melegszik. A kikapcsolt szelepet fűtésre kapcsolja, a célját a küszöb + 1 °C-ra állítja. A Javítások között értesítést kapsz róla.",
+          "valve_dry_run": "Bekapcsolva a szelep szabályzás csak a naplóba írja, mit tenne ([PRÓBAÜZEM] előtaggal), de nem módosít semmit a szelepeken. Az első élő teszthez ajánlott. A szelep-zárásra is érvényes.",
           "register_card": "Bekapcsolva az integráció felveszi a kártya fájlját az irányítópult erőforrásai közé (Beállítások → Irányítópultok → Erőforrások), és frissen tartja a verzióját, így megjelenik a „Kártya hozzáadása” listában. Magától soha nem tesz kártyát egyetlen irányítópultra sem. YAML módú irányítópultnál az erőforrást kézzel kell felvenni (lásd README). Kikapcsolva az integráció nem nyúl az erőforrásokhoz."
         }
       },
@@ -348,6 +358,21 @@
           "temperature_sensor_unreliable": {
             "name": "A szoba hőmérő nem megbízható (képtelen vagy ugráló érték)"
           },
+          "temperature_sensor_stuck": {
+            "name": "A szoba hőmérő fűtés közben nem jelent (elakadt)"
+          },
+          "valves_unreachable": {
+            "name": "A szelepek nem elérhetők (a szoba hőmérője vezérel)"
+          },
+          "valves_unreachable_paused": {
+            "name": "A tartalék vezérlés szünetel (a szoba fűtés mellett sem melegszik)"
+          },
+          "frost_protection": {
+            "name": "Fagyvédelem működik"
+          },
+          "valve_cut": {
+            "name": "Szelep-zárás működik (a szelep célja lejjebb állítva)"
+          },
           "valve_boost_resting": {
             "name": "Szelep emelés pihenőn a max. idő után"
           },
@@ -428,6 +453,9 @@
           },
           "heating_rate_learned": {
             "name": "A felfűtési sebesség már megtanulva"
+          },
+          "heating_rate_samples": {
+            "name": "Felfűtési minták száma (fűtési alkalmak)"
           },
           "calibration_enabled": {
             "name": "Szelep kalibráció be van kapcsolva"
@@ -565,13 +593,33 @@
       "title": "A szoba hőmérő nem megbízható",
       "description": "A(z) {room} szoba {sensor} hőmérője képtelen vagy összevissza ugráló értéket adott (például hibaértéket vagy gyors fel-le ingadozást), ezért {minutes} percig nem használom. A szoba most a szelepek saját mérését használja, az automata szelep szabályzás és a szelep kalibráció szünetel. Az értesítés eltűnik, amint a szenzor újra hihető értékeket ad."
     },
+    "stuck_room_temp": {
+      "title": "A szoba hőmérő fűtés közben nem jelent",
+      "description": "A(z) {room} szoba {sensor} hőmérője {minutes} perce nem jelentett, miközben a szoba hőt kér és a kazán megy (elakadhatott egy értéken: lemerülő elem vagy kapcsolati hiba). A szoba most a szelepek saját mérését használja. Az értesítés eltűnik, amint a hőmérő újra jelent."
+    },
+    "valves_unreachable": {
+      "title": "A szoba szelepei nem elérhetők",
+      "description": "A(z) {room} szoba szelepei több mint {minutes} perce nem elérhetők (hub, Wi-Fi vagy Meross LAN hiba). A szoba hőigényét addig a szoba hőmérője és a szelepeken utoljára látott cél ({target} °C) adja; a szelepek közben a saját beállításuk szerint szabályoznak tovább. Ha a szoba járó kazán mellett 2 óra alatt sem melegszik (a szelep zárva maradhatott), a plugin 6 órára szünetelteti a szoba hőigényét, utána újra próbálja. Az értesítés eltűnik, amint a szelepek újra elérhetők."
+    },
+    "heating_blind": {
+      "title": "Egyik szoba sem értékelhető – a kazán kikapcsolva",
+      "description": "Egyik szoba szelepe sem elérhető több mint {minutes} perce, és a szobák hőmérőjéből sem megy tartalék vezérlés (nincs szoba hőmérő vagy ismert cél). A plugin vakon nem fűt tovább: a kazánt kikapcsolta. A fagyvédelem a hőmérővel rendelkező szobákban továbbra is működik. Ellenőrizd a Meross hubot és a Meross LAN integrációt. Az értesítés eltűnik, amint legalább egy szoba újra értékelhető."
+    },
+    "frost_protection": {
+      "title": "Fagyvédelem működik",
+      "description": "A(z) {room} szoba hőmérséklete {temperature} °C, ami a fagyvédelem küszöbe ({threshold} °C) alatt van. A szoba a szelep állapotától, a nyitott ablaktól és a nyári módtól függetlenül hőt kér, amíg {target} °C fölé nem melegszik; a kikapcsolt szelepeit a plugin ezzel a céllal fűtésre kapcsolta (így maradnak, amíg át nem állítod). Az értesítés eltűnik, amint a szoba felmelegedett. A küszöb az Alapbeállításokban állítható (0 = ki)."
+    },
+    "boiler_command_failed": {
+      "title": "A kazán termosztátja nem követi a parancsokat",
+      "description": "A kazán termosztátja ({boiler}) egymás után {count} alkalommal nem fogadta el vagy nem követte a be- / kikapcsoló parancsot. A plugin percenként újra próbálja. Ellenőrizd, hogy a termosztát elérhető-e a Home Assistantban, és Meross MTS200 esetén azt is, hogy a „Summer mode” (nyári mód) kapcsolója ki van-e kapcsolva. Az értesítés eltűnik, amint a termosztát újra követi a parancsot."
+    },
     "stale_outdoor": {
       "title": "A kinti hőmérséklet szenzor nem frissül",
       "description": "A(z) {sensor} kinti szenzor több mint {hours} órája nem jelentett (lehet, hogy lemerült az elem). A nyári mód addig ki van kapcsolva, így a fűtés engedélyezett marad. Az értesítés eltűnik, amint a szenzor újra jelent."
     },
     "calibration_suspended": {
       "title": "A szelep kalibráció felfüggesztve",
-      "description": "A(z) {room} szoba {valve} szelepén a kalibráció két egymás utáni módosítása sem hozta közelebb a szelep mérését a szoba hőmérőjéhez (vagy a kalibráció-szám 24 órán belül kétszer is visszaállt a régi értékre: az eszköz nem tartotta meg, vagy kézzel visszaállították), ezért az automata kalibráció ennél a szelepnél {days} napra fel van függesztve. Ha a módosítás nem hozta közelebb a szelepet, a plugin visszaállította az előző értéket. Ellenőrizd a szelep *Calibration* számát, és hogy a szelep valóban figyelembe veszi-e. Az értesítés eltűnik, amint a felfüggesztés lejár vagy a funkciót kikapcsolod."
+      "description": "A(z) {room} szoba {valve} szelepén a kalibráció két egymás utáni módosítása sem hozta közelebb a szelep mérését a szoba hőmérőjéhez (vagy a kalibráció-szám 24 órán belül kétszer is visszaállt a régi értékre: az eszköz nem tartotta meg, vagy kézzel visszaállították), ezért az automata kalibráció ennél a szelepnél {days} napra fel van függesztve. Ha a módosítás nem hozta közelebb a szelepet, a plugin visszaállította az előző értéket. Ellenőrizd a szelep *Calibration* számát, és hogy a szelep valóban figyelembe veszi-e. Az értesítés eltűnik, amint a felfüggesztés lejár vagy a funkciót kikapcsolod. A felfüggesztés azonnal feloldható a szelep TRV eltolásának átállításával vagy a `meross_boiler_sync.reset_calibration` szolgáltatással."
     }
   },
   "selector": {
@@ -627,6 +675,10 @@
     "cancel_preheat": {
       "name": "Előfűtés törlése",
       "description": "Törli az egyszeri kérést, és kihagyja a most futó vagy következő menetrendi előfűtést."
+    },
+    "reset_calibration": {
+      "name": "Kalibráció alaphelyzetbe állítása",
+      "description": "Törli a szoba szelepeinek kalibrációs hibaállapotát (hibapontok, felfüggesztés, függő ellenőrzés), így a felfüggesztett szelep azonnal újra részt vesz a kalibrációban. A szelep kalibráció-számát nem módosítja."
     }
   },
   "exceptions": {

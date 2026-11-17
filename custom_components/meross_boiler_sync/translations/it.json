@@ -41,7 +41,9 @@
           "valve_boost_delay": "Attesa prima della spinta della valvola – questa stanza, minuti (vuoto = valore globale)",
           "valve_release_margin": "Rilascio della valvola prima del target – questa stanza (vuoto = valore globale)",
           "valve_demand_link": "Collega la richiesta della caldaia allo stato della valvola",
+          "valve_cut": "Chiudi le valvole contro il surriscaldamento e con finestra aperta",
           "humidity_sensor": "Sensore di umidità della stanza (facoltativo)",
+          "humidity_max_boost": "Aumento massimo per umidità in questa stanza (°C)",
           "window_sensors": "Sensore/i finestra / porta (facoltativo)",
           "window_open_delay": "Ritardo finestra aperta – questa stanza, minuti (vuoto = valore globale)",
           "calibrate_valves": "Calibrazione automatica delle valvole (se attiva in Funzioni)",
@@ -56,7 +58,9 @@
           "valve_boost_delay": "Per quanto tempo lo scostamento deve persistere prima della spinta. 0 = subito. Se vuoto, vale il valore globale.",
           "valve_release_margin": "La valvola riottiene il target originale con questo anticipo rispetto al target. Deve essere inferiore alla soglia. Se vuoto, vale il valore globale.",
           "valve_demand_link": "Se attivo, la stanza richiede calore alla caldaia solo quando la sua valvola è aperta (la misura della valvola è sotto il suo target) o quando il plugin la sta forzando ad aprirsi. Così la caldaia non scalda contro valvole chiuse per piccoli scostamenti. Non blocca il riscaldamento se mancano i dati della valvola.",
+          "valve_cut": "Se il termometro indica che la stanza supera il target di almeno 0,3 °C e la stanza non richiede calore mentre la caldaia funziona per un’altra stanza, il target delle valvole aperte della stanza viene abbassato temporaneamente di 3 °C (la valvola si chiude) e ripristinato non appena la caldaia si ferma, la stanza torna al target o richiede calore. Con una finestra aperta (se c’è un sensore finestra) le valvole vengono chiuse allo stesso modo. Pensato contro il surriscaldamento dovuto all’offset TRV. Ogni chiusura dura al massimo 30 minuti, poi la valvola riprende per qualche minuto la propria programmazione. Richiede un termometro nella stanza. La valvola si muove più spesso (batteria); si può provare prima con l’opzione «Prova del controllo valvole».",
           "humidity_sensor": "Con umidità elevata il target della stanza viene alzato leggermente (vedi Impostazioni di base).",
+          "humidity_max_boost": "Lascia vuoto per usare il valore delle Impostazioni di base. 0 = nessun aumento per umidità in questa stanza.",
           "window_sensors": "Finché una finestra o una porta resta aperta più a lungo del ritardo, la stanza non richiede calore e la spinta della valvola viene rilasciata. Con più sensori basta uno aperto.",
           "window_open_delay": "Per quanto tempo la finestra deve restare aperta prima che la stanza reagisca, così un breve ricambio d’aria non cambia nulla. 0 = subito. Se vuoto, vale il valore globale.",
           "calibrate_valves": "Corregge la misura di temperatura delle valvole usando il termometro della stanza. Funziona solo con un sensore di temperatura della stanza. Se disattivata, le valvole di questa stanza non vengono toccate.",
@@ -80,7 +84,9 @@
           "valve_boost_delay": "Attesa prima della spinta della valvola – questa stanza, minuti (vuoto = valore globale)",
           "valve_release_margin": "Rilascio della valvola prima del target – questa stanza (vuoto = valore globale)",
           "valve_demand_link": "Collega la richiesta della caldaia allo stato della valvola",
+          "valve_cut": "Chiudi le valvole contro il surriscaldamento e con finestra aperta",
           "humidity_sensor": "Sensore di umidità della stanza (facoltativo)",
+          "humidity_max_boost": "Aumento massimo per umidità in questa stanza (°C)",
           "window_sensors": "Sensore/i finestra / porta (facoltativo)",
           "window_open_delay": "Ritardo finestra aperta – questa stanza, minuti (vuoto = valore globale)",
           "calibrate_valves": "Calibrazione automatica delle valvole (se attiva in Funzioni)",
@@ -95,7 +101,9 @@
           "valve_boost_delay": "Per quanto tempo lo scostamento deve persistere prima della spinta. 0 = subito. Se vuoto, vale il valore globale.",
           "valve_release_margin": "La valvola riottiene il target originale con questo anticipo rispetto al target. Deve essere inferiore alla soglia. Se vuoto, vale il valore globale.",
           "valve_demand_link": "Se attivo, la stanza richiede calore alla caldaia solo quando la sua valvola è aperta (la misura della valvola è sotto il suo target) o quando il plugin la sta forzando ad aprirsi. Così la caldaia non scalda contro valvole chiuse per piccoli scostamenti. Non blocca il riscaldamento se mancano i dati della valvola.",
+          "valve_cut": "Se il termometro indica che la stanza supera il target di almeno 0,3 °C e la stanza non richiede calore mentre la caldaia funziona per un’altra stanza, il target delle valvole aperte della stanza viene abbassato temporaneamente di 3 °C (la valvola si chiude) e ripristinato non appena la caldaia si ferma, la stanza torna al target o richiede calore. Con una finestra aperta (se c’è un sensore finestra) le valvole vengono chiuse allo stesso modo. Pensato contro il surriscaldamento dovuto all’offset TRV. Ogni chiusura dura al massimo 30 minuti, poi la valvola riprende per qualche minuto la propria programmazione. Richiede un termometro nella stanza. La valvola si muove più spesso (batteria); si può provare prima con l’opzione «Prova del controllo valvole».",
           "humidity_sensor": "Con umidità elevata il target della stanza viene alzato leggermente (vedi Impostazioni di base).",
+          "humidity_max_boost": "Lascia vuoto per usare il valore delle Impostazioni di base. 0 = nessun aumento per umidità in questa stanza.",
           "window_sensors": "Finché una finestra o una porta resta aperta più a lungo del ritardo, la stanza non richiede calore e la spinta della valvola viene rilasciata. Con più sensori basta uno aperto.",
           "window_open_delay": "Per quanto tempo la finestra deve restare aperta prima che la stanza reagisca, così un breve ricambio d’aria non cambia nulla. 0 = subito. Se vuoto, vale il valore globale.",
           "calibrate_valves": "Corregge la misura di temperatura delle valvole usando il termometro della stanza. Funziona solo con un sensore di temperatura della stanza. Se disattivata, le valvole di questa stanza non vengono toccate.",
@@ -144,6 +152,7 @@
           "max_boost_hours": "Durata massima della spinta della valvola (ore)",
           "max_boost_rest_minutes": "Pausa dopo la durata massima (minuti)",
           "window_open_delay": "Ritardo finestra aperta – predefinito (minuti)",
+          "frost_temp": "Soglia di protezione antigelo (°C, 0 = disattivata)",
           "valve_dry_run": "Prova del controllo valvole (solo log, nessuna scrittura sulle valvole)",
           "register_card": "Carica la scheda Lovelace"
         },
@@ -161,7 +170,8 @@
           "max_boost_hours": "Trascorso questo tempo la valvola riottiene il target originale, anche se la stanza non ha raggiunto il target.",
           "max_boost_rest_minutes": "Per quanto tempo non parte una nuova spinta dopo aver raggiunto la durata massima. Si azzera quando la stanza raggiunge il target.",
           "window_open_delay": "Predefinito per tutte le stanze: per quanto tempo una finestra deve restare aperta prima che il riscaldamento di quella stanza si metta in pausa. Un ricambio d’aria più breve non cambia nulla.",
-          "valve_dry_run": "Se attivo, il controllo valvole scrive nel log solo ciò che farebbe (prefisso [PRÓBAÜZEM]) e non modifica nulla sulle valvole. Consigliato per il primo test reale.",
+          "frost_temp": "Se una stanza resta più fredda di questo valore per più di 5 minuti, richiede calore indipendentemente dallo stato della valvola, da una finestra aperta e dalla modalità estate, finché non supera la soglia di 1 °C. Una valvola spenta viene accesa con target pari alla soglia + 1 °C. Riceverai un avviso di riparazione.",
+          "valve_dry_run": "Se attivo, il controllo valvole scrive nel log solo ciò che farebbe (prefisso [PRÓBAÜZEM]) e non modifica nulla sulle valvole. Consigliato per il primo test reale. Vale anche per la chiusura delle valvole contro il surriscaldamento.",
           "register_card": "Se attivo, l'integrazione aggiunge il file della scheda alle risorse della dashboard (Impostazioni → Dashboard → Risorse) e ne mantiene aggiornata la versione, così compare nell'elenco «Aggiungi scheda» (non aggiunge mai una scheda a una dashboard da sola). Con le dashboard in modalità YAML devi aggiungere la risorsa manualmente (vedi README). Se disattivato, l'integrazione non tocca le risorse."
         }
       },
@@ -348,6 +358,21 @@
           "temperature_sensor_unreliable": {
             "name": "Sensore di temperatura della stanza inaffidabile (valori impossibili o instabili)"
           },
+          "temperature_sensor_stuck": {
+            "name": "Il termometro della stanza non comunica durante il riscaldamento (bloccato)"
+          },
+          "valves_unreachable": {
+            "name": "Valvole non raggiungibili (regola il termometro della stanza)"
+          },
+          "valves_unreachable_paused": {
+            "name": "Regolazione di riserva in pausa (la stanza non si riscalda)"
+          },
+          "frost_protection": {
+            "name": "Protezione antigelo attiva"
+          },
+          "valve_cut": {
+            "name": "Chiusura valvole attiva (target della valvola abbassato)"
+          },
           "valve_boost_resting": {
             "name": "Spinta della valvola in pausa dopo la durata massima"
           },
@@ -428,6 +453,9 @@
           },
           "heating_rate_learned": {
             "name": "La velocità di riscaldamento è stata appresa"
+          },
+          "heating_rate_samples": {
+            "name": "Campioni della velocità di riscaldamento (sessioni di riscaldamento)"
           },
           "calibration_enabled": {
             "name": "Calibrazione delle valvole attiva"
@@ -565,13 +593,33 @@
       "title": "Il sensore di temperatura della stanza non è affidabile",
       "description": "Il sensore di temperatura {sensor} della stanza {room} ha comunicato un valore impossibile o instabile (per esempio un valore di errore o rapidi sbalzi su e giù), quindi viene ignorato per {minutes} minuti. La stanza usa ora la misura propria delle valvole; il controllo automatico e la calibrazione delle valvole sono sospesi. Questa notifica scompare appena il sensore torna a fornire valori plausibili."
     },
+    "stuck_room_temp": {
+      "title": "Il termometro della stanza non comunica durante il riscaldamento",
+      "description": "Il termometro {sensor} della stanza {room} non comunica da {minutes} minuti mentre la stanza richiede calore e la caldaia è accesa (potrebbe essere bloccato su un valore: batteria scarica o problema di connessione). La stanza usa ora la misura propria delle valvole. Questo avviso scompare appena il termometro torna a comunicare."
+    },
+    "valves_unreachable": {
+      "title": "Le valvole della stanza non sono raggiungibili",
+      "description": "Le valvole della stanza {room} non sono raggiungibili da oltre {minutes} minuti (hub, Wi-Fi o Meross LAN). Nel frattempo la richiesta di calore della stanza si basa sul termometro della stanza e sull’ultimo target visto sulle valvole ({target} °C); le valvole continuano a regolare secondo le proprie impostazioni. Se la stanza non si riscalda entro 2 ore con la caldaia accesa (la valvola potrebbe essere rimasta chiusa), la sua richiesta di calore viene sospesa per 6 ore e poi ritentata. Questo avviso scompare appena le valvole tornano raggiungibili."
+    },
+    "heating_blind": {
+      "title": "Nessuna stanza valutabile – caldaia spenta",
+      "description": "Nessuna valvola è raggiungibile da oltre {minutes} minuti e nessuna stanza può essere regolata dal proprio termometro (nessun termometro o nessun target noto). L’integrazione non riscalda alla cieca: la caldaia è stata spenta. La protezione antigelo continua a funzionare nelle stanze con termometro. Controlla l’hub Meross e l’integrazione Meross LAN. Questo avviso scompare appena almeno una stanza torna valutabile."
+    },
+    "frost_protection": {
+      "title": "Protezione antigelo attiva",
+      "description": "La stanza {room} è a {temperature} °C, sotto la soglia di protezione antigelo ({threshold} °C). La stanza richiede calore indipendentemente dallo stato della valvola, da una finestra aperta e dalla modalità estate finché non supera {target} °C; le valvole spente sono state accese con questo target (restano così finché non le modifichi). Questo avviso scompare quando la stanza si è riscaldata. La soglia si modifica nelle Impostazioni di base (0 = disattivata)."
+    },
+    "boiler_command_failed": {
+      "title": "Il termostato della caldaia non segue i comandi",
+      "description": "Il termostato della caldaia ({boiler}) ha rifiutato o non ha seguito il comando di accensione/spegnimento per {count} volte di seguito. L’integrazione riprova ogni minuto. Controlla che il termostato sia disponibile in Home Assistant e, per un Meross MTS200, che l’interruttore «Summer mode» sia spento. Questo avviso scompare appena il termostato torna a seguire il comando."
+    },
     "stale_outdoor": {
       "title": "Il sensore di temperatura esterna non si aggiorna",
       "description": "Il sensore esterno {sensor} non comunica da oltre {hours} ore (la batteria potrebbe essere scarica). La modalità estate resta disattivata finché non torna a comunicare, quindi il riscaldamento resta consentito. Questa notifica scompare appena il sensore torna a comunicare."
     },
     "calibration_suspended": {
       "title": "Calibrazione delle valvole sospesa",
-      "description": "Sulla valvola {valve} di {room}, due modifiche di calibrazione consecutive non hanno avvicinato la misura della valvola al termometro della stanza (oppure il numero di calibrazione è tornato due volte al vecchio valore entro 24 ore: il dispositivo non lo ha mantenuto, oppure è stato reimpostato a mano). La calibrazione automatica è quindi sospesa per questa valvola per {days} giorni. Se una modifica non ha avvicinato la misura, è stato ripristinato il valore precedente. Controlla il numero *Calibrazione* della valvola e se la valvola lo applica davvero. L’avviso scompare alla fine della sospensione o quando la funzione viene disattivata."
+      "description": "Sulla valvola {valve} di {room}, due modifiche di calibrazione consecutive non hanno avvicinato la misura della valvola al termometro della stanza (oppure il numero di calibrazione è tornato due volte al vecchio valore entro 24 ore: il dispositivo non lo ha mantenuto, oppure è stato reimpostato a mano). La calibrazione automatica è quindi sospesa per questa valvola per {days} giorni. Se una modifica non ha avvicinato la misura, è stato ripristinato il valore precedente. Controlla il numero *Calibrazione* della valvola e se la valvola lo applica davvero. L’avviso scompare alla fine della sospensione o quando la funzione viene disattivata. La sospensione si può rimuovere subito modificando l’offset TRV della valvola o con il servizio `meross_boiler_sync.reset_calibration`."
     }
   },
   "selector": {
@@ -627,6 +675,10 @@
     "cancel_preheat": {
       "name": "Annulla preriscaldamento",
       "description": "Cancella la richiesta singola e salta il preriscaldamento programmato in corso o successivo."
+    },
+    "reset_calibration": {
+      "name": "Reimposta calibrazione",
+      "description": "Cancella lo stato di errore della calibrazione delle valvole della stanza (errori, sospensione, verifica in sospeso), così una valvola sospesa torna subito a partecipare alla calibrazione. Non modifica il numero di calibrazione della valvola."
     }
   },
   "exceptions": {

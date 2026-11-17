@@ -31,6 +31,10 @@ Fully localized in over 15 languages (including English, Hungarian, German, Fren
 
 ## 📋 Version History
 
+### Version 3.1
+
+Calibration and learn methoad fixes
+
 ### Version 2.6-3.0
 
 TRW Offset calibration entity hotfix

@@ -31,6 +31,10 @@ Fully localized in over 15 languages (including English, Hungarian, German, Fren
 
 ## 📋 Version History
 
+### Version 3.2
+
+Learning methoad always cancellation bugfix
+
 ### Version 3.1
 
 Calibration and learn methoad fixes

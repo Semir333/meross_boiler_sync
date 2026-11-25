@@ -457,6 +457,15 @@
           "heating_rate_samples": {
             "name": "Campioni della velocità di riscaldamento (sessioni di riscaldamento)"
           },
+          "heating_rate_last_sample": {
+            "name": "Ultimo campione della velocità di riscaldamento"
+          },
+          "heating_rate_last_drop": {
+            "name": "Ultima sessione di riscaldamento non conteggiata"
+          },
+          "heating_rate_session": {
+            "name": "Sessione di riscaldamento in corso"
+          },
           "calibration_enabled": {
             "name": "Calibrazione delle valvole attiva"
           },

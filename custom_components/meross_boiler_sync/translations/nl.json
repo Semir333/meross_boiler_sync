@@ -457,6 +457,15 @@
           "heating_rate_samples": {
             "name": "Metingen opwarmsnelheid (verwarmingsbeurten)"
           },
+          "heating_rate_last_sample": {
+            "name": "Laatste meting opwarmsnelheid"
+          },
+          "heating_rate_last_drop": {
+            "name": "Laatste niet meegetelde verwarmingsbeurt"
+          },
+          "heating_rate_session": {
+            "name": "Lopende verwarmingsbeurt"
+          },
           "calibration_enabled": {
             "name": "Kraankalibratie is aan"
           },

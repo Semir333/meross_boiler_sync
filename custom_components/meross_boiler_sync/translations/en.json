@@ -457,6 +457,15 @@
           "heating_rate_samples": {
             "name": "Heating rate samples (heating sessions)"
           },
+          "heating_rate_last_sample": {
+            "name": "Last heating rate sample"
+          },
+          "heating_rate_last_drop": {
+            "name": "Last heating session not counted"
+          },
+          "heating_rate_session": {
+            "name": "Current heating session"
+          },
           "calibration_enabled": {
             "name": "Valve calibration is on"
           },

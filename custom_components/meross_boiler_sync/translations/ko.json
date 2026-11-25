@@ -457,6 +457,15 @@
           "heating_rate_samples": {
             "name": "난방 속도 샘플 수 (난방 횟수)"
           },
+          "heating_rate_last_sample": {
+            "name": "마지막 난방 속도 샘플"
+          },
+          "heating_rate_last_drop": {
+            "name": "마지막으로 반영되지 않은 난방"
+          },
+          "heating_rate_session": {
+            "name": "진행 중인 난방"
+          },
           "calibration_enabled": {
             "name": "밸브 보정 켜짐"
           },

@@ -457,6 +457,15 @@
           "heating_rate_samples": {
             "name": "Mesures de vitesse de chauffe (séances de chauffage)"
           },
+          "heating_rate_last_sample": {
+            "name": "Dernière mesure de vitesse de chauffe"
+          },
+          "heating_rate_last_drop": {
+            "name": "Dernière séance de chauffage non comptée"
+          },
+          "heating_rate_session": {
+            "name": "Séance de chauffage en cours"
+          },
           "calibration_enabled": {
             "name": "Calibration des vannes activée"
           },

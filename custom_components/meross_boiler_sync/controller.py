@@ -159,6 +159,9 @@ from .const import (
     HEATING_RATE_MIN_SAMPLES,
     HEATING_SESSION_MIN_RISE,
     HEATING_SESSION_MIN_SECONDS,
+    HEATING_DROP_LOG_SECONDS,
+    HEATING_SESSION_PAUSE_MAX,
+    HEATING_SESSION_SAVE_SECONDS,
     HUMIDITY_FULL,
     HUMIDITY_MAX,
     HUMIDITY_MIN,
@@ -342,6 +345,75 @@ def _median(values: list[float]) -> float:
     return ordered[mid] if len(ordered) % 2 else (ordered[mid - 1] + ordered[mid]) / 2
 
 
+# 2.19.1: a fűtési alkalom vége és az elvetés oka (a TRV-naplóhoz; az attribútumokban a kódok szerepelnek)
+_RATE_ENDED_HU = {
+    "target": "a szoba elérte a célját",
+    "pause": f"a hőleadás {HEATING_SESSION_PAUSE_MAX // 60} percnél tovább szünetelt (a szelep elzárt, a kazán állt vagy nem jött mérés), "
+    "a mérés a szünet kezdetéig tart",
+    "restart": "az újraindítás előtti utolsó fűtésig mérve",
+    "interrupted": "megszakadt",
+}
+_RATE_DROP_HU = {
+    "short": f"{HEATING_SESSION_MIN_SECONDS // 60} percnél rövidebb fűtés",
+    "small_rise": f"{HEATING_SESSION_MIN_RISE:g} °C-nál kisebb emelkedés".replace(".", ","),
+    "window": "kinyílt az ablak",
+    "sensor": "a szoba hőmérő megbízhatatlan vagy elakadt",
+    "valves_unreachable": "a szelepek nem elérhetők",
+    "frost": "fagyvédelem",
+}
+
+
+def _load_rate_last(raw: Any, now_ts: float) -> dict[str, Any] | None:
+    """A mentett utolsó minta ellenőrzése (2.19.1); hibás vagy hiányos rekordnál None."""
+    if not isinstance(raw, dict) or raw.get("ended") not in _RATE_ENDED_HU:
+        return None
+    ts, rate, minutes, rise = (_finite(raw.get(k)) for k in ("ts", "rate", "minutes", "rise"))
+    if ts is None or rate is None or minutes is None or rise is None:
+        return None
+    if not (0 < ts <= now_ts + 60 and HEATING_RATE_MIN <= rate <= HEATING_RATE_MAX and 0 <= minutes <= 7 * 24 * 60):
+        return None
+    pauses = _finite(raw.get("pauses"))
+    return {
+        "ts": ts,
+        "rate": round(rate, 3),
+        "minutes": int(minutes),
+        "rise": round(rise, 2),
+        "ended": raw["ended"],
+        "pauses": int(pauses) if pauses is not None and 0 <= pauses <= 1000 else 0,
+    }
+
+
+def _load_rate_drop(raw: Any, now_ts: float) -> dict[str, Any] | None:
+    """A mentett utolsó elvetett alkalom ellenőrzése (2.19.1); hibás vagy hiányos rekordnál None."""
+    if not isinstance(raw, dict) or raw.get("reason") not in _RATE_DROP_HU or raw.get("ended") not in _RATE_ENDED_HU:
+        return None
+    ts, minutes, rise = (_finite(raw.get(k)) for k in ("ts", "minutes", "rise"))
+    if ts is None or minutes is None or rise is None or not (0 < ts <= now_ts + 60 and 0 <= minutes <= 7 * 24 * 60):
+        return None
+    return {"ts": ts, "reason": raw["reason"], "ended": raw["ended"], "minutes": int(minutes), "rise": round(rise, 2)}
+
+
+def _load_rate_run(raw: Any, now_ts: float) -> dict[str, Any] | None:
+    """A mentett futó alkalom ellenőrzése (2.19.1); hibás, jövőbeli vagy egy napnál régebbi rekordnál None."""
+    if not isinstance(raw, dict):
+        return None
+    t0, temp0, t_heat, temp_heat = (_finite(raw.get(k)) for k in ("t0", "temp0", "t_heat", "temp_heat"))
+    if t0 is None or temp0 is None or t_heat is None or temp_heat is None:
+        return None
+    if not (now_ts - 86400 <= t0 <= t_heat <= now_ts + 60):
+        return None
+    if not (SENSOR_TEMP_MIN <= temp0 <= SENSOR_TEMP_MAX and SENSOR_TEMP_MIN <= temp_heat <= SENSOR_TEMP_MAX):
+        return None
+    pauses = _finite(raw.get("pauses"))
+    return {
+        "t0": t0,
+        "temp0": temp0,
+        "t_heat": t_heat,
+        "temp_heat": temp_heat,
+        "pauses": int(pauses) if pauses is not None and 0 <= pauses <= 1000 else 0,
+    }
+
+
 async def _async_restore_valve(
     hass: HomeAssistant,
     valve_id: str,
@@ -479,7 +551,11 @@ class RoomStatus:
     heating_rate: float | None = None
     heating_samples: int = 0
     rate_samples: list[float] = field(default_factory=list)
-    rate_run: dict[str, float] | None = None  # a futó fűtési alkalom: kezdete és a szoba hőmérséklete akkor
+    # a futó fűtési alkalom (2.19.1: kezdete, az utolsó hőleadás közbeni mérés, a szünetek száma; újraindítás után folytatható)
+    rate_run: dict[str, Any] | None = None
+    rate_last: dict[str, Any] | None = None  # 2.19.1: az utolsó minta (idő, sebesség, perc, emelkedés, hogyan ért véget)
+    rate_drop: dict[str, Any] | None = None  # 2.19.1: az utolsó, mintának nem számító alkalom (idő, ok, vége, perc, emelkedés)
+    rate_drop_logged: dict[str, float] = field(default_factory=dict)  # elvetési ok -> mikor került utoljára a TRV-naplóba
     # 2.13: tanult maradékhő (a hőigény megszűnése utáni további melegedés, °C)
     resid_samples: list[float] = field(default_factory=list)  # az utolsó érvényes mérések
     resid_times: list[float] = field(default_factory=list)  # 2.19: a mérések ideje (epoch), a `resid_samples` párja (elévülés)
@@ -917,6 +993,15 @@ class BoilerController:
                 st.rate_samples = samples
                 st.heating_rate = round(_median(samples), 3)
                 st.heating_samples = len(samples)
+            # 2.19.1: az utolsó minta és az utolsó elvetett alkalom (a szenzor attribútumaihoz), és a futó alkalom: rövid
+            # újraindítás után folytatódik, hosszabb után a `_learn_rates` az újraindítás előtti adatokkal lezárja
+            st.rate_last = _load_rate_last(rec.get("last"), now_ts)
+            st.rate_drop = _load_rate_drop(rec.get("drop"), now_ts)
+            run = _load_rate_run(rec.get("run"), now_ts)
+            if run is not None:
+                run["heating"] = False  # az újraindítás szünetnek számít
+                run["restored"] = True
+                st.rate_run = run
         if self.manual_boost_enabled:
             for room_id, rec in _as_dict(data.get("manual")).items():
                 st = self.status.get(room_id)
@@ -1364,53 +1449,139 @@ class BoilerController:
         return self.preheat_default_rate
 
     def _learn_rates(self, statuses: list[RoomStatus]) -> None:
-        """A felfűtési sebesség tanulása fűtési alkalmanként (2.19).
+        """A felfűtési sebesség tanulása fűtési alkalmanként (2.19; 2.19.1: a rövid szünetek nem szakítják meg).
 
-        Egy alkalom: a szoba hőt kér a kazántól, a kazán megy, a szoba hőmérője megbízható, és nincs nyitott ablak. Ha az
-        alkalom természetesen ér véget (a szoba elérte a célját, vagyis már nem kér hőt), a minta a közben mért emelkedés
-        osztva az eltelt idővel, a radiátor felfűtésének idejével együtt: az előfűtésnek pontosan ez kell. A megszakadt
-        alkalom (leállt a kazán, ablak, szenzorhiba), a 20 percnél rövidebb és a 0,2 °C-nál kisebb emelkedésű nem minta.
-        A tanult érték az utolsó `HEATING_RATE_KEEP` alkalom mediánja. A korábbi módszer (a 30 perces trend percenkénti
-        átlaga) késett: a fűtés elején még a hűlést látta, ezért a gyorsan melegedő szobára kisebb számot tanult.
+        Egy alkalom akkor indul, amikor a hőt kérő szoba hőt kap (a szoba hőt kér a kazántól, és a kazán megy), a szoba
+        hőmérője megbízható, és nincs nyitott ablak, tartalék vezérlés vagy fagyvédelem. A hőleadás legfeljebb
+        `HEATING_SESSION_PAUSE_MAX` hosszú szünete nem szakítja meg: a szelep elzárása (a szelep állapotához kötött
+        hőigénynél ilyenkor a kazán is leáll; a Meross szelep a radiátor melletti mérése miatt gyakran a szoba céljának
+        elérése előtt zár), a kazán ciklusvédelmi szünete, egy kimaradt mérés vagy egy újraindítás.
+
+        A minta az emelkedés osztva az idővel, a rövid szünetekkel és a radiátor felfűtésével együtt:
+        - ha a szoba már nem kér hőt (elérte a célját): az alkalom kezdetétől mostanáig;
+        - ha a hőleadás ennél tovább szünetel (vagy a HA ennél tovább nem futott): a kezdettől a szünet kezdetéig, vagyis az
+          utolsó hőleadás közbeni mérésig (a szelep elzárása előtti fűtés is érvényes mérés);
+        legalább 20 perc és 0,2 °C emelkedés kell hozzá. A nyitott ablak, a szoba hőmérő hibája, a tartalék vezérlés és a
+        fagyvédelem az alkalmat elveti. A nem számító alkalom okát a TRV-napló és a szoba szenzorának
+        `heating_rate_last_drop` attribútuma mutatja (a célját gyorsan elérő rövid rátöltés rendszeres, ezért az csak az
+        attribútumban és a hibakereső naplóban látszik).
         """
         boiler_on = self._boiler_is_on()
         now_ts = dt_util.utcnow().timestamp()
         for st in statuses:
-            usable = (
-                st.current is not None
-                and st.source == "sensor"
-                and not st.sensor_unusable
-                and not st.window_open
-            )
+            reading = st.current is not None and st.source == "sensor" and not st.sensor_unusable
+            heating = reading and st.boiler_demand and boiler_on is True
             run = st.rate_run
-            if usable and st.boiler_demand and boiler_on:
-                if run is None:
-                    st.rate_run = {"t0": now_ts, "temp0": st.current}
-                continue
             if run is None:
+                if heating and st.calling and self._rate_spoiler(st) is None:
+                    st.rate_run = {
+                        "t0": now_ts,
+                        "temp0": st.current,
+                        "t_heat": now_ts,
+                        "temp_heat": st.current,
+                        "pauses": 0,
+                        "heating": True,
+                    }
+                    self._delay_save(HEATING_SESSION_SAVE_SECONDS)
                 continue
-            st.rate_run = None
-            if not usable or st.calling:
-                continue  # megszakadt (leállt a kazán, ablak, szenzorhiba): nem természetes vég, nem minta
-            seconds = now_ts - run["t0"]
-            rise = st.current - run["temp0"]
-            if seconds < HEATING_SESSION_MIN_SECONDS or rise < HEATING_SESSION_MIN_RISE - 1e-9:
+            if now_ts - run["t_heat"] > HEATING_SESSION_PAUSE_MAX:
+                # a hőleadás (vagy a mérés) régóta szünetel, vagy a HA ennél tovább nem futott: a szünet kezdetéig mért adat
+                # érvényes, azzal zárjuk (az újraindítás előtti, azóta nem folytatott alkalomnál "restart")
+                self._finish_rate_run(
+                    st, run["t_heat"], run["temp_heat"], "restart" if run.get("restored") else "pause", now_ts
+                )
                 continue
-            sample = round(_clamp(rise / (seconds / 3600), HEATING_RATE_MIN, HEATING_RATE_MAX), 3)
-            st.rate_samples.append(sample)
-            del st.rate_samples[:-HEATING_RATE_KEEP]
-            st.heating_rate = round(_median(st.rate_samples), 3)
-            st.heating_samples = len(st.rate_samples)
-            self._tlog(
-                "%s: felfűtési minta: +%.1f °C %d perc alatt (%.2f °C/óra); tanult sebesség: %.2f °C/óra (%d alkalomból)",
-                st.name,
-                rise,
-                round(seconds / 60),
-                sample,
-                st.heating_rate,
-                st.heating_samples,
-            )
-            self._delay_save(60)
+            spoiler = self._rate_spoiler(st)
+            if spoiler is not None:
+                st.rate_run = None
+                self._note_rate_drop(
+                    st, spoiler, "interrupted", max(run["t_heat"] - run["t0"], 0.0), run["temp_heat"] - run["temp0"], now_ts
+                )
+                continue
+            if not st.calling and reading:
+                self._finish_rate_run(st, now_ts, st.current, "target", now_ts)
+                continue
+            if heating:
+                if not run.get("heating"):
+                    run["pauses"] = int(run.get("pauses", 0)) + 1  # szünet után újra kap hőt
+                run.update(t_heat=now_ts, temp_heat=st.current, heating=True)
+                run.pop("restored", None)
+            else:
+                run["heating"] = False  # rövid szünet: a szelep elzárt, a kazán áll, vagy most nincs mérés
+            self._delay_save(HEATING_SESSION_SAVE_SECONDS)
+
+    @staticmethod
+    def _rate_spoiler(st: RoomStatus) -> str | None:
+        """Ami mellett a mérés nem a szoba szokásos felfűtését mutatja: az alkalom elvetésének oka (2.19.1), vagy None."""
+        if st.window_open:
+            return "window"
+        if st.sensor_bad is not None or st.sensor_stuck:
+            return "sensor"
+        if st.fallback:
+            return "valves_unreachable"
+        if st.frost:
+            return "frost"
+        return None
+
+    def _finish_rate_run(self, st: RoomStatus, end_ts: float, end_temp: float, ended: str, now_ts: float) -> None:
+        """A futó alkalom lezárása: minta, ha legalább 20 perc és 0,2 °C; különben elvetett alkalom (az okával)."""
+        run = st.rate_run or {}
+        st.rate_run = None
+        seconds = max(end_ts - run.get("t0", end_ts), 0.0)
+        rise = end_temp - run.get("temp0", end_temp)
+        if seconds < HEATING_SESSION_MIN_SECONDS:
+            self._note_rate_drop(st, "short", ended, seconds, rise, now_ts)
+            return
+        if rise < HEATING_SESSION_MIN_RISE - 1e-9:
+            self._note_rate_drop(st, "small_rise", ended, seconds, rise, now_ts)
+            return
+        pauses = int(run.get("pauses", 0))
+        sample = round(_clamp(rise / (seconds / 3600), HEATING_RATE_MIN, HEATING_RATE_MAX), 3)
+        st.rate_samples.append(sample)
+        del st.rate_samples[:-HEATING_RATE_KEEP]
+        st.heating_rate = round(_median(st.rate_samples), 3)
+        st.heating_samples = len(st.rate_samples)
+        st.rate_last = {
+            "ts": end_ts,
+            "rate": sample,
+            "minutes": round(seconds / 60),
+            "rise": round(rise, 2),
+            "ended": ended,
+            "pauses": pauses,
+        }
+        self._tlog(
+            "%s: felfűtési minta: +%.1f °C %d perc alatt (%.2f °C/óra; %s%s); tanult sebesség: %.2f °C/óra (%d alkalomból)",
+            st.name,
+            rise,
+            round(seconds / 60),
+            sample,
+            _RATE_ENDED_HU[ended],
+            f", {pauses} rövid szünettel" if pauses else "",
+            st.heating_rate,
+            st.heating_samples,
+        )
+        self._delay_save(60)
+
+    def _note_rate_drop(
+        self, st: RoomStatus, reason: str, ended: str, seconds: float, rise: float, now_ts: float
+    ) -> None:
+        """Egy mintának nem számító alkalom rögzítése (attribútum, mentés) és naplózása az okával."""
+        st.rate_drop = {
+            "ts": now_ts,
+            "reason": reason,
+            "ended": ended,
+            "minutes": round(seconds / 60),
+            "rise": round(rise, 2),
+        }
+        self._delay_save(60)
+        args = (st.name, _RATE_DROP_HU[reason], round(seconds / 60), rise, _RATE_ENDED_HU[ended])
+        key = f"{reason}/{ended}"
+        routine = ended == "target" and reason in ("short", "small_rise")  # a célját gyorsan elérő rövid rátöltés
+        if routine or now_ts - st.rate_drop_logged.get(key, -1e12) < HEATING_DROP_LOG_SECONDS:
+            _LOGGER.debug("%s: a felfűtési alkalom nem számít mintának: %s (%d perc, %+.1f °C; %s)", *args)
+            return
+        st.rate_drop_logged[key] = now_ts
+        self._tlog("%s: a felfűtési alkalom nem számít mintának: %s (%d perc, %+.1f °C; %s)", *args)
 
     def _preheat_plans(
         self, st: RoomStatus, room: dict[str, Any], now_ts: float
@@ -1815,9 +1986,17 @@ class BoilerController:
             },
             # 2.19: fűtési alkalmankénti minták ("s"); a "rate" és az "n" csak tájékoztató (a betöltés a mintákból számol)
             "rates": {
-                st.room_id: {"rate": st.heating_rate, "n": st.heating_samples, "s": list(st.rate_samples)}
+                st.room_id: {
+                    "rate": st.heating_rate,
+                    "n": st.heating_samples,
+                    "s": list(st.rate_samples),
+                    # 2.19.1: az utolsó minta, az utolsó elvetett alkalom és a futó alkalom
+                    **({"last": dict(st.rate_last)} if st.rate_last else {}),
+                    **({"drop": dict(st.rate_drop)} if st.rate_drop else {}),
+                    **({"run": {k: v for k, v in st.rate_run.items() if k != "restored"}} if st.rate_run else {}),
+                }
                 for st in self.status.values()
-                if st.rate_samples
+                if st.rate_samples or st.rate_last or st.rate_drop or st.rate_run
             },
             # 2.13: a tanult maradékhő mérései (a szoba hőmérőjével együtt)
             "residual": {

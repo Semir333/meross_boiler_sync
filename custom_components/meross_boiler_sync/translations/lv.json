@@ -457,6 +457,15 @@
           "heating_rate_samples": {
             "name": "Sildīšanas ātruma mērījumi (apkures reizes)"
           },
+          "heating_rate_last_sample": {
+            "name": "Pēdējais sildīšanas ātruma mērījums"
+          },
+          "heating_rate_last_drop": {
+            "name": "Pēdējā neieskaitītā apkures reize"
+          },
+          "heating_rate_session": {
+            "name": "Pašreizējā apkures reize"
+          },
           "calibration_enabled": {
             "name": "Vārstu kalibrēšana ir ieslēgta"
           },

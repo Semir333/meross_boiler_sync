@@ -457,6 +457,15 @@
           "heating_rate_samples": {
             "name": "Aufheizraten-Messungen (Heizphasen)"
           },
+          "heating_rate_last_sample": {
+            "name": "Letzte Aufheizraten-Messung"
+          },
+          "heating_rate_last_drop": {
+            "name": "Letzte nicht gezählte Heizphase"
+          },
+          "heating_rate_session": {
+            "name": "Laufende Heizphase"
+          },
           "calibration_enabled": {
             "name": "Ventilkalibrierung ist aktiv"
           },

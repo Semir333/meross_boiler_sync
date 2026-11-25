@@ -457,6 +457,15 @@
           "heating_rate_samples": {
             "name": "Muestras de velocidad de calentamiento (sesiones de calefacción)"
           },
+          "heating_rate_last_sample": {
+            "name": "Última muestra de velocidad de calentamiento"
+          },
+          "heating_rate_last_drop": {
+            "name": "Última sesión de calefacción no contabilizada"
+          },
+          "heating_rate_session": {
+            "name": "Sesión de calefacción en curso"
+          },
           "calibration_enabled": {
             "name": "La calibración de válvulas está activada"
           },

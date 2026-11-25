@@ -184,6 +184,12 @@ HEATING_RATE_MIN_SAMPLES = 3  # ennyi fűtési alkalom után használja a tanult
 HEATING_RATE_KEEP = 10  # az utolsó ennyi alkalom mediánja
 HEATING_SESSION_MIN_SECONDS = 20 * 60  # ennél rövidebb fűtési alkalom nem minta (a radiátor felfűtése dominál)
 HEATING_SESSION_MIN_RISE = 0.2  # °C: ennél kisebb emelkedés nem minta (a hőmérő felbontása)
+# 2.19.1: a hőleadás ennél rövidebb szünete nem szakítja meg a fűtési alkalmat: a szelep elzárása (a szelep állapotához kötött
+# hőigénynél ilyenkor a kazán is leáll), a kazán ciklusvédelmi szünete, egy kimaradt mérés vagy egy újraindítás. Ha a szünet
+# tovább tart, az alkalom a szünet kezdetéig mért adattal zárul (minta, ha elég hosszú).
+HEATING_SESSION_PAUSE_MAX = 15 * 60
+HEATING_SESSION_SAVE_SECONDS = 600  # a futó alkalom legfeljebb ennyi késéssel kerül a lemezre (újraindítás után folytatható)
+HEATING_DROP_LOG_SECONDS = 3600  # ugyanazt az elvetési okot szobánként legfeljebb óránként egyszer írja a TRV-naplóba
 
 # --- becsült gázfogyasztás (2.10)
 GAS_M3_PER_HOUR_MIN = 0.1

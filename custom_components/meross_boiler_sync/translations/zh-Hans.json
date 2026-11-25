@@ -457,6 +457,15 @@
           "heating_rate_samples": {
             "name": "升温速度样本数（供暖次数）"
           },
+          "heating_rate_last_sample": {
+            "name": "最近一次升温速度样本"
+          },
+          "heating_rate_last_drop": {
+            "name": "最近一次未计入的供暖"
+          },
+          "heating_rate_session": {
+            "name": "当前供暖过程"
+          },
           "calibration_enabled": {
             "name": "阀门校准已开启"
           },

@@ -457,6 +457,15 @@
           "heating_rate_samples": {
             "name": "Замеры скорости нагрева (сеансы отопления)"
           },
+          "heating_rate_last_sample": {
+            "name": "Последний замер скорости нагрева"
+          },
+          "heating_rate_last_drop": {
+            "name": "Последний неучтённый сеанс отопления"
+          },
+          "heating_rate_session": {
+            "name": "Текущий сеанс отопления"
+          },
           "calibration_enabled": {
             "name": "Калибровка клапанов включена"
           },

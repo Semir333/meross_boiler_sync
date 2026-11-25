@@ -457,6 +457,15 @@
           "heating_rate_samples": {
             "name": "Próbki szybkości ogrzewania (sesje grzania)"
           },
+          "heating_rate_last_sample": {
+            "name": "Ostatnia próbka szybkości ogrzewania"
+          },
+          "heating_rate_last_drop": {
+            "name": "Ostatnia niezaliczona sesja grzania"
+          },
+          "heating_rate_session": {
+            "name": "Bieżąca sesja grzania"
+          },
           "calibration_enabled": {
             "name": "Kalibracja zaworów jest włączona"
           },

@@ -457,6 +457,15 @@
           "heating_rate_samples": {
             "name": "Felfűtési minták száma (fűtési alkalmak)"
           },
+          "heating_rate_last_sample": {
+            "name": "Utolsó felfűtési minta"
+          },
+          "heating_rate_last_drop": {
+            "name": "Utolsó, mintának nem számító fűtési alkalom"
+          },
+          "heating_rate_session": {
+            "name": "Futó fűtési alkalom"
+          },
           "calibration_enabled": {
             "name": "Szelep kalibráció be van kapcsolva"
           },

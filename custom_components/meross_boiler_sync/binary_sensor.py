@@ -48,6 +48,49 @@ def _iso(ts: float | None) -> str | None:
     return datetime.fromtimestamp(ts, tz=timezone.utc).isoformat()
 
 
+def _rate_last_attr(rec: dict[str, Any] | None) -> dict[str, Any] | None:
+    """2.19.1: az utolsó felfűtési minta: mikor ért véget a mért fűtés, a sebesség (°C/óra), az időtartam (perc, a rövid
+    szünetekkel együtt), az emelkedés (°C), hogyan ért véget (`target` / `pause` / `restart`) és a rövid szünetek száma."""
+    if not rec:
+        return None
+    return {
+        "time": _iso(rec["ts"]),
+        "rate": round(rec["rate"], 2),
+        "minutes": rec["minutes"],
+        "rise": round(rec["rise"], 1),
+        "ended": rec["ended"],
+        "pauses": rec.get("pauses", 0),
+    }
+
+
+def _rate_drop_attr(rec: dict[str, Any] | None) -> dict[str, Any] | None:
+    """2.19.1: az utolsó, mintának nem számító fűtési alkalom: mikor, miért (`short` / `small_rise` / `window` / `sensor` /
+    `valves_unreachable` / `frost`), hogyan ért véget (`target` / `pause` / `restart` / `interrupted`), és meddig tartott."""
+    if not rec:
+        return None
+    return {
+        "time": _iso(rec["ts"]),
+        "reason": rec["reason"],
+        "ended": rec["ended"],
+        "minutes": rec["minutes"],
+        "rise": round(rec["rise"], 1),
+    }
+
+
+def _rate_session_attr(run: dict[str, Any] | None) -> dict[str, Any] | None:
+    """2.19.1: a most futó fűtési alkalom: kezdete, az eddigi időtartam és emelkedés (az utolsó hőleadás közbeni mérésig),
+    kap-e most hőt, és hány rövid szünete volt."""
+    if not run:
+        return None
+    return {
+        "since": _iso(run["t0"]),
+        "minutes": round(max(run["t_heat"] - run["t0"], 0.0) / 60),
+        "rise": round(run["temp_heat"] - run["temp0"], 1),
+        "heating": bool(run.get("heating")),
+        "pauses": int(run.get("pauses", 0)),
+    }
+
+
 class _BaseSensor(BinarySensorEntity):
     _attr_should_poll = False
     _attr_has_entity_name = True
@@ -88,6 +131,10 @@ class RoomDemandSensor(_BaseSensor):
             "preheat_start_at",
             "preheat_ready_by",
             "heating_rate",
+            # 2.19.1: a felfűtési tanulás részletei (a futó alkalom percenként változik)
+            "heating_rate_last_sample",
+            "heating_rate_last_drop",
+            "heating_rate_session",
             # 2.11: szelep kalibráció (a mérések gyakran változnak, az előzményekbe nem kellenek)
             "valve_calibration",
             # 2.13: tanult maradékhő (minden hőciklus után változhat)
@@ -172,6 +219,10 @@ class RoomDemandSensor(_BaseSensor):
             "heating_rate": None if st.heating_rate is None else round(st.heating_rate, 2),
             "heating_rate_learned": st.heating_samples >= HEATING_RATE_MIN_SAMPLES,
             "heating_rate_samples": st.heating_samples,
+            # 2.19.1: az utolsó minta, az utolsó mintának nem számító alkalom (okkal) és a most futó alkalom
+            "heating_rate_last_sample": _rate_last_attr(st.rate_last),
+            "heating_rate_last_drop": _rate_drop_attr(st.rate_drop),
+            "heating_rate_session": _rate_session_attr(st.rate_run),
             # 2.11: a szelepek hőmérőjének automata kalibrációja (szelepenként egy elem)
             "calibration_enabled": c.cal_enabled,
             "calibration_dry_run": c.cal_dry_run,

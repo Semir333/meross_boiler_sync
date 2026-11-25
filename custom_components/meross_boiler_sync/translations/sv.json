@@ -457,6 +457,15 @@
           "heating_rate_samples": {
             "name": "Mätningar av uppvärmningshastighet (uppvärmningstillfällen)"
           },
+          "heating_rate_last_sample": {
+            "name": "Senaste mätning av uppvärmningshastighet"
+          },
+          "heating_rate_last_drop": {
+            "name": "Senaste uppvärmningstillfälle som inte räknades"
+          },
+          "heating_rate_session": {
+            "name": "Pågående uppvärmningstillfälle"
+          },
           "calibration_enabled": {
             "name": "Ventilkalibrering är på"
           },
